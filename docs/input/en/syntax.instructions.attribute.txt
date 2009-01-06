@@ -1,0 +1,35 @@
+Title: opt:attribute
+SeeAlso:
+ - syntax.instructions.tag
+
+----
+
+`opt:attribute` defines a new, dynamic attribute in the parent tag. It does not have a content, but takes two attributes that identify the name and the value of the new attribute:
+
+ Name           | Type                | Required? | Description
+----------------|---------------------|-----------|:-----------------------------------
+ name           | Expression          | Yes       | New attribute name
+ value          | Expression          | Yes       | New attribute value
+
+Below, you can find an example that allows to define a new attribute for `<div>` whose name is read from the variable:
+
+~~~~
+[xml]
+<div>
+	<opt:attribute name="$attributeName" value="$attributeValue"/>
+	Content
+</div>
+~~~~
+
+The instruction cooperates with OPT instruction attributes. If we wish to read the attribute list from a section, we can use the following solution:
+
+~~~~
+[xml]
+<div>
+	<opt:attribute name="$attributes.name" value="$attributes.value" opt:section="attributes"/>
+	Content
+</div>
+~~~~
+
+> [error]
+> `opt:attribute` cannot add attributes to other OPT instructions, except for `opt:tag`.

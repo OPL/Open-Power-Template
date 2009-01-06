@@ -1,0 +1,19 @@
+Title: opt:content
+SeeAlso:
+ - syntax.instructions.put
+
+----
+
+The attribute takes any expression as its value. If the result is non-empty or the specified variable exists, it will be displayed in the place of default tag content:
+
+~~~~
+[xml]
+<h1 opt:content="$article.title">Default title</h1>
+~~~~
+
+If the variable `$article.title` is not defined, we see the text *Default title*.
+
+Escaping issues
+===============
+
+To be written.

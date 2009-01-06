@@ -1,0 +1,7 @@
+Title: Blocks
+SeeAlso:
+ - syntax.instructions.block
+
+----
+
+To be written.

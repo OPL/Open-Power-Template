@@ -1,0 +1,8 @@
+Title: Opt_Xml_Element class
+ShortTitle: Opt_Xml_Element
+Status: public
+Extends: api.opt-xml-scannable
+
+----
+
+This class represents the XML tag nodes. It provides the support for tag names, namespaces and attributes.

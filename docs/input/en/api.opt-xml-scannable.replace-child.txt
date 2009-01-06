@@ -1,0 +1,8 @@
+Title: replaceChild()
+ShortTitle: Opt_Xml_Scannable::replaceChild()
+Reference: bool replaceChild(Opt_Xml_Scannable $newNode, mixed $refNode)
+Status: public
+
+---
+
+Replaces the child node `$refNode` with the `$newNode`. `$refNode` may be specified either by the order number or by the object. The method returns **true**, if the replacement is successful.

@@ -1,0 +1,9 @@
+Title: processOpt()
+ShortTitle: Opt_Compiler_Processor::processOpt()
+Reference: void processOpt(Array $opt)
+Status: extendable public
+
+---
+`processOpt()` służy do obsługi bloków specjalnych `$opt`. Przydzielenie obsługi bloku danemu procesorowi zależy od drugiego elementu takiego bloku, a konkretnie tego, z identyfikatorem tekstowym którego procesora on się pokrywa. Przykładowo, jeżeli nasz procesor posiada pole `$_name` ustawione na "*foo*", wtedy do tej metody będą trafiać wszystkie wywołania `$opt.foo.costam`.
+
+Metoda otrzymuje jeden parametr - `$opt`, który jest nazwą odpowiedniego bloku rozdzielonego względem kropki. Zerowy element tej tablicy zawsze powinien zawierać zatem słowo "*opt*", zaś pierwszy - nazwę procesora. Programista poprzez rozszerzenie tej metody, może zaprogramować obsługę wszystkich dalszych elementów.

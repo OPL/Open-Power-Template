@@ -1,0 +1,34 @@
+Title: configure()
+ShortTitle: Opt_Compiler_Processor::configure()
+Reference: void configure()
+Status: extendable public
+
+---
+
+Performs an initial configuration of the instruction processor and informs about the tags and attributes parsed by it. The instruction programmer should extend this method and call there `Opt_Compiler_Processor::_addInstructions()` and `Opt_Compiler_Processor::_addAttributes()`:
+
+~~~~
+[php]
+
+class Opt_Instruction_Foo extends Opt_Compiler_Processor
+{
+	protected $_name = 'foo';
+	
+	public function configure()
+	{
+		// Configure the processor
+		$this->_addInstructions('opt:foo');
+		$this->_addAttributes('opt:foo');
+	} // end configure();
+	
+	public function processNode(Opt_Xml_Node $node)
+	{
+		// Process the tags.
+	} // end processNode();
+	
+	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+	{
+		// Process the attributes.
+	} // end processAttribute();
+} // end Opt_Instruction_Foo;
+~~~~

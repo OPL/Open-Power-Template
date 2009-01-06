@@ -1,0 +1,22 @@
+Title: assignGlobal()
+ShortTitle: Opt_View::assignGlobal()
+Reference: void assignGlobal( string $name, mixed $data )
+Status: static public
+SeeAlso:
+ - api.opt-view.assign
+
+----
+
+Assigns the `$data` to the global template variable `$name`:
+
+~~~~
+[php]
+Opt_View::assignGlobal('object', 'sunglasses');
+~~~~
+
+The template:
+
+~~~~
+[xml]
+<p>Hello my friend, do you need {$global.object}?</p>
+~~~~

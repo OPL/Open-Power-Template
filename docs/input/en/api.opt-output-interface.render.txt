@@ -1,0 +1,17 @@
+Title: render()
+ShortTitle: Opt_Output_Interface::render()
+Reference: mixed render(Opt_View $view [, Opt_Cache_Hook_Interface $cache = null])
+Status: public
+
+----
+
+Executes the [api.opt-view._parse] method in [api.opt-view] class in order to execute the template. Optionally, it may contain additional instructions to manage the template output. The most trivial implementation:
+
+~~~~
+[php]
+
+public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null)
+{
+	$view->_parse($this, Opl_Registry::get('opt')->mode);
+} // end render();
+~~~~

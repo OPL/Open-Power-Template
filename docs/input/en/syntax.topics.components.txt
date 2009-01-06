@@ -1,0 +1,7 @@
+Title: Components
+SeeAlso:
+ - syntax.instructions.component
+
+----
+
+To be written.

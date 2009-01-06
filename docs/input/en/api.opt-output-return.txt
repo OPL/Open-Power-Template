@@ -1,0 +1,9 @@
+Title: Opt_Output_Return class
+ShortTitle: Opt_Output_Return
+VersionSince: 2.0.0-dev7
+Implements:
+ - api.opt-output-interface
+Status: public
+
+----
+

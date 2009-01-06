@@ -1,0 +1,16 @@
+Title: getName()
+ShortTitle: Opt_Output_Interface::getName()
+Reference: string getName()
+Status: public
+
+----
+
+This method must return the output system name. It is used mostly for debug purposes. Sample implementation:
+
+~~~~
+[php]
+public function getName()
+{
+	return 'My output';
+} // end getName();
+~~~~

@@ -1,0 +1,7 @@
+Title: Entities
+
+----
+
+All the `<` and `>` characters are treated as the language elements and must not be used as a part of text directly. To display them, we use XML entities. If the place is not directly parsed by OPT (static text, tag attributes etc.), they are simply rewritten to the output, but in the dynamic part (i.e. the expression) they are converted to the correct symbols, before the content is parsed.
+
+There are also two additional entities available in the static text: `&lb;` and `&rb;`. They are assigned to `{` and `}` because those symbols are reserved by OPT itself.

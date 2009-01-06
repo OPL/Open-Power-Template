@@ -1,0 +1,8 @@
+Title: compare()
+ShortTitle: Opt_Xml_Node::compare()
+Reference: bool compare(Opt_Xml_Node $node)
+Status: public
+
+---
+
+Compares the `$node` to the current node and returns **true**, if they are in fact the same node. It is semantically equal to the default PHP comparison: `$node1 == $node2`, however it does not use recursion.

@@ -1,0 +1,29 @@
+Title: assign()
+ShortTitle: Opt_View::assign()
+Reference: void assign( string $name, mixed $data )
+Status: public
+SeeAlso:
+ - api.opt-view.assign-global
+
+----
+
+Assigns the `$data` to the local template variable `$name`:
+
+~~~~
+[php]
+$view->assign('object', 'sunglasses');
+~~~~
+
+The template:
+
+~~~~
+[xml]
+<p>Hello my friend, do you need {$object}?</p>
+~~~~
+
+Alternatively, you may use the following syntax:
+
+~~~~
+[php]
+$view->object = 'sunglasses';
+~~~~

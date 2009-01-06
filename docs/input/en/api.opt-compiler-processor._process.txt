@@ -1,0 +1,20 @@
+Title: _process()
+ShortTitle: Opt_Compiler_Processor::_process()
+Reference: void _process(Opt_Xml_Scannable $node)
+Status: final protected
+SeeAlso:
+ - api.opt-compiler-processor.process-node
+ 
+----
+
+This method should be used only in [api.opt-compiler-processor.process-node]. It adds the children of `$node` to the compiler processing queue. The most common use is to inform the compiler to parse the content of the instruction tag:
+
+~~~~
+[php]
+
+	public function processNode(Opt_Xml_Node $node)
+	{
+		// Parse the children, too.
+		$this->_process($node);
+	} // end processNode();
+~~~~

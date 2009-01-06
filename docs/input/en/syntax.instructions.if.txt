@@ -1,0 +1,78 @@
+Title: opt:if
+
+----
+> [warning]
+> This chapter contains *useful programming information* that are simple to understand. In case of questions, contact your programmer.
+
+`opt:if` is a very useful instruction. It allows to display some code, only if the specified condition is passed. There are several possible uses: for example, we may test if the script set a variable for us before entering a code that shows its value. Note that you do not have to test the initial conditions of many OPT instructions (like sections), because they do it for their own.
+
+The instruction takes one attribute:
+
+ Name           | Type                | Required? | Description
+----------------|---------------------|-----------|:-----------------------------------
+ test           | Expression          | Yes       | A condition that must be **true** to display the tag content.
+
+Suppose we have a community website where the users can publish notes on various topics. They optionally may specify their website address, and moreover - the note might be promoted. These two issues must be taken into account while designing a template:
+
+~~~~
+[xml]
+<div class="note">
+	<h1>{$note.title}</h1>
+	<p>Date: {$note.date}</p>
+	<opt:if test="$note.www">
+		<p><a parse:href="$note.www">Website</a></p>
+	</opt:if>
+	<p>{$note.body}
+</div>
+	
+<opt:if test="$note.rank == 3">
+	<p>This note has been promoted.</p>
+</opt:if>
+~~~~
+
+In the first place, we can see, how to use `opt:if` to test if a variable is set. If the script does not provide the `$note.www` variable, the paragraph with an URL is not even visible in the browser. Without the condition, the template would always display an URL, even if it was empty and redirected the user to a vacuum. At the end of the template, we want to show a suitable message, if the note is promoted. We compare the `$note.rank` to 3 and if they are equal, the user sees an extra text. More about writing OPT expressions and conditions can be found in [this chapter][syntax.expressions].
+
+`opt:if` may perform alternative operations, if the condition is not **true**. They are defined with `opt:elseif` and `opt:else` placed directly in `opt:show`. The first one represents an alternative condition to check. This tag may be used several times in one instruction. OPT will test them one after another till one is passed. The content in `opt:else` is displayed, if all the conditions for the instruction fail. It may be used only once:
+
+~~~~
+[xml]
+<!-- the exact codition content is not important here -->
+	
+<opt:if test="condition1">
+	
+	This text will show, if the condition1 is passed.
+	
+	<opt:elseif test="condition2">
+		This text will show, if the condition1 fails and condition2 is passed.
+	</opt:elseif>
+	<opt:elseif test="condition3">
+		This text will show, if the condition1 and condition2 fail, but condition3 is passed.
+	</opt:elseif>
+	<opt:else>
+		This text will show, if neither of the conditions is passed.
+	</opt:else>
+</opt:if>
+~~~~
+
+Note that placing `opt:elseif` and `opt:else` in any tag other than `opt:if` causes an error:
+
+~~~~
+[xml]
+	<opt:if test="condition">
+	<div>
+		<opt:else>  <!-- WRONG! We have put opt:else in DIV! --> </opt:else>
+	</div>
+	</opt:if>
+~~~~
+
+Now we might get back to our example and modify it to display a message about the promotion for the rank 3 and something else for the rest:
+
+~~~~
+[xml]
+<opt:if test="$note.rank == 3">
+	<p>This note has been promoted.</p>
+	<opt:else>
+		<p>This is an ordinary note.</p>
+	</opt:else>
+</opt:if>
+~~~~
