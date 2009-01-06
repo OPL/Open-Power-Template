@@ -14,7 +14,7 @@
  * 
  */
 
-	class Opt_Xml_Prolog extends Opt_Xml_Node
+	class Opt_Xml_Prolog
 	{
 		private $_attributes;
 
@@ -47,4 +47,14 @@
 		{
 			return $this->_attributes;
 		} // end getAttributes();
+
+		public function getProlog()
+		{
+			$code = '<?xml ';
+			foreach($this->_attributes as $name => $value)
+			{
+				$code .= $name.'="'.$value.'" ';
+			}
+			return $code.'?>';
+		} // end getProlog();
 	} // end Opt_Xml_Prolog;

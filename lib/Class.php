@@ -49,6 +49,11 @@
 		public function getName();
 		public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null);
 	} // end Opt_Output_Interface;
+
+	interface Opt_Generator_Interface
+	{
+		public function generate($what);
+	} // end Opt_Generator_Interface;
 	
 	/*
 	 * Class definitions
@@ -76,7 +81,7 @@
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
 	
-		const VERSION = '2.0.0-dev8';
+		const VERSION = '2.0.0-beta1';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration

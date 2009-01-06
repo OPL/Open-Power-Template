@@ -46,6 +46,7 @@ api.opt-block-interface
 api.opt-cache-hook-interface
 coding
 coding.formats
+coding.escaping
 extending
 migration
 appendix

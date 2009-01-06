@@ -11,7 +11,6 @@
     	$tpl->charset = 'utf-8';
     	$tpl->compileMode = Opt_Class::CM_REBUILD;
     	$tpl->stripWhitespaces = false;
-    	$tpl->setContentType(Opt_Class::HTML);
     	$tpl->setup();
     	
     	$view = new Opt_View('test_plugins_1.tpl');

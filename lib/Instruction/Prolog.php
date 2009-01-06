@@ -29,14 +29,14 @@
 				'encoding' => array(0 => self::OPTIONAL, self::STRING, null),
 				'standalone' => array(0 => self::OPTIONAL, self::STRING, null)
 			);
-			$this->_extractAttributes($node, $params);	
+			$this->_extractAttributes($node, $params);
 			
-			$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, ' echo \'<\'.\'?xml version="'.
-				(is_null($params['version']) ? '1.0' : '\'.'.$params['version'].'.\'').
-			'" encoding="\'.'.
-				(is_null($params['encoding']) ? 'strtoupper($this->_tpl->charset)' : $params['encoding']).
-			'.\'" standalone="'.
-				(is_null($params['standalone']) ? 'no' : '\'.'.$params['standalone'].'.\'').
-			'" ?\'.\'>\'."\r\n"; ');
+			$root = $node;
+			while(is_object($tmp = $root->getParent()))
+			{
+				$root = $tmp;
+			}
+
+			$root->setProlog(new Opt_Xml_Prolog($params));
 		} // end processNode();
 	} // end Opt_Instruction_Prolog;

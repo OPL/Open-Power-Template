@@ -2,288 +2,110 @@
 /*
  * XML TEST
  * ------------------------------------
- * These tests check whether the XML tree API works properly.
+ * This test checks how the XML files are parsed by OPT.
  */
 	require_once('PHPUnit/Framework.php');
 
-	if(version_compare(phpversion(), '5.3.0-dev', '<'))
-	{
-		die("This test suite requires at least PHP 5.3.0. Your version: ".phpversion()."\r\n");
-	}
-
 	if(!defined('GROUPED'))
 	{
+		define('XML_DIR', './xml/');
+		define('CPL_DIR', './templates_c/');
 		$config = parse_ini_file('../paths.ini', true);
 		require($config['libraries']['Opl'].'Base.php');
 		Opl_Loader::loadPaths($config);
 		Opl_Loader::register();
+		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+
+		require('./includes/filesystemWrapper.php');
 	}
 
 	class xmlTest extends PHPUnit_Framework_TestCase
 	{
 	    protected $tpl;
+	    protected $dataGenerators = array();
 
 	    protected function setUp()
 	    {
-
-			$this->tpl = new Opt_Class;
-			$this->tpl->sourceDir = './templates';
-			$this->tpl->compileDir = './templates_c';
+			$tpl = new Opt_Class;
+			$tpl->sourceDir = 'test://templates/';
+			$tpl->compileDir = CPL_DIR;
+			$tpl->compileMode = Opt_Class::CM_REBUILD;
+			$tpl->stripWhitespaces = false;
+			$tpl->prologRequired = true;
+			$tpl->setup();
+			$this->tpl = $tpl;
 	    } // end setUp();
 
 	    protected function tearDown()
 	    {
-	        $this->tpl = NULL;
+	        unset($this->tpl);
 	    } // end tearDown();
 
-		public function testBufferGetBuffer()
-		{
-			$buffer = new Opt_Xml_Root();
-			if(!is_array($buffer->getBuffer(Opt_Xml_Buffer::TAG_BEFORE)))
-			{
-				$this->fail('The buffer value is not an array.');
-			}
-			return true;
-		} // end testBufferGetBuffer();
-
-	    public function testBufferAddAfter1()
+	    public static function correctProvider()
 	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
+	    	return array(0 =>
+	    		array('tags_1.txt'),
+				array('prolog_1.txt'),
+				array('prolog_2.txt'),
+				array('prolog_3.txt'),
+				array('dtd_1.txt'),
+				array('dtd_2.txt'),
+				array('dtd_3.txt'),
+	    	);
+	    } // end correctProvider();
 
-			$property = new ReflectionProperty('Opt_Xml_Buffer', '_buffers');
-			$property->setAccessible(true);
-			$value = $property->getValue($buffer);
-
-			if(is_array($value) && is_array($value[Opt_Xml_Buffer::TAG_BEFORE])
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][0] == 'foo')
-			{
-				return true;
-			}
-			$this->fail('The value did not reach the code buffer.');
-	    } // end testBufferAddAfter1();
-
-	    public function testBufferAddAfter2()
+	    private function stripWs($text)
 	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'bar');
+	    	return str_replace(array("\r", "\n"),array('', ''), $text);
+	    } // end stripws();
 
-			$property = new ReflectionProperty('Opt_Xml_Buffer', '_buffers');
-			$property->setAccessible(true);
-			$value = $property->getValue($buffer);
-
-			if(is_array($value) && is_array($value[Opt_Xml_Buffer::TAG_BEFORE])
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][0] == 'foo'
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][1] == 'bar'
-				)
-			{
-				return true;
-			}
-			$this->fail('The values did not reach the code buffer in the correct order.');
-	    } // end testBufferAddAfter2();
-
-	    public function testBufferAddBefore1()
+ 	   /**
+ 	    * @dataProvider correctProvider
+ 	    */
+	    public function testCorrect($test)
 	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-
-			$property = new ReflectionProperty('Opt_Xml_Buffer', '_buffers');
-			$property->setAccessible(true);
-			$value = $property->getValue($buffer);
-
-			if(is_array($value) && is_array($value[Opt_Xml_Buffer::TAG_BEFORE]) && $value[Opt_Xml_Buffer::TAG_BEFORE][0] == 'foo')
+			testFSWrapper::loadFilesystem(XML_DIR.$test);
+	    	$view = new Opt_View('test.tpl');
+			if(file_exists('test://data.php'))
 			{
-				return true;
-			}
-			$this->fail('The value did not reach the code buffer.');
-	    } // end testBufferAddBefore1();
-
-	    public function testBufferAddBefore2()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$buffer->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'bar');
-
-			$property = new ReflectionProperty('Opt_Xml_Buffer', '_buffers');
-			$property->setAccessible(true);
-			$value = $property->getValue($buffer);
-
-			if(is_array($value) && is_array($value[Opt_Xml_Buffer::TAG_BEFORE])
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][0] == 'bar'
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][1] == 'foo'
-				)
-			{
-				return true;
-			}
-			$this->fail('The values did not reach the code buffer in the correct order.');
-	    } // end testBufferAddBefore2();
-
-	    public function testBufferAddMixed()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'bar');
-			$buffer->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'joe');
-
-			$property = new ReflectionProperty('Opt_Xml_Buffer', '_buffers');
-			$property->setAccessible(true);
-			$value = $property->getValue($buffer);
-
-			if(is_array($value) && is_array($value[Opt_Xml_Buffer::TAG_BEFORE])
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][0] == 'joe'
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][1] == 'foo'
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][2] == 'bar'
-				)
-			{
-				return true;
-			}
-			$this->fail('The values did not reach the code buffer in the correct order.');
-	    } // end testBufferAddMixed();
-
-	    public function testBufferCopy1()
-	    {
-	    	$buffer1 = new Opt_Xml_Root();
-			$buffer1->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$buffer1->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'bar');
-
-			$buffer2 = new Opt_Xml_Root();
-			$buffer2->copyBuffer($buffer1, Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_BEFORE);
-
-			$property = new ReflectionProperty('Opt_Xml_Buffer', '_buffers');
-			$property->setAccessible(true);
-			$value = $property->getValue($buffer2);
-
-			if(is_array($value) && is_array($value[Opt_Xml_Buffer::TAG_BEFORE])
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][0] == 'foo'
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][1] == 'bar'
-				)
-			{
-				return true;
-			}
-			$this->fail('The values have not been copied between nodes.');
-	    } // end testBufferCopy1();
-
-	    public function testBufferCopy2()
-	    {
-	    	$buffer1 = new Opt_Xml_Root();
-			$buffer1->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$buffer1->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'bar');
-
-			$buffer2 = new Opt_Xml_Root();
-			$buffer2->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'joe');
-
-			$buffer2->copyBuffer($buffer1, Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_BEFORE);
-
-			$property = new ReflectionProperty('Opt_Xml_Buffer', '_buffers');
-			$property->setAccessible(true);
-			$value = $property->getValue($buffer2);
-
-			if(is_array($value) && is_array($value[Opt_Xml_Buffer::TAG_BEFORE])
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][0] == 'foo'
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][1] == 'bar'
-				&& $value[Opt_Xml_Buffer::TAG_BEFORE][2] == 'joe'
-				)
-			{
-				return true;
-			}
-			echo "testBufferCopy list:\r\n";
-			var_dump($value);
-			$this->fail('The copied values have not been added before the existing values.');
-	    } // end testBufferCopy2();
-
-	    public function testBufferSize()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-
-			$size0 = $buffer->bufferSize(Opt_Xml_Buffer::TAG_BEFORE);
-
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'foo');
-			$size1 = $buffer->bufferSize(Opt_Xml_Buffer::TAG_BEFORE);
-
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$size2 = $buffer->bufferSize(Opt_Xml_Buffer::TAG_BEFORE);
-
-			if($size0 == 0 && $size1 == 0 && $size2 == 1)
-			{
-				return true;
+				eval(file_get_contents('test://data.php'));
 			}
 
-			$this->fail('Invalid buffer size reported by bufferSize().');
-	    } // end testBufferSize();
+			$out = new Opt_Output_Return;
+			$expected = file_get_contents('test://expected.txt');
 
-	    public function testBufferBuildCode1()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-
-			$this->assertEquals('', $buffer->buildCode('foo'));
-	    } // end testBufferBuildCode1();
-
-	    public function testBufferBuildCode2()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-
-			$this->assertEquals('<?php foo  echo \'foo\';  ?>', $buffer->buildCode(Opt_Xml_Buffer::TAG_BEFORE, 'foo'));
-	    } // end testBufferBuildCode2();
-
-	    public function testBufferBuildCode3()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'bar');
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'joe');
-
-			$this->assertEquals('<?php foo bar joe  ?>', $buffer->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_AFTER));
-	    } // end testBufferBuildCode3();
-
-	    public function testBufferBuildCode4()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-			$buffer->set('nophp', true);
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'foo');
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'bar');
-			$buffer->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'joe');
-
-			$this->assertEquals('foo bar joe', $buffer->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_AFTER));
-	    } // end testBufferBuildCode4();
-
-	    public function testNodeSetParent()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-			$element = new Opt_Xml_Element('foo');
-			$element->setParent($buffer);
-
-			if($element->getParent() === $buffer)
+			if(strpos($expected, 'OUTPUT') === 0)
 			{
-				return true;
+				// This test shoud give correct results
+	    		try
+	    		{
+					$result = $out->render($view);
+	    			$this->assertEquals($this->stripWs(trim(file_get_contents('test://result.txt'))), $this->stripWs(trim($result)));
+	    		}
+	    		catch(Opt_Exception $e)
+	    		{
+	    			$this->fail('Exception returned: #'.get_class($e).': '.$e->getMessage());
+	    		}
 			}
-			$this->fail('The element parent has not been set properly.');
-	    } // end testNodeSetParent();
-
-	    public function testRootGetType()
-	    {
-	    	$buffer = new Opt_Xml_Root();
-			$this->assertEquals('Opt_Xml_Root', $buffer->getType());
-	    } // end testRootGetType();
-
-	    public function testElementGetType()
-	    {
-	    	$buffer = new Opt_Xml_Element('foo');
-			$this->assertEquals('Opt_Xml_Element', $buffer->getType());
-	    } // end testElementGetType();
-
-	    public function testTextGetType()
-	    {
-	    	$buffer = new Opt_Xml_Text();
-			$this->assertEquals('Opt_Xml_Text', $buffer->getType());
-	    } // end testTextGetType();
-
-	    public function testCdataGetType()
-	    {
-	    	$buffer = new Opt_Xml_Cdata('foo');
-			$this->assertEquals('Opt_Xml_Cdata', $buffer->getType());
-	    } // end testTextGetType();
-
-	} // end xmlTest;
+			else
+			{
+				// This test should generate an exception
+				$expected = trim($expected);
+				try
+				{
+					$out->render($view);
+				}
+				catch(Opt_Exception $e)
+				{
+	    			if($expected != get_class($e))
+	    			{
+	    				$this->fail('Invalid exception returned: #'.get_class($e).', '.$expected.' expected.');
+	    			}
+	    			return true;
+				}
+				$this->fail('Exception NOT returned, but should be: '.$expected);
+			}
+	    } // end testCorrect();
+	}
 ?>
+

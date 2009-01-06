@@ -42,6 +42,16 @@
 			$this->_dtd = $dtd;
 		} // end setDtd();
 
+		public function hasProlog()
+		{
+			return !is_null($this->_prolog);
+		} // end hasProlog();
+
+		public function hasDtd()
+		{
+			return !is_null($this->_dtd);
+		} // end hasDtd();
+
 		public function getProlog()
 		{
 			return $this->_prolog;

@@ -8,7 +8,7 @@
  </head>
  <body>
   <h1>Backtick test</h1>
-  <p>This text is sent through the reversed quotes. The programmer may program them, as he wishes.</p>
+  <p>This text is sent through the backticks. The programmer may program them, as he wishes.</p>
   <p>In this example they are handled with an object method.</p>
   
   <p>{`This is a text`}</p>

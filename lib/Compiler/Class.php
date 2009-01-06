@@ -93,7 +93,7 @@
 		private $_rPrologTokens = '/(?:[^\=\"\'\s]+|\=|\'|\"|\s)/x';
 		private $_rModifiers = 'si';
 		private $_rXmlHeader = '/(\<\?xml.+\?\>)/msi';
-		private $_rProlog = '/\<\?xml(.+)\?\>/msi';
+		private $_rProlog = '/\<\?xml(.+)\?\>|/msi';
 		private $_rEncodingName = '/[A-Za-z]([A-Za-z0-9.\_]|\-)*/si';
 		
 		private $_rBacktickString = '`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`';
@@ -256,6 +256,15 @@
 			
 			if($escape)
 			{
+				// The user may define a custom escaping function
+				if($this->isFunction('escape'))
+				{
+					if(strpos($this->_functions['escape'], '#', 0) !== false)
+					{
+						throw new Opt_InvalidArgumentFormat_Exception('escape', 'escape');
+					}
+					return $this->_functions['escape'].'('.$expression.')';
+				}
 				return 'htmlspecialchars('.$expression.')';
 			}
 			return $expression;
@@ -551,7 +560,7 @@
 					// Traverse through a single attribute
 					if(!preg_match($this->_rNameExpression, $match[$i][0]))
 					{
-						throw new Opt_InvalidProlog_Exception('invalid attribute format');
+						throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
 					}
 						
 					$vret = false;
@@ -561,13 +570,13 @@
 						
 					if($i >= $size || $match[$i][0] != '=')
 					{
-						throw new Opt_InvalidProlog_Exception('invalid attribute format');
+						throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
 					}
 					for($i++; ctype_space($match[$i][0]) && $i < $size; $i++){}
 					
 					if($match[$i][0] != '"' && $match[$i][0] != '\'')
 					{
-						throw new Opt_InvalidProlog_Exception('invalid attribute format');
+						throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
 					}
 					$opening = $match[$i][0];
 					$value = '';
@@ -581,7 +590,7 @@
 					}
 					if(!isset($match[$i][0]) || $match[$i][0] != $opening)
 					{
-						throw new Opt_InvalidProlog_Exception('invalid attribute format');
+						throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
 					}
 					// If we are here, the attribute is correct. No shit on the way detected.
 					$result[$name] = $value;
@@ -602,7 +611,7 @@
 			{
 				if(!preg_match($this->_rEncodingName, $result['encoding']))
 				{
-					throw new Opt_InvalidProlog_Exception('invalid encoding name format');
+					throw new Opt_XmlInvalidProlog_Exception('invalid encoding name format');
 				}
 				// The encoding should match the value we mentioned in the OPT configuration and sent to the browser.
 				$result['encoding'] = strtolower($result['encoding']);
@@ -621,13 +630,13 @@
 			{
 				if($result['standalone'] != 'yes' && $result['standalone'] != 'no')
 				{
-					throw new Opt_InvalidProlog_Exception('invalid value for "standalone" attribute: "'.$result['standalone'].'"; expected: "yes", "no".');
+					throw new Opt_XmlInvalidProlog_Exception('invalid value for "standalone" attribute: "'.$result['standalone'].'"; expected: "yes", "no".');
 				}
 				unset($result['standalone']);
 			}
 			if(sizeof($result) > 0)
 			{
-				throw new Opt_InvalidProlog_Exception('invalid attributes in prolog.');
+				throw new Opt_XmlInvalidProlog_Exception('invalid attributes in prolog.');
 			}
 			return $returnedResult;
 		} // end _compileProlog();
@@ -695,7 +704,7 @@
 					{
 						$text = preg_replace('/\s\s+/', ' ', $text);
 					}
-					$node = new Opt_Xml_Text(str_replace('<'.'?', '<'.'?php echo \'<\'.\'?\'; ?>', $text));
+					$node = new Opt_Xml_Text($text);
 				}
 				else
 				{
@@ -712,7 +721,7 @@
 					{
 						$text = preg_replace('/\s\s+/', ' ', $text);
 					}
-					$last->appendData(str_replace('<'.'?', '<'.'?php echo \'<\'.\'?\'; ?>', $text));
+					$last->appendData($text);
 				}
 				else
 				{
@@ -1115,70 +1124,85 @@
 			$current = $tree = new Opt_Xml_Root;
 			
 			// First we have to find the prolog and DTD. Then we will be able to parse tags.
-			$document = preg_split($this->_rXmlHeader, $code, 0, PREG_SPLIT_DELIM_CAPTURE);
 			$docCnt = sizeof($document);
+
+			$codeSize = strlen($code);
 			
 			if($mode != Opt_Class::QUIRKS_MODE)
 			{
-				if($this->_tpl->prologRequired)
+				// Find and parse XML prolog
+				$endProlog = 0;
+				$endDoctype = 0;
+				if(substr($code, 0, 5) == '<?xml')
 				{
-					// The situation, when the prolog is required.
-					$prolog = false;
-					$si = 0;
-					for($i = 0; $i < $docCnt; $i++)
+					$endProlog = strpos($code, '?>', 5);
+
+					if($endProlog === false)
 					{
-						if($prolog == false)
+						throw new Opt_XmlInvalidProlog_Exception('prolog ending is missing');
+					}
+					$values = $this->_compileProlog(substr($code, 5, $endProlog - 5));
+					$endProlog += 2;
+					if(!$this->_tpl->prologRequired)
+					{
+						// The prolog must be displayed
+						$tree->setProlog(new Opt_Xml_Prolog($values));
+					}
+				}
+				// Skip white spaces
+				for($i = $endProlog; $i < $codeSize; $i++)
+				{
+					if($code[$i] != ' ' && $code[$i] != '	' && $code[$i] != "\r" && $code[$i] != "\n")
+					{
+						break;
+					}
+				}
+				// Try to find doctype at the new position.
+				$possibleDoctype = substr($code, $i, 9);
+				
+				if($possibleDoctype == '<!doctype' || $possibleDoctype == '<!DOCTYPE')
+				{
+					// OK, we've found it, now determine the doctype end.
+					$bracketCounter = 0;
+					$doctypeStart = $i;
+					for($i += 9; $i < $codeSize; $i++)
+					{
+						if($code[$i] == '<')
 						{
-							// In the beginning we accept only two situations: the prolog and the whitespace
-							if(preg_match($this->_rProlog, $document[$i], $found))
-							{
-								$this->_compileProlog($found[1]);
-								$prolog = true;
-								$code = '';	// The prolog won't be displayed in the output, so we'll just parse the part of
-											// the template after this place.
-								$si = $i + 1;
-							}
-							elseif(strlen($document[$i]) > 0 && !ctype_space($document[$i]))
-							{
-								throw new Opt_XmlNoProlog_Exception($filename);
-							}
+							$bracketCounter++;
 						}
-						else
+						else if($code[$i] == '>')
 						{
-							$code .= ($i == $si ? ltrim($document[$i]) : $document[$i]);	// Merging the template after the prolog
+							if($bracketCounter == 0)
+							{
+								$endDoctype = $i;
+								break;
+							}
+							$bracketCounter--;
 						}
 					}
+					if($endDoctype == 0)
+					{
+						throw new Opt_XmlInvalidDoctype_Exception('doctype ending is missing');
+					}
+
+					if(!$this->_tpl->prologRequired)
+					{
+						$tree->setDtd(new Opt_Xml_Dtd(substr($code, $doctypeStart, $i - $doctypeStart + 1)));
+					}
+					$endDoctype++;
 				}
 				else
 				{
-					// The situation, when the prolog is optional.
-					$whitespace = true;
-					$prolog = false;
-					for($i = 0; $i < $docCnt; $i++)
-					{
-						if(!$prolog && preg_match($this->_rProlog, $document[$i], $found))
-						{
-							if(!$whitespace)
-							{
-								Opt_Support::warning('The XML prolog is supposed to be in the very beginning of the template. Skipping.');
-							}
-							else
-							{
-								$this->_compileProlog($found[1]);
-							}
-							$prolog = true;
-						}
-						if(!$prolog && !ctype_space($document[$i]))
-						{
-							$whitespace = false;
-						}
-					}
+					$endDoctype = $endProlog;
 				}
-				$tagExpression = $this->_rXmlTagExpression;
+				// OK, now skip that part.
+				$code = substr($code, $endDoctype, $codeSize);
 				// In the quirks mode, some results from the regular expression parser are
 				// moved by one position, so we must add some dynamics here.
 				$attributeCell = 5;
 				$endingSlashCell = 6;
+				$tagExpression = $this->_rXmlTagExpression;
 			}
 			else
 			{
@@ -1191,6 +1215,8 @@
 			$groups = preg_split($this->_rCDataExpression, $code, 0, PREG_SPLIT_DELIM_CAPTURE);
 			$groupCnt = sizeof($groups);
 			$groupState = 0;
+
+			Opt_Xml_Cdata::$mode = $mode;
 			for($k = 0; $k < $groupCnt; $k++)
 			{
 				// Process CDATA
@@ -1351,7 +1377,7 @@
 					}
 				}
 			}
-			
+
 			return $tree;
 		} // end _stage1();
 
@@ -1616,6 +1642,15 @@
 							break;
 						case 'Opt_Xml_Root':
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
+
+							if($item->hasProlog())
+							{
+								$output .= str_replace('<?', '<<?php echo \'?\'; ?>', $item->getProlog()->getProlog())."\r\n";
+							}
+							if($item->hasDtd())
+							{
+								$output .= $item->getDtd()->getDoctype()."\r\n";
+							}
 							$queue = $this->_pushQueue($stack, $queue, $item, NULL);
 							break;
 					}

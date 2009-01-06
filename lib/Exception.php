@@ -105,6 +105,11 @@
 	{
 		protected $_message = 'Error while parsing XML prolog: %s.';
 	} // end Opt_XmlInvalidAttribute_Exception;
+
+	class Opt_XmlInvalidDoctype_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'Error while parsing XML doctype: %s.';
+	} // end Opt_XmlInvalidDoctype_Exception;
 	
 	class Opt_XmlInvalidTagStructure_Exception extends Opt_Template_Exception
 	{
@@ -114,6 +119,11 @@
 	class Opt_XmlRootElement_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'XML Error: too many root elements in the template: %s.';
+	} // end Opt_XmlRootElement_Exception;
+
+	class Opt_XmlInvalidCharacter_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'XML Error: the static text "%s" contains raw special XML characters.';
 	} // end Opt_XmlRootElement_Exception;
 	
 	class Opt_XmlInvalidOrder_Exception extends Opt_Template_Exception

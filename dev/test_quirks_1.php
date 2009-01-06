@@ -10,6 +10,7 @@
     	$tpl->compileMode = Opt_Class::CM_REBUILD;
     	$tpl->mode = Opt_Class::QUIRKS_MODE;
     	$tpl->stripWhitespaces = false;
+		$tpl->escape = false;
     	$tpl->setup();
     	
     	$view = new Opt_View('test_quirks_1.tpl');

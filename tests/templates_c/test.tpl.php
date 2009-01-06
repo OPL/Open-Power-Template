@@ -1,7 +1,8 @@
+<<?php echo '?'; ?>xml version="1.0" standalone="yes" ?>
+<!DOCTYPE foo [ <!ELEMENT note (bar)>
+<!ELEMENT bar (#PCDATA)> ]>
 
-
-
-
-Open1Open2Open3End3End2End1
-
+<foo>
+  <bar>...</bar>
+</foo>
 

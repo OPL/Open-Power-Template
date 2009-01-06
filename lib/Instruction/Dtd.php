@@ -28,6 +28,7 @@
 				'template' => array(0 => self::OPTIONAL, self::ID, null)
 			);
 			$this->_extractAttributes($node, $params);
+			// TODO: Hmmm... now we have to invent, how to deal with THAT!
 			if(is_null($params['template']))
 			{
 				$this->_compiler->processor('literal')->disableCDATA($node);

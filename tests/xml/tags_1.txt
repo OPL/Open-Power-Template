@@ -1,0 +1,15 @@
+Check more compound inheritance chains with importing parent contents.
+
+>>>>templates/test.tpl
+<foo>
+</foo>
+
+>>>>data.php
+$this->tpl->prologRequired = false;
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<foo>
+</foo>
