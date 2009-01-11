@@ -395,11 +395,11 @@
 			switch($opt[3])
 			{
 				case 'count':					
-					return $section['format']->get('sectionOptCount');
+					return $section['format']->get('sectionCount');
 				case 'id':
-					return $section['format']->get('sectionOptIterator');
+					return $section['format']->get('sectionIterator');
 				case 'size':
-					return $section['format']->get('sectionOptSize');
+					return $section['format']->get('sectionSize');
 				case 'first':
 					if($section['order'] == 'desc')
 					{

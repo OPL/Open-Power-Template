@@ -17,9 +17,9 @@ There is a group of instructions that may be called *sections*. They share the c
 1. `opt:section` - the basic sections to display flat lists.
 2. `opt:selector` - they display flat lists, but allow to define more than one list element layouts that are chosen dynamically depending on the element settings.
 3. `opt:tree` - sections to display hierarchical lists (tree data).
-4. `opt:grid` - display the data in a grid M x N elements.
+4. `opt:grid` - displays the data in a grid M x N elements.
 
-However, because they share the basic API, they can cooperate one with another.
+However, because they share the basic API, they can cooperate one with another. 
 
 Section structure
 =================
@@ -253,4 +253,13 @@ The first `opt:section` has attributes, so it is not bound to the `opt:show`. Th
 $sys special variable extensions
 ================================
 
-To be written.
+Using the `$sys.section.sectionName` special variable, you can get some extra information about the specified section. The available values are:
+
+1. `$sys.section.sectionName.count` - returns the number of the elements in the section.
+2. `$sys.section.sectionName.size` - returns the current section element size.
+3. `$sys.section.sectionName.id` - the current element index.
+4. `$sys.section.sectionName.first` - **true** if the current element is the first section element.
+5. `$sys.section.sectionName.last` - **true** if the current element is the last section element.
+6. `$sys.section.sectionName.far` - **true** if the current element is the first or the last section element.
+
+Some section types might define also additional values.

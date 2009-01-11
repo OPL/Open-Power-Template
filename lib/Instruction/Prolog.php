@@ -37,6 +37,19 @@
 				$root = $tmp;
 			}
 
+			if(is_null($params['version']))
+			{
+				$params['version'] = '1.0';
+			}
+			if(is_null($params['standalone']))
+			{
+				$params['standalone'] = 'yes';
+			}
+			if(is_null($params['encoding']))
+			{
+				unset($params['encoding']);
+			}
+
 			$root->setProlog(new Opt_Xml_Prolog($params));
 		} // end processNode();
 	} // end Opt_Instruction_Prolog;

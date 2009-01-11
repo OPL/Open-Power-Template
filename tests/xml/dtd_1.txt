@@ -13,7 +13,7 @@ $this->tpl->prologRequired = false;
 OUTPUT
 
 >>>>result.txt
-<?xml version="1.0" standalone="yes" ?>
+<?xml version="1.0" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <foo>
 </foo>

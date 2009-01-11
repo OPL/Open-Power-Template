@@ -18,12 +18,22 @@
 	{
 		private $_attributes;
 
-		public function __construct()
+		public function __construct($attributes = null)
 		{
-			$this->_attributes = array(
-				'version' => '1.0',
-				'standalone' => 'yes'
-			);
+			if(is_null($attributes))
+			{
+				$this->_attributes = array(
+					'version' => '1.0',
+					'standalone' => 'yes'
+				);
+			}
+			elseif(is_array($attributes))
+			{
+				foreach($attributes as $name => $value)
+				{
+					$this->setAttribute($name, $value);
+				}
+			}
 		} // end __construct();
 
 		public function setAttribute($name, $value)

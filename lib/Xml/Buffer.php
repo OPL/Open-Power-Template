@@ -246,4 +246,10 @@
 			}
 			return $this->_args[$name];
 		} // end get();
+
+		public function __destruct()
+		{
+			$this->_args = null;
+			$this->_buffers = null;
+		} // end __destruct();
 	} // end Opt_Xml_Buffer;

@@ -1,10 +1,10 @@
-Check whether the XML prolog works.
+Simple tag creation test.
 
 >>>>templates/test.tpl
-<?xml version="1.0" ?>
 <foo>
+<bar></bar>
+<bar />
 </foo>
-
 >>>>data.php
 $this->tpl->prologRequired = false;
 
@@ -12,6 +12,7 @@ $this->tpl->prologRequired = false;
 OUTPUT
 
 >>>>result.txt
-<?xml version="1.0" ?>
 <foo>
+<bar></bar>
+<bar />
 </foo>

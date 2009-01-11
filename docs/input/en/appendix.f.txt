@@ -15,6 +15,6 @@ We would like to thank all the users of both OPT 1 and OPT 2. We create them for
 License
 =======
 
-Open Power Template 2.0.0-dev is available under the terms of new BSD license. It is included in the library archives.
+Open Power Template 2.0.0-beta is available under the terms of new BSD license. It is included in the library archives.
 
 This documentation is available under the terms of GNU Free Documentation License 2. Its content is included in the library archives and the source files are available to download on the Invenzzia website.

@@ -1,0 +1,6 @@
+Title: contains()
+Reference: boolean range(array $array, mixed $item)
+
+----
+
+Returns **true**, if the `$array` contains `$item`.

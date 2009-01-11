@@ -190,7 +190,7 @@
 
 			if(Opl_Registry::exists('opl_translate'))
 			{
-				$this->_tf = Opl_Registry::get('opl_translate');
+				$this->setTranslationInterface(Opl_Registry::get('opl_translate'));
 			}
 			if(Opl_Registry::getState('opl_debug_console') || $this->debugConsole)
 			{
@@ -237,6 +237,21 @@
 			}
 		} // end register();
 
+		public function setTranslationInterface($tf)
+		{
+			if(!$tf instanceof Opl_Translation_Interface)
+			{
+				$this->_tf = null;
+				return false;
+			}
+			$this->_tf = $tf;
+			return true;
+		} // end setTranslationInterface();
+
+		public function getTranslationInterface()
+		{
+			return $this->_tf;
+		} // end getTranslationInterface();
 		/*
 		 * Internal use
 		 */
@@ -340,6 +355,7 @@
 		private $_inheritance = array();
 		private $_cplInheritance = array();
 		private $_data = array();
+		private $_tf;
 		private $_processingTime = null;
 		private $_branch = null;
 		
@@ -482,6 +498,7 @@
 			{
 				$time = microtime(true);
 			}
+			$this->_tf = $this->_tpl->getTranslationInterface();
 			if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 			{
 				list($compileName, $compileTime) = $this->_preprocess($mode, $exception);	

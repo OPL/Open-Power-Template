@@ -46,6 +46,8 @@
 			'sectionIterator' => '$_sect%sectionNest%_i',
 			// Counts the section elements
 			'sectionCount' => '$_sect%sectionNest%_cnt',
+			// Counts the section elements
+			'sectionSize' => 'sizeof($_sect%sectionNest%_vals[$_sect%sectionNest%_i])',
 		
 			// Tests if the iterator points to the first element:
 			'sectionOptFirstAsc' => '$_sect%sectionNest%_i == 0',

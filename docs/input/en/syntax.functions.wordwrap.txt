@@ -1,0 +1,9 @@
+Title: wordwrap()
+Reference: string wordwrap(string $text, integer $length [, string $break [, boolean $cut ]])
+
+----
+
+This function works similarly to [syntax.function.truncate], but instead of truncating the text, it tries to break it with `$break` (`<BR/>` tag by default). If `$cut` is set to **true**, the string is always wrapped to the specified width, so if it contains a too long word, it is broken apart.
+
+> [information]
+> In the `$break` argument, you might use the formatting codes: `\r`, `\n`, `\t` and `\\` indicating the following characters: carriage return, new line, tabulation, backslash.

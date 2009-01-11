@@ -110,7 +110,7 @@
 		private $_translationConversion = null;
 		private $_initialMemory = null;
 		
-		static private $_templates = array();			
+		static private $_templates = array();
 
 		public function __construct($tpl)
 		{
@@ -994,129 +994,150 @@
 		
 		public function compile($code, $filename, $compiledFilename, $mode)
 		{
-			// We cannot compile two templates at the same time
-			if(!is_null($this->_template))
+			try
 			{
-				throw new Opt_CompilerLocked_Exception($filename, $this->_template);
-			}
-			if($this->_tpl->debugConsole)
-			{
-				$this->_initial_memory = memory_get_usage();	
-			}
-			
-			// Detecting recursive inclusion
-			if(is_null(self::$_recursionDetector))
-			{
-				self::$_recursionDetector = array(0 => $filename);
-				$weFree = true;	
-			}
-			else
-			{
-				if(in_array($filename, self::$_recursionDetector))
+				// We cannot compile two templates at the same time
+				if(!is_null($this->_template))
 				{
-					$exception = new Opt_CompilerRecursion_Exception($filename);
-					$exception->setData(self::$_recursionDetector);
-					throw $exception;	
+					throw new Opt_CompilerLocked_Exception($filename, $this->_template);
 				}
-				self::$_recursionDetector[] = $filename;
-				$weFree = false;
-			}
-			// Cleaning up the processors
-			foreach($this->_processors as $proc)
-			{
-				$proc->reset();
-			}
-			// Initializing the template launcher
-			$this->set('template', $this->_template = $filename);
-			$this->set('mode', $mode);
-			$this->set('currentTemplate', $this->_template);
-			array_push(self::$_templates, $filename);
-			$this->_stack = new SplStack;
-			$i = 0;
-			$extend = $filename;
-			
-			// The inheritance loop
-			do
-			{
-				// Stage 1 - code compilation
-				$tree = $this->_stage1($code, $extend, $mode);
-				unset($code);
-
-				// Stage 2 - PHP tree processing
-				$this->_stack = array();
-				$this->_stage2($tree, true);
-				$this->set('escape', NULL);
-				unset($this->_stack);
-				
-				// if the template extends something, load it and also process
-				if(isset($extend) && $extend != $filename)
+				if($this->_tpl->debugConsole)
 				{
-					$this->addDependantTemplate($extend);
+					$this->_initial_memory = memory_get_usage();
 				}
 
-				if(!is_null($snippet = $tree->get('snippet')))
+				// Detecting recursive inclusion
+				if(is_null(self::$_recursionDetector))
 				{
-					// Change the specified snippet into a root node.
-					$tree = new Opt_Xml_Root;
-					$attribute = new Opt_Xml_Attribute('opt:use', $snippet);
-					$this->processor('snippet')->processAttribute($tree, $attribute);
-					$this->processor('snippet')->postprocessAttribute($tree, $attribute);	
-					
-					$this->_stage2($tree, true);
-					break;
+					self::$_recursionDetector = array(0 => $filename);
+					$weFree = true;
 				}
-				if(!is_null($extend = $tree->get('extend')))
+				else
 				{
-					$this->set('currentTemplate', $extend); 
-					array_pop(self::$_templates);
-					array_push(self::$_templates, $extend);
-					$code = $this->_tpl->_getSource($extend);
-				}
-				$i++;
-			}
-			while(!is_null($extend));
-			// There are some dependant templates. We must add a suitable PHP code
-			// to the output.
-			
-			if(sizeof($this->_dependencies) > 0)
-			{
-				$this->_addDependencies($tree);
-			}
-			// Stage 3 - linking the last tree
-			if(!is_null($compiledFilename))
-			{
-				$output = '';
-				$this->_dynamicBlocks = array();
-				$this->_stage3($output, $tree);
-				unset($tree);
-				
-				$output = str_replace('?><'.'?php', '', $output);
-				
-				// Build the directories, if needed.
-				if(($pos = strrpos($compiledFilename, '/')) !== false)
-				{
-					$path = $this->_tpl->compileDir.substr($compiledFilename, 0, $pos);
-					if(!is_dir($path))
+					if(in_array($filename, self::$_recursionDetector))
 					{
-						mkdir($path, 0750, true);					
+						$exception = new Opt_CompilerRecursion_Exception($filename);
+						$exception->setData(self::$_recursionDetector);
+						throw $exception;
+					}
+					self::$_recursionDetector[] = $filename;
+					$weFree = false;
+				}
+				// Cleaning up the processors
+				foreach($this->_processors as $proc)
+				{
+					$proc->reset();
+				}
+				// Initializing the template launcher
+				$this->set('template', $this->_template = $filename);
+				$this->set('mode', $mode);
+				$this->set('currentTemplate', $this->_template);
+				array_push(self::$_templates, $filename);
+				$this->_stack = new SplStack;
+				$i = 0;
+				$extend = $filename;
+
+				// The inheritance loop
+				do
+				{
+					// Stage 1 - code compilation
+					$tree = $this->_stage1($code, $extend, $mode);
+					unset($code);
+					// Stage 2 - PHP tree processing
+					$this->_stack = array();
+					$this->_stage2($tree, true);
+					$this->set('escape', NULL);
+					unset($this->_stack);
+
+					// if the template extends something, load it and also process
+					if(isset($extend) && $extend != $filename)
+					{
+						$this->addDependantTemplate($extend);
+					}
+
+					if(!is_null($snippet = $tree->get('snippet')))
+					{
+						// Change the specified snippet into a root node.
+						$tree = new Opt_Xml_Root;
+						$attribute = new Opt_Xml_Attribute('opt:use', $snippet);
+						$this->processor('snippet')->processAttribute($tree, $attribute);
+						$this->processor('snippet')->postprocessAttribute($tree, $attribute);
+
+						$this->_stage2($tree, true);
+						break;
+					}
+					if(!is_null($extend = $tree->get('extend')))
+					{
+						$this->set('currentTemplate', $extend);
+						array_pop(self::$_templates);
+						array_push(self::$_templates, $extend);
+						$code = $this->_tpl->_getSource($extend);
+					}
+					$i++;
+				}
+				while(!is_null($extend));
+				// There are some dependant templates. We must add a suitable PHP code
+				// to the output.
+
+				if(sizeof($this->_dependencies) > 0)
+				{
+					$this->_addDependencies($tree);
+				}
+				// Stage 3 - linking the last tree
+				if(!is_null($compiledFilename))
+				{
+					$output = '';
+					$this->_dynamicBlocks = array();
+
+					$this->_stage3($output, $tree);
+					$tree->__destruct();
+					unset($tree);
+
+					$output = str_replace('?><'.'?php', '', $output);
+
+					// Build the directories, if needed.
+					if(($pos = strrpos($compiledFilename, '/')) !== false)
+					{
+						$path = $this->_tpl->compileDir.substr($compiledFilename, 0, $pos);
+						if(!is_dir($path))
+						{
+							mkdir($path, 0750, true);
+						}
+					}
+
+					// Save the file
+					if(sizeof($this->_dynamicBlocks) > 0)
+					{
+						file_put_contents($this->_tpl->compileDir.$compiledFilename.'.dyn', serialize($this->_dynamicBlocks));
+					}
+					file_put_contents($this->_tpl->compileDir.$compiledFilename, $output);
+				}
+				array_pop(self::$_templates);
+				$this->_inheritance = array();
+				if($weFree)
+				{
+					// Do the cleanup.
+					$this->_dependencies = array();
+					self::$_recursionDetector = NULL;
+					foreach($this->_processors as $processor)
+					{
+						$processor->reset();
 					}
 				}
-				
-				// Save the file
-				if(sizeof($this->_dynamicBlocks) > 0)
-				{
-					file_put_contents($this->_tpl->compileDir.$compiledFilename.'.dyn', serialize($this->_dynamicBlocks));
-				}
-				file_put_contents($this->_tpl->compileDir.$compiledFilename, $output);
+				$this->_template = NULL;
 			}
-			array_pop(self::$_templates);
-			$this->_inheritance = array();
-			if($weFree)
+			catch(Exception $e)
 			{
-				// Do the cleanup.			
+				// Clean the compiler state in case of exception
+				$this->_dependencies = array();
 				self::$_recursionDetector = NULL;
+				foreach($this->_processors as $processor)
+				{
+					$processor->reset();
+				}
+				// And throw it forward.
+				throw $e;
 			}
-			$this->_template = NULL;
 		} // end compile();
 		
 		protected function _stage1(&$code, $filename, $mode)
@@ -2578,8 +2599,7 @@
 				}
 				else
 				{
-					// TODO: WTF?!?!?!
-					$this->tpl->error(E_USER_ERROR, 'Class "'.$token.'" is not allowed to be used in the templates.', OPT_E_INVALID_CLASS);
+					throw new Opt_ItemNotAllowed_Exception('Class', $token);
 				}
 			}
 			elseif($next == '(')
