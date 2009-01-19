@@ -24,12 +24,12 @@ In the beginning, you must load the OPL core, configure the path to the librarie
 ~~~~
 [php]
 <?php
-	require('./libs/opl/base.php');		// 1
-	Opl_Loader::setDirectory('./libs/');	// 2
-	spl_autoload_register(array('Opl_Loader', 'autoload'));	// 3
+require('./libs/opl/base.php');		// 1
+Opl_Loader::setDirectory('./libs/');	// 2
+spl_autoload_register(array('Opl_Loader', 'autoload'));	// 3
 
-	$tpl = new Opt_Class;	// 4
-	// your script
+$tpl = new Opt_Class;	// 4
+// your script
 ~~~~
 
 > [steps]
@@ -59,30 +59,30 @@ Before we definietly start, we must also call `Opt_Class::setup()`. Do not forge
 ~~~~
 [php]
 <?php
-	require('./libs/opl/base.php');
-	Opl_Loader::setDirectory('./libs/');
-	spl_autoload_register(array('Opl_Loader', 'autoload'));
+require('./libs/opl/base.php');
+Opl_Loader::setDirectory('./libs/');
+spl_autoload_register(array('Opl_Loader', 'autoload'));
 
-	try
-	{
-		$tpl = new Opt_Class;
-		$tpl->sourceDir = './templates/';
-		$tpl->compileDir = './templates_c/';
-		$tpl->contentType = Opt_Class::XHTML;
-		$tpl->charset = 'utf-8';
-		$tpl->setup();
+try
+{
+	$tpl = new Opt_Class;
+	$tpl->sourceDir = './templates/';
+	$tpl->compileDir = './templates_c/';
+	$tpl->contentType = Opt_Class::XHTML;
+	$tpl->charset = 'utf-8';
+	$tpl->setup();
 
-		$view = new Opt_View('template.tpl');
-		$view->hello = 'Hello, world!';
-		
-		$out = new Opt_Output_Http;
-		$out->setContentType();
-		$out->render($view);
-	}
-	catch(Opt_Exception $exception)
-	{
-		Opt_Error_Handler($exception);
-	}
+	$view = new Opt_View('template.tpl');
+	$view->hello = 'Hello, world!';
+
+	$out = new Opt_Output_Http;
+	$out->setContentType();
+	$out->render($view);
+}
+catch(Opt_Exception $exception)
+{
+	Opt_Error_Handler($exception);
+}
 ~~~~
 
 Finally, to work with OPT, we need two types of objects:

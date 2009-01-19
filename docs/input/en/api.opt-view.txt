@@ -5,7 +5,7 @@ Status: public
 
 ----
 
-This class represents a view which is an OPT template and the data associated to it. The views can be rendered using the output systems or the [syntax.instructions.include] instruction in the templates. It must be pointed that the view contains also all the inherited templates.
+This class represents a view which is an OPT template and the data associated to it. The views can be rendered using the output systems or the [syntax.instructions.include][] instruction in the templates. It must be pointed that the view contains also all the inherited templates.
 
 Using views
 ===========

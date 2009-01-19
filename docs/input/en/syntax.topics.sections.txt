@@ -38,7 +38,7 @@ On the template side, the section consists of the opening and closing tag. Betwe
 `opt:section` displays the elements linearly, one after another. The code above informs that the elements must be displayed as HTML paragraphs. Each section has its own name that should be unique (there are some exceptions from this rule, however this will be explained later). As we see, using the section name, we can access the list element variables: `$section.var`, `$section.var2`. The template above will work for each list whose elements contain two variables: `var1` and `var2`.
 
 > [error]
-> The section name **must not** be read from template variables: `<opt:section name="$blok">`.
+> The section name **must not** be read from template variables: `<opt:section name="$block">`.
 
 The sections must take the list data somehow, but we haven't even defined any datasource variable. It is not a mistake. We can always define the location with the optional `datasource` attribute, but OPT goes further. Our section has already its own unique name: *section*, so it would be nice if it read the data from the variable `$section`. In other words, if the datasource is not specified, the section uses its own name to find the data. The two sections below do exactly the same thing:
 

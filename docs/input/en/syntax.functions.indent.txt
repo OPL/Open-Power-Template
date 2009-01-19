@@ -7,17 +7,22 @@ Indents every new line in `$text` with `$num` characters `$with` (if this argume
 
 ~~~~
 [xml]
-  <p>{strip('This is a text
+<pre>
+{strip('
+This is a text
 that needs proper
-indentation', 4)}</p>
+indentation', 4)}
+</pre>
 ~~~~
 
 The result:
 
 ~~~~
-  <p>This is a text
+<pre>
+    This is a text
     that needs proper
-	indentation</p>
+	indentation
+</pre>
 ~~~~
 
 > [information]
