@@ -3,7 +3,7 @@ ShortTitle: Opt_Xml_Node::setParent()
 Reference: void setParent(Opt_Xml_Node $node)
 Status: public
 SeeAlso:
- - library.opt-xml-node.get-parent
+ - api.opt-xml-node.get-parent
 
 ---
 

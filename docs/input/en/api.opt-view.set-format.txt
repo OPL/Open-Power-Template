@@ -7,4 +7,4 @@ SeeAlso:
 
 ----
 
-Sets the format to the local template variable `$variable`. To get to know more about data formats in OPT, see [coding.formats][].
+Sets the format to the local template variable `$variable`. To get to know more about data formats in OPT, see a chapter about [data formats][coding.formats].

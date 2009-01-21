@@ -5,7 +5,7 @@ SeeAlso:
 
 ----
 
-The template inclusion is a way to organize and modularize your templates in OPT. It uses [syntax.instructions.include] instruction to include one template within another. What is important, the new template is loaded during the execution stage, so the file name may be loaded from a variable or even section, creating a powerful tool.
+The template inclusion is a way to organize and modularize your templates in OPT. It uses [opt:include][syntax.instructions.include] instruction to include one template within another. What is important, the new template is loaded during the execution stage, so the file name may be loaded from a variable or even section, creating a powerful tool.
 
 Note that OPT uses the idea of views on the script side. A view is a template with the data associated to it and is implemented as an PHP object. `opt:include` follows this concept and also operates on views.
 
@@ -16,9 +16,9 @@ Using `opt:include` is very simple. To include a left menu content in the follow
 
 ~~~~
 [xml]
- <div id="menu">
-   <opt:include file="left_menu.tpl" />
- </div>
+<div id="menu">
+  <opt:include file="left_menu.tpl" />
+</div>
 ~~~~
 
 However, this code is not fully completed. As we mentioned earlier, `opt:include` operates on views. In this particular case, OPT creates a new view for our template, but does not assign any data to it. In other words, your script has no way to assign the values to local variables in `left_menu.tpl` and they remain empty. There are two ways to solve this problem.

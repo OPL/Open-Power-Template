@@ -47,8 +47,6 @@ catch(Opt_Exception $exception)
 }
 ~~~~
 
-<!-- ... ->
-
 > [information]
 > Even with PHARs, there may be a need to keep additional directory structure for OPL. For example, if an add-on is not available as PHAR, you must put it in the filesystem and inform OPL, where it can find it.
 > 

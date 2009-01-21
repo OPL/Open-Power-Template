@@ -36,7 +36,6 @@ The access to the captured parts is possible with `$sys.capture.name`:
 >     {$sys.capture.foo}
 >     {@foo is 2}
 >     {$sys.capture.foo}
->
 
 <!-- # -->
 

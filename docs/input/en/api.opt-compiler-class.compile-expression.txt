@@ -1,9 +1,9 @@
 Title: compileExpression()
 ShortTitle: Opt_Compiler_Class::compileExpression()
-Reference: string compileExpression(string $wyrazenie [, $dopuscPrzypisanie = false [, $escaping = true]])
+Reference: string compileExpression(string $expression [, $allowAssignment = false [, $escaping = self::ESCAPE_ON]])
 
 ---
-Kompiluje podane wyrażenie `$wyrazenie` OPT do postaci prawidłowego wyrażenia PHP. Funkcje dodatkowych parametrów:
+It compiles given OPT expression `$expression` to correct PHP expression. Additional parameters:
 
-1. `$dopuscPrzypisanie` - jeśli włączony, w wyrażeniu można używać operatora przypisania.
-2. `$escaping` - jeśli włączony, wyrażenie jest przepuszczane przez metodę `Opt_Compiler_Class::escape()`.
+1. `$allowAssignment` - if on, it is allowed to use an assignment operator in expression.
+2. `$escaping` - if on, the expression is sent to [Opt_Compiler_Class::escape()][api.opt-compiler-class.escape].

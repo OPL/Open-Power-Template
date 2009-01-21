@@ -7,7 +7,7 @@ SeeAlso:
 
 ---
 
-Works much like [api.opt-compiler-processor.postprocess-node], but it allows to postprocess the instruction XML attribute. In order to be executed by the compiler, the [api.opt-compiler-processor.process-attribute] must set the attribute variable `postprocess` to **true**:
+Works much like [Opt_Compiler_Processor::postprocessNode()][api.opt-compiler-processor.postprocess-node], but it allows to postprocess the instruction XML attribute. In order to be executed by the compiler, the [Opt_Compiler_Processor::processAttribute()][api.opt-compiler-processor.process-attribute] must set the attribute variable `postprocess` to **true**:
 
 ~~~~
 [php]

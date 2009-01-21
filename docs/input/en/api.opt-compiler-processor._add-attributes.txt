@@ -3,12 +3,12 @@ ShortTitle: Opt_Compiler_Processor::_addAttributes()
 Reference: void _addAttributes(mixed $attributes)
 Status: final protected
 SeeAlso:
- - library.opt-compiler-processor.configure
- - library.opt-compiler-processor._add-instructions
+ - api.opt-compiler-processor.configure
+ - api.opt-compiler-processor._add-instructions
 
 ---
 
-Registers a single or a group of XML attributes that can be parsed with this particular processor. `$attributes` can be a string with the attribute name or an array of names. The compiler will redirect the processing of those attributes to the processor, if it finds any of them. The method must not be used outside `Opt_Compiler_Processor::configure()`. Example: 
+Registers a single or a group of XML attributes that can be parsed with this particular processor. `$attributes` can be a string with the attribute name or an array of names. The compiler will redirect the processing of those attributes to the processor, if it finds any of them. The method must not be used outside [Opt_Compiler_Processor::configure()][api.opt-compiler-processor.configure]. Example: 
 
 ~~~~
 [php]

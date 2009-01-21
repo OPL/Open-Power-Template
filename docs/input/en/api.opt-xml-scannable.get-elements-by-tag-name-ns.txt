@@ -10,4 +10,4 @@ SeeAlso:
 
 Returns an array of all the descendant nodes with the name `$name` and namespace `$namespace`. If the optional argument `$recursive` is set to **false**, the matching nodes are searched only within the direct children of the current node.
 
-If `$name` is `*`, the method searches only the nodes within the specified namespace. If `$namespace` is `*`, the method behaves like `Opt_Xml_Scannable::getElementsByTagName()`.
+If `$name` is `*`, the method searches only the nodes within the specified namespace. If `$namespace` is `*`, the method behaves like [Opt_Xml_Scannable::getElementsByTagName()][api.opt-xml-scannable.get-elements-by-tag-name].

@@ -26,5 +26,7 @@ $node->sort(array('*' => 0, 'opt:elseif' => 1, 'opt:else' => 2));
 > [warning]
 > If the element `*` is not specified in `$prototypes`, the method generates `Opt_InvalidAttributes_Exception`.
 
+<!-- # -->
+
 > [information]
 > The method uses a stable sorting algorithm. It means that it keeps the order of *equal* nodes.

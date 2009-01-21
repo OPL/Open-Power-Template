@@ -7,7 +7,7 @@ SeeAlso:
  
 ----
 
-Performs the main initialization of OPT. If the optional argument `$config` is specified, it is transparently sent to [api.opt-class.load-config]. Before using this method, we are obligated to configure the library and load the necessary extensions.
+Performs the main initialization of OPT. If the optional argument `$config` is specified, it is transparently sent to [Opt_Class::loadConfig()][api.opt-class.load-config]. Before using this method, we are obligated to configure the library and load the necessary extensions.
 
 ~~~~
 [php]

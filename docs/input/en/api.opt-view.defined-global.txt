@@ -3,7 +3,7 @@ ShortTitle: Opt_View::definedGlobal()
 Reference: boolean definedGlobal( string $name )
 Status: static public
 SeeAlso:
- - api.opt-view.define
+ - api.opt-view.defined
 
 ----
 
@@ -13,6 +13,6 @@ Returns **true**, if there already exists a global template variable `$name`:
 [php]
 if(!Opt_View::defined('foo'))
 {
-  Opt_View::assignGlobal('foo', $someValue);
+    Opt_View::assignGlobal('foo', $someValue);
 }
 ~~~~

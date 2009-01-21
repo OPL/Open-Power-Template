@@ -3,7 +3,7 @@ ShortTitle: Opt_Xml_Element::getAttributes()
 Reference: array getAttributes()
 Status: public
 SeeAlso:
- - library.opt-xml-element.get-attribute
+ - api.opt-xml-element.get-attribute
 
 ---
 

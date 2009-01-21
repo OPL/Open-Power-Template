@@ -306,7 +306,7 @@ If the module decides to use this particular template, the user will see a form 
 2. Some other field
 3. Yet another field (added by the `some_form_modified.tpl` template)
 
-Note that using the [api.opt-view.inherit] API method, the script may also set the different form component layout.
+Note that using the [Opt_View::inherit()][api.opt-view.inherit] API method, the script may also set the different form component layout.
 
 Conclusion
 ==========

@@ -2,7 +2,7 @@ Title: E. Reporting bugs
 
 ----
 
-Currently, the library is under the heavy development, so the available archives do contain bugs and unimplemented features. If you found one, please visit our bugtracker: [bugs.invenzzia.org](http://bugs.invenzzia.org/) and report it. You will help developing the library.
+If you found a bug, please visit our bugtracker: [bugs.invenzzia.org](http://bugs.invenzzia.org/) and report it. You will help developing the library.
 
 How to use the bugtracker?
 ==========================

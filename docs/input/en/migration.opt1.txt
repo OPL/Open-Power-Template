@@ -13,7 +13,7 @@ The basic information:
 
 1. OPT relies now on the common Open Power Libs core that provides the basic functionality such as configuration management, debugging, plug-ins and error handling.
 2. The new class naming convention has been introduced: `Opx_Class_Name`.
-3. The `Opt_Class` method is not an all-in-one harvester anymore. Most of its functions have been moved into separate classes.
+3. The `Opt_Class` class is not an all-in-one harvester anymore. Most of its functions have been moved into separate classes.
 4. The templates are represented in the script with *views*. They are simply objects of the `Opt_View` class and consist of the template and the data assigned to it.
 5. The template parsing and managing the output has been moved to *output objects*. They are objects of classes that implement the `Opt_Output_Interface`. The programmer may write new outputs easily by implementing the specified interface in his classes.
 6. There is no built-in caching mechanism in OPT 2, as this is not a template engine task. Instead, the cache port has been introduced where the programmer may plug-in any caching library using a simple interface.

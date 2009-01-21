@@ -2,8 +2,8 @@ Title: convert()
 ShortTitle: Opt_Compiler_Class::convert()
 Reference: string convert(string $string)
 SeeAlso:
- - library.opt-compiler-class.set-conversion
- - library.opt-compiler-class.unset-conversion
+ - api.opt-compiler-class.set-conversion
+ - api.opt-compiler-class.unset-conversion
 
 ---
 

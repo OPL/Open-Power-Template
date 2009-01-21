@@ -2,7 +2,7 @@ Title: parseEntities()
 ShortTitle: Opt_Compiler_Class::parseEntities()
 Reference: string parseEntities(string $text)
 SeeAlso:
- - library.opt-compiler-class.parse-short-entities
+ - api.opt-compiler-class.parse-short-entities
 
 ---
 

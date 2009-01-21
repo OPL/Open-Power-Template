@@ -3,7 +3,7 @@ ShortTitle: Opt_Compiler_Processor::_extractAttributes()
 Reference: array _extractAttributes(Opt_Xml_Element $tag, Array &$attributes)
 Status: final protected
 SeeAlso:
- - library.opt-compiler-processor.process-node
+ - api.opt-compiler-processor.process-node
 
 ---
 

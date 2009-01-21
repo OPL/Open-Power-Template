@@ -5,4 +5,4 @@ Extends: api.opt-xml-node
 
 ----
 
-This class represents the OPT expressions enclosed in the curly brackets within the text nodes. The nodes of this type may be children of `Opt_Xml_Text` only.
+This class represents the OPT expressions enclosed in the curly brackets within the text nodes. The nodes of this type may be children of [Opt_Xml_Text][api.opt-xml-text] only.

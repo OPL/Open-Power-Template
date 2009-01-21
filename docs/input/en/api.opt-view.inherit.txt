@@ -45,4 +45,4 @@ In order to make the dynamic inheritance possible, the templates must allow it:
 Extending snippets
 ==================
 
-In OPT, the templates are not limited to extend whole templates. It is possible to extend one of existing snippets created with [syntax.instructions.snippet][] instruction. In order to get to know more about extending snippets, see [syntax.topics.inheritance][].
+In OPT, the templates are not limited to extend whole templates. It is possible to extend one of existing snippets created with [opt:snippet][syntax.instructions.snippet] instruction. In order to get to know more about extending snippets, see a chapter about [template inheritance][syntax.topics.modularization.inheritance].

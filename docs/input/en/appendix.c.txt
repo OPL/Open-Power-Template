@@ -46,8 +46,3 @@ public function __destruct()
 	}
 } // end __destruct();
 ~~~~
-
-OPT does not work exactly as it is described in the manual.
------------------------------------------------------------
-
-It is possible - this is only a **dev8** version. The manual itself is not completed yet and some parts of the code still change its default behaviour. Currently, the manual should be treated as information for us, how the library is supposed to work. You might try to report such invalid behaviour in the bugtracker. We will update either the library or the documentation.
