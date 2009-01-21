@@ -509,7 +509,7 @@
 			}
 			else
 			{
-				$compileName = $this->_convert($filename);
+				$compileName = $this->_convert($this->_template);
 				$compileTime = null;
 				if(!$exception && !file_exists($compileName))
 				{
