@@ -1,0 +1,11 @@
+Title: setBranch()
+ShortTitle: Opt_View::setBranch()
+Reference: void setBranch( string $branch )
+Status: public
+SeeAlso:
+ - api.opt-view.get-branch
+ - syntax.topics.modularization.inheritance
+
+----
+
+Assigns the current view to the specified branch which is used in the template inheritance. In order to disable branches, set `$branch` to **null**.

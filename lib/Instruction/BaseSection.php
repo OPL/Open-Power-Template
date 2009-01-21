@@ -198,7 +198,7 @@
 							}
 						}
 					}
-					else
+					elseif($params['parent'] != '')
 					{
 						self::$_stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
 						$ok = false;
@@ -214,6 +214,11 @@
 						{
 							throw new Opt_SectionExists_Exception('parent', $params['parent']);
 						}
+					}
+					else
+					{
+						// For the situation, if we had 'parent=""' in the template.
+						$params['parent'] = null;
 					}
 				}
 				else
@@ -326,6 +331,36 @@
 				$format->assign('parentRecord', $pf->get('itemVariable'));				
 			}
 			// TODO: Add support for references, because they are missing now.
+
+			if($format->property('needsAncestors') === true)
+			{
+				// Some of the formats may need a list of ancestors in order
+				// To generate the relationship properly. This code builds
+				// such a list for them using the information contained on
+				// the stack to enumerate them.
+				if(is_null($params['parent']))
+				{
+					$format->assign('ancestors', array());
+				}
+				else
+				{
+					self::$_stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
+					$ancestors = array();
+					$parent = $params['parent'];
+					$iteration = self::$_stack->count();
+					foreach(self::$_stack as $up)
+					{
+						if($up == $parent)
+						{
+							$parent = self::$_sections[$up]['parent'];
+							$ancestors[] = $iteration;
+						}
+						$iteration--;
+					}
+					$format->assign('ancestors', array_reverse($ancestors));
+				}
+			}
+
 			$format->assign('sectionRecordCall', $format->get('sectionRecordCall'));
 			$code .= $format->get('sectionInit');
 			

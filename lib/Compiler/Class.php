@@ -1001,10 +1001,6 @@
 				{
 					throw new Opt_CompilerLocked_Exception($filename, $this->_template);
 				}
-				if($this->_tpl->debugConsole)
-				{
-					$this->_initial_memory = memory_get_usage();
-				}
 
 				// Detecting recursive inclusion
 				if(is_null(self::$_recursionDetector))
@@ -1037,17 +1033,35 @@
 				$i = 0;
 				$extend = $filename;
 
+				$memory = 0;
+
 				// The inheritance loop
 				do
 				{
 					// Stage 1 - code compilation
-					$tree = $this->_stage1($code, $extend, $mode);
-					unset($code);
-					// Stage 2 - PHP tree processing
-					$this->_stack = array();
-					$this->_stage2($tree, true);
-					$this->set('escape', NULL);
-					unset($this->_stack);
+					if($this->_tpl->debugConsole)
+					{
+						$initial = memory_get_usage();
+						$tree = $this->_stage1($code, $extend, $mode);
+						// Stage 2 - PHP tree processing
+						$this->_stack = array();
+						$this->_stage2($tree, true);
+						$this->set('escape', NULL);
+						unset($this->_stack);
+						$memory += (memory_get_usage() - $initial);
+						unset($code);
+					}
+					else
+					{
+						$tree = $this->_stage1($code, $extend, $mode);
+						unset($code);
+						// Stage 2 - PHP tree processing
+						$this->_stack = array();
+						$this->_stage2($tree, true);
+						$this->set('escape', NULL);
+						unset($this->_stack);
+					}
+
 
 					// if the template extends something, load it and also process
 					if(isset($extend) && $extend != $filename)
@@ -1083,6 +1097,12 @@
 				{
 					$this->_addDependencies($tree);
 				}
+
+				if($this->_tpl->debugConsole)
+				{
+					Opt_Support::addCompiledTemplate($this->_template, $memory);
+				}
+
 				// Stage 3 - linking the last tree
 				if(!is_null($compiledFilename))
 				{
@@ -1145,7 +1165,6 @@
 			$current = $tree = new Opt_Xml_Root;
 			
 			// First we have to find the prolog and DTD. Then we will be able to parse tags.
-			$docCnt = sizeof($document);
 
 			$codeSize = strlen($code);
 			
@@ -1543,6 +1562,7 @@
 				$this->_doPostprocess($item, $pp);
 				if($queue->count() == 0)
 				{
+					unset($queue);
 					if($stack->count() == 0)
 					{
 						break;
@@ -1554,12 +1574,7 @@
 		} // end _stage2();
 		
 		protected function _stage3(&$output, Opt_Xml_Node $node)
-		{
-			if($this->_tpl->debugConsole)
-			{
-				Opt_Support::addCompiledTemplate($this->_template, memory_get_usage() - $this->_initialMemory);
-			}
-			
+		{			
 			$queue = new SplQueue;
 			$stack = new SplStack;
 			$queue->enqueue($node);
@@ -1666,7 +1681,7 @@
 
 							if($item->hasProlog())
 							{
-								$output .= str_replace('<?', '<<?php echo \'?\'; ?>', $item->getProlog()->getProlog())."\r\n";
+								$output .= str_replace('<?xml', '<<?php echo \'?\'; ?>xml', $item->getProlog()->getProlog())."\r\n";
 							}
 							if($item->hasDtd())
 							{

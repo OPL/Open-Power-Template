@@ -1,0 +1,102 @@
+Title: OPT 1.x
+
+----
+
+Open Power Template 2 is a successor of Open Power Template 1 library, however it was written entirely from scratch and the backward compatibility does not exist. In this article, the users of the previous version may find useful information and tricks that help them migrating to the new releases.
+
+Programming interface
+=====================
+
+The library API has been simplified and many names have been changed to reflect their actual functions better. The code supports many new PHP5 features, such as autoloaders, SPL data structures and PHAR archives. The internal class data have been hermetized and it is not possible to modify them directly from the user space.
+
+The basic information:
+
+1. OPT relies now on the common Open Power Libs core that provides the basic functionality such as configuration management, debugging, plug-ins and error handling.
+2. The new class naming convention has been introduced: `Opx_Class_Name`.
+3. The `Opt_Class` method is not an all-in-one harvester anymore. Most of its functions have been moved into separate classes.
+4. The templates are represented in the script with *views*. They are simply objects of the `Opt_View` class and consist of the template and the data assigned to it.
+5. The template parsing and managing the output has been moved to *output objects*. They are objects of classes that implement the `Opt_Output_Interface`. The programmer may write new outputs easily by implementing the specified interface in his classes.
+6. There is no built-in caching mechanism in OPT 2, as this is not a template engine task. Instead, the cache port has been introduced where the programmer may plug-in any caching library using a simple interface.
+7. The plugin architecture and new item registration have been changed.
+8. The errors are still reported by exception, but now each error message has its own exception class. Moreover, they are grouped using the class inheritance which allows to capture only particular types of errors.
+
+Template syntax
+===============
+
+OPT 1 could not process XML documents, whereas OPT 2 does and makes a real use of this fact. The following compiler modes are available in the new version:
+
+1. XML mode - in this mode, the templates must be valid XML documents. OPT recognizes and processes XML/HTML tags.
+2. HTML mode - by disabling some XML standard features, you may activate less restrictive HTML mode. Here, OPT still recognizes and processes XML and HTML tags.
+3. Quirks mode - it is similar to `XML compatibility mode` from OPT 1.x. The compiler recognizes only OPT tags and the rest of the document is treated as a static text.
+
+The mode does not affect the OPT tags which must be always valid XML tags. The curly brackets are used to put the OPT expressions in the static text.
+
+~~~~
+[xml]
+<p>
+<opt:if test="$variable">
+    {$variable}
+</opt:if>
+</p>
+~~~~
+
+The XML/HTML mode produces several extra implications. It is not allowed to write `<tag {$variable}>` or `<tag attribute="{$variable}">`. In order to add a dynamic attribute or tag, you have to use `opt:attribute` and `opt:tag` instructions, and to put a dynamic attribute value, you have to switch its namespace into `parse:`:
+
+~~~~
+[xml]
+<p parse:class="$cssClass"> ... </p>
+~~~~
+
+The compiler does not allow to enclose the tags in the incorrect order (even in HTML) and this is the reason why the output must not be a concatenation of several templates executed one after another. In order to create modular templates, you have to use `opt:include` or template inheritance.
+
+Expressions
+===========
+
+The expression language is very similar, but there are some differences in the object access syntax. The naming rules are changed, for example *blocks* from OPT 1.x are called *variables* now.
+
+The important change is the support for HTML escaping of the expression results which allows to make automatic XSS filtering on the template side. In OPT 1, the following code would accept every possible value as the variables, even containing new HTML attributes or even breaking the code:
+
+~~~~
+[xml]
+<p {$value}>{$text}</p>
+~~~~
+
+The result could be terrible:
+
+~~~~
+[xml]
+<p style="aaa" javascript="aggressive code"><span>a variable that adds some HTML tags</span></p>
+~~~~
+
+OPT introduces a smart three-level escaping control (script, per-template and per-expression control). The escaping rules are:
+
+1. Every expression put as an XML attribute value will be escaped.
+2. Every expression put as instruction attribute value will be escaped, if the instruction needs it.
+3. Every expression put in the static text will be escaped, if the current escaping policy requires it.
+
+An example of turning on the escaping for a particular variable using the **e:** modifier:
+
+~~~~
+[xml]
+<p>This variable will be escaped: {e:$variable}</p>
+~~~~
+
+By default, `htmlspecialchars()` function is used to do the escaping, but the programmer may register his own escaping handler.
+
+> [information]
+> Remember that the escaping is not a magic solution for all your problems. Developing your script you have to remember that the used components will never give you full protection against all the possible attacks if you do not use them correctly or leave some dangerous options enabled.
+
+Sections
+========
+
+Other instructions
+==================
+
+Components
+==========
+
+Functions
+=========
+
+Template modularization
+=======================

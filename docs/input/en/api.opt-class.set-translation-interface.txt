@@ -1,0 +1,11 @@
+Title: setTranslationInterface()
+ShortTitle: Opt_Class::setTranslationInterface()
+Reference: boolean setTranslationInterface(Opl_Translation_Interface $tf)
+VersionSince: 2.0.0-beta2
+SeeAlso:
+ - api.opt-class.get-translation-interface
+ - coding.i18n
+ 
+----
+
+Registers the OPL translation interface object to be used for `$group@identifier` template variable syntax. The argument can be also **null**, in this case the translation interface is disabled and the method returns **false**.

@@ -88,6 +88,10 @@
 			'variableSubitem' => '[\'%item%\']'
 		);
 
+		protected $_properties = array(
+			'needsAncestors' => true
+		);
+
 		protected function _build($hookName)
 		{
 			if(isset($this->_codeBlocks[$hookName]))
@@ -111,7 +115,9 @@
 					$this->assign('item', $this->_getVar('sectionName'));
 					$cnt = $this->_getVar('sectionNest');
 					$code = $this->get('variableMain');
-					for($i = 1; $i < $cnt; $i++)
+					$ancestors = $this->_getVar('ancestors');
+					
+					foreach($ancestors as $i)
 					{
 						$code .= '[$_sect'.$i.'_i]';
 					}
