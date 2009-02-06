@@ -16,3 +16,13 @@ if(!$view->defined('foo'))
   $view->foo = $someValue;
 }
 ~~~~
+
+Alternatively, you may use the following syntax:
+
+~~~~
+[php]
+if(!isset($view->foo))
+{
+  $view->foo = $someValue;
+}
+~~~~

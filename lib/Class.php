@@ -417,10 +417,25 @@
 			$this->_data[$name] = &$value;
 		} // end assignRef();
 		
+		public function get($name)
+		{
+			return $this->_data[$name];
+		} // end read();
+		
+		public function &__get($name)
+		{
+			return $this->_data[$name];
+		} // end __get();
+		
 		public function defined($name)
 		{
 			return isset($this->_data[$name]);
 		} // end defined();
+		
+		public function __isset($name)
+		{
+			return isset($this->_data[$name]);
+		} // end __isset();
 		
 		public function remove($name)
 		{
@@ -435,6 +450,11 @@
 			}
 			return false;
 		} // end remove();
+		
+		public function __unset($name)
+		{
+			return $this->remove($name);
+		} // end __unset();
 		
 		static public function assignGlobal($name, $value)
 		{

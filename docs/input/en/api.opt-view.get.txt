@@ -1,0 +1,22 @@
+Title: get()
+ShortTitle: Opt_View::get()
+Reference: boolean get( string $name )
+Status: public
+
+----
+
+Returns assigned variable under `$name`.
+
+~~~~
+[php]
+$view->assign('variable', 'foo');
+
+echo $view->get('variable'); // prints "foo"
+~~~~
+
+Alternatively, you may use the following syntax:
+
+~~~~
+[php]
+echo $view->variable;
+~~~~

@@ -8,3 +8,10 @@ SeeAlso:
 ----
 
 Removes the existing local view variable `$name` and returns **true** in case of success.
+
+Alternatively, you may use the following syntax:
+
+~~~~
+[php]
+unset($view->variable);
+~~~~
