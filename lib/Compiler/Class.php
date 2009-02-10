@@ -185,6 +185,20 @@
 			{
 				throw new Opt_FilesystemAccess_Exception('compilation', 'writeable');
 			}
+
+			// If the debug console is active, preload the XML tree classes.
+			// Without it, the debug console would show crazy things about the memory usage.
+			if($this->_tpl->debugConsole && !class_exists('Opt_Xml_Root'))
+			{
+				Opl_Loader::load('Opt_Xml_Root');
+				Opl_Loader::load('Opt_Xml_Text');
+				Opl_Loader::load('Opt_Xml_Cdata');
+				Opl_Loader::load('Opt_Xml_Element');
+				Opl_Loader::load('Opt_Xml_Attribute');
+				Opl_Loader::load('Opt_Xml_Expression');
+				Opl_Loader::load('Opt_Xml_Prolog');
+				Opl_Loader::load('Opt_Xml_Dtd');
+			}
 		} // end __construct();
 		
 		public function __clone()
@@ -1110,7 +1124,7 @@
 					$this->_dynamicBlocks = array();
 
 					$this->_stage3($output, $tree);
-					$tree->__destruct();
+					$tree->dispose();
 					unset($tree);
 
 					$output = str_replace('?><'.'?php', '', $output);
@@ -1255,7 +1269,6 @@
 			$groups = preg_split($this->_rCDataExpression, $code, 0, PREG_SPLIT_DELIM_CAPTURE);
 			$groupCnt = sizeof($groups);
 			$groupState = 0;
-
 			Opt_Xml_Cdata::$mode = $mode;
 			for($k = 0; $k < $groupCnt; $k++)
 			{
@@ -1280,7 +1293,6 @@
 					}
 					continue;
 				}
-
 				$subgroups = preg_split($this->_rCommentExpression, $groups[$k], 0, PREG_SPLIT_DELIM_CAPTURE);
 				$subgroupCnt = sizeof($subgroups);
 				$subgroupState = 0;
@@ -1417,7 +1429,6 @@
 					}
 				}
 			}
-
 			return $tree;
 		} // end _stage1();
 
@@ -2557,7 +2568,7 @@
 				default:
 					if(!is_null($this->isProcessor($ns[1])))
 					{
-						return $this->processor($ns[1])->processOpt($ns);
+						return $this->processor($ns[1])->processSystemVar($ns);
 					}
 					
 					throw new Opt_OptBlockUnknown_Exception('$'.implode('.', $ns));				

@@ -19,7 +19,7 @@
 	interface Opt_Component_Interface
 	{
 		public function __construct($name = '');
-		public function setOptInstance(Opt_Class $tpl);
+		public function setView(Opt_View $view);
 		public function setDatasource(&$data);
 
 		public function set($name, $value);
@@ -28,12 +28,12 @@
 
 		public function display($attributes = array());
 		public function processEvent($name);
-		public function createAttribute($tagName);
+		public function manageAttributes($tagName, Array $attributes);
 	} // end Opt_Component_Interface;
 	
 	interface Opt_Block_Interface
 	{
-		public function setOptInstance(Opt_Class $tpl);
+		public function setViewInstance(Opt_View $view);
 		public function onOpen(Array $attributes);
 		public function onClose();
 		public function onSingle(Array $attributes);
@@ -81,7 +81,7 @@
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
 	
-		const VERSION = '2.0.0-beta1';
+		const VERSION = '2.0.0-beta2';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration

@@ -414,7 +414,7 @@
 			}
 		} // end _locateElse();
 		
-		public function processOpt($opt)
+		public function processSystemVar($opt)
 		{
 			if(sizeof($opt) < 4)
 			{
@@ -450,17 +450,17 @@
 				case 'far':
 					return $section['format']->get('sectionOptFar');
 				default:
-					$result = $this->_processOpt($opt);
+					$result = $this->_processSystemVar($opt);
 					if(is_null($result))
 					{
 						throw new Opt_OptBlockUnknown_Exception('$'.implode('.',$opt));
 					}
 					return $result;
 			}
-		} // end processOpt();
+		} // end processSystemVar();
 		
-		protected function _processOpt($opt)
+		protected function _processSystemVar($opt)
 		{
 			return NULL;
-		} // end _processOpt();
+		} // end _processSystemVar();
 	} // end Opt_Instruction_BaseSection;

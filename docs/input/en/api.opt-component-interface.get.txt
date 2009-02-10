@@ -1,0 +1,11 @@
+Title: get()
+ShortTitle: Opt_Component_Interface::get()
+Status: public
+Reference: mixed get(string $name)
+SeeAlso:
+ - api.opt-component-interface.set
+ - api.opt-component-interface.defined
+
+----
+
+Returns the component parameter `$name` value. 

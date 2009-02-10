@@ -19,7 +19,7 @@
 		// The counter used to generate unique variable names for defined components
 		protected $_unique = 0;
 
-		// The stack is required by the processOpt() method to determine, which component
+		// The stack is required by the processSystemVar() method to determine, which component
 		// the call refers to.
 		protected $_stack;
 		
@@ -45,7 +45,7 @@
 					$vars = $this->_extractAttributes($node, $params);
 					$this->_stack->push($params['from']);
 					
-					$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Component_Interface){ '.$params['from'].'->setOptInstance($this->_tpl); ';
+					$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Component_Interface){ '.$params['from'].'->setView($this); ';
 					if(!is_null($params['datasource']))
 					{
 						$mainCode .= $params['from'].'->setDatasource('.$params['datasource'].'); ';
@@ -109,7 +109,7 @@
 			$this->_stack->push($cn);
 			
 			// TODO: Check, what really is needed by components: Opt_Class or Opt_View...
-			$mainCode = $cn.' = new '.$this->_compiler->component($node->getXmlName()).'; '.$cn.'->setOptInstance($this->_tpl); ';
+			$mainCode = $cn.' = new '.$this->_compiler->component($node->getXmlName()).'; '.$cn.'->setView($this); ';
 			if(!is_null($params['datasource']))
 			{
 				$mainCode .= $cn.'->setDatasource('.$params['datasource'].'); ';
@@ -168,7 +168,30 @@
 			foreach($everything[1] as $wtf)
 			{
 				$wtf->setNamespace(NULL);
-				$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, $cn.'->createAttribute(\''.$wtf->getName().'\'); ');
+
+				$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'\', array(';
+				foreach($wtf->getAttributes() as $attribute)
+				{
+					if($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_NAME) > 0)
+					{
+						$subCode .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_NAME).' => ';
+					}
+					else
+					{
+						$subCode .= '\''.$attribute->getXmlName().'\' => ';
+					}
+					if($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_VALUE) > 0)
+					{
+						$subCode .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_VALUE).',';
+					}
+					else
+					{
+						$subCode .= '\''.$attribute->getValue().'\',';
+					}
+				}
+				$wtf->removeAttributes();
+				$wtf->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $subCode.')); ');
+				$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, ' foreach($out as $name=>$value){ echo \' \'.$name.\'="\'.$value.\'"\'; } ');
 			}	
 			
 			$node->set('postprocess', true);
@@ -180,14 +203,14 @@
 			return $code;
 		} // end _commonProcessing();
 
-		public function processOpt($opt)
+		public function processSystemVar($opt)
 		{
 			if($this->_stack->count() == 0)
 			{
 				throw new Opt_OptBlockInvalidUse_Exception('$'.implode('.',$opt), 'components');
 			}
 			return $this->_stack->top().'->get(\''.$opt[2].'\')';
-		} // end processOpt();
+		} // end processSystemVar();
 
 		private function _find($node)
 		{

@@ -1,0 +1,8 @@
+Title: setDatasource()
+ShortTitle: Opt_Component_Interface::setDatasource()
+Status: public
+Reference: void setDatasource(mixed &$datasource)
+
+----
+
+`setDatasource()` captures the value from the `datasource` attribute of the component port. 

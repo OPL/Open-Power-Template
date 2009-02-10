@@ -1,0 +1,8 @@
+Title: setView()
+ShortTitle: Opt_Component_Interface::setView()
+Status: public
+Reference: void setView(Opt_View $view) 
+
+----
+
+This method is called by the executed template, when the component is going to be deployed in the port. OPT passes the view object that processes the template as an argument.

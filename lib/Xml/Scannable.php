@@ -525,27 +525,26 @@
 			}
 		} // end __clone();
 
-		public function __destruct()
+		public function dispose()
 		{
-			if($this->get('__nrc') === true)
+			// The main instance of cloning, it makes copies of all the subnodes.
+			$queue = new SplQueue;
+			if(is_array($this->_subnodes))
 			{
-				// In this state, we do not clone the subnodes, because some else node takes
-				// care of it
-				$this->set('__nrc', NULL);
-				$this->_subnodes = NULL;
-				$this->_prototypes = NULL;
-				$this->_parent = NULL;
-				$this->_i = NULL;
-				$this->_size = 0;
-				$this->_copy = NULL;
-			}
-			else
-			{
-				// The main instance of cloning, it makes copies of all the subnodes.
-				$queue = new SplQueue;
-				if(is_array($this->_subnodes))
+				foreach($this->_subnodes as $subitem)
 				{
-					foreach($this->_subnodes as $subitem)
+					if(is_object($subitem))
+					{
+						$queue->enqueue($subitem);
+					}
+				}
+			}
+			while($queue->count() > 0)
+			{
+				$item = $queue->dequeue();
+				if($item instanceof Opt_Xml_Scannable)
+				{
+					foreach($item as $subitem)
 					{
 						if(is_object($subitem))
 						{
@@ -553,31 +552,20 @@
 						}
 					}
 				}
-				$this->_subnodes = NULL;
-				$this->_prototypes = NULL;
-				$this->_i = NULL;
-				$this->_size = 0;
-				$this->_copy = NULL;
-				while($queue->count() > 0)
-				{
-					$item = $queue->dequeue();
-					if($item instanceof Opt_Xml_Scannable)
-					{
-						foreach($item as $subitem)
-						{
-							if(is_object($subitem))
-							{
-								$queue->enqueue($subitem);
-							}
-						}
-					}
-					$item->set('__nrc', true);
-					$item->__destruct();
-					unset($item);
-				}
+				$item->_dispose();
 			}
-		} // end __clone();
-		
+			$this->_dispose();
+		} // end dispose();
+
+		protected function _dispose()
+		{
+			parent::_dispose();
+			$this->_subnodes = NULL;
+			$this->_prototypes = NULL;
+			$this->_i = NULL;
+			$this->_size = 0;
+			$this->_copy = NULL;
+		} // end _dispose();
 		/*
 		 * Iterator interface implementation
 		 */

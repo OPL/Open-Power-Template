@@ -120,6 +120,11 @@
 			}
 			return false;
 		} // end removeAttribute();
+
+		public function removeAttributes()
+		{
+			$this->_attributes = array();
+		} // end removeAttributes();
 		
 		public function hasAttributes()
 		{

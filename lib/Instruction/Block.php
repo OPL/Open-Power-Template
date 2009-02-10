@@ -19,7 +19,7 @@
 		// The counter used to generate unique variable names for defined blocks
 		protected $_unique = 0;
 
-		// The stack is required by the processOpt() method to determine, which component
+		// The stack is required by the processSystemVar() method to determine, which component
 		// the call refers to.
 		protected $_stack;
 		
@@ -99,12 +99,12 @@
 			$this->_process($node);
 		} // end _commonProcessing();
 
-		public function processOpt($opt)
+		public function processSystemVar($opt)
 		{
 			if($this->_stack->count() == 0)
 			{
 				throw new Opt_OptBlockInvalidUse_Exception('$'.implode('.',$opt), 'blocks');
 			}
 			return $this->_stack->top().'->get(\''.$opt[2].'\')';
-		} // end processOpt();
+		} // end processSystemVar();
 	} // end Opt_Instruction_Component;

@@ -48,7 +48,7 @@
 			$this->_process($node);
 		} // end processNode();
 		
-		public function processOpt($opt)
+		public function processSystemVar($opt)
 		{
 			if(sizeof($opt) != 4)
 			{
@@ -64,5 +64,5 @@
 				default:
 					throw new Opt_OptBlockUnknown_Exception('$'.implode('.', $opt));
 			}
-		} // end processOpt();
+		} // end processSystemVar();
 	} // end Opt_Instruction_Cycle;
