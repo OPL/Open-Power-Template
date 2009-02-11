@@ -57,6 +57,7 @@
 	    		array(false, '\'foo\'', '\'foo\'', 0),
 	    		array(false, '42', '42', 0),
 	    		array(false, '$foo', '$this->_data[\'foo\']', 0),
+				array(false, '$2foo', '', $exceptionClass),
 	    		array(false, '@foo', 'self::$_vars[\'foo\']', 0),
 	    		array(false, '$foo@bar', '$this->_tf->_(\'foo\',\'bar\')', 0),
 	    		array(false, '$foo[\'bar\']', '$this->_data[\'foo\'][\'bar\']', 0),

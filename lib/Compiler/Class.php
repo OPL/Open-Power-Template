@@ -101,7 +101,7 @@
 		private $_rHexadecimalNumber = '\-?0[xX][0-9a-fA-F]+';
 		private $_rDecimalNumber = '[0-9]+\.?[0-9]*';
 		private $_rLanguageVar = '\$[a-zA-Z0-9\_]+@[a-zA-Z0-9\_]+';
-		private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]+';
+		private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]*';
 		private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|';
 		private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]+';
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
@@ -2299,6 +2299,12 @@
 							{
 								throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
 							}
+							// We do the first character test manually, because
+							// in regular expression the parser would receive too much rubbish.
+							if(!ctype_alpha($token[1]) && $token[1] != '_')
+							{
+								throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
+							}
 							$current['result'] = $this->_compileVariable($token);
 							$current['token'] = self::OP_VARIABLE;
 							if(is_null($state['variable']))
@@ -2453,8 +2459,9 @@
 				switch($ns[0])
 				{
 					case 'opt':
+					case 'sys':
 					case 'system':
-						return $this->_compileOpt($ns);
+						return $this->_compileSys($ns);
 					case 'this':
 						$state['access'] = Opt_Class::ACCESS_LOCAL;
 						unset($ns[0]);
@@ -2559,10 +2566,12 @@
 			return '$this->_tf->_(\''.$group.'\',\''.$id.'\')';
 		} // end _compileLanguageVar();
 		
-		protected function _compileOpt($ns)
+		protected function _compileSys($ns)
 		{
 			switch($ns[1])
 			{
+				case 'version':
+					return '\''.Opt_Class::VERSION.'\'';
 				case 'const':
 					return 'constant(\''.$ns[2].'\')';				
 				default:
@@ -2573,7 +2582,7 @@
 					
 					throw new Opt_OptBlockUnknown_Exception('$'.implode('.', $ns));				
 			}
-		} // end _compileOpt();
+		} // end _compileSys();
 		
 		protected function _compileString($str)
 		{

@@ -81,7 +81,7 @@
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
 	
-		const VERSION = '2.0.0-beta2';
+		const VERSION = '2.0-beta2';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration
@@ -163,7 +163,14 @@
 		/*
 		 * Template parsing
 		 */
-		
+
+		/**
+		 * Returns the compiler object and optionally loads the necessary classes. Unless
+		 * you develop instructions or reimplement various core features you do not have
+		 * to use this method.
+		 *
+		 * @return Opt_Compiler_Class The compiler
+		 */
 		public function getCompiler()
 		{
 			if(!is_object($this->_compiler))
@@ -177,6 +184,13 @@
 		 * Extensions and configuration
 		 */
 
+		/**
+		 * Performs the main initialization of OPT. If the optional argument `$config` is
+		 * specified, it is transparently sent to Opt_Class::loadConfig(). Before using this
+		 * method, we are obligated to configure the library and load the necessary extensions.
+		 *
+		 * @param mixed $config = null The optional configuration to be loaded
+		 */
 		public function setup($config = null)
 		{
 			if(is_array($config))
@@ -210,7 +224,20 @@
 			$this->_securePath($this->compileDir);
 			$this->_init = true;
 		} // end setup();
-		
+
+		/**
+		 * Registers a new add-on in OPT identified by `$type`. The type is identified
+		 * by the appropriate Opt_Class constant. The semantics of the next arguments
+		 * depends on the registered add-on.
+		 *
+		 * Note that you may register several add-ons at the same time by passing an
+		 * array as the second argument.
+		 *
+		 * @param int $type The type of registered item(s).
+		 * @param mixed $item The item or a list of items to be registered
+		 * @param mixed $addon = null Used in several types of add-ons
+		 * @return void
+		 */
 		public function register($type, $item, $addon = null)
 		{
 			if($this->_init)
@@ -419,11 +446,19 @@
 		
 		public function get($name)
 		{
+			if(!isset($this->_data[$name]))
+			{
+				return null;
+			}
 			return $this->_data[$name];
 		} // end read();
 		
-		public function &__get($name)
+		public function __get($name)
 		{
+			if(!isset($this->_data[$name]))
+			{
+				return null;
+			}
 			return $this->_data[$name];
 		} // end __get();
 		
@@ -475,6 +510,15 @@
 		{
 			return isset(self::$_global[$name]);
 		} // end definedGlobal();
+
+		static public function getGlobal($name, $value)
+		{
+			if(!isset(self::$_global[$name]))
+			{
+				return null;
+			}
+			return self::$_global[$name];
+		} // end getGlobal();
 		
 		static public function removeGlobal($name)
 		{
@@ -544,7 +588,7 @@
 			// The counter stops, if the time counting has been enabled for the debug console purposes
 			if(isset($time))
 			{
-				Opt_Support::addView($this->_template, $output->getName(), microtime(true) - $time, $cached);
+				Opt_Support::addView($this->_template, $output->getName(), $this->_processingTime = microtime(true) - $time, $cached);
 			}
 			return true;
 		} // end _parse();

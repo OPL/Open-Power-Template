@@ -79,7 +79,23 @@
 					}
 					$node->set('hidden', false);
 					$node->removeChildren();
-					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->display(); ');
+					// The opt:display attributes must be packed into array and sent
+					// to Opt_Component_Interface::display()
+					$subCode = '';
+					if($node->hasAttributes())
+					{
+						$params = array(
+							'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
+						);
+						$vars = $this->_extractAttributes($node, $params);
+						$subCode = 'array(';
+						foreach($vars as $name => $value)
+						{
+							$subCode .= '\''.$name.'\' => '.$value.',';
+						}
+						$subCode .= ')';
+					}
+					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->display('.$subCode.'); ');
 					break;
 			}			
 		} // end processNode();
@@ -108,7 +124,6 @@
 
 			$this->_stack->push($cn);
 			
-			// TODO: Check, what really is needed by components: Opt_Class or Opt_View...
 			$mainCode = $cn.' = new '.$this->_compiler->component($node->getXmlName()).'; '.$cn.'->setView($this); ';
 			if(!is_null($params['datasource']))
 			{
@@ -172,26 +187,18 @@
 				$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'\', array(';
 				foreach($wtf->getAttributes() as $attribute)
 				{
-					if($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_NAME) > 0)
+					$params = array(
+						'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
+					);
+					$vars = $this->_extractAttributes($wtf, $params);
+					foreach($vars as $name => $value)
 					{
-						$subCode .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_NAME).' => ';
-					}
-					else
-					{
-						$subCode .= '\''.$attribute->getXmlName().'\' => ';
-					}
-					if($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_VALUE) > 0)
-					{
-						$subCode .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_VALUE).',';
-					}
-					else
-					{
-						$subCode .= '\''.$attribute->getValue().'\',';
+						$subCode .= '\''.$name.'\' => '.$value.',';
 					}
 				}
 				$wtf->removeAttributes();
 				$wtf->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $subCode.')); ');
-				$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, ' foreach($out as $name=>$value){ echo \' \'.$name.\'="\'.$value.\'"\'; } ');
+				$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, ' if(is_array($out)){ foreach($out as $name=>$value){ echo \' \'.$name.\'="\'.$value.\'"\'; } } ');
 			}	
 			
 			$node->set('postprocess', true);

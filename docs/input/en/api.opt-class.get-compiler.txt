@@ -1,0 +1,8 @@
+Title: getCompiler()
+ShortTitle: Opt_Class::getCompiler()
+Reference: Opt_Compiler_Class getCompiler()
+Status: public
+
+----
+
+Returns the compiler object and optionally loads the necessary classes. Unless you develop instructions or reimplement various core features you do not have to use this method.

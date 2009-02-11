@@ -16,7 +16,7 @@ To show, how they work, let's create a simple block class in PHP:
 <?php
 class columnBlock implements Opt_Block_Interface
 {
-    private $_tpl;
+    private $_view;
     private $_order;
     private $_active;
     
@@ -27,9 +27,9 @@ class columnBlock implements Opt_Block_Interface
         $this->_active = $active;
     } // end __construct();
 
-    public function setOptInstance(Opt_Class $tpl)
+    public function setView(Opt_View $view)
     {
-        $this->_tpl = $tpl;
+        $this->_view = $view;
     } // end setOptInstance();
     
     public function onOpen(Array $attributes)
@@ -80,10 +80,10 @@ Now we can create a dynamic table header which also very clean:
 </table>
 ~~~~
 
-With the instruction `opt:block`, we have created a port where we can assign any block object. Of course the example above is very simplified. In real world applications, it would be good to add more complicated logic to determine the columns automatically or to integrate with other script interfaces.
+With the instruction `opt:block`, we have created a port where we can deploy any block object. Of course the example above is very simplified. In real world applications, it would be good to add more complicated logic to determine the columns automatically or to integrate with other script interfaces.
 
-Statically defined blocks
-=========================
+Statically deployed blocks
+==========================
 
 In the previous example, we were using both PHP and templates to create a fully functionable block. However, you do not have to create every block object manually in the script. OPT allows you to register block classes as XML tags:
 
@@ -108,7 +108,7 @@ Now we can use them much like instructions:
 </table>
 ~~~~
 
-In this case, OPT creates a block object automatically and frees it after the job is finished.
+In this case, OPT creates a block object automatically and destroys it after the job is finished.
 
 Block functionality
 ===================

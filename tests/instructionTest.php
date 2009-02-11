@@ -47,6 +47,12 @@
 	    public static function correctProvider()
 	    {
 	    	return array(0 =>
+				array('component_1.txt'),
+				array('component_2.txt'),
+				array('component_3.txt'),
+				array('component_4.txt'),
+				array('component_5.txt'),
+				array('component_6.txt'),
 	    		array('extend_1.txt'),
 	    		array('extend_2.txt'),
 	    		array('extend_3.txt'),
