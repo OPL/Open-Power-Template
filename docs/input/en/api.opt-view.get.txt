@@ -1,7 +1,7 @@
 Title: get()
 ShortTitle: Opt_View::get()
 Reference: boolean get( string $name )
-VersionSince: 2.0.0-beta2
+VersionSince: 2.0-beta2
 Status: public
 SeeAlso:
  - api.opt-view.__get

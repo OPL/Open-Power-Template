@@ -1,7 +1,7 @@
 Title: getTranslationInterface()
 ShortTitle: Opt_Class::getTranslationInterface()
 Reference: Opl_Translation_Interface getTranslationInterface()
-VersionSince: 2.0.0-beta2
+VersionSince: 2.0-beta2
 SeeAlso:
  - api.opt-class.set-translation-interface
  - coding.i18n

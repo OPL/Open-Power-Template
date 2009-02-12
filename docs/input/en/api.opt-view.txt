@@ -1,6 +1,6 @@
 Title: Opt_View class
 ShortTitle: Opt_View
-VersionSince: 2.0.0-dev7
+VersionSince: 2.0-dev7
 Status: public
 
 ----

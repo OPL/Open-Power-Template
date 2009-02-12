@@ -1,7 +1,7 @@
 Title: setup()
 ShortTitle: Opt_Class::setup()
 Reference: void setup([mixed $config])
-VersionSince: 2.0.0-dev7
+VersionSince: 2.0-dev7
 SeeAlso:
  - api.opt-class.setup
  
