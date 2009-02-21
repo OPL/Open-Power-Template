@@ -236,7 +236,7 @@ A nice trick about custom ports is that the components can be loaded from the se
 </opt:section>
 ~~~~
 
-The content of the port represents the component layout. In case of HTML forms, this definition includes some container like `<div>` or table row, field title and description, as well as the place, where the errors should be displayed. Within the port, you have the full access to the component parameters and other stuff. However, specifying the layout for each component used in the presentation layer can be a frustrating, especially if you need to change something later. Fortunately, the components co-operate with snippets ([syntax.instructions.snippet]). You may define the component layout in one place and use it later everywhere:
+The content of the port represents the component layout. In case of HTML forms, this definition includes some container like `<div>` or table row, field title and description, as well as the place, where the errors should be displayed. Within the port, you have the full access to the component parameters and other stuff. However, specifying the layout for each component used in the presentation layer can be a frustrating, especially if you need to change something later. Fortunately, the components co-operate with snippets ([opt:snippet][syntax.instructions.snippet]). You may define the component layout in one place and use it later everywhere:
 
 ~~~~
 [xml]
@@ -378,4 +378,4 @@ Now the component can easily change the CSS class associated to `<div>`. Please 
 Conclusion
 ==========
 
-Components are a very powerful tool designed especially for the form processing. If you do not need the functionality they offer, please use [syntax.topics.blocks].
+Components are a very powerful tool designed especially for the form processing. If you do not need the functionality they offer, please use [blocks][syntax.topics.blocks].
