@@ -1,0 +1,43 @@
+Title: manageAttributes()
+ShortTitle: Opt_Component_Interface::manageAttributes()
+Status: public
+Reference: array manageAttributes(string $name, array $attributes)
+
+----
+
+`manageAttributes()` handles the attribute lists of the XML tags in the `com` namespace within the component port. It allows the component to extend the tag with some extra attributes (or modify their default values), for example to configure its look according to the current component status. The attributes are passed as an assotiative array, where the index is the attribute name, and the method should return the same, but modified array. The `$name` argument contains the tag name and it can be used to identify the tag we are going to process.
+
+> [warning]
+> If your port contains two tags with the same name, OPT is not able to distinguish them during the template execution!
+
+Let's take a look at the following component port: 
+
+~~~~
+[php]
+<opt:component from="$component">
+	<com:div class="field">
+		<p>{$opt.component.title}</p>
+		<span><opt:display /></span>
+		<opt:onEvent name="error">
+			<p>An error occured: {$errorMessage}</p>
+		</opt:onEvent>
+	</com:div>
+</opt:component>
+~~~~
+
+If the component is in the invalid state (for example, the user entered the invalid value in the form field), we wish to change the CSS class of the entire `<div>`. Because it is put in the *com* namespace, OPT will capture this tag and send its attributes to `manageAttributes()`. It can modify the CSS class then:
+
+~~~~
+[php]
+public function manageAttributes($name, Array $attributes)
+{
+	if(!$this->valid)
+	{
+		$attributes['class'] .= 'error';
+	}
+	return $attributes;
+} // end manageAttributes();
+~~~~
+
+> [important]
+> If your component does not provide any support for *com* namespaces, the method should return the `$attributes` argument.

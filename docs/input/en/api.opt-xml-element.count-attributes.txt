@@ -3,7 +3,7 @@ ShortTitle: Opt_Xml_Element::countAttributes()
 Reference: int countAttributes()
 Status: public
 SeeAlso:
- - library.opt-xml-element.has-attributes
+ - api.opt-xml-element.has-attributes
 
 ---
 

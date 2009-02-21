@@ -3,8 +3,8 @@ ShortTitle: Opt_Xml_Element::getAttribute()
 Reference: Opt_Xml_Attribute getAttribute(string $attribute)
 Status: public
 SeeAlso:
- - library.opt-xml-element.add-attribute
- - library.opt-xml-element.get-attributes
+ - api.opt-xml-element.add-attribute
+ - api.opt-xml-element.get-attributes
 
 ---
 

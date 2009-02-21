@@ -2,8 +2,8 @@ Title: unsetConversion()
 ShortTitle: Opt_Compiler_Class::unsetConversion()
 Reference: bool unsetConversion(string $original)
 SeeAlso:
- - library.opt-compiler-class.convert
- - library.opt-compiler-class.set-conversion
+ - api.opt-compiler-class.convert
+ - api.opt-compiler-class.set-conversion
 
 ---
 

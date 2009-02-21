@@ -12,6 +12,11 @@
   
   <opt:tag name="$tagName">This is a text</opt:tag>
   
+  <opt:tag name="input" type="checkbox" single="yes">
+	<opt:attribute name="name" value="foo"/>
+	<opt:attribute name="checked" value="checked" opt:if="$a lt 1" />
+  </opt:tag>
+  
   <p>Checking whether it integrates with "opt:attribute"...</p>
   <opt:tag name="$tagName"><opt:attribute str:name="name" str:value="foo" />This is a text</opt:tag>
  </body>

@@ -3,9 +3,9 @@ ShortTitle: Opt_Xml_Element::addAttribute()
 Reference: bool addAttribute(Opt_Xml_Attribute $attribute)
 Status: public
 SeeAlso:
- - library.opt-xml-element.get-attribute
- - library.opt-xml-element.get-attributes
- - library.opt-xml-element.remove-attribute
+ - api.opt-xml-element.get-attribute
+ - api.opt-xml-element.get-attributes
+ - api.opt-xml-element.remove-attribute
 
 ---
 

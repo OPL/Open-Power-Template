@@ -1,4 +1,4 @@
-Check more compound inheritance chains with importing parent contents.
+Simple tag creation test.
 
 >>>>templates/test.tpl
 <foo>

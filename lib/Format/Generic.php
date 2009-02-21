@@ -46,6 +46,8 @@
 			'sectionIterator' => '$_sect%sectionNest%_i',
 			// Counts the section elements
 			'sectionCount' => '$_sect%sectionNest%_cnt',
+			// Counts the section elements
+			'sectionSize' => 'sizeof($_sect%sectionNest%_vals[$_sect%sectionNest%_i])',
 		
 			// Tests if the iterator points to the first element:
 			'sectionOptFirstAsc' => '$_sect%sectionNest%_i == 0',
@@ -86,6 +88,10 @@
 			'variableSubitem' => '[\'%item%\']'
 		);
 
+		protected $_properties = array(
+			'needsAncestors' => true
+		);
+
 		protected function _build($hookName)
 		{
 			if(isset($this->_codeBlocks[$hookName]))
@@ -109,7 +115,9 @@
 					$this->assign('item', $this->_getVar('sectionName'));
 					$cnt = $this->_getVar('sectionNest');
 					$code = $this->get('variableMain');
-					for($i = 1; $i < $cnt; $i++)
+					$ancestors = $this->_getVar('ancestors');
+					
+					foreach($ancestors as $i)
 					{
 						$code .= '[$_sect'.$i.'_i]';
 					}

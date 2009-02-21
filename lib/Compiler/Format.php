@@ -17,6 +17,7 @@
 	{
 		private $_vars = array();
 		protected $_supports;
+		protected $_properties = array();
 		
 		protected $_tpl;
 		protected $_compiler;
@@ -49,6 +50,15 @@
 			$this->_vars[$with] = $this->_decorated->get($with);
 			return $this->_applyVars($hook);
 		} // end _decorateHook();
+
+		final public function property($name)
+		{
+			if(isset($this->_properties[$name]))
+			{
+				return $this->_properties[$name];
+			}
+			return NULL;
+		} // end property();
 		
 		public function action($name)
 		{

@@ -24,12 +24,12 @@ In the beginning, you must load the OPL core, configure the path to the librarie
 ~~~~
 [php]
 <?php
-	require('./libs/opl/base.php');		// 1
-	Opl_Loader::setDirectory('./libs/');	// 2
-	spl_autoload_register(array('Opl_Loader', 'autoload'));	// 3
+require('./libs/opl/base.php');		// 1
+Opl_Loader::setDirectory('./libs/');	// 2
+spl_autoload_register(array('Opl_Loader', 'autoload'));	// 3
 
-	$tpl = new Opt_Class;	// 4
-	// your script
+$tpl = new Opt_Class;	// 4
+// your script
 ~~~~
 
 > [steps]
@@ -54,35 +54,35 @@ contentType
 charset
 :	Used output encoding.
 
-Before we definietly start, we must also call `Opt_Class::setup()`. Do not forget about it, because it plays a very important role:
+Before we definietly start, we must also call [Opt_Class::setup()[api.opt-class.setup]. Do not forget about it, because it plays a very important role:
 
 ~~~~
 [php]
 <?php
-	require('./libs/opl/base.php');
-	Opl_Loader::setDirectory('./libs/');
-	spl_autoload_register(array('Opl_Loader', 'autoload'));
+require('./libs/opl/base.php');
+Opl_Loader::setDirectory('./libs/');
+spl_autoload_register(array('Opl_Loader', 'autoload'));
 
-	try
-	{
-		$tpl = new Opt_Class;
-		$tpl->sourceDir = './templates/';
-		$tpl->compileDir = './templates_c/';
-		$tpl->contentType = Opt_Class::XHTML;
-		$tpl->charset = 'utf-8';
-		$tpl->setup();
+try
+{
+	$tpl = new Opt_Class;
+	$tpl->sourceDir = './templates/';
+	$tpl->compileDir = './templates_c/';
+	$tpl->contentType = Opt_Class::XHTML;
+	$tpl->charset = 'utf-8';
+	$tpl->setup();
 
-		$view = new Opt_View('template.tpl');
-		$view->hello = 'Hello, world!';
-		
-		$out = new Opt_Output_Http;
-		$out->setContentType();
-		$out->render($view);
-	}
-	catch(Opt_Exception $exception)
-	{
-		Opt_Error_Handler($exception);
-	}
+	$view = new Opt_View('template.tpl');
+	$view->hello = 'Hello, world!';
+
+	$out = new Opt_Output_Http;
+	$out->setContentType();
+	$out->render($view);
+}
+catch(Opt_Exception $exception)
+{
+	Opt_Error_Handler($exception);
+}
 ~~~~
 
 Finally, to work with OPT, we need two types of objects:
@@ -90,7 +90,7 @@ Finally, to work with OPT, we need two types of objects:
 1. Views - they represent a template with some script data assigned to it, as well as other rules, such as format definitions or inheritance lists. In the script, they are objects of `Opt_View` class and one object should match exactly one top template (possibly accompanied with dependant templates).
 2. Outputs - they decide, where to send the processed view results.
 
-Using a view is very easy. In the constructor, we specify the template assigned to the view, and later we simply assign the data to template variables using the syntax `$view->variableName = value`. There are several other data assignment methods which are described deeper in the API reference. As our view is ready, we need to create an output. We are going to use `Opt_Output_Http`, a standard OPT class that is responsible for HTTP header management and sending the templates to the browser. Once it is initialized, we call `Opt_Output_Http::setContentType()` to create the headers for the specified content type. The method supports full content negotiation, when connected with Open Power Classes library. Finally, we call `Opt_Output_Http::render()` on our view object to send the results to the browser.
+Using a view is very easy. In the constructor, we specify the template assigned to the view, and later we simply assign the data to template variables using the syntax `$view->variableName = value`. There are several other data assignment methods which are described deeper in the API reference. As our view is ready, we need to create an output. We are going to use `Opt_Output_Http`, a standard OPT class that is responsible for HTTP header management and sending the templates to the browser. Once it is initialized, we call [Opt_Output_Http::setContentType()][api.opt-output-http.set-content-type] to create the headers for the specified content type. The method supports full content negotiation, when connected with Open Power Classes library. Finally, we call [Opt_Output_Http::render()][api.opt-output-http.render] on our view object to send the results to the browser.
 
 Note that different output systems may have some requirements. For example, the HTTP output assumes that all the templates are valid XML files. This means that you cannot open a tag in one template and close it in another. So, to be sure that the script output will be also a valid XML document, we can parse only one template. But do not worry - OPT provides several better solutions to make a template modularization. They are explained in the next chapters.
 

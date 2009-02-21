@@ -198,7 +198,7 @@
 							}
 						}
 					}
-					else
+					elseif($params['parent'] != '')
 					{
 						self::$_stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
 						$ok = false;
@@ -214,6 +214,11 @@
 						{
 							throw new Opt_SectionExists_Exception('parent', $params['parent']);
 						}
+					}
+					else
+					{
+						// For the situation, if we had 'parent=""' in the template.
+						$params['parent'] = null;
 					}
 				}
 				else
@@ -326,6 +331,36 @@
 				$format->assign('parentRecord', $pf->get('itemVariable'));				
 			}
 			// TODO: Add support for references, because they are missing now.
+
+			if($format->property('needsAncestors') === true)
+			{
+				// Some of the formats may need a list of ancestors in order
+				// To generate the relationship properly. This code builds
+				// such a list for them using the information contained on
+				// the stack to enumerate them.
+				if(is_null($params['parent']))
+				{
+					$format->assign('ancestors', array());
+				}
+				else
+				{
+					self::$_stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
+					$ancestors = array();
+					$parent = $params['parent'];
+					$iteration = self::$_stack->count();
+					foreach(self::$_stack as $up)
+					{
+						if($up == $parent)
+						{
+							$parent = self::$_sections[$up]['parent'];
+							$ancestors[] = $iteration;
+						}
+						$iteration--;
+					}
+					$format->assign('ancestors', array_reverse($ancestors));
+				}
+			}
+
 			$format->assign('sectionRecordCall', $format->get('sectionRecordCall'));
 			$code .= $format->get('sectionInit');
 			
@@ -379,11 +414,11 @@
 			}
 		} // end _locateElse();
 		
-		public function processOpt($opt)
+		public function processSystemVar($opt)
 		{
 			if(sizeof($opt) < 4)
 			{
-				throw new Opt_OptBlockLength_Exception('$'.implode('.',$opt), 'short');
+				throw new Opt_SysVariableLength_Exception('$'.implode('.',$opt), 'short');
 			}
 			// Determine the section
 			$section = $this->getSection($opt[2]);
@@ -395,11 +430,11 @@
 			switch($opt[3])
 			{
 				case 'count':					
-					return $section['format']->get('sectionOptCount');
+					return $section['format']->get('sectionCount');
 				case 'id':
-					return $section['format']->get('sectionOptIterator');
+					return $section['format']->get('sectionIterator');
 				case 'size':
-					return $section['format']->get('sectionOptSize');
+					return $section['format']->get('sectionSize');
 				case 'first':
 					if($section['order'] == 'desc')
 					{
@@ -415,17 +450,17 @@
 				case 'far':
 					return $section['format']->get('sectionOptFar');
 				default:
-					$result = $this->_processOpt($opt);
+					$result = $this->_processSystemVar($opt);
 					if(is_null($result))
 					{
-						throw new Opt_OptBlockUnknown_Exception('$'.implode('.',$opt));
+						throw new Opt_SysVariableUnknown_Exception('$'.implode('.',$opt));
 					}
 					return $result;
 			}
-		} // end processOpt();
+		} // end processSystemVar();
 		
-		protected function _processOpt($opt)
+		protected function _processSystemVar($opt)
 		{
 			return NULL;
-		} // end _processOpt();
+		} // end _processSystemVar();
 	} // end Opt_Instruction_BaseSection;

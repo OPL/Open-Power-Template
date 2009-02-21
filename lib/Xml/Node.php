@@ -17,7 +17,7 @@
 	{
 		protected $_type;
 		protected $_parent = null;
-		
+
 		public function setParent($parent)
 		{
 			$this->_parent = $parent;
@@ -37,4 +37,16 @@
 		{
 			return get_class($this);
 		} // end __toString();
+
+		public function dispose()
+		{
+			$this->_dispose();
+		} // end dispose();
+
+		protected function _dispose()
+		{
+			$this->_parent = null;
+			$this->_buffers = null;
+			$this->_args = null;
+		} // end _dispose();
 	} // end Opt_Xml_Node;

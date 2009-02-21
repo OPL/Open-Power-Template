@@ -1,6 +1,6 @@
 Title: opt:extend
 SeeAlso:
- - syntax.topics.inheritance
+ - syntax.topics.modularization.inheritance
 
 ----
 
@@ -89,7 +89,7 @@ The result:
 </html>
 ~~~~
 
-Our script template, `homepage.tpl` extends the `layout.tpl` that defines the basic HTML structure for the output and specifies the places, where to insert the header and the content. `homepage.tpl` fills these places with the proper content. Notice that the PHP script sees only `homepage.tpl` and does not have to know about `layout.tpl`. To get to know more about template inheritance in OPT, please read [this chapter][syntax.topics.inheritance].
+Our script template, `homepage.tpl` extends the `layout.tpl` that defines the basic HTML structure for the output and specifies the places, where to insert the header and the content. `homepage.tpl` fills these places with the proper content. Notice that the PHP script sees only `homepage.tpl` and does not have to know about `layout.tpl`. To get to know more about template inheritance in OPT, please read [this chapter][syntax.topics.modularization.inheritance].
 
 OPT allows multiple inheritance, too.
 

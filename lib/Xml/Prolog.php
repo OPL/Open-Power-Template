@@ -17,20 +17,32 @@
 	class Opt_Xml_Prolog
 	{
 		private $_attributes;
+		private $_dynamic = array('version' => false, 'standalone' => false, 'encoding' => false);
 
-		public function __construct()
+		public function __construct($attributes = null)
 		{
-			$this->_attributes = array(
-				'version' => '1.0',
-				'standalone' => 'yes'
-			);
+			if(is_null($attributes))
+			{
+				$this->_attributes = array(
+					'version' => '1.0',
+					'standalone' => 'yes'
+				);
+			}
+			elseif(is_array($attributes))
+			{
+				foreach($attributes as $name => $value)
+				{
+					$this->setAttribute($name, $value);
+				}
+			}
 		} // end __construct();
 
-		public function setAttribute($name, $value)
+		public function setAttribute($name, $value, $dynamic = false)
 		{
-			if($name == 'version' || $name == 'standalone' || $name = 'encoding')
+			if($name == 'version' || $name == 'standalone' || $name == 'encoding')
 			{
 				$this->_attributes[$name] = $value;
+				$this->_dynamic[$name] = $dynamic;
 			}
 		} // end setAttribute();
 
@@ -43,6 +55,23 @@
 			return $this->_attributes[$name];
 		} // end getAttribute();
 
+		public function setDynamic($name, $state)
+		{
+			if($name == 'version' || $name == 'standalone' || $name == 'encoding')
+			{
+				$this->_dynamic[$name] = $state;
+			}
+		} // end setDynamic();
+
+		public function isDynamic($name)
+		{
+			if(!isset($this->_dynamic[$name]))
+			{
+				return NULL;
+			}
+			return $this->_dynamic[$name];
+		} // end isDynamic();
+
 		public function getAttributes()
 		{
 			return $this->_attributes;
@@ -53,7 +82,14 @@
 			$code = '<?xml ';
 			foreach($this->_attributes as $name => $value)
 			{
-				$code .= $name.'="'.$value.'" ';
+				if($this->_dynamic[$name])
+				{
+					$code .= $name.'="<?php echo '.$value.'; ?>" ';
+				}
+				else
+				{
+					$code .= $name.'="'.$value.'" ';
+				}
 			}
 			return $code.'?>';
 		} // end getProlog();

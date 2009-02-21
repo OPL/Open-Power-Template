@@ -1,0 +1,11 @@
+Title: getBranch()
+ShortTitle: Opt_View::getBranch()
+Reference: string getBranch()
+Status: public
+SeeAlso:
+ - api.opt-view.set-branch
+ - syntax.topics.modularization.inheritance
+
+----
+
+Returns the current branch which the view object is associated to.

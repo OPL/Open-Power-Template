@@ -3,7 +3,7 @@
 
 	class selectComponent implements Opt_Component_Interface
 	{
-		private $tpl;
+		private $view;
 		private $name = '';
 		private $valid = true;
 		private $selected = null;
@@ -15,10 +15,10 @@
 			$this->name = $name;
 		} // end __construct();
 
-		public function setOptInstance(Opt_Class $tpl)
+		public function setView(Opt_View $view)
 		{
-			$this->tpl = $tpl;
-		} // end setOptInstance();
+			$this->view = $view;
+		} // end setView();
 
 		public function setDatasource(&$data)
 		{
@@ -61,12 +61,13 @@
 			return isset($this->attributes[$name]);
 		} // end defined();
 
-		public function createAttribute($nodeName)
+		public function manageAttributes($nodeName, Array $attributes)
 		{
 			if($nodeName == 'div' && !$this->valid)
 			{
-				echo ' class="hello"';
+				$attributes['class'] = 'hello';
 			}
+			return $attributes;
 		} // end createAttribute();
 
 		public function display($attributes = array())

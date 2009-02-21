@@ -22,40 +22,38 @@ Because PHARs can do the initial configuration on their own, the startup code is
 ~~~~
 [php]
 <?php
-	require('./opl.phar');
-	require('./opt.phar');
+require('./opl.phar');
+require('./opt.phar');
 
-	try
-	{
-		$tpl = new Opt_Class;
-		$tpl->sourceDir = './templates/';
-		$tpl->compileDir = './templates_c/';
-		$tpl->contentType = Opt_Class::XHTML;
-		$tpl->charset = 'utf-8';
-		$tpl->setup();
+try
+{
+	$tpl = new Opt_Class;
+	$tpl->sourceDir = './templates/';
+	$tpl->compileDir = './templates_c/';
+	$tpl->contentType = Opt_Class::XHTML;
+	$tpl->charset = 'utf-8';
+	$tpl->setup();
 
-		$view = new Opt_View('template.tpl');
-		$view->hello = 'Hello, world!';
-		
-		$out = new Opt_Output_Http;
-		$out->setContentType();
-		$out->render($view);
-	}
-	catch(Opt_Exception $exception)
-	{
-		Opl_Error_Handler($exception);
-	}
+	$view = new Opt_View('template.tpl');
+	$view->hello = 'Hello, world!';
+	
+	$out = new Opt_Output_Http;
+	$out->setContentType();
+	$out->render($view);
+}
+catch(Opt_Exception $exception)
+{
+	Opl_Error_Handler($exception);
+}
 ~~~~
-
-<!-- ... ->
 
 > [information]
 > Even with PHARs, there may be a need to keep additional directory structure for OPL. For example, if an add-on is not available as PHAR, you must put it in the filesystem and inform OPL, where it can find it.
 > 
 >     [php]
 >     <?php
->     	require('./opl.phar');
->     	require('./opt.phar');
->     	Opl_Loader::setDirectory('./libs/');
+>     require('./opl.phar');
+>     require('./opt.phar');
+>     Opl_Loader::setDirectory('./libs/');
 >
 > The details can be found in OPL documentation.

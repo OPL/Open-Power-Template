@@ -3,11 +3,11 @@
     
     class myBlock implements Opt_Block_Interface
     {
-		private $_tpl;
+		private $_view;
 
-    	public function setOptInstance(Opt_Class $tpl)
+    	public function setView(Opt_View $view)
     	{
-    		$this->_tpl = $tpl;
+    		$this->_view = $view;
     	} // end setOptInstance();
     	
 		public function onOpen(Array $attributes)

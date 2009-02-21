@@ -32,14 +32,23 @@
 			$params = array(
 				'escaping' => array(0 => self::OPTIONAL, self::BOOL, NULL),
 				'include' => array(0 => self::OPTIONAL, self::HARD_STRING, NULL),
+				'dynamic' => array(0 => self::OPTIONAL, self::BOOL, false),
 			);
 			$this->_extractAttributes($node, $params);
 			
 			if(!is_null($params['include']))
 			{
-				$this->_compiler->addDependantTemplate($params['include']);
+				$file = $params['include'];
+				if($params['dynamic'])
+				{
+					if(is_null($file = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
+					{
+						$file = $params['include'];
+					}
+				}
+				$this->_compiler->addDependantTemplate($file);
 				$compiler = new Opt_Compiler_Class($this->_compiler);
-				$compiler->compile($this->_tpl->_getSource($params['include']), $params['include'], NULL, $this->_compiler->get('mode'));
+				$compiler->compile($this->_tpl->_getSource($file), $file, NULL, $this->_compiler->get('mode'));
 				$this->_compiler->importDependencies($compiler);
 			}
 			

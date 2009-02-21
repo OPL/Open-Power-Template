@@ -7,7 +7,7 @@ SeeAlso:
  
 ----
 
-This method should be used only in [api.opt-compiler-processor.process-node]. It adds the children of `$node` to the compiler processing queue. The most common use is to inform the compiler to parse the content of the instruction tag:
+This method should be used only in [Opt_Compiler_Processor::processNode()][api.opt-compiler-processor.process-node]. It adds the children of `$node` to the compiler processing queue. The most common use is to inform the compiler to parse the content of the instruction tag:
 
 ~~~~
 [php]

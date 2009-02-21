@@ -37,6 +37,22 @@
 				$root = $tmp;
 			}
 
-			$root->setProlog(new Opt_Xml_Prolog($params));
+			if(is_null($params['version']))
+			{
+				$params['version'] = '\'1.0\'';
+			}
+			if(is_null($params['standalone']))
+			{
+				$params['standalone'] = '\'yes\'';
+			}
+			if(is_null($params['encoding']))
+			{
+				unset($params['encoding']);
+			}
+
+			$root->setProlog($prolog = new Opt_Xml_Prolog($params));
+			$prolog->setDynamic('version', true);
+			$prolog->setDynamic('standalone', true);
+			$prolog->setDynamic('encoding', true);
 		} // end processNode();
 	} // end Opt_Instruction_Prolog;

@@ -8,4 +8,4 @@ SeeAlso:
 
 ---
 
-This method captures all the XML attributes registered by the processor and allows to parse them much like [api.opt-compiler-processor.process-node] does with XML tags. The taken arguments are the registered `$attribute` and the XML `$node` which the attribute is assigned to.
+This method captures all the XML attributes registered by the processor and allows to parse them much like [Opt_Compiler_Processor::processNode()][api.opt-compiler-processor.process-node] does with XML tags. The taken arguments are the registered `$attribute` and the XML `$node` which the attribute is assigned to.

@@ -166,6 +166,16 @@
 		
 		public function removeChildren()
 		{
+			if(is_array($this->_subnodes))
+			{
+				foreach($this->_subnodes as $subnode)
+				{
+					if(is_object($subnode))
+					{
+						$subnode->setParent(null);
+					}
+				}
+			}
 			unset($this->_subnodes);
 			$this->_subnodes = null;
 		} // end removeChildren();
@@ -176,6 +186,16 @@
 			$this->_i = $node->_i;
 			$this->_size = $node->_size;
 			$this->_copy = $node->_copy;
+			if(is_array($this->_subnodes))
+			{
+				foreach($this->_subnodes as $subnode)
+				{
+					if(is_object($subnode))
+					{
+						$subnode->setParent($this);
+					}
+				}
+			}
 		} // end moveChildren();
 		
 		public function replaceChild(Opt_Xml_Node $newnode, $refnode)
@@ -193,8 +213,8 @@
 				{
 					if(isset($this->_subnodes[$i]))
 					{
-						// TODO: see note about comparing" in bringToEnd()
-						if($refnode == $this->_subnodes[$i])
+						// SEE: note about comparing" in bringToEnd()
+						if($refnode === $this->_subnodes[$i])
 						{
 							$this->_subnodes[$i] = $newnode;
 							return true;
@@ -524,7 +544,48 @@
 				}
 			}
 		} // end __clone();
-		
+
+		public function dispose()
+		{
+			// The main instance of cloning, it makes copies of all the subnodes.
+			$queue = new SplQueue;
+			if(is_array($this->_subnodes))
+			{
+				foreach($this->_subnodes as $subitem)
+				{
+					if(is_object($subitem))
+					{
+						$queue->enqueue($subitem);
+					}
+				}
+			}
+			while($queue->count() > 0)
+			{
+				$item = $queue->dequeue();
+				if($item instanceof Opt_Xml_Scannable)
+				{
+					foreach($item as $subitem)
+					{
+						if(is_object($subitem))
+						{
+							$queue->enqueue($subitem);
+						}
+					}
+				}
+				$item->_dispose();
+			}
+			$this->_dispose();
+		} // end dispose();
+
+		protected function _dispose()
+		{
+			parent::_dispose();
+			$this->_subnodes = NULL;
+			$this->_prototypes = NULL;
+			$this->_i = NULL;
+			$this->_size = 0;
+			$this->_copy = NULL;
+		} // end _dispose();
 		/*
 		 * Iterator interface implementation
 		 */

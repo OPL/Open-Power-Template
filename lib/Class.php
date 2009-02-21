@@ -19,7 +19,7 @@
 	interface Opt_Component_Interface
 	{
 		public function __construct($name = '');
-		public function setOptInstance(Opt_Class $tpl);
+		public function setView(Opt_View $view);
 		public function setDatasource(&$data);
 
 		public function set($name, $value);
@@ -28,12 +28,12 @@
 
 		public function display($attributes = array());
 		public function processEvent($name);
-		public function createAttribute($tagName);
+		public function manageAttributes($tagName, Array $attributes);
 	} // end Opt_Component_Interface;
 	
 	interface Opt_Block_Interface
 	{
-		public function setOptInstance(Opt_Class $tpl);
+		public function setViewInstance(Opt_View $view);
 		public function onOpen(Array $attributes);
 		public function onClose();
 		public function onSingle(Array $attributes);
@@ -81,7 +81,7 @@
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
 	
-		const VERSION = '2.0.0-beta1';
+		const VERSION = '2.0-beta2';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration
@@ -163,7 +163,14 @@
 		/*
 		 * Template parsing
 		 */
-		
+
+		/**
+		 * Returns the compiler object and optionally loads the necessary classes. Unless
+		 * you develop instructions or reimplement various core features you do not have
+		 * to use this method.
+		 *
+		 * @return Opt_Compiler_Class The compiler
+		 */
 		public function getCompiler()
 		{
 			if(!is_object($this->_compiler))
@@ -177,6 +184,13 @@
 		 * Extensions and configuration
 		 */
 
+		/**
+		 * Performs the main initialization of OPT. If the optional argument `$config` is
+		 * specified, it is transparently sent to Opt_Class::loadConfig(). Before using this
+		 * method, we are obligated to configure the library and load the necessary extensions.
+		 *
+		 * @param mixed $config = null The optional configuration to be loaded
+		 */
 		public function setup($config = null)
 		{
 			if(is_array($config))
@@ -190,7 +204,7 @@
 
 			if(Opl_Registry::exists('opl_translate'))
 			{
-				$this->_tf = Opl_Registry::get('opl_translate');
+				$this->setTranslationInterface(Opl_Registry::get('opl_translate'));
 			}
 			if(Opl_Registry::getState('opl_debug_console') || $this->debugConsole)
 			{
@@ -210,7 +224,20 @@
 			$this->_securePath($this->compileDir);
 			$this->_init = true;
 		} // end setup();
-		
+
+		/**
+		 * Registers a new add-on in OPT identified by `$type`. The type is identified
+		 * by the appropriate Opt_Class constant. The semantics of the next arguments
+		 * depends on the registered add-on.
+		 *
+		 * Note that you may register several add-ons at the same time by passing an
+		 * array as the second argument.
+		 *
+		 * @param int $type The type of registered item(s).
+		 * @param mixed $item The item or a list of items to be registered
+		 * @param mixed $addon = null Used in several types of add-ons
+		 * @return void
+		 */
 		public function register($type, $item, $addon = null)
 		{
 			if($this->_init)
@@ -237,6 +264,21 @@
 			}
 		} // end register();
 
+		public function setTranslationInterface($tf)
+		{
+			if(!$tf instanceof Opl_Translation_Interface)
+			{
+				$this->_tf = null;
+				return false;
+			}
+			$this->_tf = $tf;
+			return true;
+		} // end setTranslationInterface();
+
+		public function getTranslationInterface()
+		{
+			return $this->_tf;
+		} // end getTranslationInterface();
 		/*
 		 * Internal use
 		 */
@@ -340,6 +382,7 @@
 		private $_inheritance = array();
 		private $_cplInheritance = array();
 		private $_data = array();
+		private $_tf;
 		private $_processingTime = null;
 		private $_branch = null;
 		
@@ -401,10 +444,33 @@
 			$this->_data[$name] = &$value;
 		} // end assignRef();
 		
+		public function get($name)
+		{
+			if(!isset($this->_data[$name]))
+			{
+				return null;
+			}
+			return $this->_data[$name];
+		} // end read();
+		
+		public function __get($name)
+		{
+			if(!isset($this->_data[$name]))
+			{
+				return null;
+			}
+			return $this->_data[$name];
+		} // end __get();
+		
 		public function defined($name)
 		{
 			return isset($this->_data[$name]);
 		} // end defined();
+		
+		public function __isset($name)
+		{
+			return isset($this->_data[$name]);
+		} // end __isset();
 		
 		public function remove($name)
 		{
@@ -419,6 +485,11 @@
 			}
 			return false;
 		} // end remove();
+		
+		public function __unset($name)
+		{
+			return $this->remove($name);
+		} // end __unset();
 		
 		static public function assignGlobal($name, $value)
 		{
@@ -439,6 +510,15 @@
 		{
 			return isset(self::$_global[$name]);
 		} // end definedGlobal();
+
+		static public function getGlobal($name, $value)
+		{
+			if(!isset(self::$_global[$name]))
+			{
+				return null;
+			}
+			return self::$_global[$name];
+		} // end getGlobal();
 		
 		static public function removeGlobal($name)
 		{
@@ -482,6 +562,7 @@
 			{
 				$time = microtime(true);
 			}
+			$this->_tf = $this->_tpl->getTranslationInterface();
 			if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 			{
 				list($compileName, $compileTime) = $this->_preprocess($mode, $exception);	
@@ -492,7 +573,7 @@
 			}
 			else
 			{
-				$compileName = $this->_convert($filename);
+				$compileName = $this->_convert($this->_template);
 				$compileTime = null;
 				if(!$exception && !file_exists($compileName))
 				{
@@ -507,7 +588,7 @@
 			// The counter stops, if the time counting has been enabled for the debug console purposes
 			if(isset($time))
 			{
-				Opt_Support::addView($this->_template, $output->getName(), microtime(true) - $time, $cached);
+				Opt_Support::addView($this->_template, $output->getName(), $this->_processingTime = microtime(true) - $time, $cached);
 			}
 			return true;
 		} // end _parse();

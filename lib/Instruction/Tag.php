@@ -26,30 +26,41 @@
 		{
 			$params = array(
 				'name' => array(0 => self::REQUIRED, self::EXPRESSION),
+				'ns' => array(0 => self::OPTIONAL, self::EXPRESSION, null),
 				'single' => array(0 => self::OPTIONAL, self::BOOL, false)		
 			);
 			$this->_extractAttributes($node, $params);
 		
 			// Remove these nodes
 			$node->removeAttribute('name');
+			$node->removeAttribute('ns');
 			$node->removeAttribute('single');
-			
-			// Check if "opt:attribute" tried to define us something special
-			if(!is_null($attr = $node->getAttribute('__xattr_name')))
+
+			if(is_null($params['ns']))
 			{
-				$attr->setName('name');
+				$node->addBefore(Opt_Xml_Buffer::TAG_NAME, ' echo '.$params['name'].'; ');
 			}
-			if(!is_null($attr = $node->getAttribute('__xattr_single')))
+			else
 			{
-				$attr->setName('single');
+				$node->addBefore(Opt_Xml_Buffer::TAG_NAME, ' $_ns = '.$params['ns'].'; echo (!empty($_ns) ? $_ns.\':\' : \'\').'.$params['name'].'; ');
 			}
 			
-			$node->setNamespace(NULL);
-			$node->setName('__default__');
-			$node->addBefore(Opt_Xml_Buffer::TAG_NAME, ' echo '.$params['name'].'; ');
-			
-			// TODO: Add "single" support
-			
+			if($params['single'] == true)
+			{
+				$node->set('single', true);
+				
+			}
+			$node->set('postprocess', true);
 			$this->_process($node);
 		} // end processNode();
+
+		public function postprocessNode(Opt_Xml_Node $node)
+		{
+			if($node->get('single'))
+			{
+				$node->removeChildren();
+			}
+			$node->setNamespace(null);
+			$node->setName('__default__');
+		} // end postprocessNode();
 	} // end Opt_Instruction_Tag;

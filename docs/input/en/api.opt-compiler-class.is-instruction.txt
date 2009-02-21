@@ -1,6 +1,7 @@
-Title: isOptTag()
-ShortTitle: Opt_Compiler_Class::isOptTag()
-Reference: Opt_Compiler_Processor isOptTag(string $name)
+Title: isInstruction()
+ShortTitle: Opt_Compiler_Class::isInstruction()
+Reference: Opt_Compiler_Processor isInstruction(string $name)
+Status: public
 
 ---
 

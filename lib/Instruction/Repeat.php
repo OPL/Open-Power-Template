@@ -46,7 +46,7 @@
 			$this->_nesting--;
 		} // end postprocessNode();
 		
-		public function processOpt($namespace)
+		public function processSystemVar($namespace)
 		{
 			if(!isset($namespace[2]))
 			{
@@ -59,5 +59,5 @@
 				case 'order':
 					return '$__r'.$this->_nesting.'+1';
 			}
-		} // end processOpt();
+		} // end processSystemVar();
 	} // end Opt_Instruction_Repeat;

@@ -13,6 +13,9 @@
     	
     	$view = new Opt_View('test_parser_1.tpl');
     	$view->foo = 'A foo value';
+
+		$x = $view->foo;
+		$y = $view->bar;
     	
     	$httpOutput = new Opt_Output_Http;
     	$httpOutput->setContentType(Opt_Output_Http::HTML);

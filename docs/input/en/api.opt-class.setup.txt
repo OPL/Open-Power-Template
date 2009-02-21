@@ -1,13 +1,13 @@
 Title: setup()
 ShortTitle: Opt_Class::setup()
 Reference: void setup([mixed $config])
-VersionSince: 2.0.0-dev7
+VersionSince: 2.0-dev7
 SeeAlso:
  - api.opt-class.setup
  
 ----
 
-Performs the main initialization of OPT. If the optional argument `$config` is specified, it is transparently sent to [api.opt-class.load-config]. Before using this method, we are obligated to configure the library and load the necessary extensions.
+Performs the main initialization of OPT. If the optional argument `$config` is specified, it is transparently sent to [Opt_Class::loadConfig()][api.opt-class.load-config]. Before using this method, we are obligated to configure the library and load the necessary extensions.
 
 ~~~~
 [php]

@@ -88,4 +88,3 @@ Compiled template
 
 Template result, output
 :	The code that is produced by putting the data into a template and is ready to be sent to the browser.
-Ponadto będziemy korzystać z następującej terminologii:

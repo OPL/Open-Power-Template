@@ -8,7 +8,7 @@ Extends: api.opt-xml-node
 `Opt_Xml_Cdata` objects represent a static text within the tags. They may be children of `Opt_Xml_Text` only, together with `Opt_Xml_Expression`.
 
 > [information]
-> These nodes support the optional state variable `cdata` (for more information on state variables, see [api.opt-xml-buffer]). If it is set to **true**, the text stored in this tag becomes a CDATA section.
+> These nodes support the optional state variable `cdata` (for more information on state variables, see [Opt_Xml_Buffer][api.opt-xml-buffer]). If it is set to **true**, the text stored in this tag becomes a CDATA section.
 
 <!-- # -->
 

@@ -57,7 +57,7 @@ $view->setFormat('article', 'Objective');
 $output->render($view);
 ~~~~
 
-If we do not specify any special format for a variable or container, the compiler assumes that they are PHP arrays. However, in our case the `$article` is neither an array nor it implements the `ArrayAccess` interface. Using the `Opt_View::setFormat()` we inform the compiler that `$article` is an object by choosing the `Objective` format for it.
+If we do not specify any special format for a variable or container, the compiler assumes that they are PHP arrays. However, in our case the `$article` is neither an array nor it implements the `ArrayAccess` interface. Using the [Opt_View::setFormat()][api.opt-view.set-format] we inform the compiler that `$article` is an object by choosing the `Objective` format for it.
 
 More complex containers
 =======================

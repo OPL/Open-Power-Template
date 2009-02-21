@@ -15,7 +15,7 @@ $this->tpl->prologRequired = false;
 OUTPUT
 
 >>>>result.txt
-<?xml version="1.0" standalone="yes" ?>
+<?xml version="1.0" ?>
 <!DOCTYPE foo [ <!ELEMENT note (bar)>
 <!ELEMENT bar (#PCDATA)> ]>
 <foo>

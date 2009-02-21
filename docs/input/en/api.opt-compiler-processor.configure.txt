@@ -5,7 +5,7 @@ Status: extendable public
 
 ---
 
-Performs an initial configuration of the instruction processor and informs about the tags and attributes parsed by it. The instruction programmer should extend this method and call there `Opt_Compiler_Processor::_addInstructions()` and `Opt_Compiler_Processor::_addAttributes()`:
+Performs an initial configuration of the instruction processor and informs about the tags and attributes parsed by it. The instruction programmer should extend this method and call there [Opt_Compiler_Processor::_addInstructions()][api.opt-compiler-processor._add-instructions] and [Opt_Compiler_Processor::_addAttributes()][api.opt-compiler-processor._add-attributes]:
 
 ~~~~
 [php]

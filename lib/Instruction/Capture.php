@@ -47,8 +47,8 @@
 			}
 		} // end processAttribute();
 		
-		public function processOpt($opt)
+		public function processSystemVar($opt)
 		{
 			return '$this->_capture[\''.$opt[2].'\']';
-		} // end processOpt();
+		} // end processSystemVar();
 	} // end Opt_Instruction_Capture;

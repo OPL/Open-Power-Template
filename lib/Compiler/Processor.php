@@ -75,10 +75,10 @@
 			/* null */
 		} // end postprocessAttribute();
 		
-		public function processOpt($opt)
+		public function processSystemVar($opt)
 		{
 			/* null */
-		} // end processOpt();
+		} // end processSystemVar();
 		
 		final public function getName()
 		{

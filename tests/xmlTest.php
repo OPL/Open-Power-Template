@@ -45,9 +45,16 @@
 	    {
 	    	return array(0 =>
 	    		array('tags_1.txt'),
+				array('tags_2.txt'),
+				array('tags_3.txt'),
+				array('tags_4.txt'),
+				array('tags_5.txt'),
+				array('tags_6.txt'),
+				array('tags_7.txt'),
 				array('prolog_1.txt'),
 				array('prolog_2.txt'),
 				array('prolog_3.txt'),
+				array('prolog_4.txt'),
 				array('dtd_1.txt'),
 				array('dtd_2.txt'),
 				array('dtd_3.txt'),

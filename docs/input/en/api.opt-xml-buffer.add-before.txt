@@ -25,4 +25,4 @@ class Opt_Processor_Foo extends Opt_Compiler_Processor
 ~~~~
 
 > [information]
-> See the description of `Opt_Xml_Buffer::addAfter()` to get to know more information about this method.
+> See the description of [Opt_Xml_Buffer::addAfter()][api.opt-xml-buffer.add-after] to get to know more information about this method.

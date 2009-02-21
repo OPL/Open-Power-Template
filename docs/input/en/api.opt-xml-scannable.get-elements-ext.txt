@@ -1,7 +1,7 @@
 Title: getElementsExt()
 ShortTitle: Opt_Xml_Scannable::getElementsExt()
 Reference: array getElementsExt(string $namespace, string $name)
-VersionSince: 2.0.0-dev8
+VersionSince: 2.0-dev8
 Status: public
 SeeAlso:
  - api.opt-xml-scannable.get-elements-by-tag-name
@@ -9,7 +9,7 @@ SeeAlso:
 
 ----
 
-This method works much like [api.opt-xml-scannable.get-elements-by-tag-name-ns], however it does not check the descendants of matching nodes. Its use is very common in OPT. Suppose we are writing the new instruction processor. The main instruction tag is `opt:foo`, but it must have also a descendant `opt:bar`:
+This method works much like [Opt_Xml_Scannable::getElementsByTagNameNS()][api.opt-xml-scannable.get-elements-by-tag-name-ns], however it does not check the descendants of matching nodes. Its use is very common in OPT. Suppose we are writing the new instruction processor. The main instruction tag is `opt:foo`, but it must have also a descendant `opt:bar`:
 
 ~~~~
 [xml]

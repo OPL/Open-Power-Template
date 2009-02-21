@@ -8,7 +8,7 @@ The main compiler class. A single compiler can compile only one template or inhe
 Compiler state variables
 ========================
 
-During the compilation, the processors have access to the compiler state variables with the [api.opt-compiler-class.get] and [api.opt-compiler-class.set] methods. The following variables are created and managed by the compiler or the standard instructions:
+During the compilation, the processors have access to the compiler state variables with the [Opt_Compiler_Class::get()][api.opt-compiler-class.get] and [Opt_Compiler_Class::set()][api.opt-compiler-class.set] methods. The following variables are created and managed by the compiler or the standard instructions:
 
 **template**
 :	`string` The main template name that is being compiled.

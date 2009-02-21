@@ -49,6 +49,7 @@
 			{
 				return false;
 			}
+			$name = strtr($name, "\r\n", '  ');
 			$value = strtr($value, "\r\n", '  ');
 			if(!$this->_tpl->headerBuffering)
 			{

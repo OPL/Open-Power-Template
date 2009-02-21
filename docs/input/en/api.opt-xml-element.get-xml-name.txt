@@ -3,7 +3,7 @@ ShortTitle: Opt_Xml_Element::getXmlName()
 Reference: string getXmlName()
 Status: public
 SeeAlso:
- - library.opt-xml-element.get-name
+ - api.opt-xml-element.get-name
 
 ---
 

@@ -1,6 +1,5 @@
 Title: opt:section
 SeeAlso:
- - syntax.instructions.sections
  - syntax.instructions.tree
  - syntax.instructions.grid
  - syntax.instructions.selector

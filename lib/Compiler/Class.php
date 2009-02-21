@@ -101,7 +101,7 @@
 		private $_rHexadecimalNumber = '\-?0[xX][0-9a-fA-F]+';
 		private $_rDecimalNumber = '[0-9]+\.?[0-9]*';
 		private $_rLanguageVar = '\$[a-zA-Z0-9\_]+@[a-zA-Z0-9\_]+';
-		private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]+';
+		private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]*';
 		private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|';
 		private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]+';
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
@@ -110,7 +110,7 @@
 		private $_translationConversion = null;
 		private $_initialMemory = null;
 		
-		static private $_templates = array();			
+		static private $_templates = array();
 
 		public function __construct($tpl)
 		{
@@ -184,6 +184,20 @@
 			if(!is_writable($tpl->compileDir) && $tpl->_compileMode != Opt_Class::CM_PERFORMANCE)
 			{
 				throw new Opt_FilesystemAccess_Exception('compilation', 'writeable');
+			}
+
+			// If the debug console is active, preload the XML tree classes.
+			// Without it, the debug console would show crazy things about the memory usage.
+			if($this->_tpl->debugConsole && !class_exists('Opt_Xml_Root'))
+			{
+				Opl_Loader::load('Opt_Xml_Root');
+				Opl_Loader::load('Opt_Xml_Text');
+				Opl_Loader::load('Opt_Xml_Cdata');
+				Opl_Loader::load('Opt_Xml_Element');
+				Opl_Loader::load('Opt_Xml_Attribute');
+				Opl_Loader::load('Opt_Xml_Expression');
+				Opl_Loader::load('Opt_Xml_Prolog');
+				Opl_Loader::load('Opt_Xml_Dtd');
 			}
 		} // end __construct();
 		
@@ -994,129 +1008,170 @@
 		
 		public function compile($code, $filename, $compiledFilename, $mode)
 		{
-			// We cannot compile two templates at the same time
-			if(!is_null($this->_template))
+			try
 			{
-				throw new Opt_CompilerLocked_Exception($filename, $this->_template);
-			}
-			if($this->_tpl->debugConsole)
-			{
-				$this->_initial_memory = memory_get_usage();	
-			}
-			
-			// Detecting recursive inclusion
-			if(is_null(self::$_recursionDetector))
-			{
-				self::$_recursionDetector = array(0 => $filename);
-				$weFree = true;	
-			}
-			else
-			{
-				if(in_array($filename, self::$_recursionDetector))
+				// We cannot compile two templates at the same time
+				if(!is_null($this->_template))
 				{
-					$exception = new Opt_CompilerRecursion_Exception($filename);
-					$exception->setData(self::$_recursionDetector);
-					throw $exception;	
-				}
-				self::$_recursionDetector[] = $filename;
-				$weFree = false;
-			}
-			// Cleaning up the processors
-			foreach($this->_processors as $proc)
-			{
-				$proc->reset();
-			}
-			// Initializing the template launcher
-			$this->set('template', $this->_template = $filename);
-			$this->set('mode', $mode);
-			$this->set('currentTemplate', $this->_template);
-			array_push(self::$_templates, $filename);
-			$this->_stack = new SplStack;
-			$i = 0;
-			$extend = $filename;
-			
-			// The inheritance loop
-			do
-			{
-				// Stage 1 - code compilation
-				$tree = $this->_stage1($code, $extend, $mode);
-				unset($code);
-
-				// Stage 2 - PHP tree processing
-				$this->_stack = array();
-				$this->_stage2($tree, true);
-				$this->set('escape', NULL);
-				unset($this->_stack);
-				
-				// if the template extends something, load it and also process
-				if(isset($extend) && $extend != $filename)
-				{
-					$this->addDependantTemplate($extend);
+					throw new Opt_CompilerLocked_Exception($filename, $this->_template);
 				}
 
-				if(!is_null($snippet = $tree->get('snippet')))
+				// Detecting recursive inclusion
+				if(is_null(self::$_recursionDetector))
 				{
-					// Change the specified snippet into a root node.
-					$tree = new Opt_Xml_Root;
-					$attribute = new Opt_Xml_Attribute('opt:use', $snippet);
-					$this->processor('snippet')->processAttribute($tree, $attribute);
-					$this->processor('snippet')->postprocessAttribute($tree, $attribute);	
-					
-					$this->_stage2($tree, true);
-					break;
+					self::$_recursionDetector = array(0 => $filename);
+					$weFree = true;
 				}
-				if(!is_null($extend = $tree->get('extend')))
+				else
 				{
-					$this->set('currentTemplate', $extend); 
-					array_pop(self::$_templates);
-					array_push(self::$_templates, $extend);
-					$code = $this->_tpl->_getSource($extend);
-				}
-				$i++;
-			}
-			while(!is_null($extend));
-			// There are some dependant templates. We must add a suitable PHP code
-			// to the output.
-			
-			if(sizeof($this->_dependencies) > 0)
-			{
-				$this->_addDependencies($tree);
-			}
-			// Stage 3 - linking the last tree
-			if(!is_null($compiledFilename))
-			{
-				$output = '';
-				$this->_dynamicBlocks = array();
-				$this->_stage3($output, $tree);
-				unset($tree);
-				
-				$output = str_replace('?><'.'?php', '', $output);
-				
-				// Build the directories, if needed.
-				if(($pos = strrpos($compiledFilename, '/')) !== false)
-				{
-					$path = $this->_tpl->compileDir.substr($compiledFilename, 0, $pos);
-					if(!is_dir($path))
+					if(in_array($filename, self::$_recursionDetector))
 					{
-						mkdir($path, 0750, true);					
+						$exception = new Opt_CompilerRecursion_Exception($filename);
+						$exception->setData(self::$_recursionDetector);
+						throw $exception;
+					}
+					self::$_recursionDetector[] = $filename;
+					$weFree = false;
+				}
+				// Cleaning up the processors
+				foreach($this->_processors as $proc)
+				{
+					$proc->reset();
+				}
+				// Initializing the template launcher
+				$this->set('template', $this->_template = $filename);
+				$this->set('mode', $mode);
+				$this->set('currentTemplate', $this->_template);
+				array_push(self::$_templates, $filename);
+				$this->_stack = new SplStack;
+				$i = 0;
+				$extend = $filename;
+
+				$memory = 0;
+
+				// The inheritance loop
+				do
+				{
+					// Stage 1 - code compilation
+					if($this->_tpl->debugConsole)
+					{
+						$initial = memory_get_usage();
+						$tree = $this->_stage1($code, $extend, $mode);
+						// Stage 2 - PHP tree processing
+						$this->_stack = array();
+						$this->_stage2($tree, true);
+						$this->set('escape', NULL);
+						unset($this->_stack);
+						$memory += (memory_get_usage() - $initial);
+						unset($code);
+					}
+					else
+					{
+						$tree = $this->_stage1($code, $extend, $mode);
+						unset($code);
+						// Stage 2 - PHP tree processing
+						$this->_stack = array();
+						$this->_stage2($tree, true);
+						$this->set('escape', NULL);
+						unset($this->_stack);
+					}
+
+
+					// if the template extends something, load it and also process
+					if(isset($extend) && $extend != $filename)
+					{
+						$this->addDependantTemplate($extend);
+					}
+
+					if(!is_null($snippet = $tree->get('snippet')))
+					{
+						// Change the specified snippet into a root node.
+						$tree = new Opt_Xml_Root;
+						$attribute = new Opt_Xml_Attribute('opt:use', $snippet);
+						$this->processor('snippet')->processAttribute($tree, $attribute);
+						$this->processor('snippet')->postprocessAttribute($tree, $attribute);
+
+						$this->_stage2($tree, true);
+						break;
+					}
+					if(!is_null($extend = $tree->get('extend')))
+					{
+						$this->set('currentTemplate', $extend);
+						array_pop(self::$_templates);
+						array_push(self::$_templates, $extend);
+						$code = $this->_tpl->_getSource($extend);
+					}
+					$i++;
+				}
+				while(!is_null($extend));
+				// There are some dependant templates. We must add a suitable PHP code
+				// to the output.
+
+				if(sizeof($this->_dependencies) > 0)
+				{
+					$this->_addDependencies($tree);
+				}
+
+				if($this->_tpl->debugConsole)
+				{
+					Opt_Support::addCompiledTemplate($this->_template, $memory);
+				}
+
+				// Stage 3 - linking the last tree
+				if(!is_null($compiledFilename))
+				{
+					$output = '';
+					$this->_dynamicBlocks = array();
+
+					$this->_stage3($output, $tree);
+					$tree->dispose();
+					unset($tree);
+
+					$output = str_replace('?><'.'?php', '', $output);
+
+					// Build the directories, if needed.
+					if(($pos = strrpos($compiledFilename, '/')) !== false)
+					{
+						$path = $this->_tpl->compileDir.substr($compiledFilename, 0, $pos);
+						if(!is_dir($path))
+						{
+							mkdir($path, 0750, true);
+						}
+					}
+
+					// Save the file
+					if(sizeof($this->_dynamicBlocks) > 0)
+					{
+						file_put_contents($this->_tpl->compileDir.$compiledFilename.'.dyn', serialize($this->_dynamicBlocks));
+					}
+					file_put_contents($this->_tpl->compileDir.$compiledFilename, $output);
+				}
+				array_pop(self::$_templates);
+				$this->_inheritance = array();
+				if($weFree)
+				{
+					// Do the cleanup.
+					$this->_dependencies = array();
+					self::$_recursionDetector = NULL;
+					foreach($this->_processors as $processor)
+					{
+						$processor->reset();
 					}
 				}
-				
-				// Save the file
-				if(sizeof($this->_dynamicBlocks) > 0)
-				{
-					file_put_contents($this->_tpl->compileDir.$compiledFilename.'.dyn', serialize($this->_dynamicBlocks));
-				}
-				file_put_contents($this->_tpl->compileDir.$compiledFilename, $output);
+				$this->_template = NULL;
 			}
-			array_pop(self::$_templates);
-			$this->_inheritance = array();
-			if($weFree)
+			catch(Exception $e)
 			{
-				// Do the cleanup.			
+				// Clean the compiler state in case of exception
+				$this->_dependencies = array();
 				self::$_recursionDetector = NULL;
+				foreach($this->_processors as $processor)
+				{
+					$processor->reset();
+				}
+				// And throw it forward.
+				throw $e;
 			}
-			$this->_template = NULL;
 		} // end compile();
 		
 		protected function _stage1(&$code, $filename, $mode)
@@ -1124,7 +1179,6 @@
 			$current = $tree = new Opt_Xml_Root;
 			
 			// First we have to find the prolog and DTD. Then we will be able to parse tags.
-			$docCnt = sizeof($document);
 
 			$codeSize = strlen($code);
 			
@@ -1215,7 +1269,6 @@
 			$groups = preg_split($this->_rCDataExpression, $code, 0, PREG_SPLIT_DELIM_CAPTURE);
 			$groupCnt = sizeof($groups);
 			$groupState = 0;
-
 			Opt_Xml_Cdata::$mode = $mode;
 			for($k = 0; $k < $groupCnt; $k++)
 			{
@@ -1240,7 +1293,6 @@
 					}
 					continue;
 				}
-
 				$subgroups = preg_split($this->_rCommentExpression, $groups[$k], 0, PREG_SPLIT_DELIM_CAPTURE);
 				$subgroupCnt = sizeof($subgroups);
 				$subgroupState = 0;
@@ -1377,7 +1429,6 @@
 					}
 				}
 			}
-
 			return $tree;
 		} // end _stage1();
 
@@ -1522,6 +1573,7 @@
 				$this->_doPostprocess($item, $pp);
 				if($queue->count() == 0)
 				{
+					unset($queue);
 					if($stack->count() == 0)
 					{
 						break;
@@ -1533,12 +1585,7 @@
 		} // end _stage2();
 		
 		protected function _stage3(&$output, Opt_Xml_Node $node)
-		{
-			if($this->_tpl->debugConsole)
-			{
-				Opt_Support::addCompiledTemplate($this->_template, memory_get_usage() - $this->_initialMemory);
-			}
-			
+		{			
 			$queue = new SplQueue;
 			$stack = new SplStack;
 			$queue->enqueue($node);
@@ -1645,7 +1692,7 @@
 
 							if($item->hasProlog())
 							{
-								$output .= str_replace('<?', '<<?php echo \'?\'; ?>', $item->getProlog()->getProlog())."\r\n";
+								$output .= str_replace('<?xml', '<<?php echo \'?\'; ?>xml', $item->getProlog()->getProlog())."\r\n";
 							}
 							if($item->hasDtd())
 							{
@@ -2252,6 +2299,12 @@
 							{
 								throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
 							}
+							// We do the first character test manually, because
+							// in regular expression the parser would receive too much rubbish.
+							if(!ctype_alpha($token[1]) && $token[1] != '_')
+							{
+								throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
+							}
 							$current['result'] = $this->_compileVariable($token);
 							$current['token'] = self::OP_VARIABLE;
 							if(is_null($state['variable']))
@@ -2406,8 +2459,9 @@
 				switch($ns[0])
 				{
 					case 'opt':
+					case 'sys':
 					case 'system':
-						return $this->_compileOpt($ns);
+						return $this->_compileSys($ns);
 					case 'this':
 						$state['access'] = Opt_Class::ACCESS_LOCAL;
 						unset($ns[0]);
@@ -2512,21 +2566,23 @@
 			return '$this->_tf->_(\''.$group.'\',\''.$id.'\')';
 		} // end _compileLanguageVar();
 		
-		protected function _compileOpt($ns)
+		protected function _compileSys($ns)
 		{
 			switch($ns[1])
 			{
+				case 'version':
+					return '\''.Opt_Class::VERSION.'\'';
 				case 'const':
 					return 'constant(\''.$ns[2].'\')';				
 				default:
 					if(!is_null($this->isProcessor($ns[1])))
 					{
-						return $this->processor($ns[1])->processOpt($ns);
+						return $this->processor($ns[1])->processSystemVar($ns);
 					}
 					
-					throw new Opt_OptBlockUnknown_Exception('$'.implode('.', $ns));				
+					throw new Opt_SysVariableUnknown_Exception('$'.implode('.', $ns));
 			}
-		} // end _compileOpt();
+		} // end _compileSys();
 		
 		protected function _compileString($str)
 		{
@@ -2578,8 +2634,7 @@
 				}
 				else
 				{
-					// TODO: WTF?!?!?!
-					$this->tpl->error(E_USER_ERROR, 'Class "'.$token.'" is not allowed to be used in the templates.', OPT_E_INVALID_CLASS);
+					throw new Opt_ItemNotAllowed_Exception('Class', $token);
 				}
 			}
 			elseif($next == '(')
