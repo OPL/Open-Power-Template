@@ -2580,7 +2580,7 @@
 						return $this->processor($ns[1])->processSystemVar($ns);
 					}
 					
-					throw new Opt_OptBlockUnknown_Exception('$'.implode('.', $ns));				
+					throw new Opt_SysVariableUnknown_Exception('$'.implode('.', $ns));
 			}
 		} // end _compileSys();
 		

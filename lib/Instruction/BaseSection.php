@@ -418,7 +418,7 @@
 		{
 			if(sizeof($opt) < 4)
 			{
-				throw new Opt_OptBlockLength_Exception('$'.implode('.',$opt), 'short');
+				throw new Opt_SysVariableLength_Exception('$'.implode('.',$opt), 'short');
 			}
 			// Determine the section
 			$section = $this->getSection($opt[2]);
@@ -453,7 +453,7 @@
 					$result = $this->_processSystemVar($opt);
 					if(is_null($result))
 					{
-						throw new Opt_OptBlockUnknown_Exception('$'.implode('.',$opt));
+						throw new Opt_SysVariableUnknown_Exception('$'.implode('.',$opt));
 					}
 					return $result;
 			}

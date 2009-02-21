@@ -47,6 +47,9 @@
 	    public static function correctProvider()
 	    {
 	    	return array(0 =>
+				array('attribute_1.txt'),
+				array('attribute_2.txt'),
+				array('attribute_3.txt'),
 				array('component_1.txt'),
 				array('component_2.txt'),
 				array('component_3.txt'),
@@ -77,6 +80,8 @@
 	    		array('foreach_8.txt'),
 	    		array('foreach_9.txt'),
 	    		array('foreach_10.txt'),
+				array('grid_1.txt'),
+				array('grid_2.txt'),
 	    		array('if_1.txt'),
 	    		array('if_2.txt'),
 	    		array('if_3.txt'),
@@ -106,6 +111,7 @@
 				array('prolog_1.txt'),
 				array('prolog_2.txt'),
 				array('prolog_3.txt'),
+				array('put_1.txt'),
 	    		array('repeat_1.txt'),
 	    		array('repeat_2.txt'),
 	    		array('repeat_3.txt'),
@@ -116,11 +122,26 @@
 				array('section_4.txt'),
 				array('section_5.txt'),
 				array('section_6.txt'),
+				array('show_1.txt'),
+				array('show_2.txt'),
+				array('show_3.txt'),
+				array('show_4.txt'),
+				array('show_5.txt'),
+				array('single_1.txt'),
+				array('single_2.txt'),
+				array('single_3.txt'),
 	    		array('snippet_1.txt'),
 	    		array('snippet_2.txt'),
 	    		array('snippet_3.txt'),
 	    		array('snippet_4.txt'),
 	    		array('snippet_5.txt'),
+				array('tag_1.txt'),
+				array('tag_2.txt'),
+				array('tag_3.txt'),
+				array('tag_4.txt'),
+				array('tag_5.txt'),
+				array('tree_1.txt'),
+				array('tree_2.txt'),
 	    	);
 	    } // end correctProvider();
 	    

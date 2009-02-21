@@ -176,20 +176,20 @@
 		protected $_message = '%s %s is not allowed to be used in templates.';
 	} // end Opt_ItemNotAllowed_Exception;
 	
-	class Opt_OptBlockLength_Exception extends Opt_Template_Exception
+	class Opt_SysVariableLength_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'OPT variable %s is too %s.';
-	} // end Opt_OptBlockLength_Exception;
+	} // end Opt_SysVariableLength_Exception;
 
-	class Opt_OptBlockUnknown_Exception extends Opt_Template_Exception
+	class Opt_SysVariableUnknown_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'Unknown action in OPT variable %s.';
-	} // end Opt_OptBlockUnknown_Exception;
+	} // end Opt_SysVariableUnknown_Exception;
 	
-	class Opt_OptBlockInvalidUse_Exception extends Opt_Template_Exception
+	class Opt_SysVariableInvalidUse_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'OPT block %s can be used in %s only.';
-	} // end Opt_OptBlockInvalidUse_Exception;
+	} // end Opt_SysVariableInvalidUse_Exception;
 	
 	class Opt_AttributeNotDefined_Exception extends Opt_Template_Exception
 	{
@@ -322,6 +322,11 @@
 	{
 		protected $_message = 'Trying to declare a cycle "%s" without values.';
 	} // end Opt_CycleNoValues_Exception;
+
+	class Opt_AttributeInvalidNamespace_Exception extends Opt_Instruction_Exception
+	{
+		protected $_message = 'Cannot apply opt:single attribute to an OPT tag: %s';
+	} // end Opt_AttributeInvalidNamespace_Exception;
 	
 	/*
 	 * Other exceptions.

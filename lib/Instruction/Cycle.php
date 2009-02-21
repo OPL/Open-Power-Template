@@ -52,7 +52,7 @@
 		{
 			if(sizeof($opt) != 4)
 			{
-				throw new Opt_OptBlockLength_Exception('$'.implode('.', $opt), (sizeof($opt) < 4 ? 'short' : 'long'));
+				throw new Opt_SysVariableLength_Exception('$'.implode('.', $opt), (sizeof($opt) < 4 ? 'short' : 'long'));
 			}
 			
 			switch($opt[3])
@@ -62,7 +62,7 @@
 				case 'next':
 					return '$_cc'.$opt[2].'_values[$_cc'.$opt[2].'_i = ($_cc'.$opt[2].'_i + 1) % $_cc'.$opt[2].'_s]';					
 				default:
-					throw new Opt_OptBlockUnknown_Exception('$'.implode('.', $opt));
+					throw new Opt_SysVariableUnknown_Exception('$'.implode('.', $opt));
 			}
 		} // end processSystemVar();
 	} // end Opt_Instruction_Cycle;

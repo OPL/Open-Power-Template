@@ -166,6 +166,16 @@
 		
 		public function removeChildren()
 		{
+			if(is_array($this->_subnodes))
+			{
+				foreach($this->_subnodes as $subnode)
+				{
+					if(is_object($subnode))
+					{
+						$subnode->setParent(null);
+					}
+				}
+			}
 			unset($this->_subnodes);
 			$this->_subnodes = null;
 		} // end removeChildren();
@@ -176,6 +186,16 @@
 			$this->_i = $node->_i;
 			$this->_size = $node->_size;
 			$this->_copy = $node->_copy;
+			if(is_array($this->_subnodes))
+			{
+				foreach($this->_subnodes as $subnode)
+				{
+					if(is_object($subnode))
+					{
+						$subnode->setParent($this);
+					}
+				}
+			}
 		} // end moveChildren();
 		
 		public function replaceChild(Opt_Xml_Node $newnode, $refnode)
@@ -193,8 +213,8 @@
 				{
 					if(isset($this->_subnodes[$i]))
 					{
-						// TODO: see note about comparing" in bringToEnd()
-						if($refnode == $this->_subnodes[$i])
+						// SEE: note about comparing" in bringToEnd()
+						if($refnode === $this->_subnodes[$i])
 						{
 							$this->_subnodes[$i] = $newnode;
 							return true;

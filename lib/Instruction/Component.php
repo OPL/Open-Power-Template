@@ -214,7 +214,7 @@
 		{
 			if($this->_stack->count() == 0)
 			{
-				throw new Opt_OptBlockInvalidUse_Exception('$'.implode('.',$opt), 'components');
+				throw new Opt_SysVariableInvalidUse_Exception('$'.implode('.',$opt), 'components');
 			}
 			return $this->_stack->top().'->get(\''.$opt[2].'\')';
 		} // end processSystemVar();

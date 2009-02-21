@@ -20,6 +20,7 @@
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:attribute'));
+			$this->_addAttributes(array('opt:single'));
 		} // end configure();
 	
 		public function processNode(Opt_Xml_Node $node)
@@ -47,11 +48,11 @@
 				$attribute = new Opt_Xml_Attribute($trName, $params['value']);
 				$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$params['value'].'; ');
 				
-				// Integration with "opt:tag"
-				if($parent->getXmlName() == 'opt:tag' && ($trName == 'name' || $trName == 'single'))
+			/*	// Integration with "opt:tag"
+				if($parent->getXmlName() == 'opt:tag' && ($trName == 'name' || $trName == 'single' || $trName == 'ns'))
 				{
 					$attribute->setName('__xattr_'.$trName);
-				}
+				}*/
 			}
 			else
 			{
@@ -76,4 +77,25 @@
 			$attribute->copyBuffer($node, Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::ATTRIBUTE_BEGIN);
 			$attribute->copyBuffer($node, Opt_Xml_Buffer::TAG_AFTER, Opt_Xml_Buffer::ATTRIBUTE_END);
 		} // end postprocessNode();
+
+		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		{
+			if($this->_compiler->isNamespace($node->getNamespace()))
+			{
+				throw new Opt_AttributeInvalidNamespace_Exception($node->getXmlName());
+			}
+			if($attr->getValue() == 'yes')
+			{
+				$attr->set('postprocess', true);
+			}
+		} // end processAttribute();
+
+		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		{
+			if($attr->getValue() == 'yes')
+			{
+				$node->set('single', true);
+				$node->removeChildren();
+			}
+		} // end processAttribute();
 	} // end Opt_Instruction_Attribute;

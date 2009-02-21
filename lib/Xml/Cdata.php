@@ -36,22 +36,22 @@
 		
 		public function insertData($offset, $cdata)
 		{
-			// TODO: Write
+			$this->_text = substr($this->_text, 0, $offset).$cdata.substr($this->_text, $offset, strlen($this->_text)-$offset);
 		} // end insertData();
 		
 		public function deleteData($offset, $count)
 		{
-			// TODO: Write
+			$this->_text = substr($this->_text, 0, $offset).substr($this->_text, $offset+$count, strlen($this->_text)-$offset-$count);
 		} // end insertData();
 		
 		public function replaceData($offset, $count, $text)
 		{
-			// TODO: Write
+			$this->_text = substr($this->_text, 0, $offset).substr($text, 0, $count).substr($this->_text, $offset+$count, strlen($this->_text)-$offset-$count);
 		} // end replaceData();
 		
 		public function substringData($offset, $count)
 		{
-			// TODO: Write
+			return substr($this->_text, $offset, $count);
 		} // end substringData();
 		
 		public function length()
