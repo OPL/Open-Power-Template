@@ -72,17 +72,17 @@
 				case 'on':
 					if(!$this->_compiler->isNamespace($node->getNamespace()))
 					{
-						$expr = $this->_compiler->compileExpression((string)$attr, false);
+						$expr = $this->_compiler->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_OFF);
 
 						$node->addBefore(Opt_Xml_Buffer::TAG_OPENING_BEFORE, ' $_tag_'.$this->_cnt.' = false; if('.$expr[0].'){ $_tag_'.$this->_cnt.' = true; ');			
 						$node->addAfter(Opt_Xml_Buffer::TAG_OPENING_AFTER, ' } ');
 						$node->addBefore(Opt_Xml_Buffer::TAG_CLOSING_BEFORE, ' if($_tag_'.$this->_cnt.' === true){ ');			
-						$node->addAfter(Opt_Xml_Buffer::TAG_CLOSING_BEFORE, ' } ');
+						$node->addAfter(Opt_Xml_Buffer::TAG_CLOSING_AFTER, ' } ');
 						$this->_cnt++;
 						break;
 					}					
 				case 'if':
-					$expr = $this->_compiler->compileExpression((string)$attr, false);
+					$expr = $this->_compiler->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_OFF);
 
 					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' if('.$expr[0].'){ ');			
 					$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');

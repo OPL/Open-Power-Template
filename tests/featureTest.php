@@ -49,6 +49,10 @@
 	    	return array(0 =>
 				array('backticks_1.txt'),
 				array('backticks_2.txt'),
+				array('escaping_1.txt'),
+				array('escaping_2.txt'),
+				array('escaping_3.txt'),
+				array('escaping_4.txt'),
 	    		array('translation_1.txt'),
 	    		array('translation_2.txt'),
 				array('specialvar_1.txt'),

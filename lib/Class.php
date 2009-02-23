@@ -303,9 +303,9 @@
 			switch($ns[0])
 			{
 				case 'instruction':
-					return 'Opl_Loader::map(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(self::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
+					return 'Opl_Loader::mapLocal(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
 				case 'format':
-					return 'Opl_Loader::map(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(self::OPT_FORMAT, \''.$ns[1].'\'); ';
+					return 'Opl_Loader::mapLocal(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
 				default:
 					return ' require(\''.$directory.$file->getFilename().'\'); ';
 			}
@@ -387,6 +387,7 @@
 		private $_branch = null;
 		
 		static private $_vars = array();
+		static private $_capture = array();
 		static private $_global = array();
 	
 		public function __construct($template = '')
@@ -529,6 +530,15 @@
 			}
 			return false;
 		} // end removeGlobal();
+
+		public function getTemplateVar($name)
+		{
+			if(!isset(self::$_vars[$name]))
+			{
+				return null;
+			}
+			return self::$_vars[$name];
+		} // end getTemplateVar();
 		
 		public function setFormat($item, $format)
 		{

@@ -130,6 +130,11 @@
 	{
 		protected $_message = 'XML Error: the following tag has been closed in the incorrect order: %s; expected: %s.';
 	} // end Opt_XmlInvalidTagStructure_Exception;
+
+	class Opt_XmlComment_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'XML Error: the %s construct is not allowed within XML comments.';
+	} // end Opt_XmlComment_Exception;
 	
 	class Opt_InvalidExpressionModifier_Exception extends Opt_Template_Exception
 	{

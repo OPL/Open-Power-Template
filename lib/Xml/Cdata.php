@@ -66,7 +66,7 @@
 
 		protected function _validate(&$text)
 		{
-			if($text == '<!--' || $text == '-->')
+			if($this->get('cdata'))
 			{
 				return true;
 			}

@@ -109,6 +109,7 @@
 		// Help fields
 		private $_translationConversion = null;
 		private $_initialMemory = null;
+		private $_comments = 0;
 		
 		static private $_templates = array();
 
@@ -909,9 +910,28 @@
 					$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 					break;
 			}
+			$this->_closeComments($item, $output);
 			return $output;
 		} // end _doPostlinking();
-		
+
+		protected function _closeComments($item, &$output)
+		{
+			if($item->get('commented'))
+			{
+				$this->_comments--;
+				if($this->_comments == 0)
+				{
+					// According to the XML grammar, the construct "--->" is not allowed.
+					if(strlen($output) > 0 && $output[strlen($output)-1] == '-')
+					{
+						throw new Opt_XmlComment_Exception('--->');
+					}
+
+					$output .= '-->';
+				}
+			}
+		} // end _closeComments();
+
 		protected function _linkAttributes($subitem)
 		{
 			// Links the attributes into the PHP code
@@ -973,6 +993,9 @@
 				{
 					case 'Opt_Xml_Cdata':
 						echo '<li>'.$id.': <strong>Character data:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
+						break;
+					case 'Opt_Xml_Comment':
+						echo '<li>'.$id.': <strong>Comment:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
 						break;
 					case 'Opt_Xml_Text':
 						echo '<li>'.$id.': <strong>Text:</strong> ';
@@ -1301,10 +1324,7 @@
 					// Process comments
 					if($subgroupState == 0 && $subgroups[$i] == '<!--')
 					{
-						if($this->_tpl->printComments)
-						{
-							$current = $this->_treeTextAppend($current, $subgroups[$i], false);
-						}
+						$commentNode = new Opt_Xml_Comment();
 						$subgroupState = 1;
 						continue;
 					}
@@ -1312,13 +1332,18 @@
 					{
 						if($subgroups[$i] == '-->')
 						{
+							$current->appendChild($commentNode);
 							$subgroupState = 0;
 						}
-						if($this->_tpl->printComments)
+						else
 						{
-							$current = $this->_treeTextAppend($current, $subgroups[$i], false);
+							$commentNode->appendData($subgroups[$i]);
 						}
 						continue;
+					}
+					elseif($subgroups[$i] == '-->')
+					{
+						throw new Opt_XmlInvalidCharacter_Exception('--&gt;');
 					}
 
 					// Find XML tags
@@ -1566,6 +1591,12 @@
 							$stateSet and $item->set('hidden', false);
 							$queue = $this->_pushQueue($stack, $queue, $item, array());
 							break;
+						case 'Opt_Xml_Comment':
+							if($this->_tpl->printComments)
+							{
+								$stateSet and $item->set('hidden', false);
+							}
+							break;
 					}
 				
 				}
@@ -1607,6 +1638,14 @@
 					{
 						throw new Opl_Goto_Exception;	// Goto postprocess;
 					}
+					if($item->get('commented'))
+					{
+						$this->_comments++;
+						if($this->_comments == 1)
+						{
+							$output .= '<!--';
+						}
+					}
 					// Pre code
 					switch($item->getType())
 					{
@@ -1617,6 +1656,7 @@
 								break;
 							}
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE).$item.$item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
+							$this->_closeComments($item, $output);
 							break;
 						case 'Opt_Xml_Text':
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
@@ -1686,6 +1726,7 @@
 							break;
 						case 'Opt_Xml_Expression':
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
+							$this->_closeComments($item, $output);
 							break;
 						case 'Opt_Xml_Root':
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
@@ -1699,6 +1740,11 @@
 								$output .= $item->getDtd()->getDoctype()."\r\n";
 							}
 							$queue = $this->_pushQueue($stack, $queue, $item, NULL);
+							break;
+						case 'Opt_Xml_Comment':
+							// The comment tags are added automatically.
+							$output .= (string)$item;
+							$this->_closeComments($item, $output);
 							break;
 					}
 				}
@@ -2396,8 +2442,13 @@
 			}
 		} // end _testPreOperators();
 		
-		protected function _compileVariable($name)
+		protected function _compileVariable($name, $saveContext = false)
 		{
+			// TODO: Add the support for the save context
+			// It is set to true, if the expression is going to save something
+			// with the "is" operator.
+			// Note that the expression compiler must be changed a bit in order
+			// to compile the right side of this operator as a translation unit.
 			$value = substr($name, 1, strlen($name) - 1);
 			$result = '';
 			if(strpos($value, '.') !== FALSE)

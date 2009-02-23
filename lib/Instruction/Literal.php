@@ -40,8 +40,7 @@
 				case 'transparent';
 					break;
 				case 'comment':
-					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, '<!--');
-					$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, '-->');
+					$node->set('commented', true);
 					break;
 				case 'comment_cdata':
 					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, '/* <![CDATA[ */');
