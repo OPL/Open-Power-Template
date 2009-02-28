@@ -27,6 +27,13 @@
 		
 		public function reset()
 		{
+			foreach($this->_snippets as &$snippetList)
+			{
+				foreach($snippetList as $snippet)
+				{
+					$snippet->dispose();
+				}
+			}
 			$this->_snippets = array();
 			$this->_current = array();
 		} // end reset();
@@ -200,8 +207,10 @@
 		
 		public function _postprocessInsert(Opt_Xml_Element $node)
 		{
+			// Freeing the fake node, if necessary.
 			if(!is_null($node->get('insertSize')))
 			{
+				$this->_snippets[$node->get('insertSnippet')][$node->get('insertSize')]->dispose();
 				unset($this->_snippets[$node->get('insertSnippet')][$node->get('insertSize')]);
 			}
 

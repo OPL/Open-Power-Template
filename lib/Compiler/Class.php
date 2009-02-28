@@ -671,13 +671,6 @@
 		
 		protected function _treeTextCompile($current, $text, $noExpressions = false)
 		{
-			if($this->_tpl->stripWhitespaces)
-			{
-				if(ctype_space($text))
-				{
-					return $current;
-				}
-			}
 			if($noExpressions)
 			{
 				$current = $this->_treeTextAppend($current, $this->parseShortEntities($text));
@@ -715,10 +708,6 @@
 			{
 				if(!is_object($text))
 				{
-					if($this->_tpl->stripWhitespaces && $trim)
-					{
-						$text = preg_replace('/\s\s+/', ' ', $text);
-					}
 					$node = new Opt_Xml_Text($text);
 				}
 				else
@@ -732,10 +721,6 @@
 			{
 				if(!is_object($text))
 				{
-					if($this->_tpl->stripWhitespaces && $trim)
-					{
-						$text = preg_replace('/\s\s+/', ' ', $text);
-					}
 					$last->appendData($text);
 				}
 				else
@@ -1082,7 +1067,7 @@
 						$tree = $this->_stage1($code, $extend, $mode);
 						// Stage 2 - PHP tree processing
 						$this->_stack = array();
-						$this->_stage2($tree, true);
+						$this->_stage2($tree);
 						$this->set('escape', NULL);
 						unset($this->_stack);
 						$memory += (memory_get_usage() - $initial);
@@ -1094,7 +1079,7 @@
 						unset($code);
 						// Stage 2 - PHP tree processing
 						$this->_stack = array();
-						$this->_stage2($tree, true);
+						$this->_stage2($tree);
 						$this->set('escape', NULL);
 						unset($this->_stack);
 					}
@@ -1108,6 +1093,9 @@
 
 					if(!is_null($snippet = $tree->get('snippet')))
 					{
+						$tree->dispose();
+						unset($tree);
+
 						// Change the specified snippet into a root node.
 						$tree = new Opt_Xml_Root;
 						$attribute = new Opt_Xml_Attribute('opt:use', $snippet);
@@ -1119,6 +1107,9 @@
 					}
 					if(!is_null($extend = $tree->get('extend')))
 					{
+						$tree->dispose();
+						unset($tree);
+
 						$this->set('currentTemplate', $extend);
 						array_pop(self::$_templates);
 						array_push(self::$_templates, $extend);
@@ -1168,6 +1159,10 @@
 						file_put_contents($this->_tpl->compileDir.$compiledFilename.'.dyn', serialize($this->_dynamicBlocks));
 					}
 					file_put_contents($this->_tpl->compileDir.$compiledFilename, $output);
+				}
+				else
+				{
+					$tree->dispose();
 				}
 				array_pop(self::$_templates);
 				$this->_inheritance = array();
@@ -1623,6 +1618,7 @@
 			
 			// Reset the output
 			$output = '';
+			$wasElement = false;
 			
 			while(true)
 			{
@@ -1655,7 +1651,28 @@
 								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE).'<![CDATA['.$item.']]>'.$item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 								break;
 							}
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE).$item.$item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
+							
+							if($this->_tpl->stripWhitespaces)
+							{
+								if(ctype_space((string)$item))
+								{
+									if($wasElement)
+									{
+										$output .= ' ';
+									}
+								}
+								else
+								{
+									$output .= trim(preg_replace('/\s\s+/', ' ', (string)$item));
+								}
+							}
+							else
+							{
+								$output .= $item;
+							}
+							
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 							$this->_closeComments($item, $output);
 							break;
 						case 'Opt_Xml_Text':
@@ -1683,6 +1700,7 @@
 							else
 							{
 								// TODO: Rebuild according to the docs.
+								$wasElement = true;
 								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE);
 								if($item->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
 								{
@@ -1762,6 +1780,11 @@
 					
 					$output .= $this->_doPostlinking($item);
 				}
+			}
+
+			if($this->_tpl->stripWhitespaces)
+			{
+				$output = rtrim($output);
 			}
 		} // end _stage3();
 		

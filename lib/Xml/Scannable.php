@@ -72,6 +72,11 @@
 		protected $_copy;
 		
 		private $_prototypes;
+
+		public function __construct()
+		{
+			parent::__construct();
+		} // end __construct();
 		
 		/*
 		 * Public DOM-like API
@@ -79,6 +84,9 @@
 		
 		public function appendChild(Opt_Xml_Node $child)
 		{
+			// Test if the node can be a child of this and initialize an
+			// empty array if needed.
+			$this->_testNode($child);
 			if(!is_array($this->_subnodes))
 			{
 				$this->_subnodes = array();
@@ -89,6 +97,9 @@
 		
 		public function insertBefore(Opt_Xml_Node $newnode, $refnode = null, $appendOnError = true)
 		{
+			// Test if the node can be a child of this and initialize an
+			// empty array if needed.
+			$this->_testNode($newnode);
 			if(!is_array($this->_subnodes))
 			{
 				$this->_subnodes = array();
@@ -148,6 +159,7 @@
 						if($this->_subnodes[$i] === $node)
 						{
 							$node->setParent(null);
+						//	$this->_subnodes[$i]->dispose();
 							unset($this->_subnodes[$i]);
 							$found++;
 						}
@@ -158,6 +170,7 @@
 			elseif(is_integer($node) && isset($this->_subnodes[$node]))
 			{
 				$this->_subnodes[$node]->setParent(null);
+			//	$this->_subnodes[$node]->dispose();
 				unset($this->_subnodes[$node]);
 				return true;
 			}
@@ -182,16 +195,37 @@
 		
 		public function moveChildren(Opt_Xml_Scannable $node)
 		{
+			// If there are already some nodes, we have to free the memory first.
+			if(is_array($this->_subnodes))
+			{
+				foreach($this->_subnodes as $item)
+				{
+					if(is_object($item))
+					{
+						$item->dispose();
+					}
+				}
+			}
+			// Move the nodes by copying the internal data structures.
 			$this->_subnodes = $node->_subnodes;
 			$this->_i = $node->_i;
 			$this->_size = $node->_size;
 			$this->_copy = $node->_copy;
+			// Reset the children list in the $node.
+			$node->_subnodes = null;
+			$node->_i = null;
+			$node->_size = null;
+			$node->_copy = null;
+			// Create a connection between this node and the new children.
 			if(is_array($this->_subnodes))
 			{
 				foreach($this->_subnodes as $subnode)
 				{
 					if(is_object($subnode))
 					{
+						// Test the node in order to check whether
+						// we have moved them to the correct node.
+						$this->_testNode($subnode);
 						$subnode->setParent($this);
 					}
 				}
@@ -200,6 +234,7 @@
 		
 		public function replaceChild(Opt_Xml_Node $newnode, $refnode)
 		{
+			$this->_testNode($newnode);
 			if(!is_array($this->_subnodes))
 			{
 				return false;
@@ -216,6 +251,7 @@
 						// SEE: note about comparing" in bringToEnd()
 						if($refnode === $this->_subnodes[$i])
 						{
+							$this->_subnodes[$i]->dispose();
 							$this->_subnodes[$i] = $newnode;
 							return true;
 						}
@@ -225,6 +261,7 @@
 			}
 			elseif(is_integer($refnode) && isset($this->_subnodes[$refnode]))
 			{
+				$this->_subnodes[$refnode]->dispose();
 				$this->_subnodes[$refnode] = $newnode;
 				return true;
 			}
@@ -471,7 +508,7 @@
 		{
 			return $this->_subnodes;
 		} // end getSubnodeArray();
-		
+	/*
 		public function clearNode()
 		{
 			$queue = new SplQueue;
@@ -494,7 +531,7 @@
 			}
 			unset($buffer);
 		} // end clearNode();
-		
+	*/
 		final public function __clone()
 		{
 			if($this->get('__nrc') === true)
