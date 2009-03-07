@@ -14,54 +14,6 @@
  */
 
 	/*
-	 * Function definitions
-	 */
-	function Opt_Array_Push(&$array, $from, $cnt = null)
-	{
-		if(!isset($array[$from]))
-		{
-			return;
-		}
-		$i = 0;
-		if(is_null($cnt))
-		{
-			$cnt = sizeof($array);
-			while($cnt > 0 && $from != $i)
-			{
-				if(isset($array[$i]))
-				{
-					$cnt--;
-				}
-				$i++;
-			}
-		}
-		
-		$tmp = $tmp2 = null;
-		while($cnt > 0)
-		{
-			if(isset($array[$i]))
-			{
-				if(is_null($tmp))
-				{
-					$tmp = $array[$i];
-				}
-				else
-				{
-					$tmp2 = $array[$i];
-					$array[$i] = $tmp;
-					$tmp = $tmp2;
-				}
-				$cnt--;
-			}
-			$i++;
-		}
-		if(!is_null($tmp))
-		{
-			$array[$i] = $tmp;
-		}
-	} // end Opt_Array_Push();
-
-	/*
 	 * Class definitions
 	 */
 	class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
@@ -120,7 +72,8 @@
 						$cnt--;
 						if($this->_subnodes[$i] === $refnode)
 						{
-							Opt_Array_Push($this->_subnodes, $i, $cnt);
+							$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $i);
+						//	Opt_Array_Push($this->_subnodes, $i, $cnt);
 							$this->_subnodes[$i] = $newnode;
 						}
 					}
@@ -132,7 +85,8 @@
 				end($this->_subnodes);
 				if($refnode <= key($this->_subnodes) && $refnode >= 0)
 				{
-					Opt_Array_Push($this->_subnodes, $refnode);
+					$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $refnode);
+				//	Opt_Array_Push($this->_subnodes, $refnode);
 					$this->_subnodes[$refnode] = $newnode;
 				}
 				else
@@ -159,12 +113,12 @@
 						if($this->_subnodes[$i] === $node)
 						{
 							$node->setParent(null);
-						//	$this->_subnodes[$i]->dispose();
 							unset($this->_subnodes[$i]);
 							$found++;
 						}
 					}
 				}
+				$this->_subnodes = $this->_arrayReduceHoles($this->_subnodes);
 				return $found > 0;
 			}
 			elseif(is_integer($node) && isset($this->_subnodes[$node]))
@@ -172,6 +126,7 @@
 				$this->_subnodes[$node]->setParent(null);
 			//	$this->_subnodes[$node]->dispose();
 				unset($this->_subnodes[$node]);
+				$this->_subnodes = $this->_arrayReduceHoles($this->_subnodes);
 				return true;
 			}
 			return false;
@@ -754,7 +709,7 @@
 			return $result;
 		} // end _getElementsByTagName();
 		
-		final protected function _appendChild(optNode $child, $appendOnError)
+		final protected function _appendChild(Opt_Xml_Node $child, $appendOnError)
 		{
 			if($appendOnError)
 			{
@@ -777,4 +732,31 @@
 			// this behavior.
 			return true;
 		} // end _testNode();
+
+		private function _arrayReduceHoles($array)
+		{
+			$newArray = array();
+			foreach($array as $value)
+			{
+				$newArray[] = $value;
+			}
+			return $newArray;
+		} // end _arrayReduceHoles();
+
+		private function _arrayCreateHole($array, $where)
+		{
+			$newArray = array();
+			$i = 0;
+			foreach($array as $value)
+			{
+				if($i == $where)
+				{
+					$newArray[$i] = null;
+					$i++;
+				}
+				$newArray[$i] = $value;
+				$i++;
+			}
+			return $newArray;
+		} // end _arrayCreateHole();
 	} // end Opt_Xml_Scannable;

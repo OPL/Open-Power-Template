@@ -28,7 +28,7 @@
 			self::$mode != Opt_Class::QUIRKS_MODE and $this->_validate($cdata);
 			$this->_text = $cdata;
 		} // end __construct();
-		
+
 		public function appendData($cdata)
 		{
 			self::$mode != Opt_Class::QUIRKS_MODE and $this->_validate($cdata);

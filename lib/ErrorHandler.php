@@ -17,6 +17,13 @@
 	{	
 		protected $_library = 'Open Power Template';
 		protected $_context = array(
+			'Opl_Debug_Exception' => array(
+				'BasicConfiguration' => array(),
+				'Backtrace' => array(),
+				'ErrorInfo' => array(1 => 'This exception is generated to inform about a possible bug in OPL/OPT code.
+					Check out whether it is not caused by any of the installed extensions, and if not - please report
+					it to the Invenzzia Bugtracker, providing all the debug information.'),
+			),
 			'Opt_TemplateNotFound_Exception' => array(
 				'ErrorInfo' => array(1 => 'The template cannot be located in one of <em>sourceDir</em> directories.
 					Check the file name for mistakes and the filesystem permissions.')

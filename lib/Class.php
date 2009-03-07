@@ -264,6 +264,15 @@
 			}
 		} // end register();
 
+		/**
+		 * Registers a new translation interface to be used in templates. The translation
+		 * interface must implement Opl_Translation_Interface. If the specified parameter
+		 * is not a valid translation interface, the method unregisters the already set one
+		 * and returns false.
+		 *
+		 * @param Opl_Translation_Interface $tf  The translation interface or "null".
+		 * @return boolean True, if the translation interface was properly set.
+		 */
 		public function setTranslationInterface($tf)
 		{
 			if(!$tf instanceof Opl_Translation_Interface)
@@ -275,6 +284,11 @@
 			return true;
 		} // end setTranslationInterface();
 
+		/**
+		 * Returns the current translation interface assigned to OPT.
+		 *
+		 * @return Opl_Translation_Interface The translation interface.
+		 */
 		public function getTranslationInterface()
 		{
 			return $this->_tf;
@@ -282,7 +296,14 @@
 		/*
 		 * Internal use
 		 */
-		
+
+		/**
+		 * Allows the read access to some of the internal structures for the
+		 * template compiler.
+		 *
+		 * @param string $name The structure to be returned.
+		 * @return array The returned structure.
+		 */
 		public function _getList($name)
 		{
 			static $list;
@@ -389,33 +410,71 @@
 		static private $_vars = array();
 		static private $_capture = array();
 		static private $_global = array();
-	
+
+		/**
+		 * Creates a new view object. The optional argument, $template
+		 * may specify the template to be associated with this view.
+		 * Please note that if you do not specify the template here,
+		 * you have to do this manually later using Opt_View::setTemplate()
+		 * method.
+		 *
+		 * @param string $template The template file.
+		 */
 		public function __construct($template = '')
 		{
 			$this->_tpl = Opl_Registry::get('opt');
 			$this->_template = $template;
 		} // end __construct();
-		
+
+		/**
+		 * Associates a template file to the view.
+		 *
+		 * @param string $file The template file.
+		 */
 		public function setTemplate($file)
 		{
 			$this->_template = $file;
 		} // end setTemplate();
-		
+
+		/**
+		 * Returns a template associated with this view.
+		 *
+		 * @return string The template filename.
+		 */
 		public function getTemplate()
 		{
 			return $this->_template;
 		} // end getTemplate();
 
+		/**
+		 * Sets a template inheritance branch that will be used
+		 * in this view. If you want to disable branching, set
+		 * the argument to NULL.
+		 *
+		 * @param string $branch The branch name.
+		 */
 		public function setBranch($branch)
 		{
 			$this->_branch = $branch;
 		} // end setBranch();
 
+		/**
+		 * Returns a branch used in the template inheritance.
+		 *
+		 * @return string The branch name.
+		 */
 		public function getBranch()
 		{
 			return $this->_branch;
 		} // end getBranch();
-		
+
+		/**
+		 * Returns the view processing time for the debug purposes.
+		 * The processing time is calculated only if the debug mode
+		 * is enabled.
+		 *
+		 * @return float The processing time.
+		 */
 		public function getTime()
 		{
 			return $this->_processingTime;
@@ -424,27 +483,60 @@
 		/*
 		 * Data management
 		 */
-		
+
+		/**
+		 * Creates a new local template variable.
+		 *
+		 * @param string $name The variable name.
+		 * @param mixed $value The variable value.
+		 */
 		public function __set($name, $value)
 		{
 			$this->_data[$name] = $value;
 		} // end __set();
 
+		/**
+		 * Creates a new local template variable.
+		 *
+		 * @param string $name The variable name.
+		 * @param mixed $value The variable value.
+		 */
 		public function assign($name, $value)
 		{
 			$this->_data[$name] = $value;
 		} // end assign();
-		
+
+		/**
+		 * Creates a group of local template variables
+		 * using an assotiative array, where the keys are
+		 * the variable names.
+		 *
+		 * @param array $vars A list of variables.
+		 */
 		public function assignGroup($values)
 		{
 			$this->_data = array_merge($this->_data, $values);
 		} // end assignGroup();
-		
+
+		/**
+		 * Creates a new local template variable with
+		 * the value assigned by reference.
+		 *
+		 * @param string $name The variable name.
+		 * @param mixed &$value The variable value.
+		 */
 		public function assignRef($name, &$value)
 		{
 			$this->_data[$name] = &$value;
 		} // end assignRef();
-		
+
+		/**
+		 * Returns the value of a template variable or
+		 * null, if the variable does not exist.
+		 *
+		 * @param string $name The variable name.
+		 * @return mixed The variable value or NULL.
+		 */
 		public function get($name)
 		{
 			if(!isset($this->_data[$name]))
@@ -453,7 +545,14 @@
 			}
 			return $this->_data[$name];
 		} // end read();
-		
+
+		/**
+		 * Returns the value of a local template variable or
+		 * null, if the variable does not exist.
+		 *
+		 * @param string $name The variable name.
+		 * @return mixed The variable value or NULL.
+		 */
 		public function __get($name)
 		{
 			if(!isset($this->_data[$name]))
@@ -462,17 +561,37 @@
 			}
 			return $this->_data[$name];
 		} // end __get();
-		
+
+		/**
+		 * Returns TRUE, if the local template variable with the
+		 * specified name is defined.
+		 *
+		 * @param string $name The variable name.
+		 * @return boolean True, if the variable is defined.
+		 */
 		public function defined($name)
 		{
 			return isset($this->_data[$name]);
 		} // end defined();
-		
+
+		/**
+		 * Returns TRUE, if the local template variable with the
+		 * specified name is defined.
+		 *
+		 * @param string $name The variable name.
+		 * @return boolean True, if the variable is defined.
+		 */
 		public function __isset($name)
 		{
 			return isset($this->_data[$name]);
 		} // end __isset();
-		
+
+		/**
+		 * Removes a local template variable with the specified name.
+		 *
+		 * @param string $name The variable name.
+		 * @return boolean True, if the variable has been removed.
+		 */
 		public function remove($name)
 		{
 			if(isset($this->_data[$name]))
@@ -486,33 +605,78 @@
 			}
 			return false;
 		} // end remove();
-		
+
+		/**
+		 * Removes a local template variable with the specified name.
+		 *
+		 * @param string $name The variable name.
+		 * @return boolean True, if the variable has been removed.
+		 */
 		public function __unset($name)
 		{
 			return $this->remove($name);
 		} // end __unset();
-		
+
+		/**
+		 * Creates a new global template variable.
+		 *
+		 * @static
+		 * @param string $name The variable name.
+		 * @param mixed $value The variable value.
+		 */
 		static public function assignGlobal($name, $value)
 		{
 			self::$_global[$name] = $value;
 		} // end assignGlobal();
-		
+
+		/**
+		 * Creates a group of global template variables
+		 * using an assotiative array, where the keys are
+		 * the variable names.
+		 *
+		 * @static
+		 * @param array $vars A list of variables.
+		 */
 		static public function assignGroupGlobal($values)
 		{
 			self::$_global = array_merge(self::$_global, $values);
 		} // end assignGroupGlobal();
-		
+
+		/**
+		 * Creates a new global template variable with
+		 * the value assigned by reference.
+		 *
+		 * @static
+		 * @param string $name The variable name.
+		 * @param mixed &$value The variable value.
+		 */
 		static public function assignRefGlobal($name, &$value)
 		{
 			self::$_global[$name] = &$value;
 		} // end assignRefGlobal();
-		
+
+		/**
+		 * Returns TRUE, if the global template variable with the
+		 * specified name is defined.
+		 *
+		 * @static
+		 * @param string $name The variable name.
+		 * @return boolean True, if the variable is defined.
+		 */
 		static public function definedGlobal($name)
 		{
 			return isset(self::$_global[$name]);
 		} // end definedGlobal();
 
-		static public function getGlobal($name, $value)
+		/**
+		 * Returns the value of a global template variable or
+		 * null, if the variable does not exist.
+		 *
+		 * @static
+		 * @param string $name The variable name.
+		 * @return mixed The variable value or NULL.
+		 */
+		static public function getGlobal($name)
 		{
 			if(!isset(self::$_global[$name]))
 			{
@@ -520,7 +684,14 @@
 			}
 			return self::$_global[$name];
 		} // end getGlobal();
-		
+
+		/**
+		 * Removes a global template variable with the specified name.
+		 *
+		 * @static
+		 * @param string $name The variable name.
+		 * @return boolean True, if the variable has been removed.
+		 */
 		static public function removeGlobal($name)
 		{
 			if(isset(self::$_global[$name]))
@@ -531,6 +702,13 @@
 			return false;
 		} // end removeGlobal();
 
+		/**
+		 * Returns the value of the internal template variable or
+		 * NULL if it does not exist.
+		 *
+		 * @param string $name The internal variable name.
+		 * @return mixed The variable value or NULL.
+		 */
 		public function getTemplateVar($name)
 		{
 			if(!isset(self::$_vars[$name]))
@@ -539,7 +717,15 @@
 			}
 			return self::$_vars[$name];
 		} // end getTemplateVar();
-		
+
+		/**
+		 * Sets the specified data format for the identifier that may
+		 * identify a template variable or some other things. The details
+		 * are explained in the OPT user manual.
+		 *
+		 * @param string $item The item name
+		 * @param string $format The format to be used for the specified item.
+		 */
 		public function setFormat($item, $format)
 		{
 			$this->_formatInfo[$item] = $format;
@@ -550,7 +736,20 @@
 		/*
 		 * Dynamic inheritance
 		 */
-		
+
+		/**
+		 * Creates a dynamic template inheritance between the templates in the view.
+		 * There are two possible uses of the method. If you specify only the one
+		 * argument, the method will extend the main view template with the specified
+		 * template.
+		 *
+		 * The two arguments can be used to extend other templates in the inheritance
+		 * chain. In this case the first argument specifies the template that is going
+		 * to extend something, and the second one - the extended template.
+		 *
+		 * @param string $source The extending template or the extended template in case of one-argument call.
+		 * @param string $destination The extended template.
+		 */
 		public function inherit($source, $destination = null)
 		{
 			if(is_null($destination))

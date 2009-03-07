@@ -72,6 +72,7 @@
 	    		array('extend_9.txt'),
 	    		array('extend_10.txt'),
 	    		array('extend_11.txt'),
+				array('extend_12.txt'),
 	    		array('for_1.txt'),
 	    		array('for_2.txt'),
 	    		array('for_3.txt'),
