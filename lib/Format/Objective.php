@@ -25,7 +25,7 @@
 			// Initializes the data for the section.
 			'sectionInit' => '$_sect%sectionNest%_vals = %reference% %sectionRecordCall%;',
 			// Checks if there are data for this section.
-			'sectionCondition' => 'is_object($_sect%sectionNest%_vals) && $_sect%sectionNest%_vals instanceof Countable && $_sect%sectionNest%_vals instanceof Iterator && $_sect%sectionNest%_vals->count() > 0',
+			'sectionCondition' => 'is_object($_sect%sectionNest%_vals) && $_sect%sectionNest%_vals instanceof Countable && ($_sect%sectionNest%_vals instanceof Iterator || $_sect%sectionNest%_vals instanceof IteratorAggregate) && $_sect%sectionNest%_vals->count() > 0',
 			// Generates the loop that iterates over the data forward.
 			'sectionStartAscLoop' => 'foreach($_sect%sectionNest%_vals as $_sect%sectionNest%_i => $_sect%sectionNest%_val){ ',
 			// Generates the loop that iterates over the data backward.

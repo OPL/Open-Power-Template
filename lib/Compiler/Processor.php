@@ -308,6 +308,11 @@
 					}
 					else
 					{
+						// Do not allow the empty strings to be evaluated!
+						if(strlen(trim($value)) == 0)
+						{
+							throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
+						}
 						$result = $this->_compiler->compileExpression($value, false, false);
 						return $result[0];
 					}
@@ -319,6 +324,11 @@
 					}
 					else
 					{
+						// Do not allow the empty strings to be evaluated!
+						if(strlen(trim($value)) == 0)
+						{
+							throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
+						}
 						$result = $this->_compiler->compileExpression($value, true, false);
 						return $result[0];
 					}

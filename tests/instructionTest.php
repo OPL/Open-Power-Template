@@ -59,6 +59,7 @@
 				array('component_4.txt'),
 				array('component_5.txt'),
 				array('component_6.txt'),
+				array('component_7.txt'),
 				array('content_1.txt'),
 				array('content_2.txt'),
 	    		array('extend_1.txt'),

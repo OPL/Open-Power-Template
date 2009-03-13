@@ -200,6 +200,11 @@
 	{
 		protected $_message = 'The required attribute "%s" has not been defined in "%s".';
 	} // end Opt_AttributeNotDefined_Exception;
+
+	class Opt_AttributeEmpty_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'The required attribute "%s" is empty in "%s".';
+	} // end Opt_AttributeEmpty_Exception;
 	
 	class Opt_InvalidCallback_Exception extends Opt_Template_Exception
 	{

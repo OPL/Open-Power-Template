@@ -1181,6 +1181,7 @@
 			catch(Exception $e)
 			{
 				// Clean the compiler state in case of exception
+				$this->_template = NULL;
 				$this->_dependencies = array();
 				self::$_recursionDetector = NULL;
 				foreach($this->_processors as $processor)
