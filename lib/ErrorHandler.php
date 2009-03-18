@@ -13,6 +13,10 @@
  * $Id: ErrorHandler.php 22 2008-12-03 11:32:29Z zyxist $
  */
 
+	/**
+	 * This class is an extension to the default OPL error handler.
+	 * See the help of OPL to get more details on using it.
+	 */
 	class Opt_ErrorHandler extends Opl_ErrorHandler
 	{	
 		protected $_library = 'Open Power Template';
@@ -103,7 +107,13 @@
 				'BasicConfiguration' => array()
 			),
 		);
-		
+
+		/**
+		 * The informator that prints the basic OPT configuration to the error
+		 * output.
+		 *
+		 * @param Opt_Exception $exception Exception
+		 */
 		protected function _printBasicConfiguration($exception)
 		{
 			$compileMode = array(
@@ -123,12 +133,25 @@
 			echo '  			<p class="directive">Compilation directory: <span>'.$tpl->compileDir."</span></p>\r\n";
 			echo '  			<p class="directive">Compilation mode: <span'.($tpl->compileMode == Opt_Class::CM_REBUILD ? ' class="bad"' : '').'>'.$compileMode[$tpl->compileMode]."</span></p>\r\n";
 		} // end _printBasicConfiguration();
-		
+
+		/**
+		 * The informator that prints the currently compiled template name
+		 * for the compilation errors.
+		 *
+		 * @param Opt_Exception $exception Exception
+		 */
 		protected function _printTemplateInfo($exception)
 		{
 			echo "		<p class=\"directive\">Template: <span>".Opt_Compiler_Class::getCurrentTemplate()."</span></p>\r\n";
 		} // end _printTemplateInfo();
-		
+
+		/**
+		 * The informator that displays an information that the exception is caused by
+		 * the bug in the source code and should be reported, or at least, consulted
+		 * with the Invenzzia team.
+		 *
+		 * @param Opt_Exception $exception Exception
+		 */
 		protected function _printBugtrackerInfo($exception)
 		{
 			echo "  			<p><strong>Important information:</strong> this exception concerns the instruction API code and should occur only <u>if you are writing the new instruction for OPT</u>. If you encounter this exception in one of OPT default instructions, please visit the <a href=\"http://bugs.invenzzia.org\">bugtracker</a> immediately, providing the template that causes this exception.</p>\r\n";
