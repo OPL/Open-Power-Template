@@ -152,7 +152,7 @@
 		protected $_components = array();
 		protected $_blocks = array();
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
-		protected $_formats = array(1 => 'Generic', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
+		protected $_formats = array(1 => 'Array', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
 
 		// Status
 		protected $_init = false;
@@ -410,6 +410,7 @@
 		static private $_vars = array();
 		static private $_capture = array();
 		static private $_global = array();
+		static private $_globalFormatInfo = array();
 
 		/**
 		 * Creates a new view object. The optional argument, $template
@@ -731,7 +732,19 @@
 			$this->_formatInfo[$item] = $format;
 		} // end setFormat();
 		
-		// TODO: What about formats for global data?!
+		/**
+		 * Sets the specified data format for the identifier that may
+		 * identify a global template variable or some other things. The details
+		 * are explained in the OPT user manual.
+		 *
+		 * @static
+		 * @param string $item The item name
+		 * @param string $format The format to be used for the specified item.
+		 */
+		static public function setFormatGlobal($item, $format)
+		{
+			self::$_globalFormatInfo['global.'.$item] = $format;
+		} // end setFormatGlobal();
 		
 		/*
 		 * Dynamic inheritance
@@ -847,7 +860,7 @@
 
 			$compiler = $this->_tpl->getCompiler();
 			$compiler->setInheritance($this->_cplInheritance);
-			$compiler->setFormatList($this->_formatInfo);
+			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 			$compiler->set('branch', $this->_branch);
 			$compiler->compile($result, $this->_template, $compiled, $mode);
 			return array($compiled, $compileTime);

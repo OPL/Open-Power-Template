@@ -52,8 +52,8 @@
 				{
 					throw new Opt_SectionNotFound_Exception('opt:include', $params['from']);
 				}
-				$section['format']->assign('_sectionItemName', 'view');
-				$view = $section['format']->get('_itemFullVariable');
+				$section['format']->assign('item', 'view');
+				$view = $section['format']->get('section:variable');
 				
 				// TODO: File-specific blocks and variables!!!
 			}

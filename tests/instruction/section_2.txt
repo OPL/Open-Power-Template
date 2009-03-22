@@ -1,4 +1,4 @@
-The test checks the basic section features.
+The test checks the sectionelse tag.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>

@@ -36,11 +36,8 @@
 	
 		private function _processTree(Opt_Xml_Node $node)
 		{
-			if(is_null($section = $this->_sectionInitialized($node)))
-			{
-				$section = $this->_processShow($node);
-				$initialized = true;
-			}
+			$section = $this->_sectionCreate($node);
+			$this->_sectionStart($section);
 
 			// Check the tag structure and get the tags.
 			$stList = $node->getElementsByTagNameNS('opt', 'list', false);
@@ -122,9 +119,9 @@
 			 * If the chain is empty, we have to close the nodes that are still open and the main list itself. After processing this chain, we finish the job.
 			 */
 					
-			$section['format']->assign('_sectionItemName', 'depth');
+			$section['format']->assign('item', 'depth');
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '
-			'.$section['format']->get('sectionRewind').'
+			'.$section['format']->get('section:reset').'
 $_'.$section['name'].'_depth = -1;
 $_'.$section['name'].'_cmd = array();
 $_'.$section['name'].'_over = 0;
@@ -138,12 +135,12 @@ while(1)
 				$_'.$section['name'].'_over = 1;
 				break;
 			case 1:
-				'.$section['format']->get('sectionNext').'
+				'.$section['format']->get('section:next').'
 				break;
 			case 2:
 				break 2;
 		}
-		if(!'.$section['format']->get('sectionValid').')
+		if(!'.$section['format']->get('section:valid').')
 		{
 			$_'.$section['name'].'_cmd[] = 3;
 			for($k = 0; $k < $_'.$section['name'].'_depth; $k++)
@@ -155,16 +152,17 @@ while(1)
 			$_'.$section['name'].'_over = 2;
 		}
 		else
-		{			
-			if($_'.$section['name'].'_depth < '.$section['format']->get('_itemFullVariable').')
+		{
+			'.$section['format']->get('section:populate').'
+			if($_'.$section['name'].'_depth < '.$section['format']->get('section:variable').')
 			{
 				$_'.$section['name'].'_cmd[] = 1;
 				$_'.$section['name'].'_cmd[] = 2;
 			}
-			elseif($_'.$section['name'].'_depth > '.$section['format']->get('_itemFullVariable').')
+			elseif($_'.$section['name'].'_depth > '.$section['format']->get('section:variable').')
 			{
 				$_'.$section['name'].'_cmd[] = 3;
-				for($k = '.$section['format']->get('_itemFullVariable').'; $k < $_'.$section['name'].'_depth; $k++)
+				for($k = '.$section['format']->get('section:variable').'; $k < $_'.$section['name'].'_depth; $k++)
 				{
 					$_'.$section['name'].'_cmd[] = 4;
 					$_'.$section['name'].'_cmd[] = 3;
@@ -176,7 +174,7 @@ while(1)
 				$_'.$section['name'].'_cmd[] = 3;
 				$_'.$section['name'].'_cmd[] = 2;
 			}
-			$_'.$section['name'].'_depth = '.$section['format']->get('_itemFullVariable').';
+			$_'.$section['name'].'_depth = '.$section['format']->get('section:variable').';
 		}
 		
 	}
@@ -207,10 +205,10 @@ while(1)
 			{
 				if(!$node->get('sectionElse'))
 				{
-					$this->_locateElse($node, 'opt', 'treeelse');
+					$this->_sortSectionContents($node, 'opt', 'treeelse');
 				}
 			}
-			$this->_finishSection($node);
+			$this->_sectionEnd($node);
 		} // end _postprocessTree();
 		
 		private function _processTreeelse(Opt_Xml_Element $node)
@@ -222,7 +220,7 @@ while(1)
 				
 				$section = $this->getSection($parent->get('sectionName'));
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
-				$this->_deactivateSection($parent->get('sectionName'));
+			//	$this->_deactivateSection($parent->get('sectionName'));
 				$this->_process($node);
 			}
 		} // end _processTreeelse();

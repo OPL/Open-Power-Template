@@ -64,6 +64,10 @@
     	$view->setFormat('objective1', 'Objective');
     	$view->setFormat('objective2', 'Objective');
     	$view->setFormat('objective2.item2', 'Objective');
+
+    	Opt_View::setFormatGlobal('objective1', 'Objective');
+    	Opt_View::setFormatGlobal('objective2', 'Objective');
+    	Opt_View::setFormatGlobal('objective2.item2', 'Objective');
     	
     	// Mixed
     	// Objective
@@ -84,7 +88,10 @@
     	)));
     	$view->setFormat('mixed1', 'Objective');
     	$view->setFormat('mixed2', 'Objective');
-    	
+
+    	Opt_View::setFormatGlobal('mixed1', 'Objective');
+    	Opt_View::setFormatGlobal('mixed2', 'Objective');
+   	
     	$out = new Opt_Output_Http;
     	$out->setContentType(Opt_Output_Http::HTML);
     	$out->render($view);    

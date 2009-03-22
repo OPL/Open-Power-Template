@@ -328,7 +328,7 @@
 				return self::processContainer(array('Opt_Function', 'capitalize'), array($item));
 			}
 			
-			return ucfirst($items);
+			return ucfirst($item);
 		} // end capitalize();
 
 		/**
@@ -345,7 +345,7 @@
 				return self::processContainer(array('Opt_Function', 'nl2br'), array($item));
 			}
 			
-			return nl2br($items);
+			return nl2br($item);
 		} // end nl2br();
 
 		/**

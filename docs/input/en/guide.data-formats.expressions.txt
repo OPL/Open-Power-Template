@@ -2,7 +2,7 @@ Title: Formats and expressions
 
 ----
 
-A lot of OPT functions can operate on whole containers, applying some feature on all of their elements. For example, we can capitalize a single string: `capitalize('string')` or a container of strings: `capitalize($containerOfStrings)`.
+A lot of OPT functions can operate on whole containers, executing the base function on all of their elements. For example, we can capitalize a single string: `capitalize('string')` or a container of strings: `capitalize($containerOfStrings)`.
 
 Formats and functions
 =====================

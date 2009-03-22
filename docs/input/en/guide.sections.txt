@@ -1,0 +1,7 @@
+Title: Working with sections
+SeeAlso:
+ - syntax.topics.sections
+
+----
+
+To be written.

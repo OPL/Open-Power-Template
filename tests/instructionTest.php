@@ -89,6 +89,11 @@
 	    		array('foreach_10.txt'),
 				array('grid_1.txt'),
 				array('grid_2.txt'),
+				array('grid_3.txt'),
+				array('grid_4.txt'),
+				array('grid_5.txt'),
+				array('grid_6.txt'),
+				array('grid_7.txt'),
 	    		array('if_1.txt'),
 	    		array('if_2.txt'),
 	    		array('if_3.txt'),
@@ -130,11 +135,28 @@
 				array('section_4.txt'),
 				array('section_5.txt'),
 				array('section_6.txt'),
+				array('section_7.txt'),
+				array('section_8.txt'),
+				array('section_9.txt'),
+				array('section_10.txt'),
+				array('section_11.txt'),
+				array('section_12.txt'),
+				array('selector_1.txt'),
+				array('selector_2.txt'),
+				array('selector_3.txt'),
+				array('selector_4.txt'),
+				array('selector_5.txt'),
+				array('selector_6.txt'),
+				array('selector_7.txt'),
 				array('show_1.txt'),
 				array('show_2.txt'),
 				array('show_3.txt'),
 				array('show_4.txt'),
 				array('show_5.txt'),
+				array('show_6.txt'),
+				array('show_7.txt'),
+				array('show_8.txt'),
+				array('show_9.txt'),
 				array('single_1.txt'),
 				array('single_2.txt'),
 				array('single_3.txt'),
@@ -162,7 +184,7 @@
  	    * @dataProvider correctProvider
  	    */
 	    public function testCorrect($test)
-	    {			
+	    {
 			testFSWrapper::loadFilesystem(INS_DIR.$test);
 	    	$view = new Opt_View('test.tpl');
 			if(file_exists('test://data.php'))

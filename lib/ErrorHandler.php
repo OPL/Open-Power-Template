@@ -89,19 +89,39 @@
 					OPT: <em>opt:root</em>. Alternatively, you may also switch the compiler to less restrictive mode by setting <em>singleRootNode</em>
 					to <strong>false</strong>.')
 			),
+			'Opt_SectionNotFound_Exception' => array(
+				'TemplateInfo' => array(),
+				'StackInfo' => array(1 => 'Actual section stack'),
+				'ErrorInfo' => array(1 => 'The nested sections can be connected together with a relationship. By default,
+					OPT tries to establish such relationship automatically, but you can modify the default behaviour with
+					the "parent" attribute. This exception occurs, because the template tries use the "parent" attribute
+					to create a relationship to a section that does not exist. Check whether the specified section names
+					are correct.')
+			),
 			/* Compiler API errors */
 			'Opt_APIMissingDefaultValue_Exception' => array(
 				'TemplateInfo' => array(),
 				'ErrorInfo' => array(1 => 'The optional XML tag attributes must have the default value defined in order to be parsed properly.
 					The optional values are provided in the third field of the attribute definition: (OPTIONAL, TYPE, optional_value).'),
-				'BugtrackerInfo' => array()
+				'BugtrackerInfo' => array(),
+				'Backtrace' => array()
 			),
 			'Opt_APIInvalidNodeType_Exception' => array(
 				'TemplateInfo' => array(),
 				'ErrorInfo' => array(1 => 'The XML tree nodes cannot be placed wherever you want them to be. Opt_Xml_Expression and Opt_Xml_Cdata
 					cannot contain children. Moreover, they may be themselves the children of Opt_Xml_Text only and Opt_Xml_Root is limited to
 					be the root node only.'),
-				'BugtrackerInfo' => array()
+				'BugtrackerInfo' => array(),
+				'Backtrace' => array()
+			),
+			'Opt_APINoWildcard_Exception' => array(
+				'TemplateInfo' => array(),
+				'ErrorInfo' => array(1 => 'The method that sorts the nodes on the children list must know,
+					where it should locate the nodes that have not been specified explicitely. The position,
+					where such unmatched nodes should go is specified with a wildcard provided as one of
+					the sort list elements.'),
+				'BugtrackerInfo' => array(),
+				'Backtrace' => array()
 			),
 			'__UNKNOWN__' => array(
 				'BasicConfiguration' => array()

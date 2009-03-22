@@ -85,10 +85,10 @@
 	
 	class Opt_Template_Exception extends Opt_Exception
 	{
-		public function clean()
-		{
-			Opt_Compiler_Class::cleanCompiler();
-		} // end __construct();		
+	//	public function clean()
+	//	{
+	//		Opt_Compiler_Class::cleanCompiler();
+	//	} // end __construct();
 	} // end Opt_Template_Exception;
 	
 	class Opt_XmlNoProlog_Exception extends Opt_Template_Exception
@@ -155,6 +155,11 @@
 	{
 		protected $_message = 'The format %s does not support %s.';
 	} // end Opt_FormatNotSupported_Exception;
+
+	class Opt_FormatNotDecorated_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'The format %s cannot be used without decoration.';
+	} // end Opt_FormatNotDecorated_Exception;
 	
 	class Opt_Expression_Exception extends Opt_Template_Exception
 	{
@@ -210,16 +215,16 @@
 	{
 		protected $_message = 'The callback for %s is invalid.';
 	} // end Opt_InvalidCallback_Exception;
+
 	/*
 	 * Compiler code and API problems.
-	 */
-	
+	 */	
 	class Opt_Compiler_Exception extends Opt_Exception
 	{
-		public function clean()
-		{
-			Opt_Compiler_Class::cleanCompiler();
-		} // end __construct();	
+	//	public function clean()
+	//	{
+	//		Opt_Compiler_Class::cleanCompiler();
+	//	} // end __construct();
 	} // end Opt_Compiler_Exception;
 	
 	class Opt_UnknownProcessor_Exception extends Opt_Compiler_Exception
@@ -261,16 +266,21 @@
 	{
 		protected $_message = 'Compiler API: Missing default value for optional attribute "%s" in %s.';
 	} // end Opt_APIMissingDefaultValue_Exception;
+
+	class Opt_APINoDataReturned_Exception extends Opt_Compiler_Exception
+	{
+		protected $_message = 'Compiler API: No data returned for %s while %s.';
+	} // end Opt_APINoDataReturned_Exception;
 	
 	/*
 	 * Instruction problems
 	 */
 	class Opt_Instruction_Exception extends Opt_Template_Exception
 	{
-		public function clean()
-		{
-			Opt_Compiler_Class::cleanCompiler();
-		} // end __construct();
+	//	public function clean()
+	//	{
+	//		Opt_Compiler_Class::cleanCompiler();
+	//	} // end __construct();
 	} // end Opt_Instruction_Exception;
 	
 	class Opt_InstructionInvalidParent_Exception extends Opt_Instruction_Exception

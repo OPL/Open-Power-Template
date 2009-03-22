@@ -17,6 +17,21 @@
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
 		require('./includes/filesystemWrapper.php');
+
+		/**
+		 * This function is necessary to complete the entitiy tests.
+		 *
+		 * @param String $text The text.
+		 * @return String "OK" if the entities were replaced with the corresponding characters.
+		 */
+		function test_ecf($text)
+		{
+			if($text == '<>&')
+			{
+				return 'OK';
+			}
+			return 'FAIL';
+		}
 	}
 
 	class xmlTest extends PHPUnit_Framework_TestCase
@@ -32,6 +47,7 @@
 			$tpl->compileMode = Opt_Class::CM_REBUILD;
 			$tpl->stripWhitespaces = false;
 			$tpl->prologRequired = true;
+			$tpl->register(Opt_Class::PHP_FUNCTION, 'ecf', 'test_ecf');
 			$tpl->setup();
 			$this->tpl = $tpl;
 	    } // end setUp();
@@ -66,6 +82,10 @@
 				array('comments_2.txt'),
 				array('comments_3.txt'),
 				array('comments_4.txt'),
+				array('entities_1.txt'),
+				array('entities_2.txt'),
+				array('entities_3.txt'),
+				array('entities_4.txt'),
 	    	);
 	    } // end correctProvider();
 

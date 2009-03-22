@@ -67,6 +67,7 @@
 
 		protected function _validate(&$text)
 		{
+			return true;
 			if($this->get('cdata'))
 			{
 				return true;

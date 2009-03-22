@@ -403,7 +403,6 @@
 		public function sort(Array $prototypes)
 		{
 			$this->_prototypes = $prototypes;
-
 			if(!isset($prototypes['*']))
 			{
 				throw new Opt_APINoWildcard_Exception;

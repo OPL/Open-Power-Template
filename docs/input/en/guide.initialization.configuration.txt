@@ -1,0 +1,62 @@
+Title: List of configuration options
+
+----
+
+Below, you can find a list of the configuration options available in OPT.
+
+Paths and directories
+=====================
+
+`sourceDir`
+:	The path to the directory with the XML templates. It must be readable by the script.
+:	The assotiative list of paths and their identifiers that contain XML templates. They must be readable by the script.
+
+`compileDir`
+:	The path to the directory with the compiled PHP templates. The script must have a write access to it.
+
+`pluginDir`
+:	The path to the directory that contains OPT plugins.
+:	The list of paths to the directories with OPT plugins.
+
+:`pluginDataDir`
+:	The path to the directory, where the plugin engine may store some internal information to speed up the plugin loading. You can set it to the same directory as `compileDir`.
+
+Front-end options
+=================
+
+`compileMode`
+:	`Opt_Class::CM_DEFAULT` - the templates are recompiled only if they have been modified. Recommended for the development environment.
+:	`Opt_Class::CM_PERFORMANCE` - the templates are never recompiled. Recommended for the production environment with the assumption that we will not be modifying the templates directly on the server.
+:	`Opt_Class::CM_REBUILD` - the templates are recompiled every request. Recommended for the OPT instruction developers.
+
+`charset`
+:	The default charset used by [api.opt-output-http.set-content-type]. Default value: `utf-8`
+
+`contentType`
+:	The default content type used by [api.opt-output-http.set-content-type]. Default value: `Opt_Output_Http::XHTML`.
+
+`gzipCompression`
+:	**True** to enable the output compression in [api.opt-output-http] output system. You need to have the *zlib* extension installed in order to use this feature. Please note that it is recommended to enable the compression directly in the HTTP server, not in the script. Default value: **true**
+
+`headerBuffering`
+:	**True** to buffer the HTTP headers by [api.opt-output-http] and send them just before the HTML code. This allows to overwrite the previously set header. Default value: **false**
+
+`contentNegotiation`
+:	**True** to enable content negotiation for [api.opt-output-http.set-content-type]. You need to have the *Open Power Classes* library installed in order to use this feature.
+
+`errorReporting`
+:	The default error reporting during the template execution. After the template is executed, OPT restores the previous script settings. Default value: `E_ALL^E_NOTICE`
+
+`stdStream`
+:	The default identifier of the `sourceDir` path used, if the identifier is not specified explicitly. Default value: `file`.
+
+`debugConsole`
+:	**True** to enable the debug console for OPT. Remember to disable this option in your production environment! Default value: **false**
+
+Compiler options
+================
+
+
+
+Misc. options
+=============

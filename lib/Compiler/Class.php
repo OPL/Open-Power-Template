@@ -42,7 +42,7 @@
 		const OP_TU = 8388608;
 		const OP_CURLY_BRACKET = 16777216;
 		
-		const DEFAULT_FORMAT_CLASS = 'Generic';
+		const DEFAULT_FORMAT_CLASS = 'Array';
 		
 		const ESCAPE_ON = true;
 		const ESCAPE_OFF = false;
@@ -342,7 +342,14 @@
 			}
 			return $expression;
 		} // end escape();
-		
+
+		/**
+		 * Returns the format object for the specified variable.
+		 *
+		 * @param String $variable The variable identifier.
+		 * @param Boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
+		 * @return Opt_Compiler_Format The format object.
+		 */
 		public function getFormat($variable, $restore = false)
 		{
 			$hc = self::DEFAULT_FORMAT_CLASS;			
@@ -362,7 +369,14 @@
 			}
 			return $top;
 		} // end getFormat();
-		
+
+		/**
+		 * Creates a format object for the specified description string.
+		 *
+		 * @param String $variable The variable name (for debug purposes)
+		 * @param String $hc The description string.
+		 * @return Opt_Compiler_Format The newly created format object.
+		 */
 		public function createFormat($variable, $hc)
 		{
 			// Decorate the objects, if necessary
@@ -382,12 +396,18 @@
 				}
 				else
 				{
-					$top = $obj = new $hcName($this->_tpl, $this); 
+					$top = $obj = new $hcName($this->_tpl, $this, $hc);
 				}
 			}
 			return $top;
 		} // end createFormat();
-		
+
+		/**
+		 * Allows to export the list of variables and their data formats to
+		 * the template compiler.
+		 *
+		 * @param Array $list An assotiative array of pairs "variable => format description"
+		 */
 		public function setFormatList(Array $list)
 		{
 			$this->_formatInfo = $list;
@@ -438,7 +458,14 @@
 		{
 			return preg_match($this->_rEncodingName, $id);
 		} // end isIdentifier();
-		
+
+		/**
+		 * Checks whether the specified tag name is registered as an instruction.
+		 * Returns its processor in case of success or NULL.
+		 *
+		 * @param String $tag The tag name (with the namespace)
+		 * @return Opt_Compiler_Processor|NULL The processor that registered this tag.
+		 */
 		public function isInstruction($tag)
 		{
 			if(isset($this->_instructions[$tag]))
@@ -555,7 +582,16 @@
 		/*
 		 * Internal tools and utilities
 		 */
-		
+
+		/**
+		 * Compiles the attribute part of the opening tag and extracts the tag
+		 * attributes to an array. Moreover, it performs the entity conversion
+		 * to the corresponding characters.
+		 *
+		 * @internal
+		 * @param String $attrList The attribute list string
+		 * @return Array The list of attributes with the values.
+		 */
 		protected function _compileAttributes($attrList)
 		{
 			// Tokenize the list
@@ -565,6 +601,17 @@
 			$result = array();
 			for($i = 0; $i < $size; $i++)
 			{
+				/**
+				 * The algorithm scans the tokens on the list and determines, where
+				 * the beginning and the end of the attribute is. We do not use the
+				 * regular expressions, because they are not able to capture the
+				 * invalid content between the expressions.
+				 *
+				 * The sub-loops can modify the iteration variable to skip the found
+				 * elements, white characters etc. This means that the main loop
+				 * does only a few iteration number, equal approximately the number
+				 * of attributes.
+				 */
 				if(!ctype_space($match[$i][0]))
 				{
 					
@@ -613,7 +660,9 @@
 					{
 						return false;
 					}
-					$result[$name] = $value;
+					// We return the decoded attribute values, because they are
+					// stored without the entities.
+					$result[$name] = htmlspecialchars_decode($value);
 				}
 			}
 			return $result;
@@ -726,12 +775,32 @@
 			$tree->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(!$this->_massPreprocess($this->_template, $compileTime, array('.$list.'))){ ');
 			$tree->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' }else{ $compileTime = $this->_compile($this->_template, $mode); require(__FILE__); } ');				
 		} // end _addDependencies();
-		
+
+		/**
+		 * Compiles the current text block between two XML tags, creating a
+		 * complete Opt_Xml_Text node. It looks for the expressions in the
+		 * curly brackets, extracts them and packs as separate nodes.
+		 *
+		 * Moreover, it replaces the entities with the corresponding characters.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The current XML node.
+		 * @param String $text The text block between two tags.
+		 * @param Boolean $noExpressions=false If true, do not look for the expressions.
+		 * @return Opt_Xml_Node The current XML node.
+		 */
 		protected function _treeTextCompile($current, $text, $noExpressions = false)
 		{
+			// Yes, we parse entities, but the text itself should not contain
+			// any special characters.
+			if(strcspn($text, '<>') != strlen($text))
+			{
+				throw new Opt_XmlInvalidCharacter_Exception(htmlspecialchars($text));
+			}
+
 			if($noExpressions)
 			{
-				$current = $this->_treeTextAppend($current, $this->parseShortEntities($text));
+				$current = $this->_treeTextAppend($current, $this->parseEntities($text));
 			}
 			
 			preg_match_all($this->_rExpressionTag, $text, $result, PREG_SET_ORDER);
@@ -743,7 +812,7 @@
 				$id = strpos($text, $result[$i][0], $offset);
 				if($id > $offset)
 				{
-					$current = $this->_treeTextAppend($current, $this->parseShortEntities(substr($text, $offset, $id - $offset)));						
+					$current = $this->_treeTextAppend($current, $this->parseEntities(substr($text, $offset, $id - $offset)));						
 				}
 				$offset = $id + strlen($result[$i][0]);
 				
@@ -754,12 +823,22 @@
 			// Now the remaining content of the file
 			if(strlen($text) > $offset)
 			{
-				$current = $this->_treeTextAppend($current, $this->parseShortEntities(substr($text, $offset, strlen($text) - $offset)));
+				$current = $this->_treeTextAppend($current, $this->parseEntities(substr($text, $offset, strlen($text) - $offset)));
 			}
 			return $current;
 		} // end _treeTextCompile();
-		
-		protected function _treeTextAppend($current, $text, $trim = true)
+
+		/**
+		 * An utility method that simplifies inserting the text to the XML
+		 * tree. Depending on the last child type, it can create a new text
+		 * node or add the text to the existing one.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The currently built XML node.
+		 * @param String|Opt_Xml_Node $text The text or the expression node.
+		 * @return Opt_Xml_Node The current XML node.
+		 */
+		protected function _treeTextAppend($current, $text)
 		{
 			$last = $current->getLastChild();
 			if(!is_object($last) || !($last instanceof Opt_Xml_Text))
@@ -866,15 +945,22 @@
 				$list[$i][0]->postprocessAttribute($node, $list[$i][1]);
 			}
 		} // end _postprocessXml();
-		
+
+		/**
+		 * An utility method for the stage 2 and 3 of the compilation. It is
+		 * used to create a non-recursive depth-first search algorithm. The
+		 * current queue is sent to a stack, and the new queue if initialized,
+		 * if $item contains children.
+		 *
+		 * @internal
+		 * @param SplStack $stack The processing stack.
+		 * @param SplQueue $queue The processing queue.
+		 * @param Opt_Xml_Scannable $item The item, where to import the nodes from.
+		 * @param Boolean $pp The postprocess flag.
+		 * @return SplQueue The new queue (or the old one, if none has been created).
+		 */
 		protected function _pushQueue($stack, $queue, $item, $pp)
-		{
-			/*
-			 * A support method for non-recursive depth-first search of a tree.
-			 * It sends a queue into a stack and initializes a new queue, if
-			 * the $item contains subitems.
-			 */
-		
+		{		
 			if($item->hasChildren())
 			{
 				$stack->push(array($item, $queue, $pp));
@@ -931,6 +1017,13 @@
 			{
 				return '';
 			}
+
+			// This prevents from displaying </> if the HTML node was hidden.
+			if($item->get('hidden') !== false)
+			{
+				return '';
+			}
+
 			$output = '';
 			switch($item->getType())
 			{
@@ -1238,6 +1331,11 @@
 			}
 			catch(Exception $e)
 			{
+				// Free the memory
+				if(isset($tree))
+				{
+					$tree->dispose();
+				}
 				// Clean the compiler state in case of exception
 				$this->_template = NULL;
 				$this->_dependencies = array();
@@ -1361,7 +1459,7 @@
 				{
 					if($groups[$k] == ']]>')
 					{
-						$current = $this->_treeTextAppend($current, $cdata, false);
+						$current = $this->_treeTextAppend($current, $cdata);
 						$groupState = 0;
 					}
 					else
@@ -1704,7 +1802,7 @@
 				try
 				{
 					// Should we display this node?
-					if(is_null($item) || $item->get('hidden'))
+					if(is_null($item) || $item->get('hidden') !== false)
 					{
 						throw new Opl_Goto_Exception;	// Goto postprocess;
 					}
@@ -1748,12 +1846,12 @@
 								{
 									// In the opposite case reduce all the groups of the white characters
 									// to single spaces in the text.
-									$output .= trim(preg_replace('/\s\s+/', ' ', (string)$item));
+									$output .= htmlspecialchars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
 								}
 							}
 							else
 							{
-								$output .= $item;
+								$output .= htmlspecialchars($item);
 							}
 							
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
@@ -2758,7 +2856,7 @@
 								if($id == $count - 1)
 								{
 									// This is the last name element.
-									return $section['format']->get('sectionCurrent');
+									return $section['format']->get('section:item');
 								}
 								continue;
 							}
@@ -2766,8 +2864,8 @@
 						else
 						{
 							// The section has been found, we need to process the item.
-							$state['section']['format']->assign('_sectionItemName', $item);
-							$code = $state['section']['format']->get('itemVariable');
+							$state['section']['format']->assign('item', $item);
+							$code = $state['section']['format']->get('section:variable');
 							
 							$state['section'] = null;
 							continue;
@@ -2777,25 +2875,40 @@
 					// Now, the normal variables
 					if($state['first'])
 					{
-						$format = $this->getFormat($path, true);
+						if($state['access'] == Opt_Class::ACCESS_GLOBAL)
+						{
+							$format = $this->getFormat('global.'.$path, true);
+						}
+						else
+						{
+							$format = $this->getFormat($path, true);
+						}
 						if(!$format->supports('variable'))
 						{
-							throw new Opt_HooksNotSupported_Exception($format->getName(), 'variable');
+							throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
 						}
 						$format->assign('access', $state['access']);
 						$format->assign('item', $item);
-						$code = $format->get('variableMain');
+
+						$code = $format->get('variable:main');
 					}
 					else
 					{
 						// The subitems are processed with the upper-item format
-						$format = $this->getFormat($previous, true);
-						if(!$format->supports('variable'))
+						if($state['access'] == Opt_Class::ACCESS_GLOBAL)
 						{
-							throw new Opt_HooksNotSupported_Exception($format->getName(), 'variable');
+							$format = $this->getFormat('global.'.$previous, true);
+						}
+						else
+						{
+							$format = $this->getFormat($previous, true);
+						}
+						if(!$format->supports('item'))
+						{
+							throw new Opt_FormatNotSupported_Exception($format->getName(), 'item');
 						}
 						$format->assign('item', $item);
-						$code .= $format->get('variableSubitem');
+						$code .= $format->get('item:item');
 					}
 				}
 				return $code;

@@ -15,72 +15,39 @@
 
  // The format class, where sub-sections are parts of the upper-level section array.
  
-	class Opt_Format_SingleArray extends Opt_Compiler_Format
+	class Opt_Format_SingleArray extends Opt_Format_Array
 	{
-		protected $_supports = array(
-			'section', 'item'
-		);
-		
-		private $_codeBlocks = array(
-			// Initializes the data for the section.
-			'sectionInit' => '$_sect%sectionNest%_vals = %reference% %sectionRecordCall%;',
-			// Checks if there are data for this section.
-			'sectionCondition' => 'is_array($_sect%sectionNest%_vals) && ($_sect%sectionNest%_cnt = sizeof($_sect%sectionNest%_vals)) > 0',
-			// Generates the loop that iterates over the data forward.
-			'sectionStartAscLoop' => 'for($_sect%sectionNest%_i = 0; $_sect%sectionNest%_i < $_sect%sectionNest%_cnt; $_sect%sectionNest%_i++){ ',
-			// Generates the loop that iterates over the data backward.
-			'sectionStartDescLoop' => 'for($_sect%sectionNest%_i = $_sect%sectionNest%_cnt-1; $_sect%sectionNest%_i >= 0; $_sect%sectionNest%_i--){ ',
-			// Finishes the loop block.
-			'sectionEndLoop' => ' } ',
-			// Rewinds the iterator to the first element
-			'sectionRewind' => '$_sect%sectionNest%_i = 0; ',
-			// Moves the iterator to the next element
-			'sectionNext' => '$_sect%sectionNest%_i++; ',
-			// Checks if the iterator points to a valid record.
-			'sectionValid' => 'isset($_sect%sectionNest%_vals[$_sect%sectionNest%_i])',
-			// Retrieves the current record.
-			'sectionCurrent' => '$_sect%sectionNest%_vals[$_sect%sectionNest%_i]',
-			// Retrieves the current record by the explicite call. Here, not used
-			'sectionCurrentExp' => '$_sect%sectionNest%_vals[$_sect%sectionNest%_i]',
-			// Returns the current iterator:
-			'sectionIterator' => '$_sect%sectionNest%_i',
-			// Counts the section elements
-			'sectionCount' => '$_sect%sectionNest%_cnt',
-			// Counts the section elements
-			'sectionSize' => 'sizeof($_sect%sectionNest%_vals[$_sect%sectionNest%_i])',
-		
-			// Tests if the iterator points to the first element:
-			'sectionOptFirstAsc' => '$_sect%sectionNest%_i == 0',
-			// Tests if the iterator points to the first element, when iterating backwards.
-			'sectionOptFirstDesc' => '$_sect%sectionNest%_i == $_sect%sectionNest%_cnt-1',
-			// Tests if the iterator points to the last element, when iterating backwards.
-			'sectionOptLastDesc' => '$_sect%sectionNest%_i == 0',
-			// Tests if the iterator points to the first element.
-			'sectionOptLastAsc' => '$_sect%sectionNest%_i == $_sect%sectionNest%_cnt-1',
-			// Tests if the iterator points to the first or the last element:
-			'sectionOptFar' => '$_sect%sectionNest%_i == 0 || $_sect%sectionNest%_i == $_sect%sectionNest%_cnt-1',
-			// Returns the sectionRecordCall for the sectionInit
-			'sectionRecordCall' => '%parentRecord%',
-			
-			'_itemVariable' => '%sectionItemRead%[\'%_sectionItemName%\']',
-			'_itemFullVariable' => '$_sect%sectionNest%_vals[$_sect%sectionNest%_i][\'%_sectionItemName%\']',
+		protected $_properties = array(
+			'section:useReference' => true,
+			'section:anyRequests' => null
 		);
 
 		protected function _build($hookName)
 		{
-			if(isset($this->_codeBlocks[$hookName]))
+			if($hookName == 'section:init')
 			{
-				return $this->_codeBlocks[$hookName];
+				$section = $this->_getVar('section');
+
+				if(!is_null($section['parent']))
+				{
+					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
+					$parent['format']->assign('item', $section['name']);
+					return '$_sect'.$section['name'].'_vals = &'.$parent['format']->get('section:variable').'; ';
+				}
+				elseif(!is_null($section['datasource']))
+				{
+					return '$_sect'.$section['name'].'_vals = '.$section['datasource'].'; ';
+				}
+				else
+				{
+					$this->assign('item', $section['name']);
+					return '$_sect'.$section['name'].'_vals = &'.$this->get('variable:main').'; ';
+				}
 			}
-			if($hookName == 'itemVariable')
+			else
 			{
-				return $this->_decorateHook(
-					$this->_codeBlocks['_itemVariable'],
-					'sectionItemRead',
-					$this->_codeBlocks['_itemFullVariable']
-				);
+				return parent::_build($hookName);
 			}
 			return NULL;
 		} // end _build();
-
 	} // end Opt_Format_SingleArray;
