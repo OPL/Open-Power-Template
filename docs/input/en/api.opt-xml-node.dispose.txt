@@ -1,5 +1,5 @@
-Title: dispose();
-ShortTitle: Opt_Xml_Node::dispose();
+Title: dispose()
+ShortTitle: Opt_Xml_Node::dispose()
 Reference: void dispose()
 Status: public
 VersionSince: 2.0-beta2 

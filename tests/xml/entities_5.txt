@@ -1,0 +1,21 @@
+Check extra entities
+
+>>>>templates/test.tpl
+<?xml version="1.0" ?>
+<foo>
+&amp;
+&nbsp;
+&#184;
+&amp;amp;nbsp;
+</foo>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<foo>
+&amp;
+&nbsp;
+&#184;
+&amp;nbsp;
+</foo>

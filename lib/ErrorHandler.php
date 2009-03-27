@@ -13,10 +13,21 @@
  * $Id: ErrorHandler.php 22 2008-12-03 11:32:29Z zyxist $
  */
 
+	/**
+	 * This class is an extension to the default OPL error handler.
+	 * See the help of OPL to get more details on using it.
+	 */
 	class Opt_ErrorHandler extends Opl_ErrorHandler
 	{	
 		protected $_library = 'Open Power Template';
 		protected $_context = array(
+			'Opl_Debug_Exception' => array(
+				'BasicConfiguration' => array(),
+				'Backtrace' => array(),
+				'ErrorInfo' => array(1 => 'This exception is generated to inform about a possible bug in OPL/OPT code.
+					Check out whether it is not caused by any of the installed extensions, and if not - please report
+					it to the Invenzzia Bugtracker, providing all the debug information.'),
+			),
 			'Opt_TemplateNotFound_Exception' => array(
 				'ErrorInfo' => array(1 => 'The template cannot be located in one of <em>sourceDir</em> directories.
 					Check the file name for mistakes and the filesystem permissions.')
@@ -78,25 +89,51 @@
 					OPT: <em>opt:root</em>. Alternatively, you may also switch the compiler to less restrictive mode by setting <em>singleRootNode</em>
 					to <strong>false</strong>.')
 			),
+			'Opt_SectionNotFound_Exception' => array(
+				'TemplateInfo' => array(),
+				'StackInfo' => array(1 => 'Actual section stack'),
+				'ErrorInfo' => array(1 => 'The nested sections can be connected together with a relationship. By default,
+					OPT tries to establish such relationship automatically, but you can modify the default behaviour with
+					the "parent" attribute. This exception occurs, because the template tries use the "parent" attribute
+					to create a relationship to a section that does not exist. Check whether the specified section names
+					are correct.')
+			),
 			/* Compiler API errors */
 			'Opt_APIMissingDefaultValue_Exception' => array(
 				'TemplateInfo' => array(),
 				'ErrorInfo' => array(1 => 'The optional XML tag attributes must have the default value defined in order to be parsed properly.
 					The optional values are provided in the third field of the attribute definition: (OPTIONAL, TYPE, optional_value).'),
-				'BugtrackerInfo' => array()
+				'BugtrackerInfo' => array(),
+				'Backtrace' => array()
 			),
 			'Opt_APIInvalidNodeType_Exception' => array(
 				'TemplateInfo' => array(),
 				'ErrorInfo' => array(1 => 'The XML tree nodes cannot be placed wherever you want them to be. Opt_Xml_Expression and Opt_Xml_Cdata
 					cannot contain children. Moreover, they may be themselves the children of Opt_Xml_Text only and Opt_Xml_Root is limited to
 					be the root node only.'),
-				'BugtrackerInfo' => array()
+				'BugtrackerInfo' => array(),
+				'Backtrace' => array()
+			),
+			'Opt_APINoWildcard_Exception' => array(
+				'TemplateInfo' => array(),
+				'ErrorInfo' => array(1 => 'The method that sorts the nodes on the children list must know,
+					where it should locate the nodes that have not been specified explicitely. The position,
+					where such unmatched nodes should go is specified with a wildcard provided as one of
+					the sort list elements.'),
+				'BugtrackerInfo' => array(),
+				'Backtrace' => array()
 			),
 			'__UNKNOWN__' => array(
 				'BasicConfiguration' => array()
 			),
 		);
-		
+
+		/**
+		 * The informator that prints the basic OPT configuration to the error
+		 * output.
+		 *
+		 * @param Opt_Exception $exception Exception
+		 */
 		protected function _printBasicConfiguration($exception)
 		{
 			$compileMode = array(
@@ -116,12 +153,25 @@
 			echo '  			<p class="directive">Compilation directory: <span>'.$tpl->compileDir."</span></p>\r\n";
 			echo '  			<p class="directive">Compilation mode: <span'.($tpl->compileMode == Opt_Class::CM_REBUILD ? ' class="bad"' : '').'>'.$compileMode[$tpl->compileMode]."</span></p>\r\n";
 		} // end _printBasicConfiguration();
-		
+
+		/**
+		 * The informator that prints the currently compiled template name
+		 * for the compilation errors.
+		 *
+		 * @param Opt_Exception $exception Exception
+		 */
 		protected function _printTemplateInfo($exception)
 		{
 			echo "		<p class=\"directive\">Template: <span>".Opt_Compiler_Class::getCurrentTemplate()."</span></p>\r\n";
 		} // end _printTemplateInfo();
-		
+
+		/**
+		 * The informator that displays an information that the exception is caused by
+		 * the bug in the source code and should be reported, or at least, consulted
+		 * with the Invenzzia team.
+		 *
+		 * @param Opt_Exception $exception Exception
+		 */
 		protected function _printBugtrackerInfo($exception)
 		{
 			echo "  			<p><strong>Important information:</strong> this exception concerns the instruction API code and should occur only <u>if you are writing the new instruction for OPT</u>. If you encounter this exception in one of OPT default instructions, please visit the <a href=\"http://bugs.invenzzia.org\">bugtracker</a> immediately, providing the template that causes this exception.</p>\r\n";

@@ -40,12 +40,14 @@
 			$result = $this->_compiler->compileExpression($attr->getValue(), false, Opt_Compiler_Class::ESCAPE_BOTH);
 			if($result[2] == true)
 			{
+				// The expression is a single variable that can be handled in a simple way.
 				$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, 'if(empty('.$result[3].')){ ');
 				$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, '} else { echo '.$result[0].'; } ');
 			}
 			else
 			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' $_cont'.$this->_nesting.' = '.$result[0].'; if(is_null($_cont'.$this->_nesting.')){ ');
+				// In more complex expressions, we store the result to a temporary variable.
+				$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' $_cont'.$this->_nesting.' = '.$result[0].'; if(empty($_cont'.$this->_nesting.')){ ');
 				$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, '} else { echo $_cont'.$this->_nesting.'; } ');
 			}
 			$this->_nesting++;

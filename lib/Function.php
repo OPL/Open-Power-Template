@@ -13,8 +13,23 @@
  * $Id$
  */
 
+	/**
+	 * A generic container for the template functions created for
+	 * the autoloader purporses only.
+	 */
 	class Opt_Function
-	{	
+	{
+		/**
+		 * The method allows to create aggregate functions that operate
+		 * on container. It calls the specified function for all the
+		 * container elements provided in the first function call
+		 * argument.
+		 *
+		 * @static
+		 * @param Callback $callback A valid function callback
+		 * @param Array $args The list of function arguments.
+		 * @return Container Processed container
+		 */
 		static public function processContainer($callback, $args)
 		{			
 			$result = array();
@@ -26,12 +41,26 @@
 			
 			return $result;
 		} // end processContainer();
-		
+
+		/**
+		 * Returns true, if the specified value is a valid OPT container.
+		 *
+		 * @static
+		 * @param Mixed $value The value to test.
+		 * @return Boolean True, if the value is really a container
+		 */
 		static public function isContainer($value)
 		{
 			return is_array($value) || (is_object($value) && ($value instanceof Iterator || $value instanceof IteratorAggregate));
 		} // end isContainer();
-	
+
+		/**
+		 * Returns the first non-empty argument.
+		 *
+		 * @static
+		 * @param mixed ... The arguments.
+		 * @return mixed The first non-empty argument
+		 */
 		static public function firstof()
 		{
 			$args = func_get_args();
@@ -44,7 +73,16 @@
 				}
 			}
 		} // end firstof();
-	
+
+		/**
+		 * Puts the specified string $delim between every two characters of $string.
+		 * By default, it puts spaces between the $string characters.
+		 *
+		 * @static
+		 * @param String|Container $string The string to be processed.
+		 * @param String $delim = ' ' Character delimiter.
+		 * @return String|Container The modified text.
+		 */
 		static public function spacify($string, $delim = ' ')
 		{
 			if(self::isContainer($string))
@@ -70,7 +108,16 @@
 			}
 			return $ns;
 		} // end spacify();
-	
+
+		/**
+		 * Makes an indentation to the specified string.
+		 *
+		 * @static
+		 * @param String|Container $string The source string or the container
+		 * @param Int $num The length of the indentation
+		 * @param String $with = ' ' The indent character
+		 * @return String|Container The modified string
+		 */
 		static public function indent($string, $num, $with = ' ')
 		{
 			if(self::isContainer($string))
@@ -80,7 +127,14 @@
 		
 			return preg_replace('/([\\r\\n]{1,2})/', '$1'.str_repeat($with, $num), $string);
 		} // end indent();
-	
+
+		/**
+		 * Strips the groups of white characters in $string into a single space.
+		 *
+		 * @static
+		 * @param String|Container $string The source string or the container.
+		 * @return String|Container The modified string.
+		 */
 		static public function strip($string)
 		{
 			if(self::isContainer($string))
@@ -90,7 +144,21 @@
 
 			return preg_replace('/\s\s+/', ' ', $string);
 		} // end strip();
-	
+
+		/**
+		 * Truncates the string or the container of strings to the specified length.
+		 * If the string was really shortened, appends the $etc to the end of it.
+		 * By default, the function can truncate a string in the middle of a word.
+		 * If you want to round the truncation to the whole words, change the default
+		 * value of the last argument to false.
+		 *
+		 * @static
+		 * @param String|Container $string The source string or the container of strings.
+		 * @param Int $length Truncate to the specified length.
+		 * @param String $etc = '' The extra string appended to the result, if it was really truncated.
+		 * @param Boolean $break = true Do we allow to break the words?
+		 * @return String|Container The modified string.
+		 */
 		static public function truncate($string, $length, $etc = '', $break = true)
 		{
 			if(self::isContainer($string))
@@ -211,7 +279,14 @@
 			}
 			return sqrt(($sum / $cnt) - pow($average, 2));
 		} // end stddev();
-		
+
+		/**
+		 * Replaces the lowercase characters in $item with the uppercase.
+		 *
+		 * @static
+		 * @param String|Container $item The string or the container.
+		 * @return String|Container The modified string
+		 */
 		static public function upper($item)
 		{
 			if(self::isContainer($item))
@@ -221,7 +296,14 @@
 			
 			return strtoupper($item);
 		} // end upper();
-		
+
+		/**
+		 * Replaces the uppercase characters in $item with the lowercase.
+		 *
+		 * @static
+		 * @param String|Container $item The string or the container.
+		 * @return String|Container The modified string
+		 */
 		static public function lower($item)
 		{
 			if(self::isContainer($item))
@@ -231,7 +313,14 @@
 			
 			return strtolower($item);
 		} // end lower();
-		
+
+		/**
+		 * Capitalizes the first character of $item.
+		 *
+		 * @static
+		 * @param String|Container $item The string or the container.
+		 * @return String|Container The modified string
+		 */
 		static public function capitalize($item)
 		{
 			if(self::isContainer($item))
@@ -239,9 +328,16 @@
 				return self::processContainer(array('Opt_Function', 'capitalize'), array($item));
 			}
 			
-			return ucfirst($items);
+			return ucfirst($item);
 		} // end capitalize();
-		
+
+		/**
+		 * Changes the newline characters to the BR tag.
+		 *
+		 * @static
+		 * @param String|Container $item The string or the container.
+		 * @return String|Container The modified string
+		 */
 		static public function nl2br($item)
 		{
 			if(self::isContainer($item))
@@ -249,9 +345,17 @@
 				return self::processContainer(array('Opt_Function', 'nl2br'), array($item));
 			}
 			
-			return nl2br($items);
+			return nl2br($item);
 		} // end nl2br();
-		
+
+		/**
+		 * Removes the HTML tags from $item.
+		 *
+		 * @static
+		 * @param String|Container $item The string or the container.
+		 * @param String $what The list of allowable tags that must not be removed.
+		 * @return String|Container The modified string
+		 */
 		static public function stripTags($item, $what)
 		{
 			if(self::isContainer($item))
@@ -261,7 +365,18 @@
 			
 			return strip_tags($item, $what);
 		} // end stripTags();
-		
+
+		/**
+		 * Helps displaying a nice range between two numbers, if they are
+		 * not equal, i.e.: "5 - 10" or the number itself, if they are
+		 * equal. By default, the second number is evaluated as the current
+		 * year, which allows to create a range of years for the Copyright foot
+		 * at the bottom of the website.
+		 *
+		 * @param Int $number1 Starting number
+		 * @param Int $number2=null Ending number
+		 * @return String The result string
+		 */
 		static public function range($number1, $number2 = null)
 		{
 			if(is_null($number2))
@@ -274,12 +389,28 @@
 			}
 			return $number1.' - '.$number2;			
 		} // end range();
-		
+
+		/**
+		 * Returns true, if the specified string is a valid URL.
+		 *
+		 * @static
+		 * @param String $address The string to test.
+		 * @return Boolean True, if the specified string is a valid URL.
+		 */
 		static public function isUrl($address)
 		{
 			return filter_var($address, FILTER_VALIDATE_URL) !== false;
 		} // end isUrl();
-		
+
+		/**
+		 * Returns true, if the specified URL or file path points to the
+		 * image file. The recognition bases on the file extension and
+		 * currently recognizes JPG, PNG, GIF, SVG and BMP.
+		 *
+		 * @static
+		 * @param String $address The URL or filesystem path to test.
+		 * @return Boolean True, if the specified address points to an image.
+		 */
 		static public function isImage($address)
 		{
 			$result = @parse_url($address);
@@ -287,6 +418,7 @@
 			{
 				if(isset($result['path']))
 				{
+					// Try to obtain the file extension
 					if(($id = strrpos($result['path'], '.')) !== false)
 					{
 						if(in_array(substr($result['path'], $id+1, 3), array('jpg', 'png', 'gif', 'svg', 'bmp')))

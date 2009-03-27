@@ -28,12 +28,20 @@
 		// Headers
 		protected $_headers = array();
 		protected $_headersSent = false;
-		
+
+		/**
+		 * The constructor that creates the new HTTP output object.
+		 */
 		public function __construct()
 		{
 			$this->_tpl = Opl_Registry::get('opt');
 		} // end __construct();
-		
+
+		/**
+		 * Returns the name of this output system.
+		 *
+		 * @return String The "HTTP" word.
+		 */
 		public function getName()
 		{
 			return 'HTTP';
@@ -43,6 +51,13 @@
 		 * Header management
 		 */
 
+		/**
+		 * Sets a HTTP header and secures it by removing the new line characters.
+		 *
+		 * @param String $name Header name
+		 * @param String $value Header value
+		 * @return Boolean True if succeed.
+		 */
 		public function setHeader($name, $value)
 		{
 			if($this->_headersSent)
@@ -62,6 +77,11 @@
 			return true;
 		} // end setHeader();
 
+		/**
+		 * Sends the buffered HTTP headers to the browser.
+		 *
+		 * @return Boolean True, if succeed.
+		 */
 		public function sendHeaders()
 		{
 			if(!$this->_headersSent && $this->_tpl->headerBuffering)
@@ -82,6 +102,18 @@
 			return false;
 		} // end sendHeaders();
 
+		/**
+		 * Creates a "Content-type" header from the information provided in the
+		 * arguments or in OPT configuration. If one of the arguments is NULL,
+		 * the method tries to import equivalent setting from the Opt_Class configuration
+		 * fields.
+		 *
+		 * If Open Power Classes is available, the method may perform a full
+		 * content-negotiation procedure.
+		 *
+		 * @param String|Int $contentType The content type described manually or by the class constants.
+		 * @param String $charset The output document encoding.
+		 */
 		public function setContentType($contentType = null, $charset = null)
 		{
 			$charset = (is_null($charset) ? $this->_tpl->charset : $charset);
@@ -172,7 +204,18 @@
 		/*
 		 * Template rendering
 		 */
-		
+
+		/**
+		 * Renders the view and sends the results to the browser. Please note
+		 * that in order to ensure that the script output will be a valid
+		 * XML document, this method can be called only once, for one XML view, forcing
+		 * you to modularize the templates with the template inheritance or
+		 * opt:include instruction.
+		 *
+		 * @param Opt_View $view The view object to be rendered.
+		 * @param Opt_Cache_Hook_Interface $cache optional The caching interface.
+		 * @return Boolean True, if succeed.
+		 */
 		public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null)
 		{			
 			if(is_null($this->_mode))

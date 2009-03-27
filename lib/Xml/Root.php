@@ -24,7 +24,7 @@
 
 		public function __construct()
 		{
-			/* null */
+			parent::__construct();
 		} // end __construct();
 		
 		public function setParent($parent)
@@ -64,7 +64,7 @@
 
 		protected function _testNode(Opt_Xml_Node $node)
 		{
-			if($node->getType() != 'Opt_Xml_Expression' && $node->getType() != 'Opt_Xml_Cdata')
+			if($node->getType() == 'Opt_Xml_Expression' && $node->getType() == 'Opt_Xml_Cdata')
 			{
 				throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Root', $node->getType());
 			}

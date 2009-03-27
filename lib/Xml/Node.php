@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -17,6 +16,11 @@
 	{
 		protected $_type;
 		protected $_parent = null;
+
+		public function __construct()
+		{
+			/* null */
+		} // end __construct();
 
 		public function setParent($parent)
 		{

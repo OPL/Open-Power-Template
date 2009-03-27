@@ -188,7 +188,7 @@
 				array(0 => 'Opt_Compiler_Format', 'resetVars', 'api.opt-compiler-format.reset-vars', M_PUBLIC | M_FINAL),
 				array(0 => 'Opt_Compiler_Format', 'get', 'api.opt-compiler-format.get', M_PUBLIC | M_FINAL),
 				array(0 => 'Opt_Compiler_Format', 'decorate', 'api.opt-compiler-format.decorate', M_PUBLIC | M_FINAL),
-				array(0 => 'Opt_Compiler_Format', 'isDecorated', 'api.opt-compiler-format.is-decorated', M_PUBLIC | M_FINAL),
+				array(0 => 'Opt_Compiler_Format', 'isDecorating', 'api.opt-compiler-format.is-decorating', M_PUBLIC | M_FINAL),
 
 			);
 	    } // end provider();

@@ -90,4 +90,3 @@
 	} // end testFSWrapper;
 
 	stream_register_wrapper('test', 'testFSWrapper');
-?>

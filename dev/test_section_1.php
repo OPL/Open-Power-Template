@@ -38,8 +38,12 @@
 		$out->setContentType(Opt_Output_Http::HTML);
 		$out->render($view); 
     }
-    catch(Opl_Exception $exception)
+    catch(Opt_Exception $exception)
     {
-    	Opl_Error_Handler($exception);
+    	Opt_Error_Handler($exception);
     }
+	catch(Opl_Exception $e)
+	{
+		Opl_Error_Handler($e);
+	}
 ?>

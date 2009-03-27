@@ -21,6 +21,7 @@
 	{
 		public function __construct($cdata = null)
 		{
+			parent::__construct();
 			if(!is_null($cdata))
 			{
 				$this->appendData($cdata);

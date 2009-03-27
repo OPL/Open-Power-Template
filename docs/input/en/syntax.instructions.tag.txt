@@ -1,6 +1,7 @@
 Title: opt:tag
 SeeAlso:
  - syntax.instructions.attribute
+ - syntax.attributes.single
 
 ----
 

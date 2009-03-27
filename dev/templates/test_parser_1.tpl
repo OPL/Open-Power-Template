@@ -9,7 +9,7 @@
  <body>
   <h1>Test: Parser 1</h1>
   <p>This file was used to debug the initial execution of OPT after code-rewriting.</p>
-  
+  <opt:literal type="comment">fooo</opt:literal>
   <p>Value: {$foo}</p>
  </body>
 </html>

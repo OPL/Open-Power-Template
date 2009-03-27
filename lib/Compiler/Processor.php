@@ -29,7 +29,17 @@
 		const OPTIONAL = 2;
 	
 		// Class fields
+		/**
+		 * The compiler object.
+		 *
+		 * @var Opt_Compiler_Class
+		 */
 		protected $_compiler;
+		/**
+		 * The main class object.
+		 *
+		 * @var Opt_Class
+		 */
 		protected $_tpl;
 		
 		protected $_name;
@@ -57,22 +67,26 @@
 
 		public function processNode(Opt_Xml_Node $node)
 		{
-			/* null */
+			$name = '_process'.ucfirst($node->getName());
+			$this->$name($node);
 		} // end processNode();
 		
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
-			/* null */
+			$name = '_postprocess'.ucfirst($node->getName());
+			$this->$name($node);
 		} // end postprocessNode();
 		
 		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
-			/* null */
+			$name = '_processAttr'.ucfirst($attr->getName());
+			$this->$name($node, $attr);
 		} // end processAttribute();
 
 		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
-			/* null */
+			$name = '_postprocessAttr'.ucfirst($attr->getName());
+			$this->$name($node, $attr);
 		} // end postprocessAttribute();
 		
 		public function processSystemVar($opt)
@@ -308,6 +322,11 @@
 					}
 					else
 					{
+						// Do not allow the empty strings to be evaluated!
+						if(strlen(trim($value)) == 0)
+						{
+							throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
+						}
 						$result = $this->_compiler->compileExpression($value, false, false);
 						return $result[0];
 					}
@@ -319,6 +338,11 @@
 					}
 					else
 					{
+						// Do not allow the empty strings to be evaluated!
+						if(strlen(trim($value)) == 0)
+						{
+							throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
+						}
 						$result = $this->_compiler->compileExpression($value, true, false);
 						return $result[0];
 					}

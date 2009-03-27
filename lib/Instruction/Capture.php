@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -29,7 +28,7 @@
 			);
 			$this->_extractAttributes($node, $params);
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'ob_start(); ');
-			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, '$this->_capture[\''.$params['as'].'\'] = ob_get_clean();');
+			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'self::$_capture[\''.$params['as'].'\'] = ob_get_clean();');
 			$this->_process($node);
 		} // end processNode();
 		
@@ -38,7 +37,7 @@
 			if($this->_compiler->isIdentifier($attr->getValue()))
 			{
 				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'ob_start(); ');
-				$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, '$this->_capture[\''.$attr->getValue().'\'] = ob_get_clean();');
+				$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'self::$_capture[\''.$attr->getValue().'\'] = ob_get_clean();');
 				$this->_process($node);
 			}
 			else
@@ -49,6 +48,6 @@
 		
 		public function processSystemVar($opt)
 		{
-			return '$this->_capture[\''.$opt[2].'\']';
+			return 'self::$_capture[\''.$opt[2].'\']';
 		} // end processSystemVar();
 	} // end Opt_Instruction_Capture;

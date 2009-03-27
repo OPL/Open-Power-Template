@@ -27,6 +27,13 @@
 		
 		public function reset()
 		{
+			foreach($this->_snippets as &$snippetList)
+			{
+				foreach($snippetList as $snippet)
+				{
+					$snippet->dispose();
+				}
+			}
 			$this->_snippets = array();
 			$this->_current = array();
 		} // end reset();
@@ -95,7 +102,7 @@
 				'name' => array(0 => self::REQUIRED, self::ID)		
 			);
 			$this->_extractAttributes($node, $params);
-
+			
 			// Assign this snippet					
 			if(!isset($this->_snippets[$params['name']]))
 			{
@@ -105,10 +112,13 @@
 			else
 			{
 				$current = sizeof($this->_snippets[$params['name']]);
+
 				$this->_snippets[$params['name']][] = $node;
 			}
-			$node->getParent()->removeChild($node);
-			
+			if($node->getParent()->removeChild($node) == 0)
+			{
+				throw new Opl_Debug_Exception();
+			}
 			// Remember the template state of escaping for this snippet.
 			// This is necessary to make per-template escaping work with
 			// the inheritance.
@@ -154,7 +164,7 @@
 				'ignoredefault' => array(0 => self::OPTIONAL, self::BOOL, false)
 			);
 			$this->_extractAttributes($node, $params);
-			
+
 			if(in_array($params['snippet'], $this->_current))
 			{
 				array_push($this->_current, $params['snippet']);
@@ -182,7 +192,7 @@
 				// Process the snippets
 				$node->set('escaping', $this->_compiler->get('escaping'));
 				$this->_compiler->set('escaping', $snippet[0]->get('escaping'));
-				
+
 				foreach($snippet[0] as $subnode)
 				{
 					$node->appendChild(clone $subnode);
@@ -200,8 +210,10 @@
 		
 		public function _postprocessInsert(Opt_Xml_Element $node)
 		{
+			// Freeing the fake node, if necessary.
 			if(!is_null($node->get('insertSize')))
 			{
+				$this->_snippets[$node->get('insertSnippet')][$node->get('insertSize')]->dispose();
 				unset($this->_snippets[$node->get('insertSnippet')][$node->get('insertSize')]);
 			}
 

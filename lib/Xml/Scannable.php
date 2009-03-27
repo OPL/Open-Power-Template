@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -14,54 +13,6 @@
  */
 
 	/*
-	 * Function definitions
-	 */
-	function Opt_Array_Push(&$array, $from, $cnt = null)
-	{
-		if(!isset($array[$from]))
-		{
-			return;
-		}
-		$i = 0;
-		if(is_null($cnt))
-		{
-			$cnt = sizeof($array);
-			while($cnt > 0 && $from != $i)
-			{
-				if(isset($array[$i]))
-				{
-					$cnt--;
-				}
-				$i++;
-			}
-		}
-		
-		$tmp = $tmp2 = null;
-		while($cnt > 0)
-		{
-			if(isset($array[$i]))
-			{
-				if(is_null($tmp))
-				{
-					$tmp = $array[$i];
-				}
-				else
-				{
-					$tmp2 = $array[$i];
-					$array[$i] = $tmp;
-					$tmp = $tmp2;
-				}
-				$cnt--;
-			}
-			$i++;
-		}
-		if(!is_null($tmp))
-		{
-			$array[$i] = $tmp;
-		}
-	} // end Opt_Array_Push();
-
-	/*
 	 * Class definitions
 	 */
 	class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
@@ -72,6 +23,11 @@
 		protected $_copy;
 		
 		private $_prototypes;
+
+		public function __construct()
+		{
+			parent::__construct();
+		} // end __construct();
 		
 		/*
 		 * Public DOM-like API
@@ -79,6 +35,9 @@
 		
 		public function appendChild(Opt_Xml_Node $child)
 		{
+			// Test if the node can be a child of this and initialize an
+			// empty array if needed.
+			$this->_testNode($child);
 			if(!is_array($this->_subnodes))
 			{
 				$this->_subnodes = array();
@@ -89,6 +48,9 @@
 		
 		public function insertBefore(Opt_Xml_Node $newnode, $refnode = null, $appendOnError = true)
 		{
+			// Test if the node can be a child of this and initialize an
+			// empty array if needed.
+			$this->_testNode($newnode);
 			if(!is_array($this->_subnodes))
 			{
 				$this->_subnodes = array();
@@ -109,7 +71,8 @@
 						$cnt--;
 						if($this->_subnodes[$i] === $refnode)
 						{
-							Opt_Array_Push($this->_subnodes, $i, $cnt);
+							$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $i);
+						//	Opt_Array_Push($this->_subnodes, $i, $cnt);
 							$this->_subnodes[$i] = $newnode;
 						}
 					}
@@ -121,7 +84,8 @@
 				end($this->_subnodes);
 				if($refnode <= key($this->_subnodes) && $refnode >= 0)
 				{
-					Opt_Array_Push($this->_subnodes, $refnode);
+					$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $refnode);
+				//	Opt_Array_Push($this->_subnodes, $refnode);
 					$this->_subnodes[$refnode] = $newnode;
 				}
 				else
@@ -153,12 +117,15 @@
 						}
 					}
 				}
+				$this->_subnodes = $this->_arrayReduceHoles($this->_subnodes);
 				return $found > 0;
 			}
 			elseif(is_integer($node) && isset($this->_subnodes[$node]))
 			{
 				$this->_subnodes[$node]->setParent(null);
+			//	$this->_subnodes[$node]->dispose();
 				unset($this->_subnodes[$node]);
+				$this->_subnodes = $this->_arrayReduceHoles($this->_subnodes);
 				return true;
 			}
 			return false;
@@ -182,16 +149,37 @@
 		
 		public function moveChildren(Opt_Xml_Scannable $node)
 		{
+			// If there are already some nodes, we have to free the memory first.
+			if(is_array($this->_subnodes))
+			{
+				foreach($this->_subnodes as $item)
+				{
+					if(is_object($item))
+					{
+						$item->dispose();
+					}
+				}
+			}
+			// Move the nodes by copying the internal data structures.
 			$this->_subnodes = $node->_subnodes;
 			$this->_i = $node->_i;
 			$this->_size = $node->_size;
 			$this->_copy = $node->_copy;
+			// Reset the children list in the $node.
+			$node->_subnodes = null;
+			$node->_i = null;
+			$node->_size = null;
+			$node->_copy = null;
+			// Create a connection between this node and the new children.
 			if(is_array($this->_subnodes))
 			{
 				foreach($this->_subnodes as $subnode)
 				{
 					if(is_object($subnode))
 					{
+						// Test the node in order to check whether
+						// we have moved them to the correct node.
+						$this->_testNode($subnode);
 						$subnode->setParent($this);
 					}
 				}
@@ -200,6 +188,7 @@
 		
 		public function replaceChild(Opt_Xml_Node $newnode, $refnode)
 		{
+			$this->_testNode($newnode);
 			if(!is_array($this->_subnodes))
 			{
 				return false;
@@ -216,6 +205,7 @@
 						// SEE: note about comparing" in bringToEnd()
 						if($refnode === $this->_subnodes[$i])
 						{
+							$this->_subnodes[$i]->dispose();
 							$this->_subnodes[$i] = $newnode;
 							return true;
 						}
@@ -225,6 +215,7 @@
 			}
 			elseif(is_integer($refnode) && isset($this->_subnodes[$refnode]))
 			{
+				$this->_subnodes[$refnode]->dispose();
 				$this->_subnodes[$refnode] = $newnode;
 				return true;
 			}
@@ -411,7 +402,6 @@
 		public function sort(Array $prototypes)
 		{
 			$this->_prototypes = $prototypes;
-
 			if(!isset($prototypes['*']))
 			{
 				throw new Opt_APINoWildcard_Exception;
@@ -471,7 +461,7 @@
 		{
 			return $this->_subnodes;
 		} // end getSubnodeArray();
-		
+	/*
 		public function clearNode()
 		{
 			$queue = new SplQueue;
@@ -494,7 +484,7 @@
 			}
 			unset($buffer);
 		} // end clearNode();
-		
+	*/
 		final public function __clone()
 		{
 			if($this->get('__nrc') === true)
@@ -717,7 +707,7 @@
 			return $result;
 		} // end _getElementsByTagName();
 		
-		final protected function _appendChild(optNode $child, $appendOnError)
+		final protected function _appendChild(Opt_Xml_Node $child, $appendOnError)
 		{
 			if($appendOnError)
 			{
@@ -740,4 +730,31 @@
 			// this behavior.
 			return true;
 		} // end _testNode();
+
+		private function _arrayReduceHoles($array)
+		{
+			$newArray = array();
+			foreach($array as $value)
+			{
+				$newArray[] = $value;
+			}
+			return $newArray;
+		} // end _arrayReduceHoles();
+
+		private function _arrayCreateHole($array, $where)
+		{
+			$newArray = array();
+			$i = 0;
+			foreach($array as $value)
+			{
+				if($i == $where)
+				{
+					$newArray[$i] = null;
+					$i++;
+				}
+				$newArray[$i] = $value;
+				$i++;
+			}
+			return $newArray;
+		} // end _arrayCreateHole();
 	} // end Opt_Xml_Scannable;

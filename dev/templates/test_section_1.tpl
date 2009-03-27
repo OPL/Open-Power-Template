@@ -20,7 +20,7 @@
   	<li>Name: {$s1.name} {$s1.surname}</li>
   </opt:section>
   </ol>
-  
+
   <p>Descending:</p>
   <ol>
   <opt:section name="s1" order="desc">
@@ -62,5 +62,6 @@
   	<li>{$foo.s4.block.subitem}</li>
   </opt:section>
   </ol>
+
  </body>
 </html>

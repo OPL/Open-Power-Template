@@ -1,0 +1,5 @@
+Title: Template inheritance
+
+----
+
+To be written.

@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -42,7 +41,7 @@
 		const OP_TU = 8388608;
 		const OP_CURLY_BRACKET = 16777216;
 		
-		const DEFAULT_FORMAT_CLASS = 'Generic';
+		const DEFAULT_FORMAT_CLASS = 'Array';
 		
 		const ESCAPE_ON = true;
 		const ESCAPE_OFF = false;
@@ -107,11 +106,20 @@
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
 
 		// Help fields
+		private $_charset = null;
 		private $_translationConversion = null;
 		private $_initialMemory = null;
+		private $_comments = 0;
 		
 		static private $_templates = array();
 
+		/**
+		 * Creates a new instance of the template compiler. The compiler can
+		 * be created, using the settings from the main OPT class or another
+		 * compiler.
+		 *
+		 * @param Opt_Class|Opt_Compiler_Class $tpl The initial object.
+		 */
 		public function __construct($tpl)
 		{
 			if($tpl instanceof Opt_Class)
@@ -125,6 +133,7 @@
 				$this->_phpFunctions = $tpl->_getList('_phpFunctions');
 				$this->_formats = $tpl->_getList('_formats');
 				$this->_tf = $tpl->_getList('_tf');
+				$this->_charset = strtoupper($tpl->charset);
 				
 				// Create the processors and call their configuration method in the constructors.
 				$instructions = $tpl->_getList('_instructions');
@@ -148,6 +157,7 @@
 			}
 			elseif($tpl instanceof Opt_Compiler_Class)
 			{
+				// Simply import the data structures from that compiler.
 				$this->_tpl = $tpl->_tpl;
 				$this->_namespaces = $tpl->_namespaces;
 				$this->_classes = $tpl->_classes;
@@ -161,6 +171,7 @@
 				$this->_processor = $tpl->_processors;
 				$this->_instructions = $tpl->_instructions;
 				$this->_attributes = $tpl->_attributes;
+				$this->_charset = $tpl->_charset;
 				$tpl = $this->_tpl;
 			}
 			
@@ -200,7 +211,11 @@
 				Opl_Loader::load('Opt_Xml_Dtd');
 			}
 		} // end __construct();
-		
+
+		/**
+		 * Allows to clone the original compiler, creating new instruction
+		 * processors for the new instance.
+		 */
 		public function __clone()
 		{
 			$this->_processors = array();
@@ -220,23 +235,51 @@
 		/*
 		 * General purpose tools and utilities
 		 */
-		
+
+		/**
+		 * Returns the currently processed template file name.
+		 *
+		 * @static
+		 * @return String The currently processed template name
+		 */
 		static public function getCurrentTemplate()
 		{
 			return end(self::$_templates);
 		} // end getCurrentTemplate();
-		
+
+		/**
+		 * Cleans the compiler state after the template compilation.
+		 * It is necessary in the exception processing - if the exception
+		 * is thrown in the middle of the compilation, the compiler becomes
+		 * useless, because it is locked. The compilation algorithm automatically
+		 * filters the exceptions, cleans the compiler state and throws the captured
+		 * exceptions again, to the script.
+		 *
+		 * @static
+		 */
 		static public function cleanCompiler()
 		{
 			self::$_recursionDetector = null;
 			self::$_templates = array();
 		} // end cleanCompiler();
-		
+
+		/**
+		 * Returns the main OPT class associated with this compiler.
+		 *
+		 * @return Opt_Class The main OPT class
+		 */
 		public function getParser()
 		{
 			return $this->_tpl;
 		} // end getParser();
-		
+
+		/**
+		 * Returns the value of the compiler state variable or
+		 * NULL if the variable is not set.
+		 *
+		 * @param String $name Compiler variable name
+		 * @return Mixed The compiler variable value.
+		 */
 		public function get($name)
 		{
 			if(!isset($this->_attr[$name]))
@@ -245,12 +288,30 @@
 			}
 			return $this->_attr[$name];
 		} // end get();
-		
+
+		/**
+		 * Creates or modifies the compiler state variable.
+		 *
+		 * @param String $name The name
+		 * @param Mixed $value The value
+		 */
 		public function set($name, $value)
 		{
 			$this->_attr[$name] = $value;
 		} // end set();
-	
+
+		/**
+		 * Adds the escaping formula to the specified expression using the current escaping
+		 * rules:
+		 *
+		 * 1. The $status variable.
+		 * 2. The current template settings.
+		 * 3. The OPT settings.
+		 *
+		 * @param String $expression The PHP expression to be escaped.
+		 * @param Boolean $status The status of escaping for this expression or NULL, if not set.
+		 * @return String The expression with the escaping formula added, if necessary.
+		 */
 		public function escape($expression, $status = null)
 		{
 			// OPT Configuration
@@ -283,7 +344,14 @@
 			}
 			return $expression;
 		} // end escape();
-		
+
+		/**
+		 * Returns the format object for the specified variable.
+		 *
+		 * @param String $variable The variable identifier.
+		 * @param Boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
+		 * @return Opt_Compiler_Format The format object.
+		 */
 		public function getFormat($variable, $restore = false)
 		{
 			$hc = self::DEFAULT_FORMAT_CLASS;			
@@ -303,7 +371,14 @@
 			}
 			return $top;
 		} // end getFormat();
-		
+
+		/**
+		 * Creates a format object for the specified description string.
+		 *
+		 * @param String $variable The variable name (for debug purposes)
+		 * @param String $hc The description string.
+		 * @return Opt_Compiler_Format The newly created format object.
+		 */
 		public function createFormat($variable, $hc)
 		{
 			// Decorate the objects, if necessary
@@ -323,12 +398,18 @@
 				}
 				else
 				{
-					$top = $obj = new $hcName($this->_tpl, $this); 
+					$top = $obj = new $hcName($this->_tpl, $this, $hc);
 				}
 			}
 			return $top;
 		} // end createFormat();
-		
+
+		/**
+		 * Allows to export the list of variables and their data formats to
+		 * the template compiler.
+		 *
+		 * @param Array $list An assotiative array of pairs "variable => format description"
+		 */
 		public function setFormatList(Array $list)
 		{
 			$this->_formatInfo = $list;
@@ -369,17 +450,43 @@
 		{
 			return htmlspecialchars_decode(str_replace(array('&lb;', '&rb;'), array('{', '}'), $text));
 		} // end parseEntities();
-		
+
+		/**
+		 * Replaces only OPT-specific entities &lb; and &rb; to the corresponding
+		 * characters.
+		 *
+		 * @param String $text Input text
+		 * @return String output text
+		 */
 		public function parseShortEntities($text)
 		{
 			return str_replace(array('&lb;', '&rb;'), array('{', '}'), $text);
 		} // end parseShortEntities();
+
+		/**
+		 * Replaces the XML special characters back to entities with smart ommiting of &
+		 * that already creates an entity.
+		 *
+		 * @param String $text Input text.
+		 * @return String Output text.
+		 */
+		public function parseSpecialChars($text)
+		{
+			return preg_replace_callback('/(\&\#?[a-zA-Z0-9]*\;)|\<|\>|\"|\&/', array($this, '_entitize'), $text);
+		} // end parseSpecialChars();
 		
 		public function isIdentifier($id)
 		{
 			return preg_match($this->_rEncodingName, $id);
 		} // end isIdentifier();
-		
+
+		/**
+		 * Checks whether the specified tag name is registered as an instruction.
+		 * Returns its processor in case of success or NULL.
+		 *
+		 * @param String $tag The tag name (with the namespace)
+		 * @return Opt_Compiler_Processor|NULL The processor that registered this tag.
+		 */
 		public function isInstruction($tag)
 		{
 			if(isset($this->_instructions[$tag]))
@@ -496,7 +603,16 @@
 		/*
 		 * Internal tools and utilities
 		 */
-		
+
+		/**
+		 * Compiles the attribute part of the opening tag and extracts the tag
+		 * attributes to an array. Moreover, it performs the entity conversion
+		 * to the corresponding characters.
+		 *
+		 * @internal
+		 * @param String $attrList The attribute list string
+		 * @return Array The list of attributes with the values.
+		 */
 		protected function _compileAttributes($attrList)
 		{
 			// Tokenize the list
@@ -506,6 +622,17 @@
 			$result = array();
 			for($i = 0; $i < $size; $i++)
 			{
+				/**
+				 * The algorithm scans the tokens on the list and determines, where
+				 * the beginning and the end of the attribute is. We do not use the
+				 * regular expressions, because they are not able to capture the
+				 * invalid content between the expressions.
+				 *
+				 * The sub-loops can modify the iteration variable to skip the found
+				 * elements, white characters etc. This means that the main loop
+				 * does only a few iteration number, equal approximately the number
+				 * of attributes.
+				 */
 				if(!ctype_space($match[$i][0]))
 				{
 					
@@ -554,7 +681,9 @@
 					{
 						return false;
 					}
-					$result[$name] = $value;
+					// We return the decoded attribute values, because they are
+					// stored without the entities.
+					$result[$name] = htmlspecialchars_decode($value);
 				}
 			}
 			return $result;
@@ -667,19 +796,32 @@
 			$tree->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(!$this->_massPreprocess($this->_template, $compileTime, array('.$list.'))){ ');
 			$tree->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' }else{ $compileTime = $this->_compile($this->_template, $mode); require(__FILE__); } ');				
 		} // end _addDependencies();
-		
+
+		/**
+		 * Compiles the current text block between two XML tags, creating a
+		 * complete Opt_Xml_Text node. It looks for the expressions in the
+		 * curly brackets, extracts them and packs as separate nodes.
+		 *
+		 * Moreover, it replaces the entities with the corresponding characters.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The current XML node.
+		 * @param String $text The text block between two tags.
+		 * @param Boolean $noExpressions=false If true, do not look for the expressions.
+		 * @return Opt_Xml_Node The current XML node.
+		 */
 		protected function _treeTextCompile($current, $text, $noExpressions = false)
 		{
-			if($this->_tpl->stripWhitespaces)
+			// Yes, we parse entities, but the text itself should not contain
+			// any special characters.
+			if(strcspn($text, '<>') != strlen($text))
 			{
-				if(ctype_space($text))
-				{
-					return $current;
-				}
+				throw new Opt_XmlInvalidCharacter_Exception(htmlspecialchars($text));
 			}
+
 			if($noExpressions)
 			{
-				$current = $this->_treeTextAppend($current, $this->parseShortEntities($text));
+				$current = $this->_treeTextAppend($current, $this->parseEntities($text));
 			}
 			
 			preg_match_all($this->_rExpressionTag, $text, $result, PREG_SET_ORDER);
@@ -691,7 +833,7 @@
 				$id = strpos($text, $result[$i][0], $offset);
 				if($id > $offset)
 				{
-					$current = $this->_treeTextAppend($current, $this->parseShortEntities(substr($text, $offset, $id - $offset)));						
+					$current = $this->_treeTextAppend($current, $this->parseEntities(substr($text, $offset, $id - $offset)));						
 				}
 				$offset = $id + strlen($result[$i][0]);
 				
@@ -702,22 +844,28 @@
 			// Now the remaining content of the file
 			if(strlen($text) > $offset)
 			{
-				$current = $this->_treeTextAppend($current, $this->parseShortEntities(substr($text, $offset, strlen($text) - $offset)));
+				$current = $this->_treeTextAppend($current, $this->parseEntities(substr($text, $offset, strlen($text) - $offset)));
 			}
 			return $current;
 		} // end _treeTextCompile();
-		
-		protected function _treeTextAppend($current, $text, $trim = true)
+
+		/**
+		 * An utility method that simplifies inserting the text to the XML
+		 * tree. Depending on the last child type, it can create a new text
+		 * node or add the text to the existing one.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The currently built XML node.
+		 * @param String|Opt_Xml_Node $text The text or the expression node.
+		 * @return Opt_Xml_Node The current XML node.
+		 */
+		protected function _treeTextAppend($current, $text)
 		{
 			$last = $current->getLastChild();
 			if(!is_object($last) || !($last instanceof Opt_Xml_Text))
 			{
 				if(!is_object($text))
 				{
-					if($this->_tpl->stripWhitespaces && $trim)
-					{
-						$text = preg_replace('/\s\s+/', ' ', $text);
-					}
 					$node = new Opt_Xml_Text($text);
 				}
 				else
@@ -731,10 +879,6 @@
 			{
 				if(!is_object($text))
 				{
-					if($this->_tpl->stripWhitespaces && $trim)
-					{
-						$text = preg_replace('/\s\s+/', ' ', $text);
-					}
 					$last->appendData($text);
 				}
 				else
@@ -822,15 +966,22 @@
 				$list[$i][0]->postprocessAttribute($node, $list[$i][1]);
 			}
 		} // end _postprocessXml();
-		
+
+		/**
+		 * An utility method for the stage 2 and 3 of the compilation. It is
+		 * used to create a non-recursive depth-first search algorithm. The
+		 * current queue is sent to a stack, and the new queue if initialized,
+		 * if $item contains children.
+		 *
+		 * @internal
+		 * @param SplStack $stack The processing stack.
+		 * @param SplQueue $queue The processing queue.
+		 * @param Opt_Xml_Scannable $item The item, where to import the nodes from.
+		 * @param Boolean $pp The postprocess flag.
+		 * @return SplQueue The new queue (or the old one, if none has been created).
+		 */
 		protected function _pushQueue($stack, $queue, $item, $pp)
-		{
-			/*
-			 * A support method for non-recursive depth-first search of a tree.
-			 * It sends a queue into a stack and initializes a new queue, if
-			 * the $item contains subitems.
-			 */
-		
+		{		
 			if($item->hasChildren())
 			{
 				$stack->push(array($item, $queue, $pp));
@@ -887,6 +1038,17 @@
 			{
 				return '';
 			}
+
+			// This prevents from displaying </> if the HTML node was hidden.
+			if($item->get('hidden') !== false)
+			{
+				return '';
+			}
+			if($item->get('_skip_postlinking') == true)
+			{
+				return '';
+			}
+
 			$output = '';
 			switch($item->getType())
 			{
@@ -909,9 +1071,28 @@
 					$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 					break;
 			}
+			$this->_closeComments($item, $output);
 			return $output;
 		} // end _doPostlinking();
-		
+
+		protected function _closeComments($item, &$output)
+		{
+			if($item->get('commented'))
+			{
+				$this->_comments--;
+				if($this->_comments == 0)
+				{
+					// According to the XML grammar, the construct "--->" is not allowed.
+					if(strlen($output) > 0 && $output[strlen($output)-1] == '-')
+					{
+						throw new Opt_XmlComment_Exception('--->');
+					}
+
+					$output .= '-->';
+				}
+			}
+		} // end _closeComments();
+
 		protected function _linkAttributes($subitem)
 		{
 			// Links the attributes into the PHP code
@@ -973,6 +1154,9 @@
 				{
 					case 'Opt_Xml_Cdata':
 						echo '<li>'.$id.': <strong>Character data:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
+						break;
+					case 'Opt_Xml_Comment':
+						echo '<li>'.$id.': <strong>Comment:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
 						break;
 					case 'Opt_Xml_Text':
 						echo '<li>'.$id.': <strong>Text:</strong> ';
@@ -1059,7 +1243,7 @@
 						$tree = $this->_stage1($code, $extend, $mode);
 						// Stage 2 - PHP tree processing
 						$this->_stack = array();
-						$this->_stage2($tree, true);
+						$this->_stage2($tree);
 						$this->set('escape', NULL);
 						unset($this->_stack);
 						$memory += (memory_get_usage() - $initial);
@@ -1071,7 +1255,7 @@
 						unset($code);
 						// Stage 2 - PHP tree processing
 						$this->_stack = array();
-						$this->_stage2($tree, true);
+						$this->_stage2($tree);
 						$this->set('escape', NULL);
 						unset($this->_stack);
 					}
@@ -1085,6 +1269,9 @@
 
 					if(!is_null($snippet = $tree->get('snippet')))
 					{
+						$tree->dispose();
+						unset($tree);
+
 						// Change the specified snippet into a root node.
 						$tree = new Opt_Xml_Root;
 						$attribute = new Opt_Xml_Attribute('opt:use', $snippet);
@@ -1096,6 +1283,9 @@
 					}
 					if(!is_null($extend = $tree->get('extend')))
 					{
+						$tree->dispose();
+						unset($tree);
+
 						$this->set('currentTemplate', $extend);
 						array_pop(self::$_templates);
 						array_push(self::$_templates, $extend);
@@ -1146,6 +1336,10 @@
 					}
 					file_put_contents($this->_tpl->compileDir.$compiledFilename, $output);
 				}
+				else
+				{
+					$tree->dispose();
+				}
 				array_pop(self::$_templates);
 				$this->_inheritance = array();
 				if($weFree)
@@ -1162,7 +1356,13 @@
 			}
 			catch(Exception $e)
 			{
+				// Free the memory
+				if(isset($tree))
+				{
+					$tree->dispose();
+				}
 				// Clean the compiler state in case of exception
+				$this->_template = NULL;
 				$this->_dependencies = array();
 				self::$_recursionDetector = NULL;
 				foreach($this->_processors as $processor)
@@ -1284,7 +1484,7 @@
 				{
 					if($groups[$k] == ']]>')
 					{
-						$current = $this->_treeTextAppend($current, $cdata, false);
+						$current = $this->_treeTextAppend($current, $cdata);
 						$groupState = 0;
 					}
 					else
@@ -1301,10 +1501,7 @@
 					// Process comments
 					if($subgroupState == 0 && $subgroups[$i] == '<!--')
 					{
-						if($this->_tpl->printComments)
-						{
-							$current = $this->_treeTextAppend($current, $subgroups[$i], false);
-						}
+						$commentNode = new Opt_Xml_Comment();
 						$subgroupState = 1;
 						continue;
 					}
@@ -1312,13 +1509,18 @@
 					{
 						if($subgroups[$i] == '-->')
 						{
+							$current->appendChild($commentNode);
 							$subgroupState = 0;
 						}
-						if($this->_tpl->printComments)
+						else
 						{
-							$current = $this->_treeTextAppend($current, $subgroups[$i], false);
+							$commentNode->appendData($subgroups[$i]);
 						}
 						continue;
+					}
+					elseif($subgroups[$i] == '-->')
+					{
+						throw new Opt_XmlInvalidCharacter_Exception('--&gt;');
 					}
 
 					// Find XML tags
@@ -1566,6 +1768,12 @@
 							$stateSet and $item->set('hidden', false);
 							$queue = $this->_pushQueue($stack, $queue, $item, array());
 							break;
+						case 'Opt_Xml_Comment':
+							if($this->_tpl->printComments)
+							{
+								$stateSet and $item->set('hidden', false);
+							}
+							break;
 					}
 				
 				}
@@ -1583,31 +1791,61 @@
 				}
 			}
 		} // end _stage2();
-		
+
+		/**
+		 * Links the tree into a valid XML file with embedded PHP commands
+		 * from the tag buffers. The method is recursion-free.
+		 *
+		 * @internal
+		 * @param String &$output Where to store the output.
+		 * @param Opt_Xml_Node $node The initial node.
+		 */
 		protected function _stage3(&$output, Opt_Xml_Node $node)
-		{			
+		{
+			// To avoid the recursion, we need a queue and a stack.
 			$queue = new SplQueue;
 			$stack = new SplStack;
 			$queue->enqueue($node);
 			
 			// Reset the output
 			$output = '';
-			
+			$wasElement = false;
+
+			// We will be processing the tags in a "infinite" loop
+			// In fact, the stop condition can be found within the loop.
 			while(true)
 			{
+				// Obtain the new item to process from the queue.
 				$item = NULL;
 				if($queue->count() > 0)
 				{
 					$item = $queue->dequeue();
 				}
-				
+
+				// Note that this code uses Opl_Goto_Exception to simulate
+				// "goto" instruction.
 				try
 				{
-					if(is_null($item) || $item->get('hidden'))
+					// Should we display this node?
+					if(is_null($item) || $item->get('hidden') !== false)
 					{
 						throw new Opl_Goto_Exception;	// Goto postprocess;
 					}
-					// Pre code
+					// If the tag has the "commented" flag, we comment it
+					// and its content.
+					if($item->get('commented'))
+					{
+						$this->_comments++;
+						if($this->_comments == 1)
+						{
+							$output .= '<!--';
+						}
+					}
+					/* Note that some of the node types must execute some code both before
+					 * processing their children and after them. This method processes only
+					 * the code executed BEFORE the children are parsed. The latter situation
+					 * is implemented in the _doPostlinking() method.
+					 */
 					switch($item->getType())
 					{
 						case 'Opt_Xml_Cdata':
@@ -1616,7 +1854,33 @@
 								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE).'<![CDATA['.$item.']]>'.$item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 								break;
 							}
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE).$item.$item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
+
+							// We strip the white spaces at the linking level.
+							if($this->_tpl->stripWhitespaces)
+							{
+								// The CDATA composed of white characters only is reduced to a single space.
+								if(ctype_space((string)$item))
+								{
+									if($wasElement)
+									{
+										$output .= ' ';
+									}
+								}
+								else
+								{
+									// In the opposite case reduce all the groups of the white characters
+									// to single spaces in the text.
+									$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+								}
+							}
+							else
+							{
+								$output .= $this->parseSpecialChars($item);
+							}
+							
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
+							$this->_closeComments($item, $output);
 							break;
 						case 'Opt_Xml_Text':
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
@@ -1625,7 +1889,10 @@
 							break;
 						case 'Opt_Xml_Element':
 							if($this->isNamespace($item->getNamespace()))
-							{								
+							{
+								// This code handles the XML elements that represent the
+								// OPT instructions. They have shorter code, because
+								// we do not need to display their tags.
 								if(!$item->hasChildren() && $item->get('single'))
 								{
 									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE,
@@ -1643,6 +1910,7 @@
 							else
 							{
 								// TODO: Rebuild according to the docs.
+								$wasElement = true;
 								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE);
 								if($item->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
 								{
@@ -1664,7 +1932,7 @@
 								else
 								{
 									$output .= '<'.$name.$this->_linkAttributes($item).'>'.$item->buildCode(Opt_Xml_Buffer::TAG_OPENING_AFTER);
-								
+									$item->set('_name', $name);
 									if($item->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) > 0)
 									{
 										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT, Opt_Xml_Buffer::TAG_CONTENT_AFTER);
@@ -1672,13 +1940,15 @@
 									elseif($item->hasChildren())
 									{
 										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
-										$item->set('_name', $name);
 										$queue = $this->_pushQueue($stack, $queue, $item, NULL);
 										// Next part in the post-process section
 										break;
 									}
 									else
 									{
+										// The postlinking is already done here, so skip this part
+										// in the linker
+										$item->set('_skip_postlinking', true);
 										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CLOSING_BEFORE).'</'.$name.'>'.$item->buildCode(Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
 									}
 								}
@@ -1686,10 +1956,14 @@
 							break;
 						case 'Opt_Xml_Expression':
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
+							$this->_closeComments($item, $output);
 							break;
 						case 'Opt_Xml_Root':
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
 
+							// Display the prolog and DTD, if it was set in the node.
+							// Such construct ensures us that they will appear in the
+							// valid place in the output document.
 							if($item->hasProlog())
 							{
 								$output .= str_replace('<?xml', '<<?php echo \'?\'; ?>xml', $item->getProlog()->getProlog())."\r\n";
@@ -1698,7 +1972,14 @@
 							{
 								$output .= $item->getDtd()->getDoctype()."\r\n";
 							}
+
+							// And go to their children.
 							$queue = $this->_pushQueue($stack, $queue, $item, NULL);
+							break;
+						case 'Opt_Xml_Comment':
+							// The comment tags are added automatically.
+							$output .= (string)$item;
+							$this->_closeComments($item, $output);
 							break;
 					}
 				}
@@ -1717,12 +1998,29 @@
 					$output .= $this->_doPostlinking($item);
 				}
 			}
+
+			if($this->_tpl->stripWhitespaces)
+			{
+				$output = rtrim($output);
+			}
 		} // end _stage3();
 		
 		/*
 		 * Expression compiler
 		 */
-		
+
+		/**
+		 * Compiles the template expression to the PHP code and checks the syntax
+		 * errors. The method is recursion-free.
+		 *
+		 * @param String $expr The expression
+		 * @param Boolean $allowAssignment=false True, if the assignments are allowed.
+		 * @param Int $escape=self::ESCAPE_BOTH The HTML escaping policy for this expression.
+		 * @return Array An array consisting of four elements: the compiled expression,
+		 *   the assignment status and the variable status (if the expression is in fact
+		 *   a single variable). If the escaping is controlled by the template or the
+		 *   script, the fourth element contains also an unescaped PHP expression.
+		 */
 		public function compileExpression($expr, $allowAssignment = false, $escape = self::ESCAPE_ON)
 		{
 			// cat $expr > /dev/oracle > $result > happy programmer :)
@@ -1744,7 +2042,14 @@
 			$maxTuid = 0;
 			$prev = '';
 			$chr = chr(18);
-			
+
+			/* The translation units allow to avoid recursive compilation of the
+			 * expression. Each sub-expression within parentheses and that is a
+			 * function call parameter, becomes a separate translation unit. The
+			 * loop below scans the array of tokens, looking for translation
+			 * unit separators and builds suitable arrays of tokens for each
+			 * TU.
+			 */
 			for($i = 0; $i < $cnt; $i++)
 			{
 				if(ctype_space($match[0][$i]) || $match[0][$i] == '')
@@ -1795,8 +2100,10 @@
 				}
 				$prev = $match[0][$i];
 			}			
-			// Process the translation units
-			// and avoid recursion!
+			/*
+			 * Now we have an array of translation units and their tokens and
+			 * we can process it linearly, thus avoiding recursive calls.
+			 */
 			foreach($tu as $id => &$tuItem)
 			{
 				$tuItem = $this->_compileExpression($expr, $allowAssignment, $tuItem, $id);
@@ -1804,7 +2111,11 @@
 			$assign = $tu[0][1];
 			$variable = $tu[0][2];
 			
-			// Link the expression
+			/*
+			 * Finally, we have to link all the subexpressions into an output
+			 * expression. We use SPL stack to achieve this, because we need
+			 * to store the current subexpression status while finding a new one.
+			 */
 			$tuid = 0;
 			$i = -1;
 			$cnt = sizeof($tu[0][0]);
@@ -1845,7 +2156,11 @@
 				}
 			}
 			
-			// Escape
+			/*
+			 * Now it's time to apply the escaping policy to this expression. We check
+			 * the expression for the "e:" and "u:" modifiers and redirect the task to
+			 * the escape() method.
+			 */
 			$result = $expression;
 			if($escape != self::ESCAPE_OFF && !$assign)
 			{
@@ -1872,7 +2187,18 @@
 				return array(0 => $result, $assign, $variable, $expression);
 			}
 		} // end compileExpression();
-		
+
+		/**
+		 * Compiles a single translation unit in the expression.
+		 *
+		 * @internal
+		 * @param String &$expr A reference to the compiled expressions for debug purposes.
+		 * @param Boolean $allowAssignment True, if the assignments are allowed in this unit.
+		 * @param Array &$tokens A reference to the array of tokens for this translation unit.
+		 * @param String $tu The number of the current translation unit.
+		 * @return Array An array build of three items: the compiled expression, the assignment status
+		 *    and the variable status (whether the expression is in fact a single variable).
+		 */
 		protected function _compileExpression(&$expr, $allowAssignment, Array &$tokens, $tu)
 		{
 			/* The method processes a single translation unit (TU). For example, in the expression
@@ -1942,6 +2268,8 @@
 			$void = false;		// This is a fake variable for a recursive call, as a last argument (reference)
 			$assign = false;
 			$to = sizeof($tokens);
+
+			// Loop through the token list.
 			for($i = 0; $i < $to; $i++)
 			{
 				// Some initializing stuff.
@@ -1953,7 +2281,7 @@
 					'result' => null,		// Here we have to put the result PHP code generated from the token.
 				);
 				
-				// Find out, what it is.
+				// Find out, what it is and process it.
 				switch($token)
 				{
 					case '[':
@@ -2049,6 +2377,7 @@
 						break;
 					case 'new':
 					case 'clone':
+						// These operators are active only if the directive advancedOOP is true.
 						if(!$this->_tpl->advancedOOP)
 						{
 							throw new Opt_ExpressionOptionDisabled_Exception($token, 'security reasons');
@@ -2177,6 +2506,7 @@
 					case 'null':
 					case 'false':
 					case 'true':
+						// These special values are treated as numbers by the compiler.
 						if(!($state['next'] & self::OP_NUMBER))
 						{
 							throw new Opt_Expression_Exception('OP_NUMBER', $token, $expr);
@@ -2193,6 +2523,8 @@
 						{
 							throw new Opt_Expression_Exception('OP_CALL', $token, $expr);
 						}
+						// OPT decides from the context, whether "::" means a static
+						// or dynamic call.
 						if($previous['token'] == self::OP_CLASS)
 						{
 							$current['result'] = '::';
@@ -2206,9 +2538,10 @@
 						$state['next'] = self::OP_IDENTIFIER;
 						break;
 					case '(':
+						// Check, if the parenhesis begins a function/method argument list
 						if($previous['token'] == self::OP_METHOD || $previous['token'] == self::OP_FUNCTION || $previous['token'] == self::OP_CLASS)
 						{
-							// Find the arguments
+							// Yes, this is a function call, so we need to find its arguments.
 							$args = array();
 							for($j = $i + 1; $j < $to && $tokens[$j] != ')'; $j++)
 							{								
@@ -2230,12 +2563,20 @@
 								$state['rev'] = null;
 								$argNum = sizeof($args);
 							}
-						
+
+							// Put the parenthesis to the compiled token list.
 							$result[] = '(';
+
+							// If we have a call of the assign() function, we need to store the
+							// number of the translation unit in the _translationConversion field.
+							// This will allow the language variable compiler to notice that here
+							// we should have a language call that must be treated in a bit different
+							// way.
 							if($argNum > 0 && $state['assign_func'])
 							{
 								$this->_translationConversion = (int)trim($args[0], $chr);
 							}
+							// Build the argument list.
 							for($k = 0; $k < $argNum; $k++)
 							{
 								$result[] = $args[$k];
@@ -2295,6 +2636,7 @@
 						}
 						elseif(preg_match('/^'.$this->_rVariable.'$/', $token))
 						{
+							// Variable call.
 							if(!($state['next'] & self::OP_VARIABLE))
 							{
 								throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
@@ -2312,6 +2654,7 @@
 								$state['variable'] = true;
 							}
 							// Hmmm... and what is the purpose of this IF? Seriously, I forgot.
+							// So better do not touch it; it must have been very important.
 							if($state['clone'] == 1)
 							{
 								$state['next'] = self::OP_SQ_BRACKET | self::OP_CALL | self::OP_NULL;
@@ -2323,6 +2666,7 @@
 						}
 						elseif(preg_match('/^'.$this->_rLanguageVarExtract.'$/', $token, $found))
 						{
+							// Extracting the language var.
 							if(!($state['next'] & self::OP_LANGUAGE_VAR))
 							{
 								throw new Opt_Expression_Exception('OP_LANGUAGE_VAR', $token, $expr);
@@ -2333,6 +2677,7 @@
 						}
 						elseif(preg_match('/^'.$this->_rDecimalNumber.'$/', $token))
 						{
+							// Handling the decimal numbers.
 							if(!($state['next'] & self::OP_NUMBER))
 							{
 								throw new Opt_Expression_Exception('OP_NUMBER', $token, $expr);
@@ -2342,6 +2687,7 @@
 						}
 						elseif(preg_match('/^'.$this->_rHexadecimalNumber.'$/', $token))
 						{
+							// Hexadecimal, too.
 							if(!($state['next'] & self::OP_NUMBER))
 							{
 								throw new Opt_Expression_Exception('OP_NUMBER', $token, $expr);
@@ -2376,9 +2722,10 @@
 				$previous = $current;
 				$result[] = $current['result'];
 			}
-			
+			// Finally, test if the pre- operators have been used properly.
 			$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
-			
+
+			// And if we are allowed to finish here...
 			if(!($state['next'] & self::OP_NULL))
 			{
 				throw new Opt_Expression_Exception('OP_NULL', $token, $expr);
@@ -2386,7 +2733,18 @@
 			// TODO: For variable detection: check also class/object fields!
 			return array($result, $assign, $state['variable']);
 		} // end _compileExpression();
-		
+
+		/**
+		 * An utility function that allows to test the preincrementation
+		 * operators, if they are used in the right place. In case of
+		 * problems, it generates an exception.
+		 *
+		 * @internal
+		 * @param Int $previous The previous token type.
+		 * @param Boolean $state The state of the "preop" expression parser flag.
+		 * @param String $token The current token provided for debug purposes.
+		 * @param String &$expr The reference to the parsed expression for debug purposes.
+		 */
 		protected function _testPreOperators($previous, $state, &$token, &$expr)
 		{
 			if(($previous == self::OP_METHOD || $previous == self::OP_FUNCTION || $previous == self::OP_EXPRESSION) && $state)
@@ -2395,9 +2753,26 @@
 				throw new Opt_Expression_Exception('OP_PRE_OPERATOR', $token, $expr);
 			}
 		} // end _testPreOperators();
-		
-		protected function _compileVariable($name)
+
+		/**
+		 * Compiles the template variable into the PHP code. It can be
+		 * generated in two contexts: read and save. The method supports
+		 * all the special variables, local template variables and
+		 * chooses the correct data formats. Moreover, it provides a
+		 * build-in support for sections.
+		 *
+		 * @internal
+		 * @param String $name Variable call
+		 * @param Boolean $saveContext True, if the variable is used in the save context.
+		 * @return String The output PHP code.
+		 */
+		protected function _compileVariable($name, $saveContext = false)
 		{
+			// TODO: Add the support for the save context
+			// It is set to true, if the expression is going to save something
+			// with the "is" operator.
+			// Note that the expression compiler must be changed a bit in order
+			// to compile the right side of this operator as a translation unit.
 			$value = substr($name, 1, strlen($name) - 1);
 			$result = '';
 			if(strpos($value, '.') !== FALSE)
@@ -2508,7 +2883,7 @@
 								if($id == $count - 1)
 								{
 									// This is the last name element.
-									return $section['format']->get('sectionCurrent');
+									return $section['format']->get('section:item');
 								}
 								continue;
 							}
@@ -2516,8 +2891,8 @@
 						else
 						{
 							// The section has been found, we need to process the item.
-							$state['section']['format']->assign('_sectionItemName', $item);
-							$code = $state['section']['format']->get('itemVariable');
+							$state['section']['format']->assign('item', $item);
+							$code = $state['section']['format']->get('section:variable');
 							
 							$state['section'] = null;
 							continue;
@@ -2527,31 +2902,54 @@
 					// Now, the normal variables
 					if($state['first'])
 					{
-						$format = $this->getFormat($path, true);
+						if($state['access'] == Opt_Class::ACCESS_GLOBAL)
+						{
+							$format = $this->getFormat('global.'.$path, true);
+						}
+						else
+						{
+							$format = $this->getFormat($path, true);
+						}
 						if(!$format->supports('variable'))
 						{
-							throw new Opt_HooksNotSupported_Exception($format->getName(), 'variable');
+							throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
 						}
 						$format->assign('access', $state['access']);
 						$format->assign('item', $item);
-						$code = $format->get('variableMain');
+
+						$code = $format->get('variable:main');
 					}
 					else
 					{
 						// The subitems are processed with the upper-item format
-						$format = $this->getFormat($previous, true);
-						if(!$format->supports('variable'))
+						if($state['access'] == Opt_Class::ACCESS_GLOBAL)
 						{
-							throw new Opt_HooksNotSupported_Exception($format->getName(), 'variable');
+							$format = $this->getFormat('global.'.$previous, true);
+						}
+						else
+						{
+							$format = $this->getFormat($previous, true);
+						}
+						if(!$format->supports('item'))
+						{
+							throw new Opt_FormatNotSupported_Exception($format->getName(), 'item');
 						}
 						$format->assign('item', $item);
-						$code .= $format->get('variableSubitem');
+						$code .= $format->get('item:item');
 					}
 				}
 				return $code;
 			}
 		} // end _compileVariable();
-		
+
+		/**
+		 * Compiles the call to the language variable into the PHP code.
+		 *
+		 * @param String $group Group name
+		 * @param String $id Message identifier name within a group
+		 * @param String $tu The ID of the current translation unit for handling the assign() function properly.
+		 * @return String The output PHP code.
+		 */
 		protected function _compileLanguageVar($group, $id, $tu)
 		{
 			if(is_null($this->_tf))
@@ -2565,8 +2963,14 @@
 			}
 			return '$this->_tf->_(\''.$group.'\',\''.$id.'\')';
 		} // end _compileLanguageVar();
-		
-		protected function _compileSys($ns)
+
+		/**
+		 * Compiles the special $sys variable to PHP code.
+		 *
+		 * @param Array $ns The $sys call splitted into array.
+		 * @return String The output PHP code.
+		 */
+		protected function _compileSys(Array $ns)
 		{
 			switch($ns[1])
 			{
@@ -2583,7 +2987,14 @@
 					throw new Opt_SysVariableUnknown_Exception('$'.implode('.', $ns));
 			}
 		} // end _compileSys();
-		
+
+		/**
+		 * Compiles the string call in the expression to a suitable PHP source code.
+		 *
+		 * @internal
+		 * @param String $str The "string" string (with the delimiting characters)
+		 * @return String The output PHP code.
+		 */
 		protected function _compileString($str)
 		{
 			// TODO: Fix
@@ -2615,7 +3026,21 @@
 					return '\''.$str.'\'';
 			}
 		} // end _compileString();
-		
+
+		/**
+		 * Compiles the specified identifier encountered in the expression
+		 * to the PHP code.
+		 *
+		 * @internal
+		 * @param String $token The encountered token.
+		 * @param Int $previous Previous token
+		 * @param String $pt Used for OOP parsing to determine whether we have a static call.
+		 * @param String $next The next token in the list
+		 * @param Int $operatorSet The flag of allowed opcodes at this position.
+		 * @param String &$expr The current expression (for debug purposes)
+		 * @param Array &$current Reference to the current token information
+		 * @param Array &$state Reference to the parser state flags.
+		 */
 		protected function _compileIdentifier($token, $previous, $pt, $next, $operatorSet, &$expr, &$current, &$state)
 		{
 			// TODO: Add the ability to disable OOP completely.
@@ -2715,7 +3140,16 @@
 				$current['result'] = '\''.$token.'\'';
 			}
 		} // end _compileIdentifier();
-		
+
+		/**
+		 * Processes the argument order change functionality for function
+		 * parsing in expressions.
+		 *
+		 * @internal
+		 * @param Array &$args Reference to a list of function arguments.
+		 * @param String $format The new order format code.
+		 * @param String $function The function name provided for debugging purposes.
+		 */
 		protected function _reverseArgs(&$args, $format, $function)
 		{
 			$codes = explode(',', $format);
@@ -2740,4 +3174,24 @@
 			}
 			$args = $newArgs;
 		} // end _reverseArgs();
+
+		/**
+		 * Smart special character replacement that leaves entities
+		 * unmodified. Used by parseSpecialChars().
+		 *
+		 * @internal
+		 * @param Array $text Matching string
+		 * @return String Modified text
+		 */
+		protected function _entitize($text)
+		{
+			switch($text[0])
+			{
+				case '&':	return '&amp;';
+				case '>':	return '&gt;';
+				case '<':	return '&lt;';
+				case '"':	return '&quot;';
+				default:	return $text[0];
+			}
+		} // end _entitize();
 	} // end Opt_Compiler_Class;

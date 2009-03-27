@@ -16,6 +16,7 @@
 	class Opt_Instruction_Grid extends Opt_Instruction_BaseSection
 	{
 		protected $_name = 'grid';
+		protected $_extraAttributes = array('cols' => array(self::REQUIRED, self::EXPRESSION));
 		
 		public function configure()
 		{
@@ -36,14 +37,8 @@
 		
 		private function _processGrid(Opt_Xml_Node $node)
 		{
-			if(is_null($section = $this->_sectionInitialized($node)))
-			{
-				$section = $this->_processShow($node, null, array('cols' => array(self::REQUIRED, self::EXPRESSION)));
-				
-				// We don't want this section to be active yet!
-				$this->_deactivateSection($section['name']);
-			}
-			
+			$section = $this->_sectionCreate($node, array(), array('cols' => array(self::REQUIRED, self::EXPRESSION)));
+
 			// Error checking
 			$itemNode = $node->getElementsExt('opt', 'item');
 			$emptyItemNode = $node->getElementsExt('opt', 'emptyItem');
@@ -58,12 +53,12 @@
 			}
 			
 			// Link those nodes to this section
-			$itemNode[0]->set('sectionName', $section['name']);
-			$emptyItemNode[0]->set('sectionName', $section['name']);
+			$itemNode[0]->set('priv:section', $section);
+			$emptyItemNode[0]->set('priv:section', $section);
 			
 			// Code generation			
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '$_'.$section['name'].'_rows = ceil('.$section['format']->get('sectionCount').' / '.$section['cols'].'); $_'.$section['name'].'_remain = ('.$section['cols'].
-			' - ('.$section['format']->get('sectionCount').' % '.$section['cols'].')) % '.$section['cols'].'; '.$section['format']->get('sectionRewind').' '.
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '$_'.$section['name'].'_rows = ceil('.$section['format']->get('section:count').' / '.$section['cols'].'); $_'.$section['name'].'_remain = ('.$section['cols'].
+			' - ('.$section['format']->get('section:count').' % '.$section['cols'].')) % '.$section['cols'].'; '.$section['format']->get('section:loopBefore').' '.$section['format']->get('section:reset').' '.
 			' for($_'.$section['name'].'_j = 0; $_'.$section['name'].'_j < $_'.$section['name'].'_rows; $_'.$section['name'].'_j++){ ');
 			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 			
@@ -72,31 +67,37 @@
 		
 		private function _processItem(Opt_Xml_Node $node)
 		{
-			if(is_null($node->get('sectionName')))
+			if(is_null($node->get('priv:section')))
 			{
 				throw new Opt_InstructionInvalidLocation_Exception('opt:item', 'opt:grid');
 			}
 		
 			// We're at home. For this particular node we have to activate the section.
 			
-			$section = $this->getSection($node->get('sectionName'));
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < '.$section['cols'].' && '.$section['format']->get('sectionValid').'; $_'.$section['name'].'_k++) { ');
-			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('sectionNext').' } ');
+			$section = $node->get('priv:section');
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < '.$section['cols'].' && '.$section['format']->get('section:valid').'; $_'.$section['name'].'_k++) { '.$section['format']->get('section:populate'));
+			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('section:next').' } ');
 			
-			$this->_activateSection($section['name']);
+			$this->_sectionStart($section);
 			$node->set('postprocess', true);
+
+			if(!is_null($node->get('call:use')))
+			{
+				$this->_compiler->setConversion('##simplevar_'.$node->get('call:use'), $section['name']);
+				$node->set('postprocess', true);
+			}
 			
 			$this->_process($node);
 		} // end _processItem();
 		
 		private function _processEmptyItem(Opt_Xml_Node $node)
 		{
-			if(is_null($node->get('sectionName')))
+			if(is_null($node->get('priv:section')))
 			{
 				throw new Opt_InstructionInvalidLocation_Exception('opt:item', 'opt:grid');
 			}
-			$section = $this->getSection($node->get('sectionName'));	
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if($_'.$section['name'].'_remain > 0 && !'.$section['format']->get('sectionValid').') { for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < $_'.$section['name'].'_remain; $_'.$section['name'].'_k++) { ');
+			$section = $node->get('priv:section');
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if($_'.$section['name'].'_remain > 0 && !'.$section['format']->get('section:valid').') { for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < $_'.$section['name'].'_remain; $_'.$section['name'].'_k++) { ');
 			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } } ');
 				
 			$this->_process($node);
@@ -104,22 +105,25 @@
 		
 		private function _postprocessGrid(Opt_Xml_Element $node)
 		{
-			$section = $this->getSection($node->get('sectionName'));
+			$section = $node->get('priv:section');
 			if($node->hasAttributes())
 			{
-				if(!$node->get('sectionElse'))
+				if(!$node->get('priv:alternative'))
 				{
-					$this->_locateElse($node, 'opt', 'gridelse');
+					$this->_sortSectionContents($node, 'opt', 'gridelse');
 				}
 			}
-			$this->_finishSection($node);
 		} // end _postprocessGrid();
 		
 		private function _postprocessItem(Opt_Xml_Element $node)
 		{
+			if(!is_null($node->get('call:use')))
+			{
+				$section = $node->get('priv:section');
+				$this->_compiler->unsetConversion('##simplevar_'.$section['name']);
+			}
 			// Deactivating the section.
-			$section = $this->getSection($node->get('sectionName'));
-			$this->_deactivateSection($section['name']);
+			$this->_sectionEnd($node);
 		} // end _postprocessItem();
 		
 		private function _processGridelse(Opt_Xml_Element $node)
@@ -127,11 +131,11 @@
 			$parent = $node->getParent();
 			if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:grid')
 			{
-				$parent->set('sectionElse', true);
+				$parent->set('priv:alternative', true);
 				
-				$section = $this->getSection($parent->get('sectionName'));
+				$section = $parent->get('priv:section');
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
-				$this->_deactivateSection($parent->get('sectionName'));
+			//	$this->_deactivateSection($parent->get('sectionName'));
 				$this->_process($node);
 			}
 		} // end _processGridelse();
