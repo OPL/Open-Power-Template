@@ -86,6 +86,7 @@
 				array('entities_2.txt'),
 				array('entities_3.txt'),
 				array('entities_4.txt'),
+				array('entities_5.txt'),
 	    	);
 	    } // end correctProvider();
 
@@ -142,5 +143,3 @@
 			}
 	    } // end testCorrect();
 	}
-?>
-

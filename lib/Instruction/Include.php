@@ -47,7 +47,8 @@
 			
 			if(isset($params['from']))
 			{
-				$section = $this->_compiler->processor('section')->getSection($params['from']);
+				$section = Opt_Instruction_BaseSection::getSection($params['from']);
+
 				if(is_null($section))
 				{
 					throw new Opt_SectionNotFound_Exception('opt:include', $params['from']);
@@ -102,7 +103,7 @@
 			}
 			else
 			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $codeBegin.' '.$view.'->_parse($output, $mode, $cached, $exception); '.$codeEnd);
+				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $codeBegin.'  '.$view.'->_parse($output, $mode, $cached, $exception); '.$codeEnd);
 			}
 		} // end processNode();
 	} // end Opt_Instruction_Include;

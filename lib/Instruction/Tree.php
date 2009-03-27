@@ -118,16 +118,17 @@
 			 * 
 			 * If the chain is empty, we have to close the nodes that are still open and the main list itself. After processing this chain, we finish the job.
 			 */
-					
+			$section['format']->action('section:forceItemVariables');
 			$section['format']->assign('item', 'depth');
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '
 			'.$section['format']->get('section:reset').'
 $_'.$section['name'].'_depth = -1;
-$_'.$section['name'].'_cmd = array();
 $_'.$section['name'].'_over = 0;
+$_'.$section['name'].'_cmd = new SplQueue;
+$_'.$section['name'].'_stack = new SplStack;
 while(1)
 {
-	if(sizeof($_'.$section['name'].'_cmd)  == 0)
+	if($_'.$section['name'].'_cmd->count() == 0)
 	{
 		switch($_'.$section['name'].'_over)
 		{
@@ -142,13 +143,13 @@ while(1)
 		}
 		if(!'.$section['format']->get('section:valid').')
 		{
-			$_'.$section['name'].'_cmd[] = 3;
+			$_'.$section['name'].'_cmd->enqueue(array(3, $_'.$section['name'].'_stack->pop()));
 			for($k = 0; $k < $_'.$section['name'].'_depth; $k++)
 			{
-				$_'.$section['name'].'_cmd[] = 4;
-				$_'.$section['name'].'_cmd[] = 3;
+				$_'.$section['name'].'_cmd->enqueue(array(4, null));
+				$_'.$section['name'].'_cmd->enqueue(array(3, $_'.$section['name'].'_stack->pop()));
 			}
-			$_'.$section['name'].'_cmd[] = 4;
+			$_'.$section['name'].'_cmd->enqueue(array(4, null));
 			$_'.$section['name'].'_over = 2;
 		}
 		else
@@ -156,39 +157,42 @@ while(1)
 			'.$section['format']->get('section:populate').'
 			if($_'.$section['name'].'_depth < '.$section['format']->get('section:variable').')
 			{
-				$_'.$section['name'].'_cmd[] = 1;
-				$_'.$section['name'].'_cmd[] = 2;
+				$_'.$section['name'].'_cmd->enqueue(array(1, null));
+				$_'.$section['name'].'_cmd->enqueue(array(2, $_sect'.$section['name'].'_v));
+				$_'.$section['name'].'_stack->push($_sect'.$section['name'].'_v);
 			}
 			elseif($_'.$section['name'].'_depth > '.$section['format']->get('section:variable').')
 			{
-				$_'.$section['name'].'_cmd[] = 3;
+				$_'.$section['name'].'_cmd->enqueue(array(3, $_'.$section['name'].'_stack->pop()));
 				for($k = '.$section['format']->get('section:variable').'; $k < $_'.$section['name'].'_depth; $k++)
 				{
-					$_'.$section['name'].'_cmd[] = 4;
-					$_'.$section['name'].'_cmd[] = 3;
+					$_'.$section['name'].'_cmd->enqueue(array(4, null));
+					$_'.$section['name'].'_cmd->enqueue(array(3, $_'.$section['name'].'_stack->pop()));
 				}
-				$_'.$section['name'].'_cmd[] = 2;
+				$_'.$section['name'].'_cmd->enqueue(array(2, $_sect'.$section['name'].'_v));
+				$_'.$section['name'].'_stack->push($_sect'.$section['name'].'_v);
 			}
 			else
 			{
-				$_'.$section['name'].'_cmd[] = 3;
-				$_'.$section['name'].'_cmd[] = 2;
+				$_'.$section['name'].'_cmd->enqueue(array(3, $_'.$section['name'].'_stack->pop()));
+				$_'.$section['name'].'_cmd->enqueue(array(2, $_sect'.$section['name'].'_v));
+				$_'.$section['name'].'_stack->push($_sect'.$section['name'].'_v);
 			}
 			$_'.$section['name'].'_depth = '.$section['format']->get('section:variable').';
 		}
 		
 	}
-	$cmd = array_shift($_'.$section['name'].'_cmd);
+	list($cmd, $_sect'.$section['name'].'_v) = $_'.$section['name'].'_cmd->dequeue();
 	switch($cmd)
 	{');
 			$stList->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'case 1: ');
 			$content['list']->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'break; ');
 			$content['list']->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'case 4: ');
-			$stList->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'break; ');
+			$stList->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' break; ');
 			$stNode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'case 2: ');
 			$content['node']->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'break; ');
 			$content['node']->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'case 3: ');
-			$stNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'break;  } } ');
+			$stNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'break; } } unset($_'.$section['name'].'_stack); unset($_'.$section['name'].'_cmd); ');
 			
 			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
 

@@ -172,6 +172,9 @@
 				array('tag_5.txt'),
 				array('tree_1.txt'),
 				array('tree_2.txt'),
+				array('tree_3.txt'),
+				array('tree_4.txt'),
+				array('tree_5.txt'),
 	    	);
 	    } // end correctProvider();
 	    

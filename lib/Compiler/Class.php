@@ -107,6 +107,7 @@
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
 
 		// Help fields
+		private $_charset = null;
 		private $_translationConversion = null;
 		private $_initialMemory = null;
 		private $_comments = 0;
@@ -133,6 +134,7 @@
 				$this->_phpFunctions = $tpl->_getList('_phpFunctions');
 				$this->_formats = $tpl->_getList('_formats');
 				$this->_tf = $tpl->_getList('_tf');
+				$this->_charset = strtoupper($tpl->charset);
 				
 				// Create the processors and call their configuration method in the constructors.
 				$instructions = $tpl->_getList('_instructions');
@@ -170,6 +172,7 @@
 				$this->_processor = $tpl->_processors;
 				$this->_instructions = $tpl->_instructions;
 				$this->_attributes = $tpl->_attributes;
+				$this->_charset = $tpl->_charset;
 				$tpl = $this->_tpl;
 			}
 			
@@ -448,11 +451,30 @@
 		{
 			return htmlspecialchars_decode(str_replace(array('&lb;', '&rb;'), array('{', '}'), $text));
 		} // end parseEntities();
-		
+
+		/**
+		 * Replaces only OPT-specific entities &lb; and &rb; to the corresponding
+		 * characters.
+		 *
+		 * @param String $text Input text
+		 * @return String output text
+		 */
 		public function parseShortEntities($text)
 		{
 			return str_replace(array('&lb;', '&rb;'), array('{', '}'), $text);
 		} // end parseShortEntities();
+
+		/**
+		 * Replaces the XML special characters back to entities with smart ommiting of &
+		 * that already creates an entity.
+		 *
+		 * @param String $text Input text.
+		 * @return String Output text.
+		 */
+		public function parseSpecialChars($text)
+		{
+			return preg_replace_callback('/(\&\#?[a-zA-Z0-9]*\;)|\<|\>|\"|\&/', array($this, '_entitize'), $text);
+		} // end parseSpecialChars();
 		
 		public function isIdentifier($id)
 		{
@@ -1846,12 +1868,12 @@
 								{
 									// In the opposite case reduce all the groups of the white characters
 									// to single spaces in the text.
-									$output .= htmlspecialchars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+									$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
 								}
 							}
 							else
 							{
-								$output .= htmlspecialchars($item);
+								$output .= $this->parseSpecialChars($item);
 							}
 							
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
@@ -3147,4 +3169,24 @@
 			}
 			$args = $newArgs;
 		} // end _reverseArgs();
+
+		/**
+		 * Smart special character replacement that leaves entities
+		 * unmodified. Used by parseSpecialChars().
+		 *
+		 * @internal
+		 * @param Array $text Matching string
+		 * @return String Modified text
+		 */
+		protected function _entitize($text)
+		{
+			switch($text[0])
+			{
+				case '&':	return '&amp;';
+				case '>':	return '&gt;';
+				case '<':	return '&lt;';
+				case '"':	return '&quot;';
+				default:	return $text[0];
+			}
+		} // end _entitize();
 	} // end Opt_Compiler_Class;

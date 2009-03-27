@@ -28,6 +28,8 @@
 			'section:anyRequests' => 'ancestorNumbers'
 		);
 
+		protected $_sectionItemVariables = false;
+
 		/**
 		 * Build a PHP code for the specified hook name.
 		 *
@@ -87,11 +89,20 @@
 					return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]';
 				// Retrieving a variable from a section item.
 				case 'section:variable':
+					$section = $this->_getVar('section');
+					if($this->_sectionItemVariables)
+					{
+						if($this->isDecorating())
+						{
+							return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:item');
+						}
+						$section = $this->_getVar('section');
+						return '$_sect'.$section['name'].'_v[\''.$this->_getVar('item').'\']';
+					}
 					if($this->isDecorating())
 					{
 						return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]'.$this->_decorated->get('item:item');
-					}
-					$section = $this->_getVar('section');
+					}					
 					return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\']';
 				// Resetting the section to the first element.
 				case 'section:reset':
@@ -123,6 +134,11 @@
 					return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i])';
 				// Populate the current element
 				case 'section:populate':
+					if($this->_sectionItemVariables)
+					{
+						$section = $this->_getVar('section');
+						return '$_sect'.$section['name'].'_v = &$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]; ';
+					}
 					return '';
 				// The code that returns the number of items in the section;
 				case 'section:count':
@@ -130,6 +146,11 @@
 					return '$_sect'.$section['name'].'_cnt';
 				// Section item size.
 				case 'section:size':
+					$section = $this->_getVar('section');
+					if($this->_sectionItemVariables)
+					{
+						return 'sizeof($_sect'.$section['name'].'_v)';
+					}
 					$section = $this->_getVar('section');
 					return 'sizeof($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i])';
 				// Section iterator.
@@ -180,5 +201,13 @@
 					return NULL;
 			}
 		} // end _build();
+
+		public function action($name)
+		{
+			if($name == 'section:forceItemVariables')
+			{
+				$this->_sectionItemVariables = true;
+			}
+		} // end action();
 
 	} // end Opt_Format_Array;
