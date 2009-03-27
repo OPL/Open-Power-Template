@@ -29,7 +29,7 @@
 		public function processEvent($name);
 		public function manageAttributes($tagName, Array $attributes);
 	} // end Opt_Component_Interface;
-	
+
 	interface Opt_Block_Interface
 	{
 		public function setViewInstance(Opt_View $view);
@@ -37,12 +37,12 @@
 		public function onClose();
 		public function onSingle(Array $attributes);
 	} // end Opt_Block_Interface;
-	
+
 	interface Opt_Cache_Hook_Interface
 	{
 		public function cacheTemplate($tpl, $file, $mode);
 	} // end Opt_Cache_Hook;
-	
+
 	interface Opt_Output_Interface
 	{
 		public function getName();
@@ -53,7 +53,7 @@
 	{
 		public function generate($what);
 	} // end Opt_Generator_Interface;
-	
+
 	/*
 	 * Class definitions
 	 */
@@ -64,10 +64,10 @@
 		const CM_DEFAULT = 0;
 		const CM_REBUILD = 1;
 		const CM_PERFORMANCE = 2;
-		
+
 		const ACCESS_LOCAL = 0;
 		const ACCESS_GLOBAL = 1;
-		
+
 		const CHOOSE_MODE = 0;
 		const XML_MODE = 1;
 		const QUIRKS_MODE = 2;
@@ -79,10 +79,10 @@
 		const OPT_BLOCK = 5;
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
-	
+
 		const VERSION = '2.0-beta2';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
-	
+
 		// Directory configuration
 		public $sourceDir = NULL;
 		public $compileDir = NULL;
@@ -127,7 +127,7 @@
 
 		// Data
 		protected $_tf = NULL;	// translation interface
-		
+
 		// Add-ons
 		protected $_outputs;
 		protected $_cache;
@@ -158,7 +158,7 @@
 
 		// Other
 		protected $_compiler;
-		
+
 		/*
 		 * Template parsing
 		 */
@@ -207,10 +207,10 @@
 			}
 			if(Opl_Registry::getState('opl_debug_console') || $this->debugConsole)
 			{
-				$this->debugConsole = true;				
+				$this->debugConsole = true;
 				Opt_Support::initDebugConsole($this);
 			}
-			
+
 			// Check paths etc.
 			if(is_string($this->sourceDir))
 			{
@@ -243,7 +243,7 @@
 			{
 				throw new Opt_Initialization_Exception($this->_init, 'register an item');
 			}
-			
+
 			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes');
 			$whereto = $map[$type];
 			if(is_array($item))
@@ -316,7 +316,7 @@
 			}
 			return NULL;
 		} // end _getList();
-		
+
 		protected function _pluginLoader($directory, SplFileInfo $file)
 		{
 			$ns = explode('.', $file->getFilename());
@@ -330,7 +330,7 @@
 					return ' require(\''.$directory.$file->getFilename().'\'); ';
 			}
 		} // end _pluginLoader();
-		
+
 		public function _stream($name)
 		{
 			if(strpos($name, ':') !== FALSE)
@@ -350,7 +350,7 @@
 			}
 			return $this->sourceDir[$this->stdStream].$name;
 		} // end _stream();
-		
+
 		public function _getSource($filename, $exception = true)
 		{
 			$item = $this->_stream($filename);
@@ -364,7 +364,7 @@
 			}
 			return file_get_contents($item);
 		} // end _getSource();
-		
+
 		public function __construct()
 		{
 			Opl_Registry::register('opt', $this);
@@ -395,7 +395,7 @@
 	{
 		const VAR_LOCAL = false;
 		const VAR_GLOBAL = true;
-	
+
 		private $_tpl;
 		private $_template;
 		private $_formatInfo = array();
@@ -405,7 +405,7 @@
 		private $_tf;
 		private $_processingTime = null;
 		private $_branch = null;
-		
+
 		static private $_vars = array();
 		static private $_capture = array();
 		static private $_global = array();
@@ -569,24 +569,6 @@
 		 * @param string $name The variable name.
 		 * @return boolean True, if the variable is defined.
 		 */
-		public function get($name)
-		{
-			if(!isset($this->_data[$name]))
-			{
-				return null;
-			}
-			return $this->_data[$name];
-		} // end read();
-		
-		public function __get($name)
-		{
-			if(!isset($this->_data[$name]))
-			{
-				return null;
-			}
-			return $this->_data[$name];
-		} // end __get();
-		
 		public function defined($name)
 		{
 			return isset($this->_data[$name]);
@@ -610,11 +592,6 @@
 		 * @param string $name The variable name.
 		 * @return boolean True, if the variable has been removed.
 		 */
-		public function __isset($name)
-		{
-			return isset($this->_data[$name]);
-		} // end __isset();
-		
 		public function remove($name)
 		{
 			if(isset($this->_data[$name]))
@@ -647,11 +624,6 @@
 		 * @param string $name The variable name.
 		 * @param mixed $value The variable value.
 		 */
-		public function __unset($name)
-		{
-			return $this->remove($name);
-		} // end __unset();
-		
 		static public function assignGlobal($name, $value)
 		{
 			self::$_global[$name] = $value;
@@ -758,7 +730,7 @@
 		{
 			$this->_formatInfo[$item] = $format;
 		} // end setFormat();
-		
+
 		/**
 		 * Sets the specified data format for the identifier that may
 		 * identify a global template variable or some other things. The details
@@ -772,7 +744,7 @@
 		{
 			self::$_globalFormatInfo['global.'.$item] = $format;
 		} // end setFormatGlobal();
-		
+
 		/*
 		 * Dynamic inheritance
 		 */
@@ -799,9 +771,9 @@
 				return;
 			}
 			$this->_inheritance[$source] = str_replace(array('/', ':', '\\'), '__',$destination);
-			$this->_cplInheritance[$source] = $destination;			
+			$this->_cplInheritance[$source] = $destination;
 		} // end inherit();
-		
+
 		/*
 		 * Internal use
 		 */
@@ -814,7 +786,7 @@
 			$this->_tf = $this->_tpl->getTranslationInterface();
 			if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 			{
-				list($compileName, $compileTime) = $this->_preprocess($mode, $exception);	
+				list($compileName, $compileTime) = $this->_preprocess($mode, $exception);
 				if(is_null($compileName))
 				{
 					return false;
@@ -829,7 +801,7 @@
 					return false;
 				}
 			}
-			
+
 			$old = error_reporting($this->_tpl->errorReporting);
 			require($this->_tpl->compileDir.$compileName);
 			error_reporting($old);
@@ -848,7 +820,7 @@
 			$item = $this->_tpl->_stream($this->_template);
 			$compileTime = @filemtime($this->_tpl->compileDir.$compiled);
 			$result = NULL;
-			
+
 			// Here the "rebuild" compilation mode is processed
 			if($this->_tpl->compileMode == Opt_Class::CM_REBUILD)
 			{
@@ -863,7 +835,7 @@
 				$result = file_get_contents($item);
 			}
 			else
-			{				
+			{
 				// Otherwise, we perform a modification test.
 				$rootTime = @filemtime($item);
 				if($rootTime === false)
@@ -910,7 +882,7 @@
 				case Opt_Class::CM_DEFAULT:
 					$cnt = sizeof($templates);
 				//	$templates = array();
-					
+
 					// TODO: Check whether the object as array key works :P
 					for($i = 0; $i < $cnt; $i++)
 					{
@@ -944,7 +916,7 @@
 			}
 			return implode('/', $list).'.php';
 		} // end _convert();
-		
+
 		public function _compile($filename, $mode)
 		{
 			$compiled = $this->_convert($filename);
