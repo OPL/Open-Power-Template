@@ -1045,6 +1045,10 @@
 			{
 				return '';
 			}
+			if($item->get('_skip_postlinking') == true)
+			{
+				return '';
+			}
 
 			$output = '';
 			switch($item->getType())
@@ -1929,7 +1933,7 @@
 								else
 								{
 									$output .= '<'.$name.$this->_linkAttributes($item).'>'.$item->buildCode(Opt_Xml_Buffer::TAG_OPENING_AFTER);
-								
+									$item->set('_name', $name);
 									if($item->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) > 0)
 									{
 										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT, Opt_Xml_Buffer::TAG_CONTENT_AFTER);
@@ -1937,13 +1941,15 @@
 									elseif($item->hasChildren())
 									{
 										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
-										$item->set('_name', $name);
 										$queue = $this->_pushQueue($stack, $queue, $item, NULL);
 										// Next part in the post-process section
 										break;
 									}
 									else
 									{
+										// The postlinking is already done here, so skip this part
+										// in the linker
+										$item->set('_skip_postlinking', true);
 										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CLOSING_BEFORE).'</'.$name.'>'.$item->buildCode(Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
 									}
 								}

@@ -334,7 +334,7 @@
 						if($item->getXmlName() == 'opt:show')
 						{
 							$nameAttr = $item->getAttribute('name');
-							if(!is_null($nameAttr) && $nameAttr->getValue() == $attr->getValue())
+							if(!is_null($nameAttr) && $nameAttr->getValue() == $name)
 							{
 								return $item;
 							}

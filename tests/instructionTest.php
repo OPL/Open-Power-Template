@@ -94,6 +94,7 @@
 				array('grid_5.txt'),
 				array('grid_6.txt'),
 				array('grid_7.txt'),
+				array('grid_8.txt'),
 	    		array('if_1.txt'),
 	    		array('if_2.txt'),
 	    		array('if_3.txt'),
