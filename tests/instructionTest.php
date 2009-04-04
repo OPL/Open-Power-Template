@@ -20,6 +20,8 @@
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
 		require('./includes/filesystemWrapper.php');
+		require('./includes/testComponent.php');
+		require('./includes/testBlock.php');
 	}
 	
 	class instructionTest extends PHPUnit_Framework_TestCase
@@ -50,9 +52,13 @@
 				array('attribute_1.txt'),
 				array('attribute_2.txt'),
 				array('attribute_3.txt'),
+				array('block_1.txt'),
+				array('block_2.txt'),
+				array('block_3.txt'),
+				array('block_4.txt'),
 				array('capture_1.txt'),
 				array('capture_2.txt'),
-				array('component_6.txt'),
+				array('capture_3.txt'),
 				array('component_1.txt'),
 				array('component_2.txt'),
 				array('component_3.txt'),
@@ -60,8 +66,11 @@
 				array('component_5.txt'),
 				array('component_6.txt'),
 				array('component_7.txt'),
+				array('component_8.txt'),
 				array('content_1.txt'),
 				array('content_2.txt'),
+				array('dtd_1.txt'),
+				array('dtd_2.txt'),
 	    		array('extend_1.txt'),
 	    		array('extend_2.txt'),
 	    		array('extend_3.txt'),
@@ -126,6 +135,7 @@
 				array('prolog_2.txt'),
 				array('prolog_3.txt'),
 				array('put_1.txt'),
+				array('put_2.txt'),
 	    		array('repeat_1.txt'),
 	    		array('repeat_2.txt'),
 	    		array('repeat_3.txt'),

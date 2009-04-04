@@ -56,7 +56,63 @@ Front-end options
 Compiler options
 ================
 
+`mode`
+:	`Opt_Class::CHOOSE_MODE` - the compilation mode is chosen by the output system.
+:	`Opt_Class::XML_MODE` - the templates are compiled in the XML mode.
+:	`Opt_Class::QUIRKS_MODE` - the templates are compiled in the quirks mode.
 
+`unicodeNames`
+:	Whether to allow the Unicode characters in the XML tags. Default to **false** due to the performance issues.
+
+`htmlAttributes`
+:	Whether to allow the shortened form of attributes, for example `<tag attribute>` as a synonym to `<tag attribute="attribute">`. Default to **false**.
+
+`printComments`
+:	Whether to print the template comments in the output. Default to **false**.
+
+`prologRequired`
+:	Whether the XML prolog is required. The default setting, **true** means that the output prolog must be generated with `opt:prolog` instruction. Otherwise, the prologs are checked for the valid syntax and rewritten to the output.
+
+`stripWhitespaces`
+:	Whether to strip the unnecessary white spaces from the template. Default to **true**.
+
+`singleRootNode`
+:	Whether a single root node is obligatory. Default to **true**.
+
+`basicOOP`
+:	Whether the use of OOP in OPT expressions is allowed. Default to **true**
+
+`advancedOOP`
+:	Whether the templates can create objects and clone them. Default to **true**.
+
+`backticks`
+:	A callback to the backtick handler.
+:	**NULL**, if the backticks are not supported.
+
+`strictCallbacks`
+:	If set to **true** (the default setting), OPT strictly checks the callbacks during the compilation to ensure that the requested functions really exist.
+
+`escape`
+:	Whether to escape the displayed expression values by default. Default to **true**.
+
+`variableAccess`
+:	`Opt_Class::ACCESS_LOCAL` - the template variables are local. The access to global variables is possible via `$global`. This is the default setting.
+:	`Opt_Class::ACCESS_GLOBAL` - the template variables are global by default. The access to local variables is possible via `$this`.
 
 Misc. options
 =============
+
+`compileId`
+:	Allows to add an extra identifier to the compiled template name.
+
+`moneyFormat`
+:	The default money format used by the `money()` function.
+
+`numberDecimals`
+:	The default setting for the first argument of `number()` function.
+
+`numberDecPoint`
+:	The default setting for the second argument of `number()` function.
+
+`numberThousandSep`
+:	The default setting for the third argument of `number()` function.

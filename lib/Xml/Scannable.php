@@ -486,6 +486,11 @@
 			unset($buffer);
 		} // end clearNode();
 	*/
+		protected function _cloneHandler()
+		{
+			/* null */
+		} // end _cloneHandler();
+
 		final public function __clone()
 		{
 			if($this->get('__nrc') === true)
@@ -498,6 +503,7 @@
 				$this->_i = NULL;
 				$this->_size = 0;
 				$this->_copy = NULL;
+				$this->_cloneHandler();
 			}
 			else
 			{

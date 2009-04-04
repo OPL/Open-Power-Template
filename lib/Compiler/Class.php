@@ -1056,7 +1056,7 @@
 				case 'Opt_Xml_Text':
 					$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 					break;
-				case 'Opt_Xml_Element':							
+				case 'Opt_Xml_Element':
 					if($this->isNamespace($item->getNamespace()))
 					{
 						$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
@@ -1190,7 +1190,16 @@
 		/*
 		 * Main compilation methods
 		 */
-		
+
+		/**
+		 * The compilation launcher. It executes the proper compilation steps
+		 * according to the inheritance rules etc.
+		 *
+		 * @param String $code The source code to be compiled.
+		 * @param String $filename The source template filename.
+		 * @param String $compiledFilename The output template filename.
+		 * @param Int $mode The compilation mode.
+		 */
 		public function compile($code, $filename, $compiledFilename, $mode)
 		{
 			try
@@ -1374,7 +1383,17 @@
 				throw $e;
 			}
 		} // end compile();
-		
+
+		/**
+		 * Compilation - stage 1 - parsing the input template and
+		 * building an XML tree.
+		 *
+		 * @internal
+		 * @param String &$code The code to be parsed
+		 * @param String $filename Currently unused.
+		 * @param Int $mode The compilation mode.
+		 * @return Opt_Xml_Root The root node of the new tree.
+		 */
 		protected function _stage1(&$code, $filename, $mode)
 		{
 			$current = $tree = new Opt_Xml_Root;
@@ -1635,6 +1654,13 @@
 			return $tree;
 		} // end _stage1();
 
+		/**
+		 * Compilation - stage 2. Traversing through the tree and doing something
+		 * with the tree and the nodes. The method is recursion-safe.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The initial node.
+		 */
 		protected function _stage2(Opt_Xml_Node $node)
 		{
 			$queue = new SplQueue;
@@ -1872,12 +1898,19 @@
 								{
 									// In the opposite case reduce all the groups of the white characters
 									// to single spaces in the text.
-									$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+									if($item->get('noEntitize') === true)
+									{
+										$output .= trim(preg_replace('/\s\s+/', ' ', (string)$item));
+									}
+									else
+									{
+										$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+									}
 								}
 							}
 							else
 							{
-								$output .= $this->parseSpecialChars($item);
+								$output .= ($item->get('noEntitize') ? (string)$item : $this->parseSpecialChars($item));
 							}
 							
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
@@ -1899,13 +1932,19 @@
 									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE,
 										Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER);
 								}
-								else
+								elseif($item->hasChildren())
 								{
 									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
 										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
 									
 									$queue = $this->_pushQueue($stack, $queue, $item, NULL);
 									// Next part in the post-process section
+								}
+								else
+								{
+									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
+										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
+										Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
 								}
 							}
 							else

@@ -141,6 +141,17 @@
 			return $this->getXmlName();
 		} // end __toString();
 
+		protected function _cloneHandler()
+		{
+			if(is_array($this->_attributes))
+			{
+				foreach($this->_attributes as $name => $attribute)
+				{
+					$this->_attributes[$name] = clone $attribute;
+				}
+			}
+		} // end _cloneHandler();
+
 		protected function _testNode(Opt_Xml_Node $node)
 		{
 			if($node->getType() != 'Opt_Xml_Element' && $node->getType() != 'Opt_Xml_Text' && $node->getType() != 'Opt_Xml_Comment')

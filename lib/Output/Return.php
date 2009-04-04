@@ -34,7 +34,7 @@
 				$view->_parse($this, $this->_tpl->mode);
 				return ob_get_clean();
 			}
-			$cache->cache($this->_tpl, $view, $mode);
+			$cache->cache($this->_tpl, $view, $this->_tpl->mode);
 
 			return ob_get_clean();
 		} // end output();

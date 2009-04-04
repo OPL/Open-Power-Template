@@ -89,14 +89,80 @@ By default, `htmlspecialchars()` function is used to do the escaping, but the pr
 Sections
 ========
 
+At a first sight, the sections did not change, and the basic functionality remains the same. However, the section behaviour has been strictly defined in the new version, and the instructions themselves became more modular. This allows the programmers to create their own section instructions. By default, OPT provides four types of sections:
+
+1. `opt:section` - an ordinary section.
+2. `opt:tree` - displaying the tree. Similar to `{tree}` instruction from OPT 1.1, but the syntax is completely different.
+3. `opt:selector` - a combination of section and **switch** statement.
+4. `opt:grid` - displaying the items in columns.
+
+They share the same API and may cooperate one with another. The programmer has much more control over creating relationships between the sections thanks to the `parent` attribute. For example:
+
+~~~~
+[xml]
+<opt:section name="section1">
+	<opt:section name="section2">
+		<opt:section name="section3" parent="section1">
+			...
+		</opt:section>
+	</opt:section>
+</opt:section>
+~~~~
+
+The internal architecture of sections is now completely hidden to the template designer and configured on the script side. The same applies to the *dynamic sections* from OPT 1.1 that can be achieved now simply by choosing the *StaticGenerator* or *RuntimeGenerator* data format.
+
 Other instructions
 ==================
+
+OPT 2.0 brings several new instructions and changes the semantics and/or names of the old ones.
+
+1. `{bind}` - renamed to `opt:snippet` and improved to make template inheritance possible.
+2. `{insert}` - renamed to `opt:insert` and improved to make template inheritance possible.
+3. `{bindEvent}` - not implemented. The same effects can be achieved with `opt:snippet` now.
+4. `{bindGroup}` - not implemented. The same effects can be achieved with `opt:snippet` now.
+5. `{pagesystem}` - not implemented. The same effects can be achieved with more general `opt:selector`.
+6. `{var}` - not implemented.
+7. `{default}` - not implemented. The same effects can be achieved in other ways.
+8. `{place}` - not implemented. It did not really work correctly and much better effects can be achieved with template inheritance and `opt:root`.
+9. `{php}` - not implemented.
 
 Components
 ==========
 
+The components are still present, but they have been redesigned from scratch to make use of the new features of OPT 2.0. It is much easier to design the component neighbourhood and the components are more functional. The programmer may still decide, whether to work with them only on the template side or not. Below, you can find a code of a sample OPT 2.0 component:
+
+~~~~
+[xml]
+<opt:myInput datasource="$fieldData">
+  <com:div>
+	<p>{$sys.component.title} <span opt:if="$sys.component.description">{$sys.component.description}</span></p>
+	<opt:display />
+
+	<opt:onEvent name="error">
+		<p class="error">{$sys.component.errorMessage}</p>
+	</opt:onEvent>
+  </com:div>
+</opt:myInput>
+~~~~
+
+As you see, the component tag now defines the whole neighbourhood and the place to display the component itself is marked with `opt:display` tag. Moreover, the component can control the HTML attributes of the surrounding tags, if they are moved to the `com` namespace.
+
+Moreover, a much simpler alternative to components has been introduced: blocks.
+
 Functions
 =========
 
+The function set has been widely extended in OPT 2.0. Some of the functions have been ported to the last release of OPT 1.1 before closing that branch: 1.1.5. The significant improvement over OPT 1.x is that many functions became aggregates - they can modify either a single value or a list of values:
+
+~~~~
+[xml]
+{@capitalizedNames is capitalize($names)}
+<opt:section name="list" datasource="@capitalizedNames">
+	<p>{$list}</p>
+</opt:section>
+~~~~
+
 Template modularization
 =======================
+
+To be written.

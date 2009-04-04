@@ -20,6 +20,7 @@
 		public function configure()
 		{
 			$this->_addInstructions('opt:capture');
+			$this->_addAttributes('opt:capture');
 		} // end configure();
 	
 		public function processNode(Opt_Xml_Node $node)

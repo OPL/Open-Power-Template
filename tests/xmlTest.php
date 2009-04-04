@@ -67,6 +67,7 @@
 				array('tags_5.txt'),
 				array('tags_6.txt'),
 				array('tags_7.txt'),
+				array('tags_8.txt'),
 				array('prolog_1.txt'),
 				array('prolog_2.txt'),
 				array('prolog_3.txt'),

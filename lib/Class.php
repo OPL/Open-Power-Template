@@ -33,7 +33,7 @@
 	
 	interface Opt_Block_Interface
 	{
-		public function setViewInstance(Opt_View $view);
+		public function setView(Opt_View $view);
 		public function onOpen(Array $attributes);
 		public function onClose();
 		public function onSingle(Array $attributes);
@@ -122,7 +122,7 @@
 		public $backticks = null;
 		public $translate = null;
 		public $strictCallbacks = true;
-		public $componentAttributeLevel = 2;
+	//	public $componentAttributeLevel = 2;
 		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
 
@@ -324,9 +324,9 @@
 			switch($ns[0])
 			{
 				case 'instruction':
-					return 'Opl_Loader::mapLocal(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
+					return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
 				case 'format':
-					return 'Opl_Loader::mapLocal(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
+					return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
 				default:
 					return ' require(\''.$directory.$file->getFilename().'\'); ';
 			}
