@@ -65,7 +65,24 @@
 
 			$this->_stack->push($cn);
 			
-			$mainCode = $cn.' = new '.$this->_compiler->block($node->getXmlName()).'; '.$cn.'->setView($this); ';
+			$class = $this->_compiler->block($node->getXmlName());
+			// Check, if there are any conversions that may take control over initializing
+			// the component object. We are allowed to capture only particular component
+			// creation or all of them.
+			if((($to = $this->convert('##block_'.$class)) != '##block_'.$class))
+			{
+				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+			}
+			elseif((($to = $this->convert('##block')) != '##block'))
+			{
+				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+			}
+			else
+			{
+				$ccode = 'new '.$class;
+			}
+
+			$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
 
 			$this->_commonProcessing($node, $cn, $vars);
 			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
