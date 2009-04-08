@@ -1,4 +1,5 @@
 Title: A. Error handling
 
 ----
-To do...
+
+To be written.

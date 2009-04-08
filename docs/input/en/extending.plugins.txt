@@ -4,8 +4,8 @@ Title: Introduction to plugins
 
 Open Power Template provides a plugin architecture that allows you to install new extensions easily. To initialize the plugins, you need two extra directories pointed by the directives:
 
-# `pluginDir` - a single directory or a list of directories with plugins.
-# `pluginDataDir` - a directory, where OPT will save some data that speed up plugin loading. This can be the same directory, as `compileDir`, if you do not wish to multiply the directories with the write access.
+* `pluginDir` - a single directory or a list of directories with plugins.
+* `pluginDataDir` - a directory, where OPT will save some data that speed up plugin loading. This can be the same directory, as `compileDir`, if you do not wish to multiply the directories with the write access.
 
 For example:
 

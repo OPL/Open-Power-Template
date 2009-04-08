@@ -115,7 +115,7 @@ Now it's time for the practice. As we previously said, your website will be prob
 
 1. In the file `layout.tpl` we will keep the structure of our HTML code, with HEAD section, page header, footer, menus and a place for the content.
 2. Different modules of the website will have one or more templates that fill the place for the content with the code they want to show. For example, the news module will display the list of news, and the contact page - a contact form.
-3. The module views will be assigned as the template variables to the layout views and included with [syntax.instructions.include][] instruction.
+3. The module views will be assigned as the template variables to the layout views and included with [opt:include][syntax.instructions.include] instruction.
 
 This is the `layout.tpl` file:
 
@@ -166,7 +166,7 @@ And this is one of our modules (`news.tpl`):
 ~~~~
 
 > [important]
-> OPT template syntax and XML standard compliance is very flexible. In this example, we assume that you are working with the default, and the most restrictive set of rules. They force you to keep only one root tag in the template and to add an XML prolog to them. Please note that OPT does not send those prologs to the browser. Instead, it uses [syntax.instructions.prolog][] instruction to generate it.
+> OPT template syntax and XML standard compliance is very flexible. In this example, we assume that you are working with the default, and the most restrictive set of rules. They force you to keep only one root tag in the template and to add an XML prolog to them. Please note that OPT does not send those prologs to the browser. Instead, it uses [opt:prolog][syntax.instructions.prolog] instruction to generate it.
 
 The following piece of code creates the suitable views and initializes them with the data:
 

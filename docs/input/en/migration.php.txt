@@ -20,24 +20,19 @@ OPT encourages you to concentrate on the final effect, not the ways to implement
 
 ~~~~
 [php]
-<?php
-if(is_array($this->books)){
-    foreach($this->books as $book){
-?>
+<?php if(is_array($this->books)): ?>
+<?php foreach($this->books as $book): ?>
 <div class="book">
     <h2><?php echo htmlspecialchars($book['title']); ?></h2>
     <p>Authors:</p>
     <ul>
-        <?php
-        foreach($book['authors'] as $author){
-        ?>
+        <?php foreach($book['authors'] as $author): ?>
         <li><?php echo $author['name'].' '.$author['surname']; ?></li>
-        <?php } ?>
+        <?php endforeach; ?>
     </ul>
 </div>
-<?php
-    }
-}
+<?php endforeach; ?>
+<?php endif; ?>
 ~~~~
 
 There some issues in this code that OPT considers wrong:
@@ -69,11 +64,11 @@ The sections are the most commonly used tools in OPT and they provide even more 
 
 ~~~~
 [xml]
-    <ul>
-    <opt:section name="authors" order="desc">
-        <li>{$authors.name} {$authors.surname}</li>
-    </opt:section>
-    </ul>
+<ul>
+<opt:section name="authors" order="desc">
+    <li>{$authors.name} {$authors.surname}</li>
+</opt:section>
+</ul>
 ~~~~
 
 We know that declarative programming is different from the solutions you have already got used to. However, once you lear more about the declarative instructions in OPT, you will notice that things were never so simple. When we are going to create a new website, we unsually begin with the presentation layer which is completed within 30 minutes and unsually does not require any further modifications after the script is written. The templates for the administration panel can be used in different projects without changes, even if they are powered by different frameworks. It saves our time and allows us to focus on the project.
@@ -95,18 +90,18 @@ Typical issues solved by OPT
 
 Here we would like to show you, what problems can be solved using declarative programming in OPT:
 
-1. List processing - [syntax.topics.sections].
-2. Data separation on lists - [syntax.instructions.separator].
-3. Displaying hierarchical data (trees) - sections ([syntax.instructions.tree])
-4. Displaying the data in columns - sections ([syntax.instructions.grid])
-5. Displaying the pagination links - sections ([syntax.instructions.selector])
-6. Dynamic forms - [syntax.topics.components]
-7. Modular templates - `opt:include` and the template inheritance. See: [syntax.topics.modularization].
-8. Code reusing - [syntax.instructions.snippet]
-9. HTML escaping and XSS filtering - [syntax.expressions.escaping]
-10. Data format independence - [coding.formats]
-11. Simple runtime tasks - [syntax.topics.blocks]
-12. Internationalization - [coding.i18n]
+1. List processing - [sections][syntax.topics.sections].
+2. Data separation on lists - [opt:separator][syntax.instructions.separator].
+3. Displaying hierarchical data (trees) - sections ([opt:tree][syntax.instructions.tree])
+4. Displaying the data in columns - sections ([opt:grid][syntax.instructions.grid])
+5. Displaying the pagination links - sections ([opt:selector][syntax.instructions.selector])
+6. Dynamic forms - [components][syntax.topics.components]
+7. Modular templates - `opt:include` and the template inheritance. See: [Template modularization][syntax.topics.modularization].
+8. Code reusing - [opt:snippet][syntax.instructions.snippet]
+9. HTML escaping and XSS filtering - [HTML escaping][syntax.expressions.escaping]
+10. Data format independence - [data formats][guide.data-formats]
+11. Simple runtime tasks - [blocks][syntax.topics.blocks]
+12. Internationalization - [I18n in OPT][guide.i18n]
 
 OPT from the script-side
 ========================

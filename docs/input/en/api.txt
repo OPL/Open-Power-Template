@@ -12,17 +12,17 @@ Open Power Template is a part of Open Power Libs and it requires the core OPL pa
 ~~~~
 [php]
 <?php
-	// Load the basic code
-	require('./lib/Opl/Base.php');
+// Load the basic code
+require('./lib/Opl/Base.php');
 
-	// Set the OPL files path
-	Opl_Base::setDirectory('./lib/');
+// Set the OPL files path
+Opl_Base::setDirectory('./lib/');
 
-	// Initialize the autoloader
-	spl_autoload_register(array('Opl_Loader', 'autoload'));
+// Initialize the autoloader
+spl_autoload_register(array('Opl_Loader', 'autoload'));
 
-	// Create the main OPT object
-	$tpl = new Opt_Class;
+// Create the main OPT object
+$tpl = new Opt_Class;
 
 ?>
 ~~~~
@@ -32,10 +32,10 @@ Alternatively, you may use the PHAR archives that do some of the basic configura
 ~~~~
 [php]
 <?php
-	require('./libs/opl.phar');
-	require('./libs/opt.phar');
-	
-	$tpl = new Opt_Class;
+require('./libs/opl.phar');
+require('./libs/opt.phar');
+
+$tpl = new Opt_Class;
 ?>
 ~~~~
 

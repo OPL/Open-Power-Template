@@ -20,7 +20,7 @@ $output = new Opt_Output_Http;
 $output->render($layoutView);
 ~~~~
 
-With this simple code, we have executed all the templates and the results have been sent to the browser. Now other people can visit our website. Note that we do not render `$moduleView`. This is not a mistake. The module view is automatically executed by the [syntax.instructions.include][] instruction used in `layout.tpl` file and processed with exactly the same output system. It does not mean that `$moduleView` suddenly starts to see the local variables of `$layoutView` unless explicitly specified in `opt:include` instruction.
+With this simple code, we have executed all the templates and the results have been sent to the browser. Now other people can visit our website. Note that we do not render `$moduleView`. This is not a mistake. The module view is automatically executed by the [opt:include][syntax.instructions.include] instruction used in `layout.tpl` file and processed with exactly the same output system. It does not mean that `$moduleView` suddenly starts to see the local variables of `$layoutView` unless explicitly specified in `opt:include` instruction.
 
 > [important]
 > You must render the top-level view only.

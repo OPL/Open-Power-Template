@@ -17,7 +17,7 @@ Using `opt:include` is very simple. To include a left menu content in the follow
 ~~~~
 [xml]
 <div id="menu">
-  <opt:include file="left_menu.tpl" />
+    <opt:include file="left_menu.tpl" />
 </div>
 ~~~~
 
@@ -30,12 +30,12 @@ However, this code is not fully completed. As we mentioned earlier, `opt:include
 [xml]
 <!-- pass the variables manually -->
 <div id="menu">
-  <opt:include file="left_menu.tpl" variable1="$someValue" variable2="calculateMe()" />
+    <opt:include file="left_menu.tpl" variable1="$someValue" variable2="calculateMe()" />
 </div>
 
 <!-- import all the variables from the current view -->
 <div id="menu">
-  <opt:include file="left_menu.tpl" import="yes" />
+    <opt:include file="left_menu.tpl" import="yes" />
 </div>
 ~~~~
 
@@ -47,7 +47,7 @@ In most cases, we would like to add more dynamics to our templates. We wish to c
 ~~~~
 [xml]
 <div id="menu">
-  <opt:include parse:file="$leftMenuTemplate" import="yes" />
+    <opt:include parse:file="$leftMenuTemplate" import="yes" />
 </div>
 ~~~~
 
@@ -61,7 +61,7 @@ So far, our views have been created on the template side in the background. Howe
 ~~~~
 [xml]
 <div id="menu">
-  <opt:include view="$leftMenuView" />
+    <opt:include view="$leftMenuView" />
 </div>
 ~~~~
 
@@ -71,11 +71,11 @@ OT offers you a fast way to load the views from the section:
 
 ~~~~
 [xml]
- <div id="menu">
-   <opt:section name="menuViewContainer">
-     <opt:include from="menuViewContainer" />
-   </opt:section>
- </div>
+<div id="menu">
+    <opt:section name="menuViewContainer">
+        <opt:include from="menuViewContainer" />
+    </opt:section>
+</div>
 ~~~~
 
 `opt:include` assumes that the view object can be found at `$menuViewContainer.view` section variable.
@@ -88,37 +88,36 @@ We are going to show you the ideas of a complete and ready-to-use solution for w
 ~~~~
 [php]
 <?php
+class placeholderManager
+{
+    private $_views = array();
+  
+    public function definePlaceholder($placeholder)
+    {
+        if(!isset($this->_views[$placeholder]))
+        {
+            $this->_views[$placeholder] = array();
+        }
+    } // end definePlaceholder();
+  
+    public function addView($placeholder, Opt_View $view)
+    {
+        if(!isset($this->_views[$placeholder]))
+        {
+            // error!
+        }
+        // The standard format of OPT sections.
+        $this->_views[$placeholder][] = array('view' => $view);
+    } // end addView();
 
-	class placeholderManager
-	{
-		private $_views = array();
-	  
-		public function definePlaceholder($placeholder)
-		{
-			if(!isset($this->_views[$placeholder]))
-			{
-				$this->_views[$placeholder] = array();
-			}
-		} // end definePlaceholder();
-	  
-		public function addView($placeholder, Opt_View $view)
-		{
-			if(!isset($this->_views[$placeholder]))
-			{
-				// error!
-			}
-			// The standard format of OPT sections.
-			$this->_views[$placeholder][] = array('view' => $view);
-		} // end addView();
-
-		public function register(Opt_View $mainView)
-		{
-			foreach($this->_views as $name => $viewList)
-			{
-				$mainView->assign($name.'Views', $viewList);
-			}
-		} // end register();
-	} // end placeholderManager;
+    public function register(Opt_View $mainView)
+    {
+        foreach($this->_views as $name => $viewList)
+        {
+            $mainView->assign($name.'Views', $viewList);
+        }
+    } // end register();
+} // end placeholderManager;
 ~~~~
 
 Now we are going to prepare the main template:
@@ -126,29 +125,29 @@ Now we are going to prepare the main template:
 ~~~~
 [xml]
 <html>
- <head>
-   ....
- </head>
- <body>
-  <div id="header">
+<head>
     ...
-  </div>
-  <div id="menu">
+</head>
+<body>
+<div id="header">
+    ...
+</div>
+<div id="menu">
     <!-- display all the menu views here -->
     <opt:section name="menuViews">
-	  <opt:include from="menuViews" />
-	</opt:section>
-  </div>
-  <div id="content">
+        <opt:include from="menuViews" />
+    </opt:section>
+</div>
+<div id="content">
     <!-- display all the content views here -->
     <opt:section name="contentViews">
-	  <opt:include from="contentViews" />
-	</opt:section>
-  </div>
-  <div id="footer">
-   ...
-  </div>
- </body>
+        <opt:include from="contentViews" />
+    </opt:section>
+</div>
+<div id="footer">
+    ...
+</div>
+</body>
 </html>
 ~~~~
 

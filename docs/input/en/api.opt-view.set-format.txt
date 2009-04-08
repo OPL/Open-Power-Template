@@ -3,8 +3,8 @@ ShortTitle: Opt_View::setFormat()
 Reference: void setFormat( string $variable, string $format )
 Status: public
 SeeAlso:
- - coding.formats
+ - guide.data-formats
 
 ----
 
-Sets the format to the local template variable `$variable`. To get to know more about data formats in OPT, see a chapter about [data formats][coding.formats].
+Sets the format to the local template variable `$variable`. To get to know more about data formats in OPT, see a chapter about [data formats][guide.data-formats].

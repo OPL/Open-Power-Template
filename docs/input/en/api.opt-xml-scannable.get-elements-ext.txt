@@ -14,9 +14,9 @@ This method works much like [Opt_Xml_Scannable::getElementsByTagNameNS()][api.op
 ~~~~
 [xml]
 <opt:foo>
-  <div>
-   <opt:bar>Hello world!</opt:bar>
-  </div>
+    <div>
+        <opt:bar>Hello world!</opt:bar>
+    </div>
 </opt:foo>
 ~~~~
 
@@ -36,17 +36,17 @@ The first impression is that this code is correct. However, let's take a look at
 ~~~~
 [xml]
 <opt:foo>
-  <div>
-   <opt:bar>
+    <div>
+        <opt:bar>
 
-     <opt:foo>
-       <div>
-         <opt:bar>Hello world!</opt:bar>
-       </div>
-     </opt:foo>
+            <opt:foo>
+                <div>
+                    <opt:bar>Hello world!</opt:bar>
+                </div>
+            </opt:foo>
 
-   </opt:bar>
-  </div>
+        </opt:bar>
+    </div>
 </opt:foo>
 ~~~~
 

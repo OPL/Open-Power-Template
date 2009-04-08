@@ -7,7 +7,7 @@ Another aspect of Open Power Template 2 that needs to be described is the error 
 OPT errors
 ==========
 
-OPT reports the errors as PHP exceptions. Each error type has its own exception class and all of them share the same base exception class, `Opt_Exception`, derivated from `Opl_Exception`. Moreover, the certain groups of exception have also their own base classes in the middle. The modularization helps the programmer to choose, which exceptions must be handled in the specified piece of code. To see the list of available exceptions, please read the [appendix.b][Error messages] appendix.
+OPT reports the errors as PHP exceptions. Each error type has its own exception class and all of them share the same base exception class, `Opt_Exception`, derivated from `Opl_Exception`. Moreover, the certain groups of exception have also their own base classes in the middle. The modularization helps the programmer to choose, which exceptions must be handled in the specified piece of code. To see the list of available exceptions, please read the [Error messages][appendix.b] appendix.
 
 Basically speaking, capturing a thrown exception is nothing more but using the `try ... catch` construct:
 

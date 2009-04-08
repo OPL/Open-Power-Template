@@ -16,6 +16,6 @@ What the instruction processors could do?
 
 Note that the tags and attributes in the special namespaces do not appear in the output. The only signs of their occurence are the results they produce:
 
-# PHP code generation for the template.
-# Manipulating the XML tree structure.
-# Manipulating the compiler settings which could affect other processors.
+* PHP code generation for the template.
+* Manipulating the XML tree structure.
+* Manipulating the compiler settings which could affect other processors.

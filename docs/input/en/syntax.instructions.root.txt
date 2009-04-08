@@ -85,7 +85,7 @@ In this case, we have to declare the form in the snippet, too. It must be loaded
 
 Now we do not have to pack the form content in a fake snippet, because we do not use the template inheritance. 
 
-Note that the `include` attribute is processed during the template compilation and it is not possible to load its value from a variable. In the included template, all the content, except `opt:snippet` tags, is ignored, because it is hard to say, where it should appear (before? After the main template content? If so, then why?). OPT prevents us against the infinite recursive inclusions (A includes B, which includes A). The compilation is cancelled and the library shows the error message.
+Note that the `include` attribute is processed during the template compilation and it is not possible to load its value from a variable. In the included template, all the content, except `opt:snippet` tags, is ignored, because it is hard to say, where it should appear. (Before? After the main template content? If so, then why?) OPT prevents us against the infinite recursive inclusions (A includes B, which includes A). The compilation is cancelled and the library shows the error message.
 
 > [warning]
 > Note on the performance and script resources. We do not recommend to create compound inclusion chains (A includes B which includes C, which includes D etc.). The `include` attribute is the only part of the compiler that is processed recursively. In case of advanced dependencies between the templates, the compilation may cause PHP stack overflow (*Nesting level too deep* message).
