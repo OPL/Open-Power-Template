@@ -40,7 +40,7 @@
 			$vars = $this->_extractAttributes($node, $params);
 			$this->_stack->push($params['from']);
 					
-			$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Block_Interface){ '.$params['from'].'->setOptInstance($this->_tpl); ';
+			$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Block_Interface){ '.$params['from'].'->setView($this); ';
 			$mainCode .= $this->_commonProcessing($node, $params['from'], $vars);
 		
 			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
@@ -65,7 +65,24 @@
 
 			$this->_stack->push($cn);
 			
-			$mainCode = $cn.' = new '.$this->_compiler->block($node->getXmlName()).'; '.$cn.'->setOptInstance($this->_tpl); ';
+			$class = $this->_compiler->block($node->getXmlName());
+			// Check, if there are any conversions that may take control over initializing
+			// the component object. We are allowed to capture only particular component
+			// creation or all of them.
+			if((($to = $this->convert('##block_'.$class)) != '##block_'.$class))
+			{
+				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+			}
+			elseif((($to = $this->convert('##block')) != '##block'))
+			{
+				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+			}
+			else
+			{
+				$ccode = 'new '.$class;
+			}
+
+			$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
 
 			$this->_commonProcessing($node, $cn, $vars);
 			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);

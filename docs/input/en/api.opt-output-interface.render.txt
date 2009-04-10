@@ -5,7 +5,7 @@ Status: public
 
 ----
 
-Executes the [Opt_View::_parse()][api.opt-view._parse] method in [Opt_View][api.opt-view] class in order to execute the template. Optionally, it may contain additional instructions to manage the template output. The most trivial implementation:
+Executes the `Opt_View::_parse()` method in [Opt_View][api.opt-view] class in order to execute the template. Optionally, it may contain additional instructions to manage the template output. The most trivial implementation:
 
 ~~~~
 [php]

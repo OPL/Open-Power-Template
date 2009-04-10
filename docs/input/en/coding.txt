@@ -1,5 +1,0 @@
-Title: API issues
-
-----
-
-This chapter shows, how to use various API features in practice.

@@ -31,7 +31,7 @@
 			// TODO: Hmmm... now we have to invent, how to deal with THAT!
 			if(is_null($params['template']))
 			{
-				$this->_compiler->processor('literal')->disableCDATA($node);
+				$this->_compiler->processor('literal')->disableCDATA($node, true);
 				$this->_process($node);
 			}
 			else

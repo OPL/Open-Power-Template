@@ -13,9 +13,11 @@
  * $Id: Loop.php 18 2008-10-29 21:23:43Z zyxist $
  */
 
-	/*
+	/**
 	 * This abstract class contains various tools useful for loop instructions.
 	 * Currently it supports separators.
+	 *
+	 * @abstract
 	 */
 	abstract class Opt_Instruction_Loop extends Opt_Compiler_Processor
 	{
@@ -42,7 +44,7 @@
 					if(!is_null($arg))
 					{
 						$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $varname.' = 0;');
-						$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, 'if('.$varname.' == 1){ echo '.$arg.'; }else{ '.$varname.' = 1; }');
+						$node->addBefore(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, 'if('.$varname.' == 1){ echo '.$arg.'; }else{ '.$varname.' = 1; }');
 					}
 					break;
 				default:

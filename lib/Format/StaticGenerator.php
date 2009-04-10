@@ -21,17 +21,38 @@
 		protected $_supports = array(
 			'section'		
 		);
-		
-		private $_codeBlocks = array(
-			'sectionInit' => ' $_sect%sectionNest%_vals = array(); if(%sectionRecordCall% instanceof Opt_Generator_Interface){ $_sect%sectionNest%_vals = %sectionRecordCall%->generate(\'%sectionName%\'); }',
-		);
 
 		protected function _build($hookName)
 		{
-			if(isset($this->_codeBlocks[$hookName]))
+			if($hookName == 'section:init')
 			{
-				return $this->_codeBlocks[$hookName];
+				$section = $this->_getVar('section');
+
+				// Choose the data source.
+				if(!is_null($section['parent']))
+				{
+					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
+					$parent['format']->assign('item', $section['name']);
+					$ds = $parent['format']->get('section:variable');
+				}
+				elseif(!is_null($section['datasource']))
+				{
+					$ds = $section['datasource'];
+				}
+				else
+				{
+					$this->assign('item', $section['name']);
+					$ds = $this->get('variable:main');
+				}
+
+				// This format must be decorated by the user, because it does not support directly the rest
+				// of "section" namespace.
+				if(!is_object($this->_decorated))
+				{
+					throw new Opt_FormatNotDecorated_Exception('StaticGenerator');
+				}
+
+				return ' $_sect'.$section['name'].'_vals = array(); if('.$ds.' instanceof Opt_Generator_Interface){ $_sect'.$section['name'].'_vals = '.$ds.'->generate(\''.$section['name'].'\'); } ';
 			}
 		} // end _build();
-
 	} // end Opt_Format_StaticGenerator;

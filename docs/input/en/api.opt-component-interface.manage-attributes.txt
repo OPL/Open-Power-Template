@@ -13,7 +13,7 @@ Reference: array manageAttributes(string $name, array $attributes)
 Let's take a look at the following component port: 
 
 ~~~~
-[php]
+[xml]
 <opt:component from="$component">
 	<com:div class="field">
 		<p>{$opt.component.title}</p>

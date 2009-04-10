@@ -18,4 +18,4 @@ echo $view->get('variable'); // prints "foo"
 ~~~~
 
 > [information]
-> You may also read the variable value using the magic method [api.opt-view.__get]: `$view->variable`. It is the recommended solution.
+> You may also read the variable value using the magic method [Opt_View::get()][api.opt-view.__get]: `$view->variable`. It is the recommended solution.

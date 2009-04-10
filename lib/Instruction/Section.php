@@ -22,7 +22,7 @@
 			$this->_addInstructions(array('opt:section', 'opt:sectionelse', 'opt:show', 'opt:showelse'));
 			$this->_addAttributes('opt:section');
 		} // end configure();
-	
+/*
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$name = '_process'.ucfirst($node->getName());
@@ -46,94 +46,99 @@
 			$name = '_postprocessAttr'.ucfirst($attr->getName());
 			$this->$name($node, $attr);
 		} // end postprocessAttribute();
-
-		private function _processSection(Opt_Xml_Element $node)
+*/
+		protected function _processSection(Opt_Xml_Element $node)
 		{
-			if(is_null($section = $this->_sectionInitialized($node)))
-			{
-				$section = $this->_processShow($node);
-				$initialized = true;
-			}
+			$section = $this->_sectionCreate($node);
+			$this->_sectionStart($section);
+
 			if($section['order'] == 'asc')
 			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('sectionStartAscLoop'));
+				$code = $section['format']->get('section:startAscLoop');
 			}
 			else
 			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('sectionStartDescLoop'));
+				$code = $section['format']->get('section:startDescLoop');
 			}
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
 			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+			$this->_sortSectionContents($node, 'opt', 'sectionelse');
 
 			$node->set('postprocess', true);
 			$this->_process($node);
 		} // end _processSection();
 		
-		private function _postprocessSection(Opt_Xml_Element $node)
-		{			
-			$section = $this->getSection($node->get('sectionName'));
-			if(!$node->get('sectionElse'))
+		protected function _postprocessSection(Opt_Xml_Element $node)
+		{
+			$section = self::getSection($node->get('priv:section'));
+			if(!$node->get('priv:alternative'))
 			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('sectionEndLoop'));
+				$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('section:endLoop'));
+				$this->_sectionEnd($node);
 			}
-			if($node->hasAttributes())
-			{
-				if(!$node->get('sectionElse'))
-				{
-					$this->_locateElse($node, 'opt', 'sectionelse');
-				}
-			}
-			$this->_finishSection($node);
 		} // end _postprocessSection();
 		
-		private function _processShowelse(Opt_Xml_Element $node)
+		protected function _processShowelse(Opt_Xml_Element $node)
 		{
 			$parent = $node->getParent();
 			if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:show')
 			{
-				$parent->set('sectionElse', true);
+				$parent->set('priv:alternative', true);
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
 				$this->_process($node);
 			}
+			else
+			{
+				throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:show');
+			}
 		} // end _processShowelse();
 
-		private function _processSectionelse(Opt_Xml_Element $node)
+		protected function _processSectionelse(Opt_Xml_Element $node)
 		{
 			$parent = $node->getParent();
 			if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:section')
 			{
-				$parent->set('sectionElse', true);
+				$parent->set('priv:alternative', true);
 				
-				$section = $this->getSection($parent->get('sectionName'));
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('sectionEndLoop').' } else { ');
-				$this->_deactivateSection($parent->get('sectionName'));
+				$section = self::getSection($parent->get('priv:section'));
+				if(!is_array($section))
+				{
+					throw new Opt_APINoDataReturned_Exception('Opt_Instruction_BaseSection::getSection', 'processing opt:sectionelse');
+				}
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:endLoop').' } else { ');
+				
+				$this->_sectionEnd($parent);
+
 				$this->_process($node);
-			}
-		} // end _processSectionelse();
-		
-		private function _processAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
-		{
-			// TODO: Check attributed sections and single tags. In opt:put this did not work.
-			if(is_null($section = $this->_sectionInitialized($node, $attr)))
-			{
-				$section = $this->_processShow($node, $attr);
-				$initialized = true;
-			}
-			if($section['order'] == 'asc')
-			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('sectionStartAscLoop'));
 			}
 			else
 			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('sectionStartDescLoop'));
+				throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:section');
 			}
+		} // end _processSectionelse();
+		
+		protected function _processAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		{
+			$section = $this->_sectionCreate($node, $attr);
+			$this->_sectionStart($section);
+			$code = '';
+			if($section['order'] == 'asc')
+			{
+				$code .= $section['format']->get('section:startAscLoop');
+			}
+			else
+			{
+				$code .= $section['format']->get('section:startDescLoop');
+			}
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
 			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
 			$attr->set('postprocess', true);
 		} // end _processAttrSection();
 		
-		private function _postprocessAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		protected function _postprocessAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
-			$section = $this->getSection($node->get('sectionName'));
-			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('sectionEndLoop'));
-			$this->_finishSection($node);
+			$section = self::getSection($node->get('priv:section'));
+			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('section:endLoop'));
+			$this->_sectionEnd($node);
 		} // end _postprocessAttrSection();
 	} // end Opt_Instruction_Section;

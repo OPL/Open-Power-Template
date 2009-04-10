@@ -23,6 +23,7 @@
 		
 		public function __construct($expression)
 		{
+			parent::__construct();
 			$this->_expression = $expression;
 		} // end __construct();
 		

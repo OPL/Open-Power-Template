@@ -18,72 +18,156 @@
 	class Opt_Format_Objective extends Opt_Compiler_Format
 	{
 		protected $_supports = array(
-			'section', 'variable'		
-		);
-		
-		private $_codeBlocks = array(
-			// Initializes the data for the section.
-			'sectionInit' => '$_sect%sectionNest%_vals = %reference% %sectionRecordCall%;',
-			// Checks if there are data for this section.
-			'sectionCondition' => 'is_object($_sect%sectionNest%_vals) && $_sect%sectionNest%_vals instanceof Countable && $_sect%sectionNest%_vals instanceof Iterator && $_sect%sectionNest%_vals->count() > 0',
-			// Generates the loop that iterates over the data forward.
-			'sectionStartAscLoop' => 'foreach($_sect%sectionNest%_vals as $_sect%sectionNest%_i => $_sect%sectionNest%_val){ ',
-			// Generates the loop that iterates over the data backward.
-			// TODO: Add descending order!
-			'sectionStartDescLoop' => 'foreach($_sect%sectionNest%_vals as $_sect%sectionNest%_i => $_sect%sectionNest%_val){ ',
-			// Finishes the loop block.
-			'sectionEndLoop' => ' } ',
-			// Rewinds the iterator to the first element
-			'sectionRewind' => '$_sect%sectionNest%_vals->rewind(); ',
-			// Moves the iterator to the next element
-			'sectionNext' => '$_sect%sectionNest%_vals->next(); ',
-			// Checks if the iterator points to a valid record.
-			'sectionValid' => '$_sect%sectionNest%_vals->valid()',
-			// Retrieves the current record.
-			'sectionCurrent' => '$_sect%sectionNest%_val',
-			// Retrieves the current record by the explicite call.
-			'sectionCurrentExp' => '$_sect%sectionNest%_vals->current()',
-			// Returns the current iterator:
-			'sectionIterator' => '$_sect%sectionNest%_i',
-			// Counts the section elements
-			'sectionCount' => '$_sect%sectionNest%_vals->count()',
-			// Counts the section elements
-			'sectionSize' => '$_sect%sectionNest%_val->count()',
-
-			// Tests if the iterator points to the first element:
-			'sectionOptFirstAsc' => '$_sect%sectionNest%_i == 0',
-			// Tests if the iterator points to the first element, when iterating backwards.
-			'sectionOptFirstDesc' => '$_sect%sectionNest%_i == $_sect%sectionNest%_cnt-1',
-			// Tests if the iterator points to the last element, when iterating backwards.
-			'sectionOptLastDesc' => '$_sect%sectionNest%_i == 0',
-			// Tests if the iterator points to the first element.
-			'sectionOptLastAsc' => '$_sect%sectionNest%_i == $_sect%sectionNest%_cnt-1',
-			// Tests if the iterator points to the first or the last element:
-			'sectionOptFar' => '$_sect%sectionNest%_i == 0 || $_sect%sectionNest%_i == $_sect%sectionNest%_cnt-1',
-			// Returns the sectionRecordCall for the sectionInit
-			'sectionRecordCall' => '%parentRecord%',
-		
-			'_itemVariable' => '%sectionItemRead%->%_sectionItemName%',
-			'_itemFullVariable' => '$_sect%sectionNest%_val->%_sectionItemName%',
-		
-			'variableSubitem' => '->%item%'
+			'section', 'variable', 'item'
 		);
 
+		protected $_properties = array(
+			'section:useReference' => false,
+			'section:anyRequests' => null
+		);
+
+		/**
+		 * Build a PHP code for the specified hook name.
+		 *
+		 * @param String $hookName The hook name
+		 * @return String The output PHP code
+		 */
 		protected function _build($hookName)
 		{
-			if(isset($this->_codeBlocks[$hookName]))
-			{
-				return $this->_codeBlocks[$hookName];
-			}
 			switch($hookName)
 			{
-				case 'itemVariable':
-					return $this->_decorateHook(
-						$this->_codeBlocks['_itemVariable'],
-						'sectionItemRead',
-						$this->_codeBlocks['_itemFullVariable']
-					);
-				case 'variableMain':
+				// Initializes the section by obtaining the list of items to display
+				case 'section:init':
+					$section = $this->_getVar('section');
+
+					if(!is_null($section['parent']))
+					{
+						$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
+						$parent['format']->assign('item', $section['name']);
+						return '$_sect'.$section['name'].'_vals = '.$parent['format']->get('section:variable').'; ';
+					}
+					elseif(!is_null($section['datasource']))
+					{
+						return '$_sect'.$section['name'].'_vals = '.$section['datasource'].'; ';
+					}
+					else
+					{
+						$this->assign('item', $section['name']);
+						return '$_sect'.$section['name'].'_vals = '.$this->get('variable:main').'; ';
+					}
+				// The end of the section loop.
+				case 'section:endLoop':
+					return ' } ';
+				// The condition that should test if the section is not empty.
+				case 'section:isNotEmpty':
+					$section = $this->_getVar('section');
+					return 'is_object($_sect'.$section['name'].'_vals) && ($_sect'.$section['name'].'_vals instanceof Traversable) && ($_sect'.$section['name'].'_vals instanceof Countable) && ($_sect'.$section['name'].'_vals->count() > 0)';
+				// The code block after the condition
+				case 'section:started':
+				// The code block before the end of the conditional block.
+				case 'section:finished':
+				// The code block after the conditional block
+				case 'section:done':
+				// The code block before entering the loop.
+				case 'section:loopBefore':
+					$section = $this->_getVar('section');
+					if($section['order'] == 'desc')
+					{
+						return ' $tmp = array(); foreach($_sect'.$section['name'].'_vals as $i => $v){ $tmp[$i] = $v; } $_sect'.$section['name'].'_vals = &$tmp; ';
+					}
+					return '';
+				// The default loop for the ascending order.
+				case 'section:startAscLoop':
+					$section = $this->_getVar('section');
+					return 'foreach($_sect'.$section['name'].'_vals as $_sect'.$section['name'].'_i => $_sect'.$section['name'].'_v){ ';
+				// The default loop for the descending order.
+				case 'section:startDescLoop':
+					$section = $this->_getVar('section');
+					return 'foreach($_sect'.$section['name'].'_vals as $_sect'.$section['name'].'_i => $_sect'.$section['name'].'_v){ ';
+				// Retrieving the whole section item.
+				case 'section:item':
+					$section = $this->_getVar('section');
+					return '$_sect'.$section['name'].'_v';
+				// Retrieving a variable from a section item.
+				case 'section:variable':
+					if($this->isDecorating())
+					{
+						return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:item');
+					}
+					$section = $this->_getVar('section');
+					return '$_sect'.$section['name'].'_v->'.$this->_getVar('item');
+				// Resetting the section to the first element.
+				case 'section:reset':
+					$section = $this->_getVar('section');
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['name'].'_vals->reset();';
+					}
+					else
+					{
+						return 'end($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals); ';
+					}
+					break;
+				// Moving to the next element.
+				case 'section:next':
+					$section = $this->_getVar('section');
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['name'].'_vals->next();';
+					}
+					else
+					{
+						return 'prev($_sect'.$section['name'].'_vals);';
+					}
+					break;
+				// Checking whether the iterator is valid.
+				case 'section:valid':
+					$section = $this->_getVar('section');
+					return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i])';
+				// Populate the current element
+				case 'section:populate':
+					$section = $this->_getVar('section');
+					return '$_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
+				// The code that returns the number of items in the section;
+				case 'section:count':
+					$section = $this->_getVar('section');
+					return '$_sect'.$section['name'].'_cnt';
+				// Section item size.
+				case 'section:size':
+					$section = $this->_getVar('section');
+					return '($_sect'.$section['name'].'_v instanceof Countable ? $_sect'.$section['name'].'_v->count() : -1)';
+				// Section iterator.
+				case 'section:iterator':
+					$section = $this->_getVar('section');
+					return '$_sect'.$section['name'].'_i';
+				// Testing the first element.
+				case 'section:isFirst':
+					$section = $this->_getVar('section');
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['nesting'].'_i == 0';
+					}
+					else
+					{
+						return '$_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1)';
+					}
+				// Testing the last element.
+				case 'section:isLast':
+					$section = $this->_getVar('section');
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1)';
+					}
+					else
+					{
+						return '$_sect'.$section['nesting'].'_i == 0';
+					}
+				// Testing the extreme element.
+				case 'section:isExtreme':
+					$section = $this->_getVar('section');
+					return '(($_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1)) || ($_sect'.$section['nesting'].'_i == 0))';
+				// The variable access.
+				case 'variable:main':
 					$this->_applyVars = false;
 					$item = $this->_getVar('item');
 					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
@@ -94,6 +178,8 @@
 					{
 						return 'self::$_global[\''.$item.'\']';
 					}
+				case 'item:item':
+					return '->'.$this->_getVar('item');
 				default:
 					return NULL;
 			}

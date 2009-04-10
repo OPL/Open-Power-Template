@@ -27,9 +27,14 @@ The access to the captured parts is possible with `$sys.capture.name`:
 {u:$sys.capture.options}
 ~~~~
 
+> [information]
+> The code captured by one view is also visible in other views executed by OPT.
+
+<!-- # -->
+
 > [important]
 > Contrary to `opt:snippet` and `opt:insert`, this instruction captures the output code that would normally be sent to the browser. If you change one of the variables used in the `opt:capture` block between two placements `$opt.capture.myBlock`, the change will not be visible:
->
+> 
 >     [xml]
 >     {@foo is 1}
 >     <opt:capture as="foo">{@foo}</opt:capture>

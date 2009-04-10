@@ -16,4 +16,4 @@ echo $view->variable;
 ~~~~
 
 > [help]
-> It is recommended to use the magic method instead of [api.opt-view.get] unless we are not going to specify a dynamic variable name.
+> It is recommended to use the magic method instead of [Opt_View::get()][api.opt-view.get] unless we are not going to specify a dynamic variable name.

@@ -18,7 +18,7 @@ Eof
 </opt:root>
 
 >>>>expected.txt
-Opt_SectionExists_Exception
+Opt_SectionNotFound_Exception
 
 >>>>data.php
 $view->sect = array(

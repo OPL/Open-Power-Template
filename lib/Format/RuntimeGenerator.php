@@ -21,16 +21,37 @@
 		protected $_supports = array(
 			'section'		
 		);
-		
-		private $_codeBlocks = array(
-			'sectionInit' => ' if(%sectionRecordCall% instanceof Opt_Generator_Interface){ $_sect%sectionNest%_vals = %sectionRecordCall%->generate(\'%sectionName%\'); }else{ $_sect%sectionNest%_vals = & %sectionRecordCall%; } ',
-		);
 
 		protected function _build($hookName)
 		{
-			if(isset($this->_codeBlocks[$hookName]))
+			if($hookName == 'section:init')
 			{
-				return $this->_codeBlocks[$hookName];
+				$section = $this->_getVar('section');
+
+				// Choose the data source.
+				if(!is_null($section['parent']))
+				{
+					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
+					$parent['format']->assign('item', $section['name']);
+					$ds = $parent['format']->get('section:variable');
+				}
+				elseif(!is_null($section['datasource']))
+				{
+					$ds = $section['datasource'];
+				}
+				else
+				{
+					$this->assign('item', $section['name']);
+					$ds = $this->get('variable:main');
+				}
+
+				if(!is_object($this->_decorated))
+				{
+					throw new Opt_FormatNotDecorated_Exception('StaticGenerator');
+				}
+				$ref = ($this->_decorated->property('section:useReference') ? ' & ' : '');
+
+				return ' if('.$ds.' instanceof Opt_Generator_Interface){ $_sect'.$section['name'].'_vals = '.$ds.'->generate(\''.$section['name'].'\'); }else{ $_sect'.$section['name'].'_vals = '.$ref.$ds.'; } ';
 			}
 		} // end _build();
 

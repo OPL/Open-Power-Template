@@ -1,0 +1,6 @@
+Title: Opt_Compiler_Format class
+ShortTitle: Opt_Compiler_Format
+
+----
+
+The class provides an interface to create new data formats for the compiler.

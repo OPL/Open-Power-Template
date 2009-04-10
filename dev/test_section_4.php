@@ -35,8 +35,8 @@ $view->sect3 = array(0 =>
     	$out->setContentType(Opt_Output_Http::HTML);
     	$out->render($view);
     }
-    catch(Opl_Exception $exception)
+    catch(Opt_Exception $exception)
     {
-    	Opl_Error_Handler($exception);
+    	Opt_Error_Handler($exception);
     }
 ?>

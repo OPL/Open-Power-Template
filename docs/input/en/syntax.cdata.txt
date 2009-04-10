@@ -1,6 +1,8 @@
 Title: CDATA sections
 SeeAlso:
  - syntax.instructions.literal
+SeeAlsoExternal:
+ - https://developer.mozilla.org/en/Properly_Using_CSS_and_JavaScript_in_XHTML_Documents#Using_CDATA_Instead_of_Comments Mozilla Developer Center - Properly Using CSS and JavaScript in XHTML Documents
 
 ----
 

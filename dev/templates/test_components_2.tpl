@@ -15,7 +15,7 @@
 
   <opt:snippet name="dupa">
   <com:div>
-  	<p>{$opt.component.title}: <opt:display /></p>
+  	<p><span parse:title="$opt.component.title">{$opt.component.title}</span>: <opt:display /></p>
   	<opt:onEvent name="error">
   		<p style="color: red; ">An error occured: {$opt.component.msg}</p>
   	</opt:onEvent>

@@ -123,8 +123,27 @@
 			$cn = '$_component_'.($this->_unique++);
 
 			$this->_stack->push($cn);
-			
-			$mainCode = $cn.' = new '.$this->_compiler->component($node->getXmlName()).'; '.$cn.'->setView($this); ';
+
+			$class = $this->_compiler->component($node->getXmlName());
+
+			// Check, if there are any conversions that may take control over initializing
+			// the component object. We are allowed to capture only particular component
+			// creation or all of them.
+			if((($to = $this->convert('##component_'.$class)) != '##component_'.$class))
+			{
+				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+			}
+			elseif((($to = $this->convert('##component')) != '##component'))
+			{
+				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+			}
+			else
+			{
+				$ccode = 'new '.$class;
+			}
+
+			// Generate the initialization code
+			$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
 			if(!is_null($params['datasource']))
 			{
 				$mainCode .= $cn.'->setDatasource('.$params['datasource'].'); ';

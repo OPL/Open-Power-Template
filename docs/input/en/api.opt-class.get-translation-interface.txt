@@ -4,7 +4,7 @@ Reference: Opl_Translation_Interface getTranslationInterface()
 VersionSince: 2.0-beta2
 SeeAlso:
  - api.opt-class.set-translation-interface
- - coding.i18n
+ - guide.i18n
  
 ----
 

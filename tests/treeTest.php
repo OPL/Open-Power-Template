@@ -285,5 +285,73 @@
 			$this->assertEquals('Opt_Xml_Cdata', $buffer->getType());
 	    } // end testTextGetType();
 
+	    public function testScannableAppendChild()
+	    {
+	    	$topNode = new Opt_Xml_Element('foo');
+
+			$subNode = new Opt_Xml_Element('bar');
+
+			$topNode->appendChild($subNode);
+
+			foreach($topNode as $n)
+			{
+				$this->assertTrue($n === $subNode);
+			}
+	    } // end testScannableAppendChild();
+
+	    public function testScannableInsertBefore1()
+	    {
+	    	$topNode = new Opt_Xml_Element('foo');
+
+			$subnodes = array(0 =>
+				new Opt_Xml_Element('bar'),
+				new Opt_Xml_Element('joe'),
+				new Opt_Xml_Element('goo'),
+			);
+
+			$topNode->appendChild($subnodes[0]);
+			$topNode->appendChild($subnodes[2]);
+			$topNode->insertBefore($subnodes[1], 1);
+
+			$ok = true;
+			$i = 0;
+			foreach($topNode as $n)
+			{
+				if($n !== $subnodes[$i])
+				{
+					$ok = false;
+				}
+				$i++;
+			}
+			$this->assertTrue($ok);
+	    } // end testScannableInsertBefore1();
+
+	    public function testScannableInsertBefore2()
+	    {
+	    	$topNode = new Opt_Xml_Element('foo');
+
+			$subnodes = array(0 =>
+				new Opt_Xml_Element('bar'),
+				new Opt_Xml_Element('joe'),
+				new Opt_Xml_Element('goo'),
+			);
+
+			$topNode->appendChild($subnodes[0]);
+			$topNode->appendChild($subnodes[1]);
+			$topNode->insertBefore($subnodes[2]);
+
+			$ok = true;
+			$i = 0;
+			foreach($topNode as $n)
+			{
+				if($n !== $subnodes[$i])
+				{
+					$ok = false;
+				}
+				$i++;
+			}
+			$this->assertTrue($ok);
+	    } // end testScannableInsertBefore2();
+
 	} // end treeTest;
 ?>

@@ -67,16 +67,16 @@ $view->columns = array(0 =>
 Now we can create a dynamic table header which also very clean:
 
 ~~~~
-[html]
+[xml]
 <table>
- <thead>
-   <opt:section name="columns">
-   <th><opt:block from="$columns.block">{$columns.title}</opt:block></th>
-   </opt:section> 
- </thead>
- <tbody>
-   ....
- </tbody>
+    <thead>
+        <opt:section name="columns">
+        <th><opt:block from="$columns.block">{$columns.title}</opt:block></th>
+        </opt:section> 
+    </thead>
+    <tbody>
+        ....
+    </tbody>
 </table>
 ~~~~
 
@@ -95,16 +95,16 @@ $tpl->register(Opt_Class::OPT_BLOCK, 'opt:column', 'columnBlock');
 Now we can use them much like instructions:
 
 ~~~~
-[php]
+[xml]
 <table>
- <thead>
-  <th><opt:column column="1">Column 1</opt:column></th>
-  <th><opt:column column="2">Column 2</opt:column></th>
-  <th><opt:column column="3">Column 3</opt:column></th>
- </thead>
- <tbody>
-  ...
- </tbody>
+    <thead>
+        <th><opt:column column="1">Column 1</opt:column></th>
+        <th><opt:column column="2">Column 2</opt:column></th>
+        <th><opt:column column="3">Column 3</opt:column></th>
+    </thead>
+    <tbody>
+        ...
+    </tbody>
 </table>
 ~~~~
 

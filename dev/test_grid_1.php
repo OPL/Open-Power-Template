@@ -3,6 +3,7 @@
     
     try
     {
+		register_tick_function("profile");
     	$tpl = new Opt_Class;
     	$tpl->sourceDir = './templates/';
     	$tpl->compileDir = './templates_c/';

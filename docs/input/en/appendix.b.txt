@@ -1,4 +1,5 @@
 Title: B. Error messages
 
 ----
-To do...
+
+To be written.

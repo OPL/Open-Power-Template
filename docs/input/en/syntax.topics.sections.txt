@@ -184,7 +184,7 @@ Below, you can find a list of section tag attributes:
  parent        | hard string              | The name of the upper-level and active section to create an one-to-many relationship. The asterisk `*` means "no relationship". By default, the sections are connected to the parent section.
  datasource    | expression               | Specifies the data source for the current section. If we use this attribute, `parent` is ignored.
  order         | asc, desc                | Specifies the element display order. The `desc` displays the elements in the descending order. Not all of the sections support it. In this case this attribute is ignored.
- display       | expression               | The expression that defines whether the section will be displayed (**true**) or not (**false** and other)
+ display       | expression               | An optional expression that forces to display the alternative section content message, if evaluated to **true**.
  separator     | expression               | The separator that will be put between every two list elements. [More about separators][syntax.instructions.separator].
 
 Alternative section content
@@ -250,6 +250,18 @@ The first `opt:section` has attributes, so it is not bound to the `opt:show`. Th
 > [error]
 > You must not define part of the attributes in `opt:show` and then add some extra ones in `opt:section` or similar.
 
+Conditional sections
+====================
+
+Sometimes we may want to show the section under a particular condition. OPT offers two ways to achieve this. The first one is the `display` attribute. If it is evaluated to **true**, the section shows the alternative content message even if it actually contains some items. To disable the section completely, we must use `opt:if`:
+
+~~~~
+[xml]
+<opt:section name="foo" opt:if="$someCondition">
+	Section content
+</opt:section>
+~~~~
+
 $sys special variable extensions
 ================================
 
@@ -257,9 +269,12 @@ Using the `$sys.section.sectionName` special variable, you can get some extra in
 
 1. `$sys.section.sectionName.count` - returns the number of the elements in the section.
 2. `$sys.section.sectionName.size` - returns the current section element size.
-3. `$sys.section.sectionName.id` - the current element index.
+3. `$sys.section.sectionName.iterator` - the current element index (warning: it may vary among various data formats!)
 4. `$sys.section.sectionName.first` - **true** if the current element is the first section element.
 5. `$sys.section.sectionName.last` - **true** if the current element is the last section element.
-6. `$sys.section.sectionName.far` - **true** if the current element is the first or the last section element.
+6. `$sys.section.sectionName.extreme` - **true** if the current element is the first or the last section element.
 
 Some section types might define also additional values.
+
+> [stop]
+> Remember that you must avoid attempts to modify any of the special variables above. Some of them are not in fact real variables, whereas others may cause unexpected behaviour, when modified.

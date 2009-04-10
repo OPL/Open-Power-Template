@@ -27,7 +27,7 @@ public function processEvent($event)
 Now we can use it in the template:
 
 ~~~~
-[php]
+[xml]
 <opt:component from="$component">
 	...
 	<opt:onEvent name="error">

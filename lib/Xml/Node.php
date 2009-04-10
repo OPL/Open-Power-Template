@@ -18,6 +18,11 @@
 		protected $_type;
 		protected $_parent = null;
 
+		public function __construct()
+		{
+			/* null */
+		} // end __construct();
+
 		public function setParent($parent)
 		{
 			$this->_parent = $parent;
