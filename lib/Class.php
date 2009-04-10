@@ -80,8 +80,9 @@
 		const OPT_BLOCK = 5;
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
+		const XML_ENTITY = 8;
 	
-		const VERSION = '2.0-beta2';
+		const VERSION = '2.0-beta3';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration
@@ -122,6 +123,7 @@
 		public $backticks = null;
 		public $translate = null;
 		public $strictCallbacks = true;
+		public $htmlEntities = true;
 	//	public $componentAttributeLevel = 2;
 		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
@@ -147,12 +149,14 @@
 			'contains' => '#2,1#in_array', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
 			'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
 			'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
+			'entity' => 'Opt_Function::entity',
 		);
 		protected $_classes = array();
 		protected $_components = array();
 		protected $_blocks = array();
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
 		protected $_formats = array(1 => 'Array', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
+		protected $_entities = array('lb' => '{', 'rb' => '}');
 
 		// Status
 		protected $_init = false;
@@ -245,7 +249,7 @@
 				throw new Opt_Initialization_Exception($this->_init, 'register an item');
 			}
 			
-			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes');
+			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities');
 			$whereto = $map[$type];
 			if(is_array($item))
 			{
@@ -301,6 +305,7 @@
 		 * Allows the read access to some of the internal structures for the
 		 * template compiler.
 		 *
+		 * @internal
 		 * @param string $name The structure to be returned.
 		 * @return array The returned structure.
 		 */
@@ -309,7 +314,7 @@
 			static $list;
 			if(is_null($list))
 			{
-				$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf');
+				$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf', '_entities');
 			}
 			if(in_array($name, $list))
 			{

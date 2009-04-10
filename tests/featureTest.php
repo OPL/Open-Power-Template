@@ -53,6 +53,7 @@
 				array('escaping_2.txt'),
 				array('escaping_3.txt'),
 				array('escaping_4.txt'),
+				array('escaping_5.txt'),
 	    		array('translation_1.txt'),
 	    		array('translation_2.txt'),
 				array('specialvar_1.txt'),

@@ -430,4 +430,20 @@
 			}
 			return false;
 		} // end isImage();
+
+		/**
+		 * Creates an entity for the specified string. If used with the 'u:' modifier,
+		 * it allows to display the entities in the output document.
+		 *
+		 * @param String $name A valid entity name.
+		 * @return String
+		 */
+		public function entity($name)
+		{
+			if(!preg_match('/^(([a-zA-Z\_\:]{1}[a-zA-Z0-9\_\:\-\.]*)|(\#((x[a-fA-F0-9]+)|([0-9]+))))$/', $name))
+			{
+				throw new Opt_InvalidEntityName_Exception($name);
+			}
+			return '&'.$name.';';
+		} // end entity();
 	} // end Opt_Function;

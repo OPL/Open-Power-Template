@@ -73,6 +73,7 @@
 		protected $_blocks;
 		protected $_components;
 		protected $_tf;
+		protected $_entities;
 		protected $_formnatInfo;
 		protected $_formats = array();
 		protected $_formatObj = array();
@@ -89,7 +90,7 @@
 		private $_rTagExpandExpression;
 		private $_rQuirksTagExpression = '';
 		private $_rExpressionTag = '/(\{([^\}]+)\})/msi';
-		private $_rAttributeTokens = '/(?:[^\=\"\s]+|\=|\"|\s)/x';
+		private $_rAttributeTokens = '/(?:[^\=\"\'\s]+|\=|\"|\'|\s)/x';
 		private $_rPrologTokens = '/(?:[^\=\"\'\s]+|\=|\'|\"|\s)/x';
 		private $_rModifiers = 'si';
 		private $_rXmlHeader = '/(\<\?xml.+\?\>)/msi';
@@ -111,6 +112,7 @@
 		private $_translationConversion = null;
 		private $_initialMemory = null;
 		private $_comments = 0;
+		private $_standalone = false;
 		
 		static private $_templates = array();
 
@@ -134,6 +136,7 @@
 				$this->_phpFunctions = $tpl->_getList('_phpFunctions');
 				$this->_formats = $tpl->_getList('_formats');
 				$this->_tf = $tpl->_getList('_tf');
+				$this->_entities = $tpl->_getList('_entities');
 				$this->_charset = strtoupper($tpl->charset);
 				
 				// Create the processors and call their configuration method in the constructors.
@@ -173,6 +176,7 @@
 				$this->_instructions = $tpl->_instructions;
 				$this->_attributes = $tpl->_attributes;
 				$this->_charset = $tpl->_charset;
+				$this->_entities = $tpl->_entities;
 				$tpl = $this->_tpl;
 			}
 			
@@ -210,6 +214,7 @@
 				Opl_Loader::load('Opt_Xml_Expression');
 				Opl_Loader::load('Opt_Xml_Prolog');
 				Opl_Loader::load('Opt_Xml_Dtd');
+				Opl_Loader::load('Opt_Format_Array');
 			}
 		} // end __construct();
 
@@ -449,7 +454,8 @@
 		
 		public function parseEntities($text)
 		{
-			return htmlspecialchars_decode(str_replace(array('&lb;', '&rb;'), array('{', '}'), $text));
+			return preg_replace_callback('/\&(([a-zA-Z\_\:]{1}[a-zA-Z0-9\_\:\-\.]*)|(\#((x[a-fA-F0-9]+)|([0-9]+))))\;/', array($this, '_decodeEntity'), $text);
+			return htmlspecialchars_decode(str_replace(array_keys($this->_entities), array_values($this->_entities), $text));
 		} // end parseEntities();
 
 		/**
@@ -473,6 +479,7 @@
 		 */
 		public function parseSpecialChars($text)
 		{
+			return htmlspecialchars($text);
 			return preg_replace_callback('/(\&\#?[a-zA-Z0-9]*\;)|\<|\>|\"|\&/', array($this, '_entitize'), $text);
 		} // end parseSpecialChars();
 		
@@ -659,16 +666,21 @@
 							return false;
 						}
 					}
+					// Look for the attribute value start
 					for($i++; ctype_space($match[$i][0]) && $i < $size; $i++){}
 				
-					if($match[$i][0] != '"')
+					if($match[$i][0] != '"' && $match[$i][0] != '\'')
 					{
 						return false;
 					}
+
+					// Save the delimiter, because we will use it to make the error checking
+					$delimiter = $match[$i][0];
+
 					$value = '';
 					for($i++; $i < $size; $i++)
 					{
-						if($match[$i][0] == '"')
+						if($match[$i][0] == $delimiter)
 						{
 							break;
 						}
@@ -678,7 +690,7 @@
 					{
 						return false;
 					}
-					if($match[$i][0] != '"')
+					if($match[$i][0] != $delimiter)
 					{
 						return false;
 					}
@@ -932,7 +944,7 @@
 						case 'parse':
 							if($specialNs)
 							{
-								$result = $this->compileExpression((string)$attr, false);						
+								$result = $this->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_BOTH);
 								$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo '.$result[0].'; ');
 								$attr->setNamespace(null);
 							}
@@ -1397,11 +1409,10 @@
 		protected function _stage1(&$code, $filename, $mode)
 		{
 			$current = $tree = new Opt_Xml_Root;
-			
-			// First we have to find the prolog and DTD. Then we will be able to parse tags.
-
 			$codeSize = strlen($code);
+			$encoding = $this->_tpl->charset;
 			
+			// First we have to find the prolog and DTD. Then we will be able to parse tags.			
 			if($mode != Opt_Class::QUIRKS_MODE)
 			{
 				// Find and parse XML prolog
@@ -1596,7 +1607,7 @@
 							$node->set('single', $result[$j][$endingSlashCell] == '/');
 							foreach($attributes as $name => $value)
 							{
-								$node->addAttribute(new Opt_Xml_Attribute($name, $value));
+								$node->addAttribute($anode = new Opt_Xml_Attribute($name, $value));
 							}
 							$current = $this->_treeNodeAppend($current, $node, $result[$j][$endingSlashCell] != '/');
 						}
@@ -2055,7 +2066,7 @@
 		 *
 		 * @param String $expr The expression
 		 * @param Boolean $allowAssignment=false True, if the assignments are allowed.
-		 * @param Int $escape=self::ESCAPE_BOTH The HTML escaping policy for this expression.
+		 * @param Int $escape=self::ESCAPE_ON The HTML escaping policy for this expression.
 		 * @return Array An array consisting of four elements: the compiled expression,
 		 *   the assignment status and the variable status (if the expression is in fact
 		 *   a single variable). If the escaping is controlled by the template or the
@@ -3232,6 +3243,40 @@
 				case '<':	return '&lt;';
 				case '"':	return '&quot;';
 				default:	return $text[0];
+			}
+		} // end _entitize();
+
+		/**
+		 * Smart entity replacement that makes use of
+		 *
+		 * @internal
+		 * @param Array $text Matching string
+		 * @return String Modified text
+		 */
+		protected function _decodeEntity($text)
+		{
+			switch($text[1])
+			{
+				case 'amp':	return '&';
+				case 'quot':	return '"';
+				case 'lt':	return '<';
+				case 'gt':	return '>';
+				case 'apos': return "'";
+				default:
+					
+					if(isset($this->_entities[$text[1]]))
+					{
+						return $this->_entities[$text[1]];
+					}
+					if($text[1][0] == '#')
+					{
+						return html_entity_decode($text[0], ENT_COMPAT, $this->_tpl->charset);
+					}
+					elseif($this->_tpl->htmlEntities && $text[0] != ($result = html_entity_decode($text[0], ENT_COMPAT, $this->_tpl->charset)))
+					{
+						return $result;
+					}
+					throw new Opt_UnknownEntity_Exception(htmlspecialchars($text[0]));
 			}
 		} // end _entitize();
 	} // end Opt_Compiler_Class;

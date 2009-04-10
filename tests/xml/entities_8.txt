@@ -1,17 +1,15 @@
-Check whether the HTML entities are correctly replaced with the corresponding characters.
+Check whether the numeric entities are captured even if htmlEntities is set to false.
 
 >>>>templates/test.tpl
 <?xml version="1.0" ?>
 <foo>
 &amp;
-&nbsp;
 &#184;
 &#xb8;
-&amp;nbsp;
 </foo>
 
 >>>>data.php
-$this->tpl->htmlEntities=true;
+$this->tpl->htmlEntities=false;
 
 >>>>expected.txt
 OUTPUT
@@ -19,8 +17,6 @@ OUTPUT
 >>>>result.txt
 <foo>
 &amp;
- 
 ¸
 ¸
-&amp;nbsp;
 </foo>

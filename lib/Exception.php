@@ -79,6 +79,11 @@
 		protected $_message = 'The %s directory is not %s by PHP.';
 	} // end Opt_FilesystemAccess_Exception;
 
+	class Opt_InvalidEntityName_Exception extends Opt_Exception
+	{
+		protected $_message = '%s is not a valid entity name.';
+	} // end Opt_InvalidEntityName_Exception;
+
 	/*
 	 * User template problems
 	 */
@@ -215,6 +220,11 @@
 	{
 		protected $_message = 'The callback for %s is invalid.';
 	} // end Opt_InvalidCallback_Exception;
+
+	class Opt_UnknownEntity_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'The entity %s is not registered in the XML parser.';
+	} // end Opt_UnknownEntity_Exception;
 
 	/*
 	 * Compiler code and API problems.

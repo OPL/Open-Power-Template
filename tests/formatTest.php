@@ -21,7 +21,7 @@
 		require('./includes/filesystemWrapper.php');
 	}
 
-	class featureTest extends PHPUnit_Framework_TestCase
+	class formatTest extends PHPUnit_Framework_TestCase
 	{
 	    protected $tpl;
 	    protected $dataGenerators = array();

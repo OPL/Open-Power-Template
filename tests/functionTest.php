@@ -1,15 +1,18 @@
 <?php
 /*
- * XML TEST
+ * FUNCTION TEST
  * ------------------------------------
- * This test checks how the XML files are parsed by OPT.
+ * This test checks the functions available with OPT.
+ * 
  */
 	require_once('PHPUnit/Framework.php');
 
 	if(!defined('GROUPED'))
 	{
-		define('XML_DIR', './xml/');
+		define('FEAT_DIR', './function/');
 		define('CPL_DIR', './templates_c/');
+		define('RES_DIR', './results/');
+		define('DAT_DIR', './data/');
 		$config = parse_ini_file('../paths.ini', true);
 		require($config['libraries']['Opl'].'Base.php');
 		Opl_Loader::loadPaths($config);
@@ -17,24 +20,9 @@
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
 		require('./includes/filesystemWrapper.php');
-
-		/**
-		 * This function is necessary to complete the entitiy tests.
-		 *
-		 * @param String $text The text.
-		 * @return String "OK" if the entities were replaced with the corresponding characters.
-		 */
-		function test_ecf($text)
-		{
-			if($text == '<>&')
-			{
-				return 'OK';
-			}
-			return 'FAIL';
-		}
 	}
 
-	class xmlTest extends PHPUnit_Framework_TestCase
+	class functionTest extends PHPUnit_Framework_TestCase
 	{
 	    protected $tpl;
 	    protected $dataGenerators = array();
@@ -47,7 +35,6 @@
 			$tpl->compileMode = Opt_Class::CM_REBUILD;
 			$tpl->stripWhitespaces = false;
 			$tpl->prologRequired = true;
-			$tpl->register(Opt_Class::PHP_FUNCTION, 'ecf', 'test_ecf');
 			$tpl->setup();
 			$this->tpl = $tpl;
 	    } // end setUp();
@@ -60,40 +47,10 @@
 	    public static function correctProvider()
 	    {
 	    	return array(0 =>
-	    		array('tags_1.txt'),
-				array('tags_2.txt'),
-				array('tags_3.txt'),
-				array('tags_4.txt'),
-				array('tags_5.txt'),
-				array('tags_6.txt'),
-				array('tags_7.txt'),
-				array('tags_8.txt'),
-				array('attributes_1.txt'),
-				array('attributes_2.txt'),
-				array('attributes_3.txt'),
-				array('prolog_1.txt'),
-				array('prolog_2.txt'),
-				array('prolog_3.txt'),
-				array('prolog_4.txt'),
-				array('dtd_1.txt'),
-				array('dtd_2.txt'),
-				array('dtd_3.txt'),
-				array('cdata_1.txt'),
-				array('cdata_2.txt'),
-				array('cdata_3.txt'),
-				array('cdata_4.txt'),
-				array('comments_1.txt'),
-				array('comments_2.txt'),
-				array('comments_3.txt'),
-				array('comments_4.txt'),
-				array('entities_1.txt'),
-				array('entities_2.txt'),
-				array('entities_3.txt'),
-				array('entities_4.txt'),
-				array('entities_5.txt'),
-				array('entities_6.txt'),
-				array('entities_7.txt'),
-				array('entities_8.txt'),
+				array('isimage_1.txt'),
+				array('entity_1.txt'),
+				array('entity_2.txt'),
+				array('truncate_1.txt'),
 	    	);
 	    } // end correctProvider();
 
@@ -107,7 +64,7 @@
  	    */
 	    public function testCorrect($test)
 	    {
-			testFSWrapper::loadFilesystem(XML_DIR.$test);
+			testFSWrapper::loadFilesystem(FEAT_DIR.$test);
 	    	$view = new Opt_View('test.tpl');
 			if(file_exists('test://data.php'))
 			{
