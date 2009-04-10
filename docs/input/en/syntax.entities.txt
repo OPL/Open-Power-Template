@@ -1,6 +1,6 @@
 Title: Entities
 SeeAlso:
- - syntax.function.entity
+ - syntax.functions.entity
 
 ----
 
