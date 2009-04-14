@@ -3,7 +3,7 @@ ShortTitle: Opt_View::inherit()
 Reference: void inherit( string $sourceFile [, string $destinationFile ] )
 Status: public
 
-~~~~
+----
 
 Performs a dynamic inheritance on the templates associated to the current view. The method may be called in two ways:
 
