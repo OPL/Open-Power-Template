@@ -129,11 +129,11 @@
 			// Check, if there are any conversions that may take control over initializing
 			// the component object. We are allowed to capture only particular component
 			// creation or all of them.
-			if((($to = $this->convert('##component_'.$class)) != '##component_'.$class))
+			if((($to = $this->_compiler->convert('##component_'.$class)) != '##component_'.$class))
 			{
 				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
 			}
-			elseif((($to = $this->convert('##component')) != '##component'))
+			elseif((($to = $this->_compiler->convert('##component')) != '##component'))
 			{
 				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
 			}
