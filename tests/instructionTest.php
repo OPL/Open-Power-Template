@@ -37,6 +37,8 @@
 			$tpl->compileMode = Opt_Class::CM_REBUILD;
 			$tpl->stripWhitespaces = false;
 			$tpl->prologRequired = true;
+			$tpl->register(Opt_Class::OPT_COMPONENT, 'opt:myComponent', 'myComponent');
+			$tpl->register(Opt_Class::OPT_BLOCK, 'opt:myBlock', 'myBlock');
 			$tpl->setup();
 			$this->tpl = $tpl;
 	    } // end setUp();
@@ -56,6 +58,7 @@
 				array('block_2.txt'),
 				array('block_3.txt'),
 				array('block_4.txt'),
+				array('block_5.txt'),
 				array('capture_1.txt'),
 				array('capture_2.txt'),
 				array('capture_3.txt'),
@@ -67,6 +70,7 @@
 				array('component_6.txt'),
 				array('component_7.txt'),
 				array('component_8.txt'),
+				array('component_9.txt'),
 				array('content_1.txt'),
 				array('content_2.txt'),
 				array('dtd_1.txt'),

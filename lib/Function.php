@@ -213,7 +213,7 @@
 		{
 			if(self::isContainer($items))
 			{
-				return self::processContainer('abs', array($string, $length, $etc, $break));
+				return self::processContainer('abs', array($items));
 			}
 			
 			return abs($items);

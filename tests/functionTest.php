@@ -47,9 +47,21 @@
 	    public static function correctProvider()
 	    {
 	    	return array(0 =>
-				array('isimage_1.txt'),
+				array('absolute_1.txt'),
+				array('absolute_2.txt'),
+				array('average_1.txt'),
+				array('capitalize_1.txt'),
+				array('capitalize_2.txt'),
+				array('contains_1.txt'),
+				array('count_1.txt'),
+				array('count_chars_1.txt'),
+				array('count_words_1.txt'),
+				array('date_1.txt'),
 				array('entity_1.txt'),
 				array('entity_2.txt'),
+				array('firstof_1.txt'),
+				array('indent_1.txt'),
+				array('isimage_1.txt'),
 				array('truncate_1.txt'),
 	    	);
 	    } // end correctProvider();
