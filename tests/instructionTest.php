@@ -190,6 +190,8 @@
 				array('tree_3.txt'),
 				array('tree_4.txt'),
 				array('tree_5.txt'),
+				array('tree_6.txt'),
+				array('tree_7.txt'),
 	    	);
 	    } // end correctProvider();
 	    

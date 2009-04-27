@@ -103,7 +103,7 @@
 		private $_rDecimalNumber = '[0-9]+\.?[0-9]*';
 		private $_rLanguageVar = '\$[a-zA-Z0-9\_]+@[a-zA-Z0-9\_]+';
 		private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]*';
-		private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|';
+		private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|\'|\"|';
 		private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]+';
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
 
@@ -806,7 +806,7 @@
 				$list .= '\''.$a.'\',';
 			}
 			
-			$tree->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(!$this->_massPreprocess($this->_template, $compileTime, array('.$list.'))){ ');
+			$tree->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(!$this->_massPreprocess($compileTime, array('.$list.'))){ ');
 			$tree->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' }else{ $compileTime = $this->_compile($this->_template, $mode); require(__FILE__); } ');				
 		} // end _addDependencies();
 
@@ -2361,10 +2361,14 @@
 							$state['next'] = self::OP_NULL | self::OP_SQ_BRACKET;
 						}
 						break;
+					// These tokens are invalid and must produce an error
+					case '\'':
+					case '"':
 					case '{':
 					case '}':
 						throw new Opt_Expression_Exception('OP_CURLY_BRACKET', $token, $expr);
 						break;
+					// Text operators.
 					case 'add':
 					case 'sub':
 					case 'mul':

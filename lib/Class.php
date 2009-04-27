@@ -20,7 +20,7 @@
 	{
 		public function __construct($name = '');
 		public function setView(Opt_View $view);
-		public function setDatasource(&$data);
+		public function setDatasource($data);
 
 		public function set($name, $value);
 		public function get($name);
@@ -39,15 +39,16 @@
 		public function onSingle(Array $attributes);
 	} // end Opt_Block_Interface;
 	
-	interface Opt_Cache_Hook_Interface
+	interface Opt_Caching_Interface
 	{
-		public function cacheTemplate($tpl, $file, $mode);
-	} // end Opt_Cache_Hook;
+		public function templateCacheStart(Opt_View $view);
+		public function templateCacheStop(Opt_View $view);
+	} // end Opt_Caching_Interface;
 	
 	interface Opt_Output_Interface
 	{
 		public function getName();
-		public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null);
+		public function render(Opt_View $view);
 	} // end Opt_Output_Interface;
 
 	interface Opt_Generator_Interface
@@ -82,7 +83,7 @@
 		const PHP_CLASS = 7;
 		const XML_ENTITY = 8;
 	
-		const VERSION = '2.0-beta3';
+		const VERSION = '2.0-RC1';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration
@@ -411,7 +412,9 @@
 		private $_tf;
 		private $_processingTime = null;
 		private $_branch = null;
-		
+		private $_cache = null;
+		private $_mode;
+
 		static private $_vars = array();
 		static private $_capture = array();
 		static private $_global = array();
@@ -430,6 +433,7 @@
 		{
 			$this->_tpl = Opl_Registry::get('opt');
 			$this->_template = $template;
+			$this->_mode = $this->_tpl->mode;
 		} // end __construct();
 
 		/**
@@ -451,6 +455,26 @@
 		{
 			return $this->_template;
 		} // end getTemplate();
+
+		/**
+		 * Sets the template mode (XML, Quirks, etc...)
+		 *
+		 * @param Int $mode The new mode
+		 */
+		public function setMode($mode)
+		{
+			$this->_mode = $mode;
+		} // end setMode();
+
+		/**
+		 * Gets the current template mode.
+		 *
+		 * @return Int
+		 */
+		public function getMode()
+		{
+			return $this->_mode;
+		} // end getMode();
 
 		/**
 		 * Sets a template inheritance branch that will be used
@@ -750,6 +774,26 @@
 		{
 			self::$_globalFormatInfo['global.'.$item] = $format;
 		} // end setFormatGlobal();
+
+		/**
+		 * Sets the caching interface that should be used with this view.
+		 *
+		 * @param Opt_Caching_Interface $iface The caching interface
+		 */
+		public function setCache(Opt_Caching_Interface $iface = null)
+		{
+			$this->_cache = $iface;
+		} // end setCache();
+
+		/**
+		 * Returns the caching interface used with this view
+		 *
+		 * @return Opt_Caching_Interface
+		 */
+		public function getCache()
+		{
+			return $this->_cache;
+		} // end getCache();
 		
 		/*
 		 * Dynamic inheritance
@@ -783,16 +827,35 @@
 		/*
 		 * Internal use
 		 */
-		public function _parse($output, $mode, $cached = false, $exception = true)
+
+		/**
+		 * Executes, and optionally compiles the template represented by the view.
+		 * Returns true, if the template was found and successfully executed.
+		 *
+		 * @param Opt_Output_Interface $output The output interface.
+		 * @param Boolean $exception Should the exceptions be thrown if the template does not exist?
+		 * @return Boolean
+		 */
+		public function _parse(Opt_Output_Interface $output, $exception = true)
 		{
 			if($this->_tpl->debugConsole)
 			{
 				$time = microtime(true);
 			}
+			$cached = false;
+			if(!is_null($this->_cache))
+			{
+				$result = $this->_cache->templateCacheStart($this);
+				if($result == true)
+				{
+					return true;
+				}
+				$cached = true;
+			}
 			$this->_tf = $this->_tpl->getTranslationInterface();
 			if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 			{
-				list($compileName, $compileTime) = $this->_preprocess($mode, $exception);	
+				list($compileName, $compileTime) = $this->_preprocess($exception);	
 				if(is_null($compileName))
 				{
 					return false;
@@ -813,6 +876,10 @@
 			error_reporting($old);
 
 			// The counter stops, if the time counting has been enabled for the debug console purposes
+			if(!is_null($this->_cache))
+			{
+				$this->_cache->templateCacheStop($this);
+			}
 			if(isset($time))
 			{
 				Opt_Support::addView($this->_template, $output->getName(), $this->_processingTime = microtime(true) - $time, $cached);
@@ -820,10 +887,23 @@
 			return true;
 		} // end _parse();
 
-		protected function _preprocess($mode, $exception = true)
+		/**
+		 * The method checks whether the template exists and if it was modified by
+		 * the template designer. In the second case, it loads and runs the template
+		 * compiler to produce a new version. Returns an array with the template data:
+		 *  - Compiled template name
+		 *  - Compilation time
+		 * They are needed by the template execution system or template inheritance. In
+		 * case of problems, the array contains two NULL values.
+		 *
+		 * @internal
+		 * @param Boolean $exception Do we inform about unexisting template with exceptions?
+		 * @return Array
+		 */
+		protected function _preprocess($exception = true)
 		{
-			$compiled = $this->_convert($this->_template);
 			$item = $this->_tpl->_stream($this->_template);
+			$compiled = $this->_convert($this->_template);
 			$compileTime = @filemtime($this->_tpl->compileDir.$compiled);
 			$result = NULL;
 			
@@ -867,19 +947,24 @@
 			$compiler->setInheritance($this->_cplInheritance);
 			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 			$compiler->set('branch', $this->_branch);
-			$compiler->compile($result, $this->_template, $compiled, $mode);
+			$compiler->compile($result, $this->_template, $compiled, $this->_mode);
 			return array($compiled, $compileTime);
 		} // end _preprocess();
 
-		protected function _massPreprocess($filename, $compileTime, $templates)
+		/**
+		 * This method is used by the template with the template inheritance. It
+		 * allows to check, whether one of the templates on the dependency list
+		 * has been modified. The method takes the compilation time of the compiled
+		 * template and the list of the source template names that it depends on.
+		 *
+		 * Returns true, if one if the templates is newer than the compilation time.
+		 *
+		 * @param Int $compileTime Compiled template creation time.
+		 * @param Array $templates The list of dependencies
+		 * @return Boolean
+		 */
+		protected function _massPreprocess($compileTime, $templates)
 		{
-		/*	if($this->debugConsole)
-			{
-				$inherited = $templates;
-				array_unshift($inherited, $filename);
-				Opl_Support::debugAddTemplate(Opl_Support::INHERITED_TPL, $inherited);
-			}
-		*/
 			switch($this->_tpl->compileMode)
 			{
 				case Opt_Class::CM_PERFORMANCE:

@@ -84,6 +84,11 @@
 		protected $_message = '%s is not a valid entity name.';
 	} // end Opt_InvalidEntityName_Exception;
 
+	class Opt_TreeInvalidDepth_Exception extends Opt_Exception
+	{
+		protected $_message = 'The tree element depth is too low: %d. It must be greater or equal to the initial depth %d';
+	} // end Opt_TreeInvalidDepth_Exception;
+
 	/*
 	 * User template problems
 	 */

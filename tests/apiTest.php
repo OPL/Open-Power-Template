@@ -119,7 +119,9 @@
 				array(0 => 'Opt_View', 'getTime', 'api.opt-view.get-time', M_PUBLIC),
 				array(0 => 'Opt_View', 'getTemplate', 'api.opt-view.get-template', M_PUBLIC),
 				array(0 => 'Opt_View', 'setTemplate', 'api.opt-view.set-template', M_PUBLIC),
-				
+				array(0 => 'Opt_View', 'setCache', 'api.opt-view.get-cache', M_PUBLIC),
+				array(0 => 'Opt_View', 'getCache', 'api.opt-view.set-cache', M_PUBLIC),
+
 				// Opt_Compiler_Class methods
 				array(0 => 'Opt_Compiler_Class', '__construct', 'api.opt-compiler-class.__construct', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'getCurrentTemplate', 'api.opt-compiler-class.get-current-template', M_PUBLIC | M_STATIC),
@@ -178,7 +180,6 @@
 				array(0 => 'Opt_Compiler_Format', '__construct', 'api.opt-compiler-format.__construct', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Format', '_build', 'api.opt-compiler-format._build', M_PROTECTED | M_ABSTRACT),
 				array(0 => 'Opt_Compiler_Format', '_getVar', 'api.opt-compiler-format._get-var', M_PROTECTED | M_FINAL),
-				array(0 => 'Opt_Compiler_Format', '_decorateHook', 'api.opt-compiler-format._decorate-hook', M_PROTECTED | M_FINAL),
 				array(0 => 'Opt_Compiler_Format', 'property', 'api.opt-compiler-format.property', M_PUBLIC | M_FINAL),
 				array(0 => 'Opt_Compiler_Format', 'action', 'api.opt-compiler-format.action', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Format', 'supports', 'api.opt-compiler-format.supports', M_PUBLIC),

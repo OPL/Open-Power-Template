@@ -158,6 +158,8 @@
 				// Stupid syntax misuses
 				array(false, '\'Text body\'~{$brackettedVariable}', '', $exceptionClass),
 				array(false, 'Text body {$variable}', '', $exceptionClass),
+				array(false, 'foo(\'text\'~$foo\')', '', $exceptionClass),
+				array(false, 'foo(\'text\'~$foo\")', '', $exceptionClass),
 	      	);
 	    } // end provider();
 

@@ -20,7 +20,7 @@
 			echo "VIEW PASSED\r\n";
 		} // end setView();
 
-		public function setDatasource(&$data)
+		public function setDatasource($data)
 		{
 			if(is_array($data))
 			{
