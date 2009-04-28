@@ -1,8 +1,11 @@
 Title: setDatasource()
 ShortTitle: Opt_Component_Interface::setDatasource()
 Status: public
-Reference: void setDatasource(mixed &$datasource)
+Reference: void setDatasource(mixed $datasource)
 
 ----
 
-`setDatasource()` captures the value from the `datasource` attribute of the component port. 
+`setDatasource()` captures the value from the `datasource` attribute of the component port.
+
+> [warning]
+> Prior to OPT 2.0-beta3 the `$datasource` argument was passed by reference which has been removed later.

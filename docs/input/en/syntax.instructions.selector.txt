@@ -38,11 +38,11 @@ Normally, OPT looks for the element type name in the variable `$sectionName.item
 
  Name           | Type                | Required? | Description
 ----------------|---------------------|-----------|:-----------------------------------
- type           | ID                  | No        | The name of element variable with the type name
+ test           | ID                  | No        | The name of element variable with the type name
  
 ~~~~
 [xml]
-<opt:selector name="pages" type="pageType">
+<opt:selector name="pages" test="pageType">
 	<opt:page>[ <a parse:href="$page.address">{$page.number}</a> ]</opt:page>
 	<opt:active>[ <a parse:href="$page.address" style="active">{$page.number}</a> ]</opt:active>
 	<opt:dots>...</opt:dots>
@@ -58,7 +58,7 @@ You may define the alternative content to be displayed, if the list is empty, us
 
 ~~~~
 [xml]
-<opt:selector name="pages" type="pageType">
+<opt:selector name="pages" test="pageType">
 	<opt:page>[ <a parse:href="$page.address">{$page.number}</a> ]</opt:page>
 	<opt:active>[ <a parse:href="$page.address" style="active">{$page.number}</a> ]</opt:active>
 	<opt:dots>...</opt:dots>
@@ -70,7 +70,7 @@ Note that you must not use `opt:selectorelse`, if our selector works together wi
 
 ~~~~
 [xml]
-<opt:show name="pages" type="pageType">
+<opt:show name="pages" test="pageType">
 	<p><opt:selector>
 		<opt:page>[ <a parse:href="$page.address">{$page.number}</a> ]</opt:page>
 		<opt:active>[ <a parse:href="$page.address" style="active">{$page.number}</a> ]</opt:active>

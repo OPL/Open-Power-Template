@@ -1,0 +1,10 @@
+Title: getTemplate()
+ShortTitle: Opt_View::getTemplate()
+Reference: string getTemplate()
+VersionSince: 2.0-Beta2
+SeeAlso:
+ - api.opt-view.set-template
+ 
+----
+
+Returns the template name associated with the view.

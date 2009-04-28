@@ -298,6 +298,27 @@
 		{
 			return $this->_tf;
 		} // end getTranslationInterface();
+
+		/**
+		 * Sets the global caching system to use in all the views.
+		 *
+		 * @param Opt_Caching_Interface $cache=null The caching interface
+		 */
+		public function setCache(Opt_Caching_Interface $cache = null)
+		{
+			$this->_cache = $cache;
+		} // end setCache();
+
+		/**
+		 * Returns the current global caching system.
+		 *
+		 * @return Opt_Caching_Interface
+		 */
+		public function getCache()
+		{
+			return $this->_cache;
+		} // end getCache();
+
 		/*
 		 * Internal use
 		 */
@@ -323,7 +344,16 @@
 			}
 			return NULL;
 		} // end _getList();
-		
+
+		/**
+		 * The helper function for the plugin subsystem. It returns the
+		 * PHP code that loads the specified plugin.
+		 *
+		 * @internal
+		 * @param String $directory The plugin directory
+		 * @param SplFileInfo $file The loaded file
+		 * @return String
+		 */
 		protected function _pluginLoader($directory, SplFileInfo $file)
 		{
 			$ns = explode('.', $file->getFilename());
@@ -337,7 +367,15 @@
 					return ' require(\''.$directory.$file->getFilename().'\'); ';
 			}
 		} // end _pluginLoader();
-		
+
+		/**
+		 * Parses the stream in the template path name and returns
+		 * the real path.
+		 *
+		 * @internal
+		 * @param String $name Template filename
+		 * @return String
+		 */
 		public function _stream($name)
 		{
 			if(strpos($name, ':') !== FALSE)
@@ -357,7 +395,16 @@
 			}
 			return $this->sourceDir[$this->stdStream].$name;
 		} // end _stream();
-		
+
+		/**
+		 * Loads the template source code. Returns the template body or
+		 * the array with two (false) values in case of problems.
+		 *
+		 * @internal
+		 * @param String $filename The template filename
+		 * @param Boolean $exception Do we inform about the problems with exception?
+		 * @return String|Array
+		 */
 		public function _getSource($filename, $exception = true)
 		{
 			$item = $this->_stream($filename);
@@ -371,12 +418,20 @@
 			}
 			return file_get_contents($item);
 		} // end _getSource();
-		
+
+		/**
+		 * The class constructor - registers the main object in the
+		 * OPL registry.
+		 */
 		public function __construct()
 		{
 			Opl_Registry::register('opt', $this);
 		} // end __construct();
 
+		/**
+		 * The destructor. Clears the output buffers and optionally
+		 * displays the debug console.
+		 */
 		public function __destruct()
 		{
 			if(ob_get_level() > 0)
@@ -398,6 +453,9 @@
 		} // end __destruct();
 	} // end Opt_Class;
 
+	/**
+	 * The main view class.
+	 */
 	class Opt_View
 	{
 		const VAR_LOCAL = false;
@@ -434,6 +492,7 @@
 			$this->_tpl = Opl_Registry::get('opt');
 			$this->_template = $template;
 			$this->_mode = $this->_tpl->mode;
+			$this->_cache = $this->_tpl->getCache();
 		} // end __construct();
 
 		/**
@@ -992,6 +1051,14 @@
 			}
 		} // end _massPreprocess();
 
+		/**
+		 * Converts the source template file name to the compiled
+		 * template file name.
+		 *
+		 * @internal
+		 * @param String $filename The source file name
+		 * @return String
+		 */
 		public function _convert($filename)
 		{
 			$list = array();
@@ -1007,13 +1074,21 @@
 			}
 			return implode('/', $list).'.php';
 		} // end _convert();
-		
-		public function _compile($filename, $mode)
+
+		/**
+		 * Compiles the specified template and returns the current
+		 * time.
+		 *
+		 * @internal
+		 * @param String $filename The file name.
+		 * @return Integer
+		 */
+		public function _compile($filename)
 		{
 			$compiled = $this->_convert($filename);
 			$compiler = $this->_tpl->getCompiler();
 			$compiler->set('branch', $this->_branch);
-			$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $mode);
+			$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
 			return time();
 		} // end _compile();
 	} // end Opt_View;

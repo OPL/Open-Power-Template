@@ -59,7 +59,7 @@
 		public function __construct(Opt_Compiler_Class $compiler)
 		{
 			$this->_compiler = $compiler;
-			$this->_tpl = $compiler->getParser();
+			$this->_tpl = Opl_Registry::get('opt');
 			
 			$this->configure();
 		} // end __construct();

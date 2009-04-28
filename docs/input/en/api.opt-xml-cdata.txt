@@ -2,6 +2,8 @@ Title: Opt_Xml_Cdata class
 ShortTitle: Opt_Xml_Cdata
 Status: public
 Extends: api.opt-xml-node
+ExtendedBy:
+ - api.opt-xml-comment
 
 ----
 

@@ -270,16 +270,6 @@
 		} // end cleanCompiler();
 
 		/**
-		 * Returns the main OPT class associated with this compiler.
-		 *
-		 * @return Opt_Class The main OPT class
-		 */
-		public function getParser()
-		{
-			return $this->_tpl;
-		} // end getParser();
-
-		/**
 		 * Returns the value of the compiler state variable or
 		 * NULL if the variable is not set.
 		 *

@@ -91,7 +91,9 @@
 				array(0 => 'Opt_Class', 'register', 'api.opt-class.register', M_PUBLIC),
 				array(0 => 'Opt_Class', 'getTranslationInterface', 'api.opt-class.get-translation-interface', M_PUBLIC),
 				array(0 => 'Opt_Class', 'setTranslationInterface', 'api.opt-class.set-translation-interface', M_PUBLIC),
-	    		array(0 => 'Opt_Class', '_getList', null, M_PUBLIC),
+				array(0 => 'Opt_Class', 'setCache', 'api.opt-class.set-cache', M_PUBLIC),
+				array(0 => 'Opt_Class', 'getCache', 'api.opt-class.get-cache', M_PUBLIC),
+				array(0 => 'Opt_Class', '_getList', null, M_PUBLIC),
 
 				// Opt_View methods
 				array(0 => 'Opt_View', '__construct', 'api.opt-view.__construct', M_PUBLIC),
@@ -126,7 +128,6 @@
 				array(0 => 'Opt_Compiler_Class', '__construct', 'api.opt-compiler-class.__construct', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'getCurrentTemplate', 'api.opt-compiler-class.get-current-template', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_Compiler_Class', 'cleanCompiler', 'api.opt-compiler-class.clean-compiler', M_PUBLIC | M_STATIC),
-				array(0 => 'Opt_Compiler_Class', 'getParser', 'api.opt-compiler-class.get-parser', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'get', 'api.opt-compiler-class.get', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'set', 'api.opt-compiler-class.set', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'escape', 'api.opt-compiler-class.escape', M_PUBLIC),
@@ -161,7 +162,6 @@
 				array(0 => 'Opt_Compiler_Class', 'compileExpression', 'api.opt-compiler-class.compile-expression', M_PUBLIC),
 
 				// Opt_Compiler_Processor methods
-
 				array(0 => 'Opt_Compiler_Processor', '__construct', 'api.opt-compiler-processor.__construct', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Processor', 'configure', 'api.opt-compiler-processor.configure', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Processor', 'reset', 'api.opt-compiler-processor.reset', M_PUBLIC),

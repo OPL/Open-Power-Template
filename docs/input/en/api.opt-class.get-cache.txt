@@ -1,0 +1,11 @@
+Title: getCache()
+ShortTitle: Opt_Class::getCache()
+Reference: Opt_Caching_Interface getCache()
+VersionSince: 2.0-RC1
+SeeAlso:
+ - api.opt-class.set-cache
+ - guide.cache
+ 
+----
+
+Returns the current global caching interface or **NULL**, if it is not specified.
