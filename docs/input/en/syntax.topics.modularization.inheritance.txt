@@ -24,7 +24,7 @@ Template inheritance in OPT
 
 Template inheritance can be processed at the two different stages: the compilation and the execution. Both of them have their advantages and disadvantages. OPT features the first model. The compiler produces only one file with the inherited templates already concatenated. The benefits of this model are:
 
-* Inherited templates are executed *faster* that their counterparts constructed with [[syntax.instructions.include]].
+* Inherited templates are executed *faster* that their counterparts constructed with [opt:include][syntax.instructions.include] instruction.
 * The snippets from the extending template actually see and can interact with the code structure in the base template. For example, if a snippet with a section is put in the placeholder that lies in another section, the sections will be connected with a relationship.
 * The templates in the inheritance chain share the same set of local template variables.
 
@@ -41,24 +41,24 @@ So far, we have been introduced the theory of OPT inheritance model and we are n
 [xml]
 <opt:root>
 <html>
-	<head>
-		<title>My website - {$title}</title>
-	</head>
-	<body>
-		<div id="header">
-			<opt:insert snippet="header">
-			<h1>My website</h1>
-			</opt:insert>
-		</div>
-		<div id="content">
-			<opt:insert snippet="content">
-			<p>Sorry, no content defined.</p>
-			</opt:insert>
-		</div>
-		<div id="footer">
-			<p>Copyright You {range(2009)}</p>
-		</div>
-	</body>
+<head>
+    <title>My website - {$title}</title>
+</head>
+<body>
+    <div id="header">
+        <opt:insert snippet="header">
+        <h1>My website</h1>
+        </opt:insert>
+    </div>
+    <div id="content">
+        <opt:insert snippet="content">
+        <p>Sorry, no content defined.</p>
+        </opt:insert>
+    </div>
+    <div id="footer">
+        <p>Copyright You {range(2009)}</p>
+    </div>
+</body>
 </html>
 </opt:root>
 ~~~~
@@ -68,45 +68,45 @@ This template defines two placeholders: `header` and `content`, so we can overwr
 ~~~~
 [xml]
 <opt:extend file="base.tpl">
-	<opt:snippet name="content">
-		<opt:insert snippet="hello_text" />
-		<h1>News</h1>
-		<div class="news" parse:id="'e '~$news.id" opt:section="news">
-			<h1>{$news.title}</h1>
-			<p>{$news.body}</p>
-		</div>
-	</opt:snippet>
+    <opt:snippet name="content">
+        <opt:insert snippet="hello_text" />
+        <h1>News</h1>
+        <div class="news" parse:id="'e '~$news.id" opt:section="news">
+            <h1>{$news.title}</h1>
+            <p>{$news.body}</p>
+        </div>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
 Once we compile and execute this template, we should get something like this:
 
 ~~~~
-[html]
+[xml]
 <html>
-	<head>
-		<title>My website - News</title>
-	</head>
-	<body>
-		<div id="header">
-			<h1>My website</h1>
-		</div>
-		<div id="content">
-			<h1>News</h1>
-			<div class="news" id="e 2">
-				<h1>New articles</h1>
-				<p>Today, the new articles have been published. We encourage you
-				to read them, because they are really brilliant!</p>
-			</div>
-			<div class="news" id="e 1">
-				<h1>Hello world!</h1>
-				<p>Welcome to my new website!</p>
-			</div>
-		</div>
-		<div id="footer">
-			<p>Copyright You 2009</p>
-		</div>
-	</body>
+<head>
+    <title>My website - News</title>
+</head>
+<body>
+    <div id="header">
+        <h1>My website</h1>
+    </div>
+    <div id="content">
+        <h1>News</h1>
+        <div class="news" id="e 2">
+            <h1>New articles</h1>
+            <p>Today, the new articles have been published. We encourage you
+            to read them, because they are really brilliant!</p>
+        </div>
+        <div class="news" id="e 1">
+            <h1>Hello world!</h1>
+            <p>Welcome to my new website!</p>
+        </div>
+    </div>
+    <div id="footer">
+        <p>Copyright You 2009</p>
+    </div>
+</body>
 </html>
 ~~~~
 
@@ -115,47 +115,47 @@ However, please notice that `news.tpl` defines another placeholder in the snippe
 ~~~~
 [xml]
 <opt:extend file="news.tpl">
-	<opt:snippet name="hello_text">
-		<p>Welcome to my website!</p>
-	</opt:snippet>
+    <opt:snippet name="hello_text">
+        <p>Welcome to my website!</p>
+    </opt:snippet>
 
-	<opt:snippet name="header">
-		<h1>My website</h1>
-		<p>Hi everyone!</p>
-	</opt:snippet>
+    <opt:snippet name="header">
+        <h1>My website</h1>
+        <p>Hi everyone!</p>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
 Now, if the user reads the news through the index page, he or she should see the following content:
 
 ~~~~
-[html]
+[xml]
 <html>
-	<head>
-		<title>My website - News</title>
-	</head>
-	<body>
-		<div id="header">
-			<h1>My website</h1>
-			<p>Hi everyone!</p>
-		</div>
-		<div id="content">
-			<p>Welcome to my website!</p>
-			<h1>News</h1>
-			<div class="news" id="e 2">
-				<h1>New articles</h1>
-				<p>Today, the new articles have been published. We encourage you
-				to read them, because they are really brilliant!</p>
-			</div>
-			<div class="news" id="e 1">
-				<h1>Hello world!</h1>
-				<p>Welcome to my new website!</p>
-			</div>
-		</div>
-		<div id="footer">
-			<p>Copyright You 2009</p>
-		</div>
-	</body>
+<head>
+    <title>My website - News</title>
+</head>
+<body>
+    <div id="header">
+        <h1>My website</h1>
+        <p>Hi everyone!</p>
+    </div>
+    <div id="content">
+        <p>Welcome to my website!</p>
+        <h1>News</h1>
+        <div class="news" id="e 2">
+            <h1>New articles</h1>
+            <p>Today, the new articles have been published. We encourage you
+            to read them, because they are really brilliant!</p>
+        </div>
+        <div class="news" id="e 1">
+            <h1>Hello world!</h1>
+            <p>Welcome to my new website!</p>
+        </div>
+    </div>
+    <div id="footer">
+        <p>Copyright You 2009</p>
+    </div>
+</body>
 </html>
 ~~~~
 
@@ -170,15 +170,15 @@ Suppose that the author of `news.tpl` template forgot to create a placeholder `h
 ~~~~
 [xml]
 <opt:extend file="news.tpl">
-	<opt:snippet name="content">
-		<p>Welcome to my website!</p>
-		<opt:parent />
-	</opt:snippet>
+    <opt:snippet name="content">
+        <p>Welcome to my website!</p>
+        <opt:parent />
+    </opt:snippet>
 
-	<opt:snippet name="header">
-		<h1>My website</h1>
-		<p>Hi everyone!</p>
-	</opt:snippet>
+    <opt:snippet name="header">
+        <h1>My website</h1>
+        <p>Hi everyone!</p>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
@@ -205,16 +205,16 @@ Branches are simply alternative inheritance chains that templates may define. Th
 [xml]
 <opt:root>
 <html>
-	<head>
-		<title>My website - {$title}</title>
-	</head>
-	<body>
-		<h1>My website - {$title}</h1>
+<head>
+    <title>My website - {$title}</title>
+</head>
+<body>
+    <h1>My website - {$title}</h1>
 
-		<opt:insert snippet="content">
-		<p>Sorry, no content defined.</p>
-		</opt:insert>
-	</body>
+    <opt:insert snippet="content">
+    <p>Sorry, no content defined.</p>
+    </opt:insert>
+</body>
 </html>
 </opt:root>
 ~~~~
@@ -224,14 +224,14 @@ Then, we teach `news.tpl`, how to use it:
 ~~~~
 [xml]
 <opt:extend file="base.tpl" print="print.tpl">
-	<opt:snippet name="content">
-		<opt:insert snippet="hello_text" />
-		<h1>News</h1>
-		<div class="news" parse:id="'e '~$news.id" opt:section="news">
-			<h1>{$news.title}</h1>
-			<p>{$news.body}</p>
-		</div>
-	</opt:snippet>
+    <opt:snippet name="content">
+        <opt:insert snippet="hello_text" />
+        <h1>News</h1>
+        <div class="news" parse:id="'e '~$news.id" opt:section="news">
+            <h1>{$news.title}</h1>
+            <p>{$news.body}</p>
+        </div>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
@@ -245,14 +245,14 @@ In custom selection, we let the script to choose the template we inherit for us.
 ~~~~
 [xml]
 <opt:extend file="base.tpl" dynamic="yes">
-	<opt:snippet name="content">
-		<opt:insert snippet="hello_text" />
-		<h1>News</h1>
-		<div class="news" parse:id="'e '~$news.id" opt:section="news">
-			<h1>{$news.title}</h1>
-			<p>{$news.body}</p>
-		</div>
-	</opt:snippet>
+    <opt:snippet name="content">
+        <opt:insert snippet="hello_text" />
+        <h1>News</h1>
+        <div class="news" parse:id="'e '~$news.id" opt:section="news">
+            <h1>{$news.title}</h1>
+            <p>{$news.body}</p>
+        </div>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
@@ -266,23 +266,23 @@ Sometimes we do not want to extend a particular template, but rather leave this 
 ~~~~
 [xml]
 <opt:extend file="base_form" dynamic="yes">
-	<!-- the form definition (using components) -->
-	<opt:snippet name="form_body">
-		<opt:input str:name="first_name" template="form_item_layout">
-			<opt:set str:name="title" str:value="First name" />
-		</opt:input>
-		<opt:input str:name="last_name" template="form_item_layout">
-			<opt:set str:name="title" str:value="Last name" />
-		</opt:input>
-	</opt:form>
-	
-	<!-- the default structure for displaying the form -->
-	<opt:snippet name="base_form">
-		<form method="post" action="somewhere.php">
-			<opt:insert snippet="form_body" />		
-			<div class="buttons"><input type="submit" value="Send" /></div>
-		</form>
-	</opt:snippet>
+    <!-- the form definition (using components) -->
+    <opt:snippet name="form_body">
+        <opt:input str:name="first_name" template="form_item_layout">
+            <opt:set str:name="title" str:value="First name" />
+        </opt:input>
+        <opt:input str:name="last_name" template="form_item_layout">
+            <opt:set str:name="title" str:value="Last name" />
+        </opt:input>
+    </opt:form>
+    
+    <!-- the default structure for displaying the form -->
+    <opt:snippet name="base_form">
+        <form method="post" action="somewhere.php">
+            <opt:insert snippet="form_body" />        
+            <div class="buttons"><input type="submit" value="Send" /></div>
+        </form>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
@@ -302,24 +302,24 @@ Sometimes we also want [opt:root][syntax.instructions.root] instruction in the b
 [xml]
 <opt:root include="form_snippets.tpl">
 <html>
-	<head>
-		<title>My website - {$title}</title>
-	</head>
-	<body>
-		<div id="header">
-			<opt:insert snippet="header">
-			<h1>My website</h1>
-			</opt:insert>
-		</div>
-		<div id="content">
-			<opt:insert snippet="content">
-			<p>Sorry, no content defined.</p>
-			</opt:insert>
-		</div>
-		<div id="footer">
-			<p>Copyright You {range(2009)}</p>
-		</div>
-	</body>
+<head>
+    <title>My website - {$title}</title>
+</head>
+<body>
+    <div id="header">
+        <opt:insert snippet="header">
+        <h1>My website</h1>
+        </opt:insert>
+    </div>
+    <div id="content">
+        <opt:insert snippet="content">
+        <p>Sorry, no content defined.</p>
+        </opt:insert>
+    </div>
+    <div id="footer">
+        <p>Copyright You {range(2009)}</p>
+    </div>
+</body>
 </html>
 </opt:root>
 ~~~~

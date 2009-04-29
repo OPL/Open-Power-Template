@@ -23,4 +23,4 @@ The template:
 ~~~~
 
 > [information]
-> You may also create a variable value using the magic method [api.opt-view.__set]: `$view->variable = 'foo'`. It is the recommended solution.
+> You may also create a variable value using the magic method [Opt_View::__set()][api.opt-view.__set]: `$view->variable = 'foo'`. It is the recommended solution.
