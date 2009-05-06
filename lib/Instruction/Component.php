@@ -131,11 +131,23 @@
 			// creation or all of them.
 			if((($to = $this->_compiler->convert('##component_'.$class)) != '##component_'.$class))
 			{
-				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+				$attributes = 'array(';
+				foreach($vars as $name => $value)
+				{
+					$attributes .= '\''.$name.'\' => '.$value.', ';
+				}
+				$attributes .= ')';
+				$ccode = str_replace(array('%CLASS%', '%TAG%', '%ATTRIBUTES%'), array($class, $node->getXmlName(), $attributes), $to);
 			}
 			elseif((($to = $this->_compiler->convert('##component')) != '##component'))
 			{
-				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+				$attributes = 'array(';
+				foreach($vars as $name => $value)
+				{
+					$attributes .= '\''.$name.'\' => '.$value.', ';
+				}
+				$attributes .= ')';
+				$ccode = str_replace(array('%CLASS%', '%TAG%', '%ATTRIBUTES%'), array($class, $node->getXmlName(), $attributes), $to);
 			}
 			else
 			{

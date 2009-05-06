@@ -3,7 +3,7 @@ ShortTitle: Opt_Xml_Root::setProlog()
 Reference: void setProlog(Opt_Xml_Prolog $prolog)
 Status: public
 SeeAlso:
- - api.opt-xml-node.get-prolog
+ - api.opt-xml-root.get-prolog
 
 ---
 

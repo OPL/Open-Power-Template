@@ -23,6 +23,7 @@ syntax.topics.sections
 syntax.topics.blocks
 syntax.topics.components
 syntax.topics.modularization
+syntax.topics.quirks
 guide
 guide.initialization
 guide.views
@@ -33,6 +34,7 @@ guide.data-formats
 guide.inheritance
 guide.escaping
 guide.i18n
+guide.components
 extending
 extending.plugins
 extending.functions
@@ -48,8 +50,8 @@ api.opt-view
 api.opt-output-http
 api.opt-output-return
 api.opt-compiler-class
-api.opt-compiler-processor
 api.opt-compiler-format
+api.opt-compiler-processor
 api.opt-xml-attribute
 api.opt-xml-buffer
 api.opt-xml-cdata
@@ -62,8 +64,9 @@ api.opt-xml-prolog
 api.opt-xml-root
 api.opt-xml-scannable
 api.opt-xml-text
-api.opt-output-interface
-api.opt-component-interface
 api.opt-block-interface
-api.opt-cache-hook-interface
+api.opt-caching-interface
+api.opt-component-interface
+api.opt-generator-interface
+api.opt-output-interface
 appendix

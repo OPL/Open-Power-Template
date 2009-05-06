@@ -20,7 +20,7 @@
 			$this->view = $view;
 		} // end setView();
 
-		public function setDatasource(&$data)
+		public function setDatasource($data)
 		{
 			$this->dataSource = $data;
 		} // end setDatasource();

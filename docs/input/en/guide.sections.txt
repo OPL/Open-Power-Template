@@ -139,6 +139,8 @@ $view->tree = array(0 =>
 
 Now we get a tree with the items nested properly.
 
+The tree checks the validity of the `depth` element items. Firstly, it determines the initial depth, taken from the first element. In the case above, the initial depth is 0. You may choose the other initial depths, such as `1` or `533`, too. In the next elements, the depth must be greater or equal to the initial depth. If it becomes lower for some reason, the template would throw an exception.
+
 Using opt:selector
 ==================
 

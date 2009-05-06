@@ -410,7 +410,15 @@
 		{
 			$this->_formatInfo = $list;
 		} // end setFormatList();
-		
+
+		/**
+		 * Converts the specified item into another string using one of the
+		 * registered patterns. If the pattern is not found, the method returns
+		 * the original item unmodified.
+		 *
+		 * @param String $item The item to be converted.
+		 * @return String
+		 */
 		public function convert($item)
 		{
 			// the converter allows to convert one name into another and keep it, if there is no
@@ -421,12 +429,25 @@
 			}
 			return $item;
 		} // end convert();
-		
+
+		/**
+		 * Creates a new conversion pattern. The string $from will be converted
+		 * into $to.
+		 *
+		 * @param String $from The original string
+		 * @param String $to The new string
+		 */
 		public function setConversion($from, $to)
 		{
 			$this->_conversions[$from] = $to;
 		} // end setConversion();
-		
+
+		/**
+		 * Removes the conversion pattern from the compiler memory.
+		 *
+		 * @param String $from The original string.
+		 * @return Boolean
+		 */
 		public function unsetConversion($from)
 		{
 			if(isset($this->_conversions[$from]))
@@ -436,16 +457,29 @@
 			}
 			return false;
 		} // end unsetConversion();
-		
+
+		/**
+		 * Registers the dynamic inheritance rules for the templates. The
+		 * array taken as a parameter must be an assotiative array of pairs
+		 * 'extending' => 'extended' file names.
+		 *
+		 * @param Array $inheritance The list of inheritance rules.
+		 */
 		public function setInheritance(Array $inheritance)
 		{
 			$this->_inheritance = $inheritance;
 		} // end setInheritance();
-		
+
+		/**
+		 * Parses the entities in the specified text.
+		 *
+		 * @param String $text The original text
+		 * @return String
+		 */
 		public function parseEntities($text)
 		{
 			return preg_replace_callback('/\&(([a-zA-Z\_\:]{1}[a-zA-Z0-9\_\:\-\.]*)|(\#((x[a-fA-F0-9]+)|([0-9]+))))\;/', array($this, '_decodeEntity'), $text);
-			return htmlspecialchars_decode(str_replace(array_keys($this->_entities), array_values($this->_entities), $text));
+		//	return htmlspecialchars_decode(str_replace(array_keys($this->_entities), array_values($this->_entities), $text));
 		} // end parseEntities();
 
 		/**
@@ -472,7 +506,15 @@
 			return htmlspecialchars($text);
 			return preg_replace_callback('/(\&\#?[a-zA-Z0-9]*\;)|\<|\>|\"|\&/', array($this, '_entitize'), $text);
 		} // end parseSpecialChars();
-		
+
+		/**
+		 * Returns 'true', if the argument is a valid identifier. An identifier
+		 * must begin with a letter or underscore, and later, the numbers are also
+		 * allowed.
+		 *
+		 * @param String $id The tested string
+		 * @return Boolean
+		 */
 		public function isIdentifier($id)
 		{
 			return preg_match($this->_rEncodingName, $id);
@@ -494,6 +536,12 @@
 			return NULL;
 		} // end isInstruction();
 
+		/**
+		 * Returns true, if the argument is the name of an OPT attribute.
+		 *
+		 * @param String $tag The attribute name
+		 * @return Boolean
+		 */
 		public function isOptAttribute($tag)
 		{
 			if(isset($this->_attributes[$tag]))
@@ -502,7 +550,13 @@
 			}
 			return NULL;
 		} // end isOptAttribute();
-		
+
+		/**
+		 * Returns true, if the argument is the OPT function name.
+		 *
+		 * @param String $name The function name
+		 * @return Boolean
+		 */
 		public function isFunction($name)
 		{
 			if(isset($this->_functions[$name]))
@@ -511,7 +565,14 @@
 			}
 			return NULL;
 		} // end isFunction();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the class
+		 * accepted by OPT.
+		 *
+		 * @param String $id The class name.
+		 * @return Boolean
+		 */
 		public function isClass($id)
 		{
 			if(isset($this->_classes[$id]))
@@ -520,22 +581,45 @@
 			}
 			return NULL;
 		} // end isClass();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the namespace
+		 * processed by OPT.
+		 *
+		 * @param String $ns The namespace name
+		 * @return Boolean
+		 */
 		public function isNamespace($ns)
 		{
 			return in_array($ns, $this->_namespaces);
 		} // end isNamespace();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the component tag.
+		 * @param String $component The component tag name
+		 * @return Boolean
+		 */
 		public function isComponent($component)
 		{
 			return isset($this->_components[$component]);
 		} // end isComponent();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the block tag.
+		 * @param String $block The block tag name.
+		 * @return Boolean
+		 */
 		public function isBlock($block)
 		{
 			return isset($this->_blocks[$block]);
 		} // end isComponent();
-		
+
+		/**
+		 * Returns true, if the argument is the processor name.
+		 *
+		 * @param String $name The instruction processor name
+		 * @return Boolean
+		 */
 		public function isProcessor($name)
 		{
 			if(!isset($this->_processors[$name]))
@@ -544,7 +628,14 @@
 			}
 			return $this->_processors[$name];
 		} // end isProcessor();
-		
+
+		/**
+		 * Returns the processor object with the specified name. If
+		 * the processor does not exist, it generates an exception.
+		 *
+		 * @param String $name The processor name
+		 * @return Opt_Compiler_Processor
+		 */
 		public function processor($name)
 		{
 			if(!isset($this->_processors[$name]))
@@ -553,7 +644,15 @@
 			}
 			return $this->_processors[$name];
 		} // end processor();
-		
+
+		/**
+		 * Returns the component class name assigned to the specified
+		 * XML tag. If the component class is not registered, it throws
+		 * an exception.
+		 *
+		 * @param String $name The component XML tag name.
+		 * @return Opt_Component_Interface
+		 */
 		public function component($name)
 		{
 			if(!isset($this->_components[$name]))
@@ -562,7 +661,15 @@
 			}
 			return $this->_components[$name];
 		} // end component();
-		
+
+		/**
+		 * Returns the block class name assigned to the specified
+		 * XML tag. If the block class is not registered, it throws
+		 * an exception.
+		 *
+		 * @param String $name The block XML tag name.
+		 * @return Opt_Block_Interface
+		 */
 		public function block($name)
 		{
 			if(!isset($this->_blocks[$name]))
@@ -571,7 +678,13 @@
 			}
 			return $this->_blocks[$name];
 		} // end block();
-		
+
+		/**
+		 * Returns the template name that is inherited by the template '$name'
+		 *
+		 * @param String $name The "current" template file name
+		 * @return String
+		 */
 		public function inherits($name)
 		{
 			if(isset($this->_inheritance[$name]))
@@ -580,7 +693,14 @@
 			}
 			return NULL;
 		} // end inherits();
-		
+
+		/**
+		 * Adds the template file name to the dependency list of the currently
+		 * compiled file, so that it could be checked for modifications during
+		 * the execution.
+		 *
+		 * @param String $template The template file name.
+		 */
 		public function addDependantTemplate($template)
 		{
 			if(in_array($template, $this->_dependencies))
@@ -592,7 +712,13 @@
 			
 			$this->_dependencies[] = $template;
 		} // end addDependantTemplate();
-		
+
+		/**
+		 * Imports the dependencies from another compiler object and adds them
+		 * to the actual dependency list.
+		 *
+		 * @param Opt_Compiler_Class $compiler Another compiler object.
+		 */
 		public function importDependencies(Opt_Compiler_Class $compiler)
 		{
 			$this->_dependencies = array_merge($this->_dependencies, $compiler->_dependencies);

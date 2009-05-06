@@ -3,7 +3,7 @@ ShortTitle: Opt_Xml_Root::setDtd()
 Reference: void setDtd(Opt_Xml_Dtd $dtd)
 Status: public
 SeeAlso:
- - api.opt-xml-node.get-dtd
+ - api.opt-xml-root.get-dtd
 
 ---
 
