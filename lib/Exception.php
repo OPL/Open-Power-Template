@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -78,6 +77,16 @@
 	{
 		protected $_message = 'The %s directory is not %s by PHP.';
 	} // end Opt_FilesystemAccess_Exception;
+
+	class Opt_InvalidEntityName_Exception extends Opt_Exception
+	{
+		protected $_message = '%s is not a valid entity name.';
+	} // end Opt_InvalidEntityName_Exception;
+
+	class Opt_TreeInvalidDepth_Exception extends Opt_Exception
+	{
+		protected $_message = 'The tree element depth is too low: %d. It must be greater or equal to the initial depth %d';
+	} // end Opt_TreeInvalidDepth_Exception;
 
 	/*
 	 * User template problems
@@ -215,6 +224,11 @@
 	{
 		protected $_message = 'The callback for %s is invalid.';
 	} // end Opt_InvalidCallback_Exception;
+
+	class Opt_UnknownEntity_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'The entity %s is not registered in the XML parser.';
+	} // end Opt_UnknownEntity_Exception;
 
 	/*
 	 * Compiler code and API problems.

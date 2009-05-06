@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -182,7 +181,7 @@
 			return $string;
 		} // end truncate();
 	
-		static public function wordwrap($string, $width, $break = null, $cut = null)
+		static public function wordwrap($string, $width, $break = '<br />', $cut = null)
 		{
 			if(!is_null($break))
 			{
@@ -197,12 +196,18 @@
 			{
 				return self::processContainer(array('Opt_Function', 'money'), array($number, $format));
 			}
+			$opt = Opl_Registry::get('opt');
 			$format = (is_null($format) ? $opt->moneyFormat : $format);
 			return money_format($format, $number);
 		} // end money();
 	
 		static public function number($number, $d1 = null, $d2 = null, $d3 = null)
 		{
+			if(self::isContainer($number))
+			{
+				return self::processContainer(array('Opt_Function', 'number'), array($number, $d1, $d2, $d3));
+			}
+			$opt = Opl_Registry::get('opt');
 			$d1 = (is_null($d1) ? $opt->numberDecimals : $d1);
 			$d2 = (is_null($d2) ? $opt->numberDecPoint : $d2);
 			$d3 = (is_null($d3) ? $opt->numberThousandSep : $d3);
@@ -213,7 +218,7 @@
 		{
 			if(self::isContainer($items))
 			{
-				return self::processContainer('abs', array($string, $length, $etc, $break));
+				return self::processContainer('abs', array($items));
 			}
 			
 			return abs($items);
@@ -273,11 +278,11 @@
 			{
 				if(!self::isContainer($item) && !is_null($item))
 				{
-					$sum += pow($item, 2);
+					$sum += pow($item - $average, 2);
 					$cnt++;
 				}
 			}
-			return sqrt(($sum / $cnt) - pow($average, 2));
+			return sqrt(($sum / ($cnt - 1)));
 		} // end stddev();
 
 		/**
@@ -356,7 +361,7 @@
 		 * @param String $what The list of allowable tags that must not be removed.
 		 * @return String|Container The modified string
 		 */
-		static public function stripTags($item, $what)
+		static public function stripTags($item, $what = '')
 		{
 			if(self::isContainer($item))
 			{
@@ -373,6 +378,7 @@
 		 * year, which allows to create a range of years for the Copyright foot
 		 * at the bottom of the website.
 		 *
+		 * @static
 		 * @param Int $number1 Starting number
 		 * @param Int $number2=null Ending number
 		 * @return String The result string
@@ -430,4 +436,21 @@
 			}
 			return false;
 		} // end isImage();
+
+		/**
+		 * Creates an entity for the specified string. If used with the 'u:' modifier,
+		 * it allows to display the entities in the output document.
+		 *
+		 * @static
+		 * @param String $name A valid entity name.
+		 * @return String
+		 */
+		static public function entity($name)
+		{
+			if(!preg_match('/^(([a-zA-Z\_\:]{1}[a-zA-Z0-9\_\:\-\.]*)|(\#((x[a-fA-F0-9]+)|([0-9]+))))$/', $name))
+			{
+				throw new Opt_InvalidEntityName_Exception($name);
+			}
+			return '&'.$name.';';
+		} // end entity();
 	} // end Opt_Function;

@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -213,14 +212,13 @@
 		 * opt:include instruction.
 		 *
 		 * @param Opt_View $view The view object to be rendered.
-		 * @param Opt_Cache_Hook_Interface $cache optional The caching interface.
 		 * @return Boolean True, if succeed.
 		 */
-		public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null)
+		public function render(Opt_View $view)
 		{			
 			if(is_null($this->_mode))
 			{
-				$this->_mode = $this->_tpl->mode;
+				$this->_mode = $view->getMode();
 
 				// Initialize output buffering and turn on the compression, if necessary.
 				if(!$this->_tpl->debugConsole && $this->_tpl->gzipCompression == true && extension_loaded('zlib') && ini_get('zlib.output_compression') == 0)
@@ -236,15 +234,10 @@
 				// Send the headers, if necessary
 				$this->sendHeaders();
 			}
-			elseif($this->_mode == OPT_XML_MODE || $mode == OPT_XML_MODE)
+			elseif($this->_mode == Opt_Class::XML_MODE)
 			{
 				throw new Opt_OutputOverloaded_Exception;
 			}
-
-			if(!$cache instanceof Opt_Cache_Hook_Interface)
-			{
-				return $view->_parse($this, $this->_mode);
-			}
-			return $cache->cache($this->_tpl, $view, $mode);
+			return $view->_parse($this, true);
 		} // end output();
 	} // end Opt_Output_Http;

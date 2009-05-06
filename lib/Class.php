@@ -19,7 +19,7 @@
 	{
 		public function __construct($name = '');
 		public function setView(Opt_View $view);
-		public function setDatasource(&$data);
+		public function setDatasource($data);
 
 		public function set($name, $value);
 		public function get($name);
@@ -32,21 +32,22 @@
 
 	interface Opt_Block_Interface
 	{
-		public function setViewInstance(Opt_View $view);
+		public function setView(Opt_View $view);
 		public function onOpen(Array $attributes);
 		public function onClose();
 		public function onSingle(Array $attributes);
 	} // end Opt_Block_Interface;
 
-	interface Opt_Cache_Hook_Interface
+	interface Opt_Caching_Interface
 	{
-		public function cacheTemplate($tpl, $file, $mode);
-	} // end Opt_Cache_Hook;
+		public function templateCacheStart(Opt_View $view);
+		public function templateCacheStop(Opt_View $view);
+	} // end Opt_Caching_Interface;
 
 	interface Opt_Output_Interface
 	{
 		public function getName();
-		public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null);
+		public function render(Opt_View $view);
 	} // end Opt_Output_Interface;
 
 	interface Opt_Generator_Interface
@@ -79,8 +80,9 @@
 		const OPT_BLOCK = 5;
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
-
-		const VERSION = '2.0-beta2';
+		const XML_ENTITY = 8;
+	
+		const VERSION = '2.0-RC1';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 
 		// Directory configuration
@@ -121,7 +123,8 @@
 		public $backticks = null;
 		public $translate = null;
 		public $strictCallbacks = true;
-		public $componentAttributeLevel = 2;
+		public $htmlEntities = true;
+	//	public $componentAttributeLevel = 2;
 		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
 
@@ -146,12 +149,14 @@
 			'contains' => '#2,1#in_array', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
 			'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
 			'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
+			'entity' => 'Opt_Function::entity',
 		);
 		protected $_classes = array();
 		protected $_components = array();
 		protected $_blocks = array();
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
 		protected $_formats = array(1 => 'Array', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
+		protected $_entities = array('lb' => '{', 'rb' => '}');
 
 		// Status
 		protected $_init = false;
@@ -244,7 +249,7 @@
 				throw new Opt_Initialization_Exception($this->_init, 'register an item');
 			}
 
-			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes');
+			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities');
 			$whereto = $map[$type];
 			if(is_array($item))
 			{
@@ -292,6 +297,27 @@
 		{
 			return $this->_tf;
 		} // end getTranslationInterface();
+
+		/**
+		 * Sets the global caching system to use in all the views.
+		 *
+		 * @param Opt_Caching_Interface $cache=null The caching interface
+		 */
+		public function setCache(Opt_Caching_Interface $cache = null)
+		{
+			$this->_cache = $cache;
+		} // end setCache();
+
+		/**
+		 * Returns the current global caching system.
+		 *
+		 * @return Opt_Caching_Interface
+		 */
+		public function getCache()
+		{
+			return $this->_cache;
+		} // end getCache();
+
 		/*
 		 * Internal use
 		 */
@@ -300,6 +326,7 @@
 		 * Allows the read access to some of the internal structures for the
 		 * template compiler.
 		 *
+		 * @internal
 		 * @param string $name The structure to be returned.
 		 * @return array The returned structure.
 		 */
@@ -308,7 +335,7 @@
 			static $list;
 			if(is_null($list))
 			{
-				$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf');
+				$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf', '_entities');
 			}
 			if(in_array($name, $list))
 			{
@@ -317,20 +344,37 @@
 			return NULL;
 		} // end _getList();
 
+		/**
+		 * The helper function for the plugin subsystem. It returns the
+		 * PHP code that loads the specified plugin.
+		 *
+		 * @internal
+		 * @param String $directory The plugin directory
+		 * @param SplFileInfo $file The loaded file
+		 * @return String
+		 */
 		protected function _pluginLoader($directory, SplFileInfo $file)
 		{
 			$ns = explode('.', $file->getFilename());
 			switch($ns[0])
 			{
 				case 'instruction':
-					return 'Opl_Loader::mapLocal(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
+					return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
 				case 'format':
-					return 'Opl_Loader::mapLocal(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
+					return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
 				default:
 					return ' require(\''.$directory.$file->getFilename().'\'); ';
 			}
 		} // end _pluginLoader();
 
+		/**
+		 * Parses the stream in the template path name and returns
+		 * the real path.
+		 *
+		 * @internal
+		 * @param String $name Template filename
+		 * @return String
+		 */
 		public function _stream($name)
 		{
 			if(strpos($name, ':') !== FALSE)
@@ -351,6 +395,15 @@
 			return $this->sourceDir[$this->stdStream].$name;
 		} // end _stream();
 
+		/**
+		 * Loads the template source code. Returns the template body or
+		 * the array with two (false) values in case of problems.
+		 *
+		 * @internal
+		 * @param String $filename The template filename
+		 * @param Boolean $exception Do we inform about the problems with exception?
+		 * @return String|Array
+		 */
 		public function _getSource($filename, $exception = true)
 		{
 			$item = $this->_stream($filename);
@@ -365,11 +418,19 @@
 			return file_get_contents($item);
 		} // end _getSource();
 
+		/**
+		 * The class constructor - registers the main object in the
+		 * OPL registry.
+		 */
 		public function __construct()
 		{
 			Opl_Registry::register('opt', $this);
 		} // end __construct();
 
+		/**
+		 * The destructor. Clears the output buffers and optionally
+		 * displays the debug console.
+		 */
 		public function __destruct()
 		{
 			if(ob_get_level() > 0)
@@ -391,6 +452,9 @@
 		} // end __destruct();
 	} // end Opt_Class;
 
+	/**
+	 * The main view class.
+	 */
 	class Opt_View
 	{
 		const VAR_LOCAL = false;
@@ -405,6 +469,8 @@
 		private $_tf;
 		private $_processingTime = null;
 		private $_branch = null;
+		private $_cache = null;
+		private $_mode;
 
 		static private $_vars = array();
 		static private $_capture = array();
@@ -424,6 +490,8 @@
 		{
 			$this->_tpl = Opl_Registry::get('opt');
 			$this->_template = $template;
+			$this->_mode = $this->_tpl->mode;
+			$this->_cache = $this->_tpl->getCache();
 		} // end __construct();
 
 		/**
@@ -445,6 +513,26 @@
 		{
 			return $this->_template;
 		} // end getTemplate();
+
+		/**
+		 * Sets the template mode (XML, Quirks, etc...)
+		 *
+		 * @param Int $mode The new mode
+		 */
+		public function setMode($mode)
+		{
+			$this->_mode = $mode;
+		} // end setMode();
+
+		/**
+		 * Gets the current template mode.
+		 *
+		 * @return Int
+		 */
+		public function getMode()
+		{
+			return $this->_mode;
+		} // end getMode();
 
 		/**
 		 * Sets a template inheritance branch that will be used
@@ -730,7 +818,7 @@
 		{
 			$this->_formatInfo[$item] = $format;
 		} // end setFormat();
-
+		
 		/**
 		 * Sets the specified data format for the identifier that may
 		 * identify a global template variable or some other things. The details
@@ -745,6 +833,26 @@
 			self::$_globalFormatInfo['global.'.$item] = $format;
 		} // end setFormatGlobal();
 
+		/**
+		 * Sets the caching interface that should be used with this view.
+		 *
+		 * @param Opt_Caching_Interface $iface The caching interface
+		 */
+		public function setCache(Opt_Caching_Interface $iface = null)
+		{
+			$this->_cache = $iface;
+		} // end setCache();
+
+		/**
+		 * Returns the caching interface used with this view
+		 *
+		 * @return Opt_Caching_Interface
+		 */
+		public function getCache()
+		{
+			return $this->_cache;
+		} // end getCache();
+		
 		/*
 		 * Dynamic inheritance
 		 */
@@ -777,16 +885,35 @@
 		/*
 		 * Internal use
 		 */
-		public function _parse($output, $mode, $cached = false, $exception = true)
+
+		/**
+		 * Executes, and optionally compiles the template represented by the view.
+		 * Returns true, if the template was found and successfully executed.
+		 *
+		 * @param Opt_Output_Interface $output The output interface.
+		 * @param Boolean $exception Should the exceptions be thrown if the template does not exist?
+		 * @return Boolean
+		 */
+		public function _parse(Opt_Output_Interface $output, $exception = true)
 		{
 			if($this->_tpl->debugConsole)
 			{
 				$time = microtime(true);
 			}
+			$cached = false;
+			if(!is_null($this->_cache))
+			{
+				$result = $this->_cache->templateCacheStart($this);
+				if($result == true)
+				{
+					return true;
+				}
+				$cached = true;
+			}
 			$this->_tf = $this->_tpl->getTranslationInterface();
 			if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 			{
-				list($compileName, $compileTime) = $this->_preprocess($mode, $exception);
+				list($compileName, $compileTime) = $this->_preprocess($exception);	
 				if(is_null($compileName))
 				{
 					return false;
@@ -807,6 +934,10 @@
 			error_reporting($old);
 
 			// The counter stops, if the time counting has been enabled for the debug console purposes
+			if(!is_null($this->_cache))
+			{
+				$this->_cache->templateCacheStop($this);
+			}
 			if(isset($time))
 			{
 				Opt_Support::addView($this->_template, $output->getName(), $this->_processingTime = microtime(true) - $time, $cached);
@@ -814,10 +945,23 @@
 			return true;
 		} // end _parse();
 
-		protected function _preprocess($mode, $exception = true)
+		/**
+		 * The method checks whether the template exists and if it was modified by
+		 * the template designer. In the second case, it loads and runs the template
+		 * compiler to produce a new version. Returns an array with the template data:
+		 *  - Compiled template name
+		 *  - Compilation time
+		 * They are needed by the template execution system or template inheritance. In
+		 * case of problems, the array contains two NULL values.
+		 *
+		 * @internal
+		 * @param Boolean $exception Do we inform about unexisting template with exceptions?
+		 * @return Array
+		 */
+		protected function _preprocess($exception = true)
 		{
-			$compiled = $this->_convert($this->_template);
 			$item = $this->_tpl->_stream($this->_template);
+			$compiled = $this->_convert($this->_template);
 			$compileTime = @filemtime($this->_tpl->compileDir.$compiled);
 			$result = NULL;
 
@@ -861,19 +1005,24 @@
 			$compiler->setInheritance($this->_cplInheritance);
 			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 			$compiler->set('branch', $this->_branch);
-			$compiler->compile($result, $this->_template, $compiled, $mode);
+			$compiler->compile($result, $this->_template, $compiled, $this->_mode);
 			return array($compiled, $compileTime);
 		} // end _preprocess();
 
-		protected function _massPreprocess($filename, $compileTime, $templates)
+		/**
+		 * This method is used by the template with the template inheritance. It
+		 * allows to check, whether one of the templates on the dependency list
+		 * has been modified. The method takes the compilation time of the compiled
+		 * template and the list of the source template names that it depends on.
+		 *
+		 * Returns true, if one if the templates is newer than the compilation time.
+		 *
+		 * @param Int $compileTime Compiled template creation time.
+		 * @param Array $templates The list of dependencies
+		 * @return Boolean
+		 */
+		protected function _massPreprocess($compileTime, $templates)
 		{
-		/*	if($this->debugConsole)
-			{
-				$inherited = $templates;
-				array_unshift($inherited, $filename);
-				Opl_Support::debugAddTemplate(Opl_Support::INHERITED_TPL, $inherited);
-			}
-		*/
 			switch($this->_tpl->compileMode)
 			{
 				case Opt_Class::CM_PERFORMANCE:
@@ -901,6 +1050,14 @@
 			}
 		} // end _massPreprocess();
 
+		/**
+		 * Converts the source template file name to the compiled
+		 * template file name.
+		 *
+		 * @internal
+		 * @param String $filename The source file name
+		 * @return String
+		 */
 		public function _convert($filename)
 		{
 			$list = array();
@@ -917,12 +1074,20 @@
 			return implode('/', $list).'.php';
 		} // end _convert();
 
-		public function _compile($filename, $mode)
+		/**
+		 * Compiles the specified template and returns the current
+		 * time.
+		 *
+		 * @internal
+		 * @param String $filename The file name.
+		 * @return Integer
+		 */
+		public function _compile($filename)
 		{
 			$compiled = $this->_convert($filename);
 			$compiler = $this->_tpl->getCompiler();
 			$compiler->set('branch', $this->_branch);
-			$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $mode);
+			$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
 			return time();
 		} // end _compile();
 	} // end Opt_View;

@@ -13,29 +13,42 @@
  * $Id: HEADER 10 2008-08-23 13:38:25Z extremo $
  */
 
+	/**
+	 * The class represents the simplest output which returns the results
+	 * of the executed template back to the script.
+	 */
 	class Opt_Output_Return implements Opt_Output_Interface
 	{
+
+		/**
+		 * Creates the output.
+		 */
 		public function __construct()
 		{
 			$this->_tpl = Opl_Registry::get('opt');
 		} // end __construct();
 
+		/**
+		 * Returns the output name.
+		 *
+		 * @return String
+		 */
 		public function getName()
 		{
 			return 'Return';
 		} // end getName();
 
-		public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null)
+		/**
+		 * Executes the specified view and return the results back
+		 * to the script.
+		 *
+		 * @param Opt_View $view The rendered view
+		 * @return String
+		 */
+		public function render(Opt_View $view)
 		{
-			ob_start();
-			
-			if(!$cache instanceof Opt_Cache_Hook_Interface)
-			{
-				$view->_parse($this, $this->_tpl->mode);
-				return ob_get_clean();
-			}
-			$cache->cache($this->_tpl, $view, $mode);
-
+			ob_start();			
+			$view->_parse($this, true);
 			return ob_get_clean();
-		} // end output();
+		} // end render();
 	} // end Opt_Output_Return;

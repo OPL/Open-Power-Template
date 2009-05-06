@@ -12,8 +12,11 @@
  * $Id: Scannable.php 19 2008-11-20 16:09:45Z zyxist $
  */
 
-	/*
-	 * Class definitions
+	/**
+	 * The abstract class that represents the XML nodes which can contain
+	 * another nodes. It uses the DOM-like API to manage the nodes.
+	 *
+	 * @abstract
 	 */
 	class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	{
@@ -24,6 +27,9 @@
 		
 		private $_prototypes;
 
+		/**
+		 * Creates the scannable node.
+		 */
 		public function __construct()
 		{
 			parent::__construct();
@@ -32,7 +38,13 @@
 		/*
 		 * Public DOM-like API
 		 */
-		
+
+		/**
+		 * Appends a new child to the end of the children list. The method
+		 * is DOM-compatible.
+		 *
+		 * @param Opt_Xml_Node $child The child to be appended.
+		 */
 		public function appendChild(Opt_Xml_Node $child)
 		{
 			// Test if the node can be a child of this and initialize an
@@ -45,7 +57,17 @@
 			$child->setParent($this);
 			$this->_subnodes[] = $child;
 		} // end appendChild();
-		
+
+		/**
+		 * Inserts the new node after the node identified by the '$refnode'. The
+		 * reference node can be identified either by the number or by the object.
+		 * If the reference node is empty, the new node is appended to the children
+		 * list, if the last argument allows for that.
+		 *
+		 * @param Opt_Xml_Node $newnode The new node.
+		 * @param Integer|Opt_Xml_Node $refnode The reference node.
+		 * @param Boolean $appendOnError Do we like to append the node, if $refnode does not exist?
+		 */
 		public function insertBefore(Opt_Xml_Node $newnode, $refnode = null, $appendOnError = true)
 		{
 			// Test if the node can be a child of this and initialize an
@@ -94,7 +116,13 @@
 				}
 			}
 		} // end insertBefore();
-		
+
+		/**
+		 * Removes the child identified either by the number or the object.
+		 *
+		 * @param Integer|Opt_Xml_Node $node The node to be removed.
+		 * @return Boolean
+		 */
 		public function removeChild($node)
 		{
 			if(!is_array($this->_subnodes))
@@ -130,7 +158,10 @@
 			}
 			return false;
 		} // end removeChild();
-		
+
+		/**
+		 * Removes all the children. The memory after the children is not freed.
+		 */
 		public function removeChildren()
 		{
 			if(is_array($this->_subnodes))
@@ -146,7 +177,12 @@
 			unset($this->_subnodes);
 			$this->_subnodes = null;
 		} // end removeChildren();
-		
+
+		/**
+		 * Moves all the children of another node to the current node.
+		 *
+		 * @param Opt_Xml_Node $node Another node.
+		 */
 		public function moveChildren(Opt_Xml_Scannable $node)
 		{
 			// If there are already some nodes, we have to free the memory first.
@@ -185,7 +221,15 @@
 				}
 			}
 		} // end moveChildren();
-		
+
+		/**
+		 * Replaces the child with the new node. The reference node can be
+		 * identified either by the number or by the object.
+		 *
+		 * @param Opt_Xml_Node $newnode The new node.
+		 * @param Integer|Opt_Xml_Node $refnode The old node.
+		 * @return Boolean
+		 */
 		public function replaceChild(Opt_Xml_Node $newnode, $refnode)
 		{
 			$this->_testNode($newnode);
@@ -221,7 +265,12 @@
 			}
 			return false;
 		} // end replaceChild();
-		
+
+		/**
+		 * Returns true, if the current node contains any children.
+		 *
+		 * @return Boolean
+		 */
 		public function hasChildren()
 		{
 			if(!is_array($this->_subnodes))
@@ -230,7 +279,12 @@
 			}
 			return sizeof($this->_subnodes) > 0;
 		} // end hasChildren();
-		
+
+		/**
+		 * Returns the number of the children.
+		 *
+		 * @return Integer
+		 */
 		public function countChildren()
 		{
 			if(!is_array($this->_subnodes))
@@ -239,7 +293,12 @@
 			}
 			return sizeof($this->_subnodes);
 		} // end countChildren();
-		
+
+		/**
+		 * Returns the last child of the node.
+		 *
+		 * @return Opt_Xml_Node
+		 */
 		public function getLastChild()
 		{
 			if(!is_array($this->_subnodes))
@@ -252,7 +311,12 @@
 			}
 			return NULL;
 		} // end getLastChild();
-		
+
+		/**
+		 * Returns the array containing all the children.
+		 *
+		 * @return Array
+		 */
 		public function getChildren()
 		{
 			$cnt = sizeof($this->_subnodes);
@@ -266,7 +330,12 @@
 			}
 			return $result;
 		} // end getChildren();
-		
+
+		/**
+		 * Returns all the descendants of the current node.
+		 *
+		 * @return Array The list of descendants.
+		 */
 		public function getElements()
 		{
 			$queue = array();
@@ -295,7 +364,14 @@
 			}
 			return $result;
 		} // end getElements();
-		
+
+		/**
+		 * Returns all the children or descendants with the specified name.
+		 *
+		 * @param String $name The tag name (without the namespace)
+		 * @param Boolean $recursive Scan the descendants recursively?
+		 * @return Array
+		 */
 		public function getElementsByTagName($name, $recursive = true)
 		{
 			if($recursive)
@@ -322,7 +398,16 @@
 			}
 			return $result;			
 		} // end getElementsByTagName();
-		
+
+		/**
+		 * Returns all the children or descendants with the specified name
+		 * and namespace.
+		 *
+		 * @param String $namespace The tag namespace
+		 * @param String $name The tag name
+		 * @param Boolean $recursive Scan the descendants recursively?
+		 * @return Array
+		 */
 		public function getElementsByTagNameNS($namespace, $name, $recursive = true)
 		{
 			if($recursive)
@@ -349,7 +434,16 @@
 			}
 			return $result;
 		} // end getElementsByTagNameNS();
-		
+
+		/**
+		 * Returns all the descendants with the specified name and namespace.
+		 * Contrary to getElementsByTagNameNS(), the method does not go into
+		 * the matching descendants.
+		 *
+		 * @param String $ns The namespace name
+		 * @param String $name The tag name
+		 * @return Array
+		 */
 		public function getElementsExt($ns, $name)
 		{
 			if(!is_array($this->_subnodes))
@@ -398,7 +492,15 @@
 			}
 			return $result;
 		} // end getElementsExt();
-		
+
+		/**
+		 * Sorts the children with the order specified in the assotiative
+		 * array. The array must contain the pairs 'tag name' => order. Moreover,
+		 * it must contain the '*' element representing the new location of
+		 * the rest of the nodes.
+		 *
+		 * @param Array $prototypes The required order.
+		 */
 		public function sort(Array $prototypes)
 		{
 			$this->_prototypes = $prototypes;
@@ -419,7 +521,13 @@
 			usort($this->_subnodes, array($this, 'sortCmp'));
 			unset($this->_prototypes);
 		} // end sort();
-		
+
+		/**
+		 * Moves the specified node to the end of the children list.
+		 *
+		 * @param Integer|Opt_Xml_Node $node The node to be moved.
+		 * @return Boolean
+		 */
 		public function bringToEnd($node)
 		{
 			if(!is_array($this->_subnodes))
@@ -456,7 +564,13 @@
 			}
 			return false;
 		} // end bringToEnd();
-		
+
+		/**
+		 * Returns the internal subnode array.
+		 *
+		 * @internal
+		 * @return Array
+		 */
 		public function getSubnodeArray()
 		{
 			return $this->_subnodes;
@@ -485,6 +599,18 @@
 			unset($buffer);
 		} // end clearNode();
 	*/
+		protected function _cloneHandler()
+		{
+			/* null */
+		} // end _cloneHandler();
+
+		/**
+		 * The cloning helper that clones also all the descendants. The cloning algorithm
+		 * does not use true recursion, so that it can be safely used even with very deep
+		 * trees.
+		 *
+		 * @internal
+		 */
 		final public function __clone()
 		{
 			if($this->get('__nrc') === true)
@@ -497,6 +623,7 @@
 				$this->_i = NULL;
 				$this->_size = 0;
 				$this->_copy = NULL;
+				$this->_cloneHandler();
 			}
 			else
 			{
@@ -535,6 +662,11 @@
 			}
 		} // end __clone();
 
+		/**
+		 * Removes the connections between all the descendants so that they can
+		 * be safely collected by the PHP garbage collector. Remember to use this
+		 * method before you free the last reference to the root node.
+		 */
 		public function dispose()
 		{
 			// The main instance of cloning, it makes copies of all the subnodes.
@@ -567,6 +699,11 @@
 			$this->_dispose();
 		} // end dispose();
 
+		/**
+		 * Extra dispose function.
+		 *
+		 * @internal
+		 */
 		protected function _dispose()
 		{
 			parent::_dispose();

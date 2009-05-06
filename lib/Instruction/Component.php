@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -123,8 +122,39 @@
 			$cn = '$_component_'.($this->_unique++);
 
 			$this->_stack->push($cn);
-			
-			$mainCode = $cn.' = new '.$this->_compiler->component($node->getXmlName()).'; '.$cn.'->setView($this); ';
+
+			$class = $this->_compiler->component($node->getXmlName());
+
+			// Check, if there are any conversions that may take control over initializing
+			// the component object. We are allowed to capture only particular component
+			// creation or all of them.
+			if((($to = $this->_compiler->convert('##component_'.$class)) != '##component_'.$class))
+			{
+				$attributes = 'array(';
+				foreach($vars as $name => $value)
+				{
+					$attributes .= '\''.$name.'\' => '.$value.', ';
+				}
+				$attributes .= ')';
+				$ccode = str_replace(array('%CLASS%', '%TAG%', '%ATTRIBUTES%'), array($class, $node->getXmlName(), $attributes), $to);
+			}
+			elseif((($to = $this->_compiler->convert('##component')) != '##component'))
+			{
+				$attributes = 'array(';
+				foreach($vars as $name => $value)
+				{
+					$attributes .= '\''.$name.'\' => '.$value.', ';
+				}
+				$attributes .= ')';
+				$ccode = str_replace(array('%CLASS%', '%TAG%', '%ATTRIBUTES%'), array($class, $node->getXmlName(), $attributes), $to);
+			}
+			else
+			{
+				$ccode = 'new '.$class;
+			}
+
+			// Generate the initialization code
+			$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
 			if(!is_null($params['datasource']))
 			{
 				$mainCode .= $cn.'->setDatasource('.$params['datasource'].'); ';

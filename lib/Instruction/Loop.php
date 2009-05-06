@@ -13,9 +13,11 @@
  * $Id: Loop.php 18 2008-10-29 21:23:43Z zyxist $
  */
 
-	/*
+	/**
 	 * This abstract class contains various tools useful for loop instructions.
 	 * Currently it supports separators.
+	 *
+	 * @abstract
 	 */
 	abstract class Opt_Instruction_Loop extends Opt_Compiler_Processor
 	{

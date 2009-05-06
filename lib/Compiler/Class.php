@@ -1,6 +1,7 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -40,29 +41,29 @@
 		const OP_BRACKET_E = 4194304;
 		const OP_TU = 8388608;
 		const OP_CURLY_BRACKET = 16777216;
-		
+
 		const DEFAULT_FORMAT_CLASS = 'Array';
-		
+
 		const ESCAPE_ON = true;
 		const ESCAPE_OFF = false;
 		const ESCAPE_BOTH = 2;
-	
-	
+
+
 		// Current compilation
 		protected $_template = NULL;
 		protected $_attr = array();
 		protected $_stack = NULL;
 		protected $_node = NULL;
-		
+
 		static protected $_recursionDetector = NULL;
-		
+
 		// Compiler info
 		protected $_tags = array();
 		protected $_attributes = array();
 		protected $_conversions = array();
 		protected $_processors = array();
 		protected $_dependencies = array();
-		
+
 		// OPT parser info
 		protected $_tpl;
 		protected $_instructions;
@@ -72,11 +73,12 @@
 		protected $_blocks;
 		protected $_components;
 		protected $_tf;
+		protected $_entities;
 		protected $_formnatInfo;
 		protected $_formats = array();
 		protected $_formatObj = array();
 		protected $_inheritance;
-		
+
 		// Regular expressions
 		private $_rCDataExpression = '/(\<\!\[CDATA\[|\]\]\>)/msi';
 		private $_rCommentExpression = '/(\<\!\-\-|\-\-\>)/si';
@@ -88,20 +90,20 @@
 		private $_rTagExpandExpression;
 		private $_rQuirksTagExpression = '';
 		private $_rExpressionTag = '/(\{([^\}]+)\})/msi';
-		private $_rAttributeTokens = '/(?:[^\=\"\s]+|\=|\"|\s)/x';
+		private $_rAttributeTokens = '/(?:[^\=\"\'\s]+|\=|\"|\'|\s)/x';
 		private $_rPrologTokens = '/(?:[^\=\"\'\s]+|\=|\'|\"|\s)/x';
 		private $_rModifiers = 'si';
 		private $_rXmlHeader = '/(\<\?xml.+\?\>)/msi';
 		private $_rProlog = '/\<\?xml(.+)\?\>|/msi';
 		private $_rEncodingName = '/[A-Za-z]([A-Za-z0-9.\_]|\-)*/si';
-		
+
 		private $_rBacktickString = '`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`';
 		private $_rSingleQuoteString = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
 		private $_rHexadecimalNumber = '\-?0[xX][0-9a-fA-F]+';
 		private $_rDecimalNumber = '[0-9]+\.?[0-9]*';
 		private $_rLanguageVar = '\$[a-zA-Z0-9\_]+@[a-zA-Z0-9\_]+';
 		private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]*';
-		private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|';
+		private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|\'|\"|';
 		private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]+';
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
 
@@ -110,7 +112,8 @@
 		private $_translationConversion = null;
 		private $_initialMemory = null;
 		private $_comments = 0;
-		
+		private $_standalone = false;
+
 		static private $_templates = array();
 
 		/**
@@ -133,8 +136,9 @@
 				$this->_phpFunctions = $tpl->_getList('_phpFunctions');
 				$this->_formats = $tpl->_getList('_formats');
 				$this->_tf = $tpl->_getList('_tf');
+				$this->_entities = $tpl->_getList('_entities');
 				$this->_charset = strtoupper($tpl->charset);
-				
+
 				// Create the processors and call their configuration method in the constructors.
 				$instructions = $tpl->_getList('_instructions');
 				$cnt = sizeof($instructions);
@@ -143,7 +147,7 @@
 					$name = 'Opt_Instruction_'.$instructions[$i];
 					$obj = new $name($this, $tpl);
 					$this->_processors[$obj->getName()] = $obj;
-					
+
 					// Add the tags and attributes registered by this processor.
 					foreach($obj->getInstructions() as $item)
 					{
@@ -172,9 +176,10 @@
 				$this->_instructions = $tpl->_instructions;
 				$this->_attributes = $tpl->_attributes;
 				$this->_charset = $tpl->_charset;
+				$this->_entities = $tpl->_entities;
 				$tpl = $this->_tpl;
 			}
-			
+
 			if($tpl->unicodeNames)
 			{
 				// Register unicode name regular expressions
@@ -182,13 +187,13 @@
 				$this->_rNameChar = '(\p{Lu}|\p{Ll}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Nl}|\p{Mc}|\p{Me}|\p{Mn}|\p{Lm}|\p{Nd}|\_|\:|\.|\-)';
 				$this->_rModifiers = 'msiu';
 			}
-			
+
 			// Register the rest of the expressions
 			$this->_rNameExpression = '/('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)/'.$this->_rModifiers;
 			$this->_rXmlTagExpression = '/(\<((\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?)\>)/'.$this->_rModifiers;
 			$this->_rTagExpandExpression = '/^(\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?$/'.$this->_rModifiers;
-			
-			
+
+
 			$this->_rQuirksTagExpression = '/(\<((\/)?(('.implode('|', $this->_namespaces).')\:'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?)\>)/'.$this->_rModifiers;
 			// We've just thrown the performance away by loading the compiler, so this won't make things worse
 			// but the user may be happy :). However, don't show this message, if we are in the performance mode.
@@ -209,6 +214,7 @@
 				Opl_Loader::load('Opt_Xml_Expression');
 				Opl_Loader::load('Opt_Xml_Prolog');
 				Opl_Loader::load('Opt_Xml_Dtd');
+				Opl_Loader::load('Opt_Format_Array');
 			}
 		} // end __construct();
 
@@ -227,11 +233,11 @@
 			for($i = 0; $i < $cnt; $i++)
 			{
 				$name = 'Opt_Instruction_'.$instructions[$i];
-				$obj = new $name($this, $tpl);	
+				$obj = new $name($this, $tpl);
 				$this->_processors[$obj->getName()] = $obj;
 			}
 		} // end __clone();
-	
+
 		/*
 		 * General purpose tools and utilities
 		 */
@@ -262,16 +268,6 @@
 			self::$_recursionDetector = null;
 			self::$_templates = array();
 		} // end cleanCompiler();
-
-		/**
-		 * Returns the main OPT class associated with this compiler.
-		 *
-		 * @return Opt_Class The main OPT class
-		 */
-		public function getParser()
-		{
-			return $this->_tpl;
-		} // end getParser();
 
 		/**
 		 * Returns the value of the compiler state variable or
@@ -316,19 +312,19 @@
 		{
 			// OPT Configuration
 			$escape = $this->_tpl->escape;
-			
+
 			// Template configuration
 			if(!is_null($this->get('escaping')))
 			{
 				$escape = ($this->get('escaping') == true ? true : false);
 			}
-			
+
 			// Expression settings
 			if(!is_null($status))
 			{
 				$escape = ($status == true ? true : false);
 			}
-			
+
 			if($escape)
 			{
 				// The user may define a custom escaping function
@@ -354,7 +350,7 @@
 		 */
 		public function getFormat($variable, $restore = false)
 		{
-			$hc = self::DEFAULT_FORMAT_CLASS;			
+			$hc = self::DEFAULT_FORMAT_CLASS;
 			if(isset($this->_formatInfo[$variable]))
 			{
 				$hc = $this->_formatInfo[$variable];
@@ -363,7 +359,7 @@
 			{
 				return $this->_formatObj[$hc];
 			}
-			
+
 			$top = $this->createFormat($variable, $hc);
 			if($restore)
 			{
@@ -414,7 +410,15 @@
 		{
 			$this->_formatInfo = $list;
 		} // end setFormatList();
-		
+
+		/**
+		 * Converts the specified item into another string using one of the
+		 * registered patterns. If the pattern is not found, the method returns
+		 * the original item unmodified.
+		 *
+		 * @param String $item The item to be converted.
+		 * @return String
+		 */
 		public function convert($item)
 		{
 			// the converter allows to convert one name into another and keep it, if there is no
@@ -425,12 +429,25 @@
 			}
 			return $item;
 		} // end convert();
-		
+
+		/**
+		 * Creates a new conversion pattern. The string $from will be converted
+		 * into $to.
+		 *
+		 * @param String $from The original string
+		 * @param String $to The new string
+		 */
 		public function setConversion($from, $to)
 		{
 			$this->_conversions[$from] = $to;
 		} // end setConversion();
-		
+
+		/**
+		 * Removes the conversion pattern from the compiler memory.
+		 *
+		 * @param String $from The original string.
+		 * @return Boolean
+		 */
 		public function unsetConversion($from)
 		{
 			if(isset($this->_conversions[$from]))
@@ -440,15 +457,29 @@
 			}
 			return false;
 		} // end unsetConversion();
-		
+
+		/**
+		 * Registers the dynamic inheritance rules for the templates. The
+		 * array taken as a parameter must be an assotiative array of pairs
+		 * 'extending' => 'extended' file names.
+		 *
+		 * @param Array $inheritance The list of inheritance rules.
+		 */
 		public function setInheritance(Array $inheritance)
 		{
 			$this->_inheritance = $inheritance;
 		} // end setInheritance();
-		
+
+		/**
+		 * Parses the entities in the specified text.
+		 *
+		 * @param String $text The original text
+		 * @return String
+		 */
 		public function parseEntities($text)
 		{
-			return htmlspecialchars_decode(str_replace(array('&lb;', '&rb;'), array('{', '}'), $text));
+			return preg_replace_callback('/\&(([a-zA-Z\_\:]{1}[a-zA-Z0-9\_\:\-\.]*)|(\#((x[a-fA-F0-9]+)|([0-9]+))))\;/', array($this, '_decodeEntity'), $text);
+		//	return htmlspecialchars_decode(str_replace(array_keys($this->_entities), array_values($this->_entities), $text));
 		} // end parseEntities();
 
 		/**
@@ -472,9 +503,18 @@
 		 */
 		public function parseSpecialChars($text)
 		{
+			return htmlspecialchars($text);
 			return preg_replace_callback('/(\&\#?[a-zA-Z0-9]*\;)|\<|\>|\"|\&/', array($this, '_entitize'), $text);
 		} // end parseSpecialChars();
-		
+
+		/**
+		 * Returns 'true', if the argument is a valid identifier. An identifier
+		 * must begin with a letter or underscore, and later, the numbers are also
+		 * allowed.
+		 *
+		 * @param String $id The tested string
+		 * @return Boolean
+		 */
 		public function isIdentifier($id)
 		{
 			return preg_match($this->_rEncodingName, $id);
@@ -496,6 +536,12 @@
 			return NULL;
 		} // end isInstruction();
 
+		/**
+		 * Returns true, if the argument is the name of an OPT attribute.
+		 *
+		 * @param String $tag The attribute name
+		 * @return Boolean
+		 */
 		public function isOptAttribute($tag)
 		{
 			if(isset($this->_attributes[$tag]))
@@ -504,7 +550,13 @@
 			}
 			return NULL;
 		} // end isOptAttribute();
-		
+
+		/**
+		 * Returns true, if the argument is the OPT function name.
+		 *
+		 * @param String $name The function name
+		 * @return Boolean
+		 */
 		public function isFunction($name)
 		{
 			if(isset($this->_functions[$name]))
@@ -513,7 +565,14 @@
 			}
 			return NULL;
 		} // end isFunction();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the class
+		 * accepted by OPT.
+		 *
+		 * @param String $id The class name.
+		 * @return Boolean
+		 */
 		public function isClass($id)
 		{
 			if(isset($this->_classes[$id]))
@@ -522,22 +581,45 @@
 			}
 			return NULL;
 		} // end isClass();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the namespace
+		 * processed by OPT.
+		 *
+		 * @param String $ns The namespace name
+		 * @return Boolean
+		 */
 		public function isNamespace($ns)
 		{
 			return in_array($ns, $this->_namespaces);
 		} // end isNamespace();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the component tag.
+		 * @param String $component The component tag name
+		 * @return Boolean
+		 */
 		public function isComponent($component)
 		{
 			return isset($this->_components[$component]);
 		} // end isComponent();
-		
+
+		/**
+		 * Returns true, if the argument is the name of the block tag.
+		 * @param String $block The block tag name.
+		 * @return Boolean
+		 */
 		public function isBlock($block)
 		{
 			return isset($this->_blocks[$block]);
 		} // end isComponent();
-		
+
+		/**
+		 * Returns true, if the argument is the processor name.
+		 *
+		 * @param String $name The instruction processor name
+		 * @return Boolean
+		 */
 		public function isProcessor($name)
 		{
 			if(!isset($this->_processors[$name]))
@@ -546,7 +628,14 @@
 			}
 			return $this->_processors[$name];
 		} // end isProcessor();
-		
+
+		/**
+		 * Returns the processor object with the specified name. If
+		 * the processor does not exist, it generates an exception.
+		 *
+		 * @param String $name The processor name
+		 * @return Opt_Compiler_Processor
+		 */
 		public function processor($name)
 		{
 			if(!isset($this->_processors[$name]))
@@ -555,7 +644,15 @@
 			}
 			return $this->_processors[$name];
 		} // end processor();
-		
+
+		/**
+		 * Returns the component class name assigned to the specified
+		 * XML tag. If the component class is not registered, it throws
+		 * an exception.
+		 *
+		 * @param String $name The component XML tag name.
+		 * @return Opt_Component_Interface
+		 */
 		public function component($name)
 		{
 			if(!isset($this->_components[$name]))
@@ -564,7 +661,15 @@
 			}
 			return $this->_components[$name];
 		} // end component();
-		
+
+		/**
+		 * Returns the block class name assigned to the specified
+		 * XML tag. If the block class is not registered, it throws
+		 * an exception.
+		 *
+		 * @param String $name The block XML tag name.
+		 * @return Opt_Block_Interface
+		 */
 		public function block($name)
 		{
 			if(!isset($this->_blocks[$name]))
@@ -573,7 +678,13 @@
 			}
 			return $this->_blocks[$name];
 		} // end block();
-		
+
+		/**
+		 * Returns the template name that is inherited by the template '$name'
+		 *
+		 * @param String $name The "current" template file name
+		 * @return String
+		 */
 		public function inherits($name)
 		{
 			if(isset($this->_inheritance[$name]))
@@ -582,7 +693,14 @@
 			}
 			return NULL;
 		} // end inherits();
-		
+
+		/**
+		 * Adds the template file name to the dependency list of the currently
+		 * compiled file, so that it could be checked for modifications during
+		 * the execution.
+		 *
+		 * @param String $template The template file name.
+		 */
 		public function addDependantTemplate($template)
 		{
 			if(in_array($template, $this->_dependencies))
@@ -591,10 +709,16 @@
 				$exception->setData($this->_dependencies);
 				throw $exception;
 			}
-			
+
 			$this->_dependencies[] = $template;
 		} // end addDependantTemplate();
-		
+
+		/**
+		 * Imports the dependencies from another compiler object and adds them
+		 * to the actual dependency list.
+		 *
+		 * @param Opt_Compiler_Class $compiler Another compiler object.
+		 */
 		public function importDependencies(Opt_Compiler_Class $compiler)
 		{
 			$this->_dependencies = array_merge($this->_dependencies, $compiler->_dependencies);
@@ -617,7 +741,7 @@
 		{
 			// Tokenize the list
 			preg_match_all($this->_rAttributeTokens, $attrList, $match, PREG_SET_ORDER);
-			
+
 			$size = sizeof($match);
 			$result = array();
 			for($i = 0; $i < $size; $i++)
@@ -635,17 +759,17 @@
 				 */
 				if(!ctype_space($match[$i][0]))
 				{
-					
+
 					if(!preg_match($this->_rNameExpression, $match[$i][0]))
 					{
 						return false;
 					}
-					
+
 					$vret = false;
 					$name = $match[$i][0];
 					$value = null;
 					for($i++; ctype_space($match[$i][0]) && $i < $size; $i++){}
-					
+
 					if($match[$i][0] != '=')
 					{
 						if($this->_tpl->htmlAttributes)
@@ -658,16 +782,21 @@
 							return false;
 						}
 					}
+					// Look for the attribute value start
 					for($i++; ctype_space($match[$i][0]) && $i < $size; $i++){}
-				
-					if($match[$i][0] != '"')
+
+					if($match[$i][0] != '"' && $match[$i][0] != '\'')
 					{
 						return false;
 					}
+
+					// Save the delimiter, because we will use it to make the error checking
+					$delimiter = $match[$i][0];
+
 					$value = '';
 					for($i++; $i < $size; $i++)
 					{
-						if($match[$i][0] == '"')
+						if($match[$i][0] == $delimiter)
 						{
 							break;
 						}
@@ -677,7 +806,7 @@
 					{
 						return false;
 					}
-					if($match[$i][0] != '"')
+					if($match[$i][0] != $delimiter)
 					{
 						return false;
 					}
@@ -688,12 +817,12 @@
 			}
 			return $result;
 		} // end _compileAttributes();
-		
+
 		protected function _compileProlog($prolog)
 		{
 			// Tokenize the list
 			preg_match_all($this->_rPrologTokens, $prolog, $match, PREG_SET_ORDER);
-				
+
 			$size = sizeof($match);
 			$result = array();
 			for($i = 0; $i < $size; $i++)
@@ -705,18 +834,18 @@
 					{
 						throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
 					}
-						
+
 					$vret = false;
 					$name = $match[$i][0];
 					$value = null;
 					for($i++; $i < $size && ctype_space($match[$i][0]); $i++){}
-						
+
 					if($i >= $size || $match[$i][0] != '=')
 					{
 						throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
 					}
 					for($i++; ctype_space($match[$i][0]) && $i < $size; $i++){}
-					
+
 					if($match[$i][0] != '"' && $match[$i][0] != '\'')
 					{
 						throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
@@ -783,7 +912,7 @@
 			}
 			return $returnedResult;
 		} // end _compileProlog();
-		
+
 		protected function _addDependencies($tree)
 		{
 			// OK, there is really some info to include!
@@ -792,9 +921,9 @@
 			{
 				$list .= '\''.$a.'\',';
 			}
-			
-			$tree->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(!$this->_massPreprocess($this->_template, $compileTime, array('.$list.'))){ ');
-			$tree->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' }else{ $compileTime = $this->_compile($this->_template, $mode); require(__FILE__); } ');				
+
+			$tree->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(!$this->_massPreprocess($compileTime, array('.$list.'))){ ');
+			$tree->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' }else{ $compileTime = $this->_compile($this->_template, $mode); require(__FILE__); } ');
 		} // end _addDependencies();
 
 		/**
@@ -823,9 +952,9 @@
 			{
 				$current = $this->_treeTextAppend($current, $this->parseEntities($text));
 			}
-			
+
 			preg_match_all($this->_rExpressionTag, $text, $result, PREG_SET_ORDER);
-			
+
 			$resultSize = sizeof($result);
 			$offset = 0;
 			for($i = 0; $i < $resultSize; $i++)
@@ -833,13 +962,13 @@
 				$id = strpos($text, $result[$i][0], $offset);
 				if($id > $offset)
 				{
-					$current = $this->_treeTextAppend($current, $this->parseEntities(substr($text, $offset, $id - $offset)));						
+					$current = $this->_treeTextAppend($current, $this->parseEntities(substr($text, $offset, $id - $offset)));
 				}
 				$offset = $id + strlen($result[$i][0]);
-				
+
 				$current = $this->_treeTextAppend($current, new Opt_Xml_Expression($this->parseEntities($result[$i][2])));
 			}
-			
+
 			$i--;
 			// Now the remaining content of the file
 			if(strlen($text) > $offset)
@@ -888,7 +1017,7 @@
 			}
 			return $current;
 		} // end _treeTextAppend();
-		
+
 		protected function _treeNodeAppend($current, $node, $goInto)
 		{
 			$current->appendChild($node);
@@ -898,18 +1027,18 @@
 			}
 			return $current;
 		} // end _treeNodeAppend();
-		
+
 		protected function _treeJumpOut($current)
 		{
 			$parent = $current->getParent();
-			
+
 			if(!is_null($parent))
 			{
 				return $parent;
 			}
 			return $current;
 		} // end _treeJumpOut();
-		
+
 		protected function _processXml(Opt_Xml_Element $node, $specialNs = true)
 		{
 			if(!$node->hasAttributes())
@@ -931,7 +1060,7 @@
 						case 'parse':
 							if($specialNs)
 							{
-								$result = $this->compileExpression((string)$attr, false);						
+								$result = $this->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_BOTH);
 								$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo '.$result[0].'; ');
 								$attr->setNamespace(null);
 							}
@@ -957,7 +1086,7 @@
 			}
 			return $pp;
 		} // end _processXml();
-		
+
 		protected function _postprocessXml(Opt_Xml_Node $node, Array $list)
 		{
 			$cnt = sizeof($list);
@@ -981,7 +1110,7 @@
 		 * @return SplQueue The new queue (or the old one, if none has been created).
 		 */
 		protected function _pushQueue($stack, $queue, $item, $pp)
-		{		
+		{
 			if($item->hasChildren())
 			{
 				$stack->push(array($item, $queue, $pp));
@@ -992,10 +1121,10 @@
 					$queue->enqueue($child);
 				}
 			}
-			
+
 			return $queue;
 		} // end _pushQueue();
-		
+
 		protected function _doPostprocess($item, $pp)
 		{
 			// Postprocess code for the compilation stage 2
@@ -1055,7 +1184,7 @@
 				case 'Opt_Xml_Text':
 					$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 					break;
-				case 'Opt_Xml_Element':							
+				case 'Opt_Xml_Element':
 					if($this->isNamespace($item->getNamespace()))
 					{
 						$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
@@ -1098,7 +1227,7 @@
 			// Links the attributes into the PHP code
 			if($subitem->hasAttributes() || $subitem->bufferSize(Opt_Xml_Buffer::TAG_BEGINNING_ATTRIBUTES) > 0 || $subitem->bufferSize(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES) > 0)
 			{
-			
+
 				$code = $subitem->buildCode(Opt_Xml_Buffer::TAG_ATTRIBUTES_BEFORE, Opt_Xml_Buffer::TAG_BEGINNING_ATTRIBUTES);
 				$attrList = $subitem->getAttributes();
 				// Link attributes into a string
@@ -1131,16 +1260,16 @@
 					}
 					$code .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_END);
 				}
-				return $code.$subitem->buildCode(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, Opt_Xml_Buffer::TAG_ATTRIBUTES_AFTER);				
+				return $code.$subitem->buildCode(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, Opt_Xml_Buffer::TAG_ATTRIBUTES_AFTER);
 			}
 			return '';
 		} // end _linkAttributes();
-		
+
 		// TODO: Remove in the final version.
 		public function _debugPrintNodes($node)
 		{
 			echo '<ul>';
-			
+
 			foreach($node as $id => $subnode)
 			{
 				if(!is_object($subnode))
@@ -1148,7 +1277,7 @@
 					echo '<li><font color="red"><strong>Non-object value detected in the node list! Type: '.gettype($subnode).'</strong></font></li>';
 					continue;
 				}
-				
+
 				$hidden = $subnode->get('hidden') ? ' (HIDDEN)' : '';
 				switch($subnode->getType())
 				{
@@ -1176,20 +1305,29 @@
 						echo ')';
 						if($subnode->get('single') === true)
 						{
-							echo ' single';	
+							echo ' single';
 						}
 						$this ->_debugPrintNodes($subnode);
 						echo $hidden.'</li>';
 						break;
-				}				
+				}
 			}
 			echo '</ul>';
 		} // end _debugPrintNodes();
-		
+
 		/*
 		 * Main compilation methods
 		 */
-		
+
+		/**
+		 * The compilation launcher. It executes the proper compilation steps
+		 * according to the inheritance rules etc.
+		 *
+		 * @param String $code The source code to be compiled.
+		 * @param String $filename The source template filename.
+		 * @param String $compiledFilename The output template filename.
+		 * @param Int $mode The compilation mode.
+		 */
 		public function compile($code, $filename, $compiledFilename, $mode)
 		{
 			try
@@ -1373,15 +1511,24 @@
 				throw $e;
 			}
 		} // end compile();
-		
+
+		/**
+		 * Compilation - stage 1 - parsing the input template and
+		 * building an XML tree.
+		 *
+		 * @internal
+		 * @param String &$code The code to be parsed
+		 * @param String $filename Currently unused.
+		 * @param Int $mode The compilation mode.
+		 * @return Opt_Xml_Root The root node of the new tree.
+		 */
 		protected function _stage1(&$code, $filename, $mode)
 		{
 			$current = $tree = new Opt_Xml_Root;
-			
-			// First we have to find the prolog and DTD. Then we will be able to parse tags.
-
 			$codeSize = strlen($code);
-			
+			$encoding = $this->_tpl->charset;
+
+			// First we have to find the prolog and DTD. Then we will be able to parse tags.
 			if($mode != Opt_Class::QUIRKS_MODE)
 			{
 				// Find and parse XML prolog
@@ -1413,7 +1560,7 @@
 				}
 				// Try to find doctype at the new position.
 				$possibleDoctype = substr($code, $i, 9);
-				
+
 				if($possibleDoctype == '<!doctype' || $possibleDoctype == '<!DOCTYPE')
 				{
 					// OK, we've found it, now determine the doctype end.
@@ -1534,7 +1681,7 @@
 					 *  4 - arguments (5 in quirks mode)
 					 *  5 - /, if enclosing tag without subcontent (6 in quirks mode)
 					 */
-					
+
 					$resultSize = sizeof($result);
 					$offset = 0;
 					for($j = 0; $j < $resultSize; $j++)
@@ -1543,13 +1690,13 @@
 						$id = strpos($subgroups[$i], $result[$j][0], $offset);
 						if($id > $offset)
 						{
-							$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, $id - $offset));					
+							$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, $id - $offset));
 						}
 						$offset = $id + strlen($result[$j][0]);
 						if(!isset($result[$j][$endingSlashCell]))
 						{
 							$result[$j][$endingSlashCell] = '';
-						}					
+						}
 						// Process the argument list
 						$attributes = array();
 						if(!empty($result[$j][$attributeCell]))
@@ -1576,7 +1723,7 @@
 							$node->set('single', $result[$j][$endingSlashCell] == '/');
 							foreach($attributes as $name => $value)
 							{
-								$node->addAttribute(new Opt_Xml_Attribute($name, $value));
+								$node->addAttribute($anode = new Opt_Xml_Attribute($name, $value));
 							}
 							$current = $this->_treeNodeAppend($current, $node, $result[$j][$endingSlashCell] != '/');
 						}
@@ -1595,7 +1742,7 @@
 							}
 							else
 							{
-								throw new Opt_XmlInvalidOrder_Exception($result[$j][4], 'NULL');	
+								throw new Opt_XmlInvalidOrder_Exception($result[$j][4], 'NULL');
 							}
 							$current = $this->_treeJumpOut($current);
 						}
@@ -1634,12 +1781,19 @@
 			return $tree;
 		} // end _stage1();
 
+		/**
+		 * Compilation - stage 2. Traversing through the tree and doing something
+		 * with the tree and the nodes. The method is recursion-safe.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The initial node.
+		 */
 		protected function _stage2(Opt_Xml_Node $node)
 		{
 			$queue = new SplQueue;
 			$stack = new SplStack;
 			$queue->enqueue($node);
-			
+
 			while(true)
 			{
 				$item = NULL;
@@ -1650,21 +1804,21 @@
 				$pp = array();
 
 				// We set the "hidden" state unless it is set.
-				
+
 				try
 				{
 					if(is_null($item))
 					{
 						throw new Opl_Goto_Exception;
 					}
-					
+
 					$stateSet = false;
 					if(is_null($item->get('hidden')))
-					{ 
+					{
 						$item->set('hidden', true);
 						$stateSet = true;
 					}
-	
+
 					// Proper processing
 					switch($item->getType())
 					{
@@ -1706,9 +1860,9 @@
 									$processor = $this->processor('block');
 									$processor->processBlock($item);
 								}
-								
+
 								if(is_object($processor))
-								{									
+								{
 									$stateSet and $item->set('hidden', false);
 									$result = $processor->getQueue();
 									if(!is_null($result))
@@ -1775,7 +1929,7 @@
 							}
 							break;
 					}
-				
+
 				}
 				catch(Opl_Goto_Exception $e){}
 				$this->_doPostprocess($item, $pp);
@@ -1806,7 +1960,7 @@
 			$queue = new SplQueue;
 			$stack = new SplStack;
 			$queue->enqueue($node);
-			
+
 			// Reset the output
 			$output = '';
 			$wasElement = false;
@@ -1871,14 +2025,21 @@
 								{
 									// In the opposite case reduce all the groups of the white characters
 									// to single spaces in the text.
-									$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+									if($item->get('noEntitize') === true)
+									{
+										$output .= trim(preg_replace('/\s\s+/', ' ', (string)$item));
+									}
+									else
+									{
+										$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+									}
 								}
 							}
 							else
 							{
-								$output .= $this->parseSpecialChars($item);
+								$output .= ($item->get('noEntitize') ? (string)$item : $this->parseSpecialChars($item));
 							}
-							
+
 							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
 							$this->_closeComments($item, $output);
 							break;
@@ -1898,13 +2059,19 @@
 									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE,
 										Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER);
 								}
-								else
+								elseif($item->hasChildren())
 								{
 									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
 										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
-									
+
 									$queue = $this->_pushQueue($stack, $queue, $item, NULL);
 									// Next part in the post-process section
+								}
+								else
+								{
+									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
+										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
+										Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
 								}
 							}
 							else
@@ -1984,7 +2151,7 @@
 					}
 				}
 				catch(Opl_Goto_Exception $goto){}	// postprocess:
-				
+
 				if($queue->count() == 0)
 				{
 					if($stack->count() == 0)
@@ -1992,9 +2159,9 @@
 						break;
 					}
 					$output .= $this->_doPostlinking($item);
-					
+
 					list($item, $queue, $pp) = $stack->pop();
-					
+
 					$output .= $this->_doPostlinking($item);
 				}
 			}
@@ -2004,7 +2171,7 @@
 				$output = rtrim($output);
 			}
 		} // end _stage3();
-		
+
 		/*
 		 * Expression compiler
 		 */
@@ -2015,7 +2182,7 @@
 		 *
 		 * @param String $expr The expression
 		 * @param Boolean $allowAssignment=false True, if the assignments are allowed.
-		 * @param Int $escape=self::ESCAPE_BOTH The HTML escaping policy for this expression.
+		 * @param Int $escape=self::ESCAPE_ON The HTML escaping policy for this expression.
 		 * @return Array An array consisting of four elements: the compiled expression,
 		 *   the assignment status and the variable status (if the expression is in fact
 		 *   a single variable). If the escaping is controlled by the template or the
@@ -2033,7 +2200,7 @@
 					$this->_rVariable.'|'.
 					$this->_rOperators.'|'.
 					$this->_rIdentifier.')/x', $expr, $match);
-					
+
 			// Skip the whitespaces and create the translation units
 			$cnt = sizeof($match[0]);
 			$stack = new SplStack;
@@ -2056,7 +2223,7 @@
 				{
 					continue;
 				}
-				
+
 				// TODO: Add error checking here!
 				switch($match[0][$i])
 				{
@@ -2084,7 +2251,10 @@
 							unset($tu[$tuid]);
 							--$maxTuid;
 						}
-						$tuid = $stack->pop();
+						if($stack->count() > 0)
+						{
+							$tuid = $stack->pop();
+						}
 						if($prev == '(')
 						{
 							array_pop($tu[$tuid]);
@@ -2099,7 +2269,7 @@
 						$tu[$tuid][] = $match[0][$i];
 				}
 				$prev = $match[0][$i];
-			}			
+			}
 			/*
 			 * Now we have an array of translation units and their tokens and
 			 * we can process it linearly, thus avoiding recursive calls.
@@ -2107,10 +2277,10 @@
 			foreach($tu as $id => &$tuItem)
 			{
 				$tuItem = $this->_compileExpression($expr, $allowAssignment, $tuItem, $id);
-			}			
+			}
 			$assign = $tu[0][1];
 			$variable = $tu[0][2];
-			
+
 			/*
 			 * Finally, we have to link all the subexpressions into an output
 			 * expression. We use SPL stack to achieve this, because we need
@@ -2120,14 +2290,14 @@
 			$i = -1;
 			$cnt = sizeof($tu[0][0]);
 			$stack = new SplStack;
-			
+
 			$expression = '';
-			
+
 			while(true)
 			{
 				$i++;
 				$token = &$tu[$tuid][0][$i];
-				
+
 				// If we've found a translation unit, we must stop for a while the current one
 				// and link the new.
 				if(strlen($token) > 0 && $token[0] == $chr)
@@ -2136,13 +2306,13 @@
 					$tuid = (int)ltrim($token, $chr);
 					$i = -1;
 					$cnt = sizeof($tu[$tuid][0]);
-					continue;				
+					continue;
 				}
 				else
 				{
 					$expression .= $token;
 				}
-			
+
 				if($i >= $cnt)
 				{
 					if($stack->count() == 0)
@@ -2155,7 +2325,7 @@
 					list($tuid, $i, $cnt) = $stack->pop();
 				}
 			}
-			
+
 			/*
 			 * Now it's time to apply the escaping policy to this expression. We check
 			 * the expression for the "e:" and "u:" modifiers and redirect the task to
@@ -2206,7 +2376,7 @@
 			 * we have the following translation units:
 			 * 1. $a is #TU2 * $d
 			 * 2. $b + $c
-			 * 
+			 *
 			 * They are compiled separately and automatically, so you do not have to do this on
 			 * your own. This has been done to remove the recursion from the source code, and moreover
 			 * it allows, for example, to manage the argument order in the functions.
@@ -2238,7 +2408,7 @@
 				'shl' => '<<',
 				'shr' => '>>'
 			);
-			
+
 			// Previous token information
 			$previous = array(
 				'token' => null,
@@ -2280,7 +2450,7 @@
 					'source' => $token,		// Original form of the token is also remembered.
 					'result' => null,		// Here we have to put the result PHP code generated from the token.
 				);
-				
+
 				// Find out, what it is and process it.
 				switch($token)
 				{
@@ -2310,10 +2480,14 @@
 							$state['next'] = self::OP_NULL | self::OP_SQ_BRACKET;
 						}
 						break;
+					// These tokens are invalid and must produce an error
+					case '\'':
+					case '"':
 					case '{':
 					case '}':
 						throw new Opt_Expression_Exception('OP_CURLY_BRACKET', $token, $expr);
 						break;
+					// Text operators.
 					case 'add':
 					case 'sub':
 					case 'mul':
@@ -2336,7 +2510,7 @@
 						// These guys can be also method names, if in proper context
 						if($previous['token'] == self::OP_CALL)
 						{
-							$this->_compileIdentifier($token, $previous['token'], $previous['result'], 
+							$this->_compileIdentifier($token, $previous['token'], $previous['result'],
 								isset($tokens[$i+1]) ? $tokens[$i+1] : null, $operatorSet, $expr, $current, $state);
 							break;
 						}
@@ -2345,7 +2519,7 @@
 					case 'xor':
 						$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
 
-						// And these three ones - only strings.		
+						// And these three ones - only strings.
 						if($state['next'] & self::OP_STRING)
 						{
 							$current['result'] = '\''.$token.'\'';
@@ -2373,7 +2547,7 @@
 						$current['token'] = self::OP_PRE_OPERATOR;
 						$current['result'] = $wordOperators[$token];
 						$state['next'] = $valueSet;
-						$state['variable'] = false;					
+						$state['variable'] = false;
 						break;
 					case 'new':
 					case 'clone':
@@ -2425,13 +2599,13 @@
 					case '+':
 					case '*':
 					case '/':
-					case '%':						
+					case '%':
 						if(!($state['next'] & self::OP_OPERATOR))
 						{
 							throw new Opt_Expression_Exception('OP_OPERATOR', $token, $expr);
 						}
 						$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
-						
+
 						$current['result'] = $token;
 						$state['next'] = $valueSet;
 						$state['oper'] = true;
@@ -2442,7 +2616,7 @@
 						if($state['next'] & self::OP_OPERATOR)
 						{
 							$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
-							
+
 							$current['result'] = $token;
 							$state['oper'] = true;
 							$state['next'] = $valueSet;
@@ -2477,7 +2651,7 @@
 						{
 							$current['token'] = self::OP_POST_OPERATOR;
 							if(!($state['next'] & self::OP_POST_OPERATOR))
-							{							
+							{
 								throw new Opt_Expression_Exception('OP_POST_OPERATOR', $token, $expr);
 							}
 							else
@@ -2544,18 +2718,18 @@
 							// Yes, this is a function call, so we need to find its arguments.
 							$args = array();
 							for($j = $i + 1; $j < $to && $tokens[$j] != ')'; $j++)
-							{								
+							{
 								if($tokens[$j][0] == $chr)
 								{
 									$args[] = $tokens[$j];
 								}
 								elseif($tokens[$j] != ',')
 								{
-									throw new Opt_Expression_Exception('OP_UNKNOWN', $tokens[$j], $expr);	
+									throw new Opt_Expression_Exception('OP_UNKNOWN', $tokens[$j], $expr);
 								}
 							}
 							$argNum = sizeof($args);
-							
+
 							// Optionally, change the argument order
 							if(!is_null($state['rev']))
 							{
@@ -2623,7 +2797,7 @@
 							}
 						}
 						break;
-					default:	
+					default:
 						if($token[0] == $chr)
 						{
 							// We've found another translation unit.
@@ -2715,7 +2889,7 @@
 						}
 						elseif(preg_match('/^'.$this->_rIdentifier.'$/', $token))
 						{
-							$this->_compileIdentifier($token, $previous['token'], $previous['result'], 
+							$this->_compileIdentifier($token, $previous['token'], $previous['result'],
 								isset($tokens[$i+1]) ? $tokens[$i+1] : null, $operatorSet, $expr, $current, $state);
 						}
 				}
@@ -2783,7 +2957,7 @@
 			{
 				$ns = array(0 => $value);
 			}
-			
+
 			if($name[0] == '@')
 			{
 				// The instruction may wish to handle this variable somehow differently.
@@ -2796,7 +2970,7 @@
 					$result = $to;		// Programmer-defined handler
 					unset($ns[0]);		// We assume that the variable name is already included into the handler.
 				}
-				
+
 				// Link the rest of the array call.
 				foreach($ns as $item)
 				{
@@ -2819,7 +2993,7 @@
 				 * the programmer settings. Moreover, it recognizes the special calls, like "opt"/"system"
 				 * or section element calls.
 				 */
-			
+
 				$path = '';
 				$previous = null;
 				$code = '';
@@ -2827,7 +3001,7 @@
 				$state = array(
 					'access' => $this->_tpl->variableAccess,
 					'section' => null,
-					'first' => false	
+					'first' => false
 				);
 
 				// Check the first element for special keywords.
@@ -2866,7 +3040,7 @@
 						$path .= '.'.$item;
 						$state['first'] = false;
 					}
-					
+
 					// Processing sections
 					if(!is_null($this->isProcessor('section')))
 					{
@@ -2893,12 +3067,12 @@
 							// The section has been found, we need to process the item.
 							$state['section']['format']->assign('item', $item);
 							$code = $state['section']['format']->get('section:variable');
-							
+
 							$state['section'] = null;
 							continue;
 						}
 					}
-					
+
 					// Now, the normal variables
 					if($state['first'])
 					{
@@ -2977,13 +3151,13 @@
 				case 'version':
 					return '\''.Opt_Class::VERSION.'\'';
 				case 'const':
-					return 'constant(\''.$ns[2].'\')';				
+					return 'constant(\''.$ns[2].'\')';
 				default:
 					if(!is_null($this->isProcessor($ns[1])))
 					{
 						return $this->processor($ns[1])->processSystemVar($ns);
 					}
-					
+
 					throw new Opt_SysVariableUnknown_Exception('$'.implode('.', $ns));
 			}
 		} // end _compileSys();
@@ -3009,13 +3183,13 @@
 					}
 					elseif(is_string($this->_tpl->backticks))
 					{
-						// A redirect to a function		
+						// A redirect to a function
 						return $this->_tpl->backticks.'(\''.str_replace('\'', '\\\'', stripslashes(substr($str, 1, strlen($str) - 2))).'\')';
 					}
 					elseif(is_array($this->_tpl->backticks) && is_object($this->_tpl->backticks[0]))
 					{
 						// A redirect to an object method
-			
+
 						return '$this->_tpl->backticks[0]->'.$this->_tpl->backticks[1].'(\''.str_replace('\'', '\\\'', stripslashes(substr($str, 1, strlen($str) - 2))).'\')';
 					}
 					else
@@ -3192,6 +3366,40 @@
 				case '<':	return '&lt;';
 				case '"':	return '&quot;';
 				default:	return $text[0];
+			}
+		} // end _entitize();
+
+		/**
+		 * Smart entity replacement that makes use of
+		 *
+		 * @internal
+		 * @param Array $text Matching string
+		 * @return String Modified text
+		 */
+		protected function _decodeEntity($text)
+		{
+			switch($text[1])
+			{
+				case 'amp':	return '&';
+				case 'quot':	return '"';
+				case 'lt':	return '<';
+				case 'gt':	return '>';
+				case 'apos': return "'";
+				default:
+
+					if(isset($this->_entities[$text[1]]))
+					{
+						return $this->_entities[$text[1]];
+					}
+					if($text[1][0] == '#')
+					{
+						return html_entity_decode($text[0], ENT_COMPAT, $this->_tpl->charset);
+					}
+					elseif($this->_tpl->htmlEntities && $text[0] != ($result = html_entity_decode($text[0], ENT_COMPAT, $this->_tpl->charset)))
+					{
+						return $result;
+					}
+					throw new Opt_UnknownEntity_Exception(htmlspecialchars($text[0]));
 			}
 		} // end _entitize();
 	} // end Opt_Compiler_Class;

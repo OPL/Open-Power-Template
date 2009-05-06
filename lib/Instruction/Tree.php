@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -123,6 +122,7 @@
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '
 			'.$section['format']->get('section:reset').'
 $_'.$section['name'].'_depth = -1;
+$_'.$section['name'].'_initDepth = null;
 $_'.$section['name'].'_over = 0;
 $_'.$section['name'].'_cmd = new SplQueue;
 $_'.$section['name'].'_stack = new SplStack;
@@ -144,7 +144,7 @@ while(1)
 		if(!'.$section['format']->get('section:valid').')
 		{
 			$_'.$section['name'].'_cmd->enqueue(array(3, $_'.$section['name'].'_stack->pop()));
-			for($k = 0; $k < $_'.$section['name'].'_depth; $k++)
+			for($k = $_'.$section['name'].'_initDepth; $k < $_'.$section['name'].'_depth; $k++)
 			{
 				$_'.$section['name'].'_cmd->enqueue(array(4, null));
 				$_'.$section['name'].'_cmd->enqueue(array(3, $_'.$section['name'].'_stack->pop()));
@@ -155,6 +155,14 @@ while(1)
 		else
 		{
 			'.$section['format']->get('section:populate').'
+			if(is_null($_'.$section['name'].'_initDepth))
+			{
+				$_'.$section['name'].'_initDepth = '.$section['format']->get('section:variable').';
+			}
+			if($_'.$section['name'].'_initDepth > '.$section['format']->get('section:variable').')
+			{
+				throw new Opt_TreeInvalidDepth_Exception('.$section['format']->get('section:variable').', $_'.$section['name'].'_initDepth);
+			}
 			if($_'.$section['name'].'_depth < '.$section['format']->get('section:variable').')
 			{
 				$_'.$section['name'].'_cmd->enqueue(array(1, null));
