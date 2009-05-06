@@ -290,7 +290,7 @@ class Opt_Instruction_Form extends Opt_Compiler_Processor
 		// ...
 		
 		// replace the standard deployment with our code:
-		$this->_compiler->setConversion('##component', '$_form->componentFactory(\'%CLASS%\', \'%TAG%\')');
+		$this->_compiler->setConversion('##component', '$_form->componentFactory(\'%CLASS%\', \'%TAG%\', %ATTRIBUTES%)');
 		$node->set('postprocess', true);
 		$this->_process($node);
 	} // end processNode(); 
@@ -303,7 +303,13 @@ class Opt_Instruction_Form extends Opt_Compiler_Processor
 } // end Opt_Instruction_Form;
 ~~~~
 
-As the compiler generates the PHP code, our conversion pattern contains the new PHP code that should get us the component. Of course, the `componentFactory()` method must be implemented in the form processor class. The placeholders `%CLASS%` and `%TAG%` are automatically replaced by the component processor with the component class and component tag name that helps us identifying the field.
+As the compiler generates the PHP code, our conversion pattern contains the new PHP code that should get us the component. Of course, the `componentFactory()` method must be implemented in the form processor class. The code uses some placeholders defined by the component processor:
+
+1. `%CLASS%` - the component class name.
+2. `%TAG%` - the component tag name.
+3. `%ATTRIBUTES%` - the PHP code of the assotiative array that contains custom component port attributes.
+
+They can help the factory method to identify, what component object should be returned.
 
 > [help]
 > The conversion can be also applied for a single component class only. Moreover, the same trick works for blocks, too.

@@ -2251,7 +2251,10 @@
 							unset($tu[$tuid]);
 							--$maxTuid;
 						}
-						$tuid = $stack->pop();
+						if($stack->count() > 0)
+						{
+							$tuid = $stack->pop();
+						}
 						if($prev == '(')
 						{
 							array_pop($tu[$tuid]);

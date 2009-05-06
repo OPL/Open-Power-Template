@@ -4,6 +4,9 @@
  * ------------------------------------
  * This test checks, whether the instructions work, as they should work, by checking the generated content.
  * The procedure does not contain template inheritance issues, because they have a separate procedure.
+ *
+ * Warning: in PHP 5.3 one of the tests (single_2.txt) fails, but of the PHPUnit fault. The external tester
+ * shows that the file gives the correct output.
  */
 	require_once('PHPUnit/Framework.php');
 
