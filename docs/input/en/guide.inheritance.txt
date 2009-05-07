@@ -18,7 +18,7 @@ One of the advantages of the new templating language is the fact that it may all
 The first phase is done only when the template has been modified. Because of the performance reasons, in any other cases, OPT just executes the previously compiled template. So far, we have met the features that are active during the execution: the expressions, sections, etc. - all of them process the data from the script and generate the output HTML code when the template is executed. On the other hand, **snippets** work during the compilation only. They work much like macros - they capture a piece of the template code and allow to paste it in several other places. To see, how they work, consider the following template:
 
 ~~~~
-[php]
+[xml]
 <?xml version="1.0" ?>
 <opt:root>
 	<opt:snippet name="foo">
@@ -61,6 +61,7 @@ As you can see, the code captured by the snippet still remains dynamic. Inserted
 Let's unroll the actual code to see, what goes to the execution stage:
 
 ~~~~
+[xml]
 <?xml version="1.0" ?>
 <opt:root>
 	<opt:section name="members">
@@ -114,15 +115,15 @@ The base template (`base.tpl`):
 <opt:prolog />
 <opt:dtd template="xhtml10transitional" />
 <html>
-	<head>
-		<title>Hello!</title>
-	</head>
-	<body>
-		<h1>Title</h1>
-		<opt:insert snippet="content">
-			<p>Some default content here.</p>
-		</opt:snippet>
-	</body>
+<head>
+	<title>Hello!</title>
+</head>
+<body>
+	<h1>Title</h1>
+	<opt:insert snippet="content">
+		<p>Some default content here.</p>
+	</opt:snippet>
+</body>
 </html>
 </opt:root>
 ~~~~
@@ -155,13 +156,13 @@ As we run the code, we should get the following result:
 <?xml version="1.0" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-	<head>
-		<title>Hello!</title>
-	</head>
-	<body>
-		<h1>Title</h1>
-		<p>Hi universe!</p>
-	</body>
+<head>
+	<title>Hello!</title>
+</head>
+<body>
+	<h1>Title</h1>
+	<p>Hi universe!</p>
+</body>
 </html>
 ~~~~
 

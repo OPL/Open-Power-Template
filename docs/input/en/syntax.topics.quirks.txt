@@ -5,7 +5,7 @@ Title: Quirks mode
 Quirks mode is a special template parsing mode for the documents that do not have the XML document structure. It resembles the *XML compatibility mode* from Open Power Template 1.x. In this mode, everything that is not an OPT instruction or expression is treated as a plain text.
 
 Activation
-=========
+==========
 
 The quirks mode can be enabled globally by setting the `mode` configuration option:
 
