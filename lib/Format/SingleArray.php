@@ -1,6 +1,6 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
  *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
@@ -10,7 +10,7 @@
  * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: generic.php 15 2008-10-05 19:11:42Z zyxist $
+ * $Id$
  */
 
  // The format class, where sub-sections are parts of the upper-level section array.

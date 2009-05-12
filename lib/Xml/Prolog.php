@@ -1,6 +1,6 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
  *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled

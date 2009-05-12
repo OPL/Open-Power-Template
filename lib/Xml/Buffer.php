@@ -1,6 +1,6 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
  *  ===========================================
  *
  * This file is subject to the new BSD license that is bundled
@@ -10,7 +10,7 @@
  * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Buffer.php 22 2008-12-03 11:32:29Z zyxist $
+ * $Id$
  */
 
  /*
