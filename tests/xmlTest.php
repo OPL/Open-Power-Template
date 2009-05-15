@@ -68,6 +68,7 @@
 				array('tags_6.txt'),
 				array('tags_7.txt'),
 				array('tags_8.txt'),
+				array('tags_9.txt'),
 				array('attributes_1.txt'),
 				array('attributes_2.txt'),
 				array('attributes_3.txt'),

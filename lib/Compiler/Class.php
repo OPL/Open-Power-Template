@@ -190,8 +190,8 @@
 			
 			// Register the rest of the expressions
 			$this->_rNameExpression = '/('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)/'.$this->_rModifiers;
-			$this->_rXmlTagExpression = '/(\<((\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?)\>)/'.$this->_rModifiers;
-			$this->_rTagExpandExpression = '/^(\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?$/'.$this->_rModifiers;
+			$this->_rXmlTagExpression = '/(\<((\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]*)?(\/)?)\>)/'.$this->_rModifiers;
+			$this->_rTagExpandExpression = '/^(\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]*)?(\/)?$/'.$this->_rModifiers;
 			
 			
 			$this->_rQuirksTagExpression = '/(\<((\/)?(('.implode('|', $this->_namespaces).')\:'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?)\>)/'.$this->_rModifiers;
@@ -817,7 +817,15 @@
 			}
 			return $result;
 		} // end _compileAttributes();
-		
+
+		/**
+		 * Parses the XML prolog and returns its attributes as an array. The parsing
+		 * algorith is the same, as in _compileAttributes().
+		 *
+		 * @internal
+		 * @param String $prolog The prolog string.
+		 * @return Array
+		 */
 		protected function _compileProlog($prolog)
 		{
 			// Tokenize the list
@@ -912,7 +920,14 @@
 			}
 			return $returnedResult;
 		} // end _compileProlog();
-		
+
+		/**
+		 * Adds the PHP code with dependencies to the code buffers in the tree
+		 * root node.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $tree The tree root node.
+		 */
 		protected function _addDependencies($tree)
 		{
 			// OK, there is really some info to include!
@@ -1017,7 +1032,18 @@
 			}
 			return $current;
 		} // end _treeTextAppend();
-		
+
+		/**
+		 * A helper method for building the XML tree. It appends the
+		 * node to the current node and returns the new node that should
+		 * become the new current node.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The current node.
+		 * @param Opt_Xml_Node $node The newly created node.
+		 * @param Boolean $goInto Whether we visit the new node.
+		 * @return Opt_Xml_Node
+		 */
 		protected function _treeNodeAppend($current, $node, $goInto)
 		{
 			$current->appendChild($node);
@@ -1027,7 +1053,15 @@
 			}
 			return $current;
 		} // end _treeNodeAppend();
-		
+
+		/**
+		 * A helper method for building the XML tree. It jumps out of the
+		 * current node to the parent and switches to it.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The current node.
+		 * @return Opt_Xml_Node
+		 */
 		protected function _treeJumpOut($current)
 		{
 			$parent = $current->getParent();
@@ -1038,7 +1072,16 @@
 			}
 			return $current;
 		} // end _treeJumpOut();
-		
+
+		/**
+		 * Looks for special OPT attributes in the element attribute list and
+		 * processes them. Returns the list of nodes that need to be postprocessed.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Element $node The scanned element.
+		 * @param Boolean $specialNs Do we recognize "parse" and "str" namespaces?
+		 * @return Array
+		 */
 		protected function _processXml(Opt_Xml_Element $node, $specialNs = true)
 		{
 			if(!$node->hasAttributes())
@@ -1086,7 +1129,14 @@
 			}
 			return $pp;
 		} // end _processXml();
-		
+
+		/**
+		 * Runs the postprocessors for the specified attributes.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The scanned node.
+		 * @param Array $list The list of XML attribute processors that need to be postprocessed.
+		 */
 		protected function _postprocessXml(Opt_Xml_Node $node, Array $list)
 		{
 			$cnt = sizeof($list);
@@ -1124,7 +1174,14 @@
 			
 			return $queue;
 		} // end _pushQueue();
-		
+
+		/**
+		 * Does the postprocessing in the second stage of compilation.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node|Null $item The postprocessed node.
+		 * @param Array $pp The list of postprocessed attributes.
+		 */
 		protected function _doPostprocess($item, $pp)
 		{
 			// Postprocess code for the compilation stage 2
@@ -1160,6 +1217,14 @@
 			}
 		} // end _doPostprocess();
 
+		/**
+		 * Does the post-linking for the third stage of the compilation and returns
+		 * the linked code.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $item The linked item.
+		 * @return String
+		 */
 		protected function _doPostlinking($item)
 		{
 			// Post code
@@ -1204,6 +1269,13 @@
 			return $output;
 		} // end _doPostlinking();
 
+		/**
+		 * Closes the XML comment for the commented item.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $item The commented item.
+		 * @param String &$output The reference to the output buffer.
+		 */
 		protected function _closeComments($item, &$output)
 		{
 			if($item->get('commented'))
@@ -1222,6 +1294,14 @@
 			}
 		} // end _closeComments();
 
+		/**
+		 * Links the element attributes into a valid XML code and returns
+		 * the output code.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Element $subitem The XML element.
+		 * @return String
+		 */
 		protected function _linkAttributes($subitem)
 		{
 			// Links the attributes into the PHP code
@@ -1265,7 +1345,12 @@
 			return '';
 		} // end _linkAttributes();
 		
-		// TODO: Remove in the final version.
+		/**
+		 * A debugging method. Remove in the final version.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The node to be printed.
+		 */
 		public function _debugPrintNodes($node)
 		{
 			echo '<ul>';
