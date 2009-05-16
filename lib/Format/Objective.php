@@ -90,11 +90,11 @@
 					return '$_sect'.$section['name'].'_v';
 				// Retrieving a variable from a section item.
 				case 'section:variable':
+					$section = $this->_getVar('section');
 					if($this->isDecorating())
 					{
 						return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:item');
-					}
-					$section = $this->_getVar('section');
+					}					
 					return '$_sect'.$section['name'].'_v->'.$this->_getVar('item');
 				// Resetting the section to the first element.
 				case 'section:reset':
