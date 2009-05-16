@@ -76,6 +76,12 @@
 					In this case, the reported tag must be enclosed directly within another tag. Any other location causes the exception.
 					Please refer the OPT manual in order to check, how to use this instruction.')
 			),
+			'Opt_XmlInvalidOrder_Exception' => array(
+				'TemplateInfo' => array(),
+				'ErrorInfo' => array(1 => 'The tags must be closed in the same order they have been opened. Check the tags mentioned in
+					the exception message to ensure that you have closed them properly. Note that single tags need to be ended
+					with " /&gt;" sequence.')
+			),
 			'Opt_XmlNoProlog_Exception' => array(
 				'TemplateInfo' => array(),
 				'ErrorInfo' => array(1 => 'By default, the OPT templates must be valid XML documents. This means also that they have to have

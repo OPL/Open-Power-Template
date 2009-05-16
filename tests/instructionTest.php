@@ -128,6 +128,7 @@
 	    		array('include_5.txt'),
 	    		array('include_6.txt'),
 	    		array('include_7.txt'),
+				array('include_8.txt'),
 	    		array('insert_1.txt'),
 	    		array('insert_2.txt'),
 	    		array('insert_3.txt'),

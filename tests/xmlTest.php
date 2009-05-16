@@ -95,6 +95,8 @@
 				array('entities_6.txt'),
 				array('entities_7.txt'),
 				array('entities_8.txt'),
+				array('expressions_1.txt'),
+				array('expressions_2.txt'),
 	    	);
 	    } // end correctProvider();
 

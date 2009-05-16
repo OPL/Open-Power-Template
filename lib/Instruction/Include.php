@@ -44,6 +44,7 @@
 			// Possible section integration
 			$codeBegin = '';
 			$codeEnd = '';
+			$viewExistenceCond = '';
 			
 			if(isset($params['from']))
 			{
@@ -55,13 +56,15 @@
 				}
 				$section['format']->assign('item', 'view');
 				$view = $section['format']->get('section:variable');
-				
+
 				// TODO: File-specific blocks and variables!!!
+				$viewExistenceCond = '!'.$view.' instanceof Opt_View ||';
 			}
 			
 			if(isset($params['view']))
 			{
 				$view = $params['view'];
+				$viewExistenceCond = '!'.$view.' instanceof Opt_View || ';
 			}
 			elseif(isset($params['file']))
 			{
@@ -90,14 +93,13 @@
 			{
 				$codeBegin .= $view.'->setBranch('.$params['branch'].'); ';
 			}
-			
 			if(!is_null($params['default']))
 			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $codeBegin.' if(!'.$view.'->_parse($output, false)){ '.$view.'->_template = '.$params['default'].'; '.$view.'->_parse($output, true); } '.$codeEnd);
+				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $codeBegin.' if('.$viewExistenceCond.'!'.$view.'->_parse($output, false)){ '.$view.'->_template = '.$params['default'].'; '.$view.'->_parse($output, true); } '.$codeEnd);
 			}
 			elseif($node->hasChildren())
 			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, $codeBegin.' if(!'.$view.'->_parse($output, false)){ ');
+				$node->addBefore(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, $codeBegin.' if('.$viewExistenceCond.'!'.$view.'->_parse($output, false)){ ');
 				$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, ' } '.$codeEnd);
 				$this->_process($node);
 			}

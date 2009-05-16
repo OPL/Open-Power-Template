@@ -1754,7 +1754,6 @@
 					{
 						throw new Opt_XmlInvalidCharacter_Exception('--&gt;');
 					}
-
 					// Find XML tags
 					preg_match_all($tagExpression, $subgroups[$i], $result, PREG_SET_ORDER);
 					/*
@@ -1775,7 +1774,7 @@
 						$id = strpos($subgroups[$i], $result[$j][0], $offset);
 						if($id > $offset)
 						{
-							$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, $id - $offset));					
+							$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, $id - $offset));
 						}
 						$offset = $id + strlen($result[$j][0]);
 						if(!isset($result[$j][$endingSlashCell]))
@@ -1836,11 +1835,10 @@
 							throw new Opt_XmlInvalidTagStructure_Exception($result[$j][0]);
 						}
 					}
-				}
-				$i--;
-				if(strlen($subgroups[$i]) > $offset)
-				{
-					$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, strlen($subgroups[$i]) - $offset));
+					if(strlen($subgroups[$i]) > $offset)
+					{
+						$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, strlen($subgroups[$i]) - $offset));
+					}
 				}
 			}
 			if($mode == Opt_Class::XML_MODE && $this->_tpl->singleRootNode)

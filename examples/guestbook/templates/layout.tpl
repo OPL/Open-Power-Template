@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<opt:root>
+<opt:root include="snippets.tpl">
 <opt:prolog />
 <opt:dtd template="xhtml10transitional" />
 {@formInvalidFieldRowClass is 'error'} <!-- for form displaying -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl" lang="pl">
   <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>{$global.title} - {$websiteTitle}</title>
+  <title>{$title} - Sample guestbook</title>
   <link rel="stylesheet" href="/design/general.css" type="text/css" />
   <!--[if IE]>
   <link rel="stylesheet" href="/design/ie.css" type="text/css" />
@@ -20,9 +20,9 @@
 
   <div id="content">
 
-	<opt:include view="$view">
+	<opt:insert snippet="content">
 		<p class="error">We are sorry, but there is nothing to be displayed.</p>
-	</opt:include>
+	</opt:insert>
 
   </div>
 
