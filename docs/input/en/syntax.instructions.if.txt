@@ -58,11 +58,11 @@ Note that placing `opt:elseif` and `opt:else` in any tag other than `opt:if` cau
 
 ~~~~
 [xml]
-	<opt:if test="condition">
+<opt:if test="condition">
 	<div>
 		<opt:else>  <!-- WRONG! We have put opt:else in DIV! --> </opt:else>
 	</div>
-	</opt:if>
+</opt:if>
 ~~~~
 
 Now we might get back to our example and modify it to display a message about the promotion for the rank 3 and something else for the rest:

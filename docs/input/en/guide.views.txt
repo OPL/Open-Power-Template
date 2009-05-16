@@ -40,9 +40,9 @@ Assigning the data to the template variables is very easy:
 [php]
 $view = new Opt_View('my_template.tpl');
 $view->page = array(
-		'title' => 'Some title',
-		'content' => 'Some content'
-	);
+    'title' => 'Some title',
+    'content' => 'Some content'
+);
 ~~~~
 
 The `Opt_View` class provides several different methods to assign the data to a view. They allow for example to assign a variable by reference or to extract an assotiative array as a list of variables:
@@ -126,23 +126,23 @@ This is the `layout.tpl` file:
 <opt:prolog />
 <opt:dtd template="xhtml10transitional" />
 <html>
-	<head>
-		<title>{$title}</title>
-		<!-- some meta tags, CSS styles etc. -->
-	</head>
-	<body>
-		<div id="header">
-			<h1>{$global.website.name}</h1>
-		</div>
-		<div id="content">
-			<opt:include view="$module">
-				<p>We are sorry, but we are unable to load the template.</p>
-			</opt:include>
-		</div>
-		<div id="footer">
-			<p>&copy; You {range('2009')}</p>
-		</div>
-	</body>
+<head>
+    <title>{$title}</title>
+    <!-- some meta tags, CSS styles etc. -->
+</head>
+<body>
+<div id="header">
+    <h1>{$global.website.name}</h1>
+</div>
+<div id="content">
+    <opt:include view="$module">
+        <p>We are sorry, but we are unable to load the template.</p>
+    </opt:include>
+</div>
+<div id="footer">
+    <p>&copy; You {range('2009')}</p>
+</div>
+</body>
 </html>
 </opt:root>
 ~~~~

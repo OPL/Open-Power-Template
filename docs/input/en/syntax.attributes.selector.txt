@@ -14,21 +14,21 @@ This attribute applied to any tag changes it into a [selector][syntax.instructio
 ~~~~
 [xml]
 <ol>
- <li opt:selector="list">
-	<opt:foo>Layout 1: {$list.variable}</opt:foo>
-	<opt:bar>Layout 2: {$list.variable}</opt:bar>
-	<opt:joe>Layout 3: {$list.variable}</opt:joe>
- </li>
+    <li opt:selector="list">
+        <opt:foo>Layout 1: {$list.variable}</opt:foo>
+        <opt:bar>Layout 2: {$list.variable}</opt:bar>
+        <opt:joe>Layout 3: {$list.variable}</opt:joe>
+    </li>
 </ol>
 
 Instead:
 
 <ol>
- <opt:selector name="list">
-	<opt:foo><li>Layout 1: {$list.variable}</li></opt:foo>
-	<opt:bar><li>Layout 2: {$list.variable}</li></opt:bar>
-	<opt:joe><li>Layout 3: {$list.variable}</li></opt:joe>
- </opt:section>
+    <opt:selector name="list">
+        <opt:foo><li>Layout 1: {$list.variable}</li></opt:foo>
+        <opt:bar><li>Layout 2: {$list.variable}</li></opt:bar>
+        <opt:joe><li>Layout 3: {$list.variable}</li></opt:joe>
+    </opt:selector>
 </ol>
 ~~~~
 

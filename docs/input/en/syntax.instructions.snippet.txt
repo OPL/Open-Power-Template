@@ -58,21 +58,21 @@ The first look at the code suggests that the new snippets overwrite the old ones
 ~~~~
 [xml]
 <opt:snippet name="foo">
- The beginning of snippet 1
-  <opt:parent />
- The end of snippet 1
-</opt:snippet>
-	
-<opt:snippet name="foo">
-  The beginning of snippet 2
-   <opt:parent />
- The end of snippet 2
-</opt:snippet>
-	
-<opt:snippet name="foo">
-   The beginning of snippet 3
+    The beginning of snippet 1
     <opt:parent />
-   The end of snippet 3
+    The end of snippet 1
+</opt:snippet>
+	
+<opt:snippet name="foo">
+    The beginning of snippet 2
+    <opt:parent />
+    The end of snippet 2
+</opt:snippet>
+	
+<opt:snippet name="foo">
+    The beginning of snippet 3
+    <opt:parent />
+    The end of snippet 3
 </opt:snippet>
 	
 <opt:insert snippet="foo" />
@@ -81,12 +81,12 @@ The first look at the code suggests that the new snippets overwrite the old ones
 Such code produces the following result:
 
 ~~~~
- The beginning of snippet 1
-   The beginning of snippet 2
-     The beginning of snippet 3
-     The end of snippet 3
-   The end of snippet 2
- The end of snippet 1
+    The beginning of snippet 1
+        The beginning of snippet 2
+            The beginning of snippet 3
+            The end of snippet 3
+        The end of snippet 2
+    The end of snippet 1
 ~~~~
 
 As we see, `opt:parent` is ignored, if the snippet does not have any parent. However, note that `opt:insert` instruction used to paste snippets in the new place, may have an alternative content in case the snippet is not defined. By default, that content is also treated as a parent of the pasted snippet! However, this can be disabled with `opt:insert` `ingoredefault` attribute.

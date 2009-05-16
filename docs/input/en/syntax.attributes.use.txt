@@ -9,7 +9,7 @@ This attribute works similarly to [opt:insert][syntax.instructions.insert] tag -
 ~~~~
 [xml]
 <opt:snippet name="newBetterParagraph">
-This is a content of the better paragraph!
+    This is a content of the better paragraph!
 </opt:snippet>
 
 <p opt:use="newBetterParagraph">This is the default content</p>
@@ -34,17 +34,17 @@ Section integration
 ~~~~
 [xml]
 <opt:snippet name="element">
- <li>{$element.name}</li>
+    <li>{$element.name}</li>
 </opt:snippet>
 
 <p>Categories:</p>
 <ol>
-<opt:section name="categories" opt:use="element" />
+    <opt:section name="categories" opt:use="element" />
 </ol>
 
 <p>Products:</p>
 <ol>
-<opt:section name="products" opt:use="element"></opt:section>
+    <opt:section name="products" opt:use="element"></opt:section>
 </ol>
 ~~~~
 

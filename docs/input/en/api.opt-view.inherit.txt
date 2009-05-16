@@ -32,9 +32,10 @@ $view->inherit('template3.tpl', 'template4.tpl');
 In order to make the dynamic inheritance possible, the templates must allow it:
 
 ~~~~
+[xml]
 <opt:extend file="default_file.tpl" dynamic="yes">
 
- <!-- some code snippets -->
+    <!-- some code snippets -->
 
 </opt:extend>
 ~~~~

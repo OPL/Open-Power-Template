@@ -17,9 +17,9 @@ SeeAlso:
 [xml]
 <opt:show name="list">
 <ol>
-  <opt:section>
-  <li>{$list.name}</li>
-  </opt:section>
+    <opt:section>
+    <li>{$list.name}</li>
+    </opt:section>
 </ol>
 </opt:show>
 ~~~~

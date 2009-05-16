@@ -74,7 +74,6 @@ With `opt:show` instruction, `opt:treeelse` must not be used:
 ~~~~
 [xml]
 <opt:show name="tree">
-
 	<p>Tree:</p>
 
 	<opt:tree>
@@ -85,7 +84,6 @@ With `opt:show` instruction, `opt:treeelse` must not be used:
 	<opt:showelse>
 		<p>We are sorry, but there is nothing to show.</p>
 	</opt:showelse>
-
 </opt:show>
 ~~~~
 

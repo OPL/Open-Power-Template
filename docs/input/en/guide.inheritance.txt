@@ -176,11 +176,19 @@ Try to modify the base template. Although we do not mention it in the script, OP
 Dynamic inheritance with branches
 =================================
 
+To be written.
+
 True dynamic inheritance
 ========================
+
+To be written.
 
 Template inheritance versus template inclusion
 ==============================================
 
+To be written.
+
 Conclusion
 ==========
+
+To be written.

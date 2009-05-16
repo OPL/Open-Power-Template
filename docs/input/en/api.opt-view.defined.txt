@@ -13,7 +13,7 @@ Returns **true**, if there already exists a local template variable `$name` assi
 [php]
 if(!$view->defined('foo'))
 {
-  $view->foo = $someValue;
+    $view->foo = $someValue;
 }
 ~~~~
 
@@ -23,6 +23,6 @@ Alternatively, you may use the following syntax:
 [php]
 if(!isset($view->foo))
 {
-  $view->foo = $someValue;
+    $view->foo = $someValue;
 }
 ~~~~

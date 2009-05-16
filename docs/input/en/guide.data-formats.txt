@@ -84,9 +84,9 @@ It can be said that sections are built on OPT data formats. We start from a samp
 <p>Our customers:</p>
 
 <ol>
- <opt:section name="customers">
-  <li>{$customers.firstName} {$customers.lastName}</li>
- </opt:section>
+    <opt:section name="customers">
+    <li>{$customers.firstName} {$customers.lastName}</li>
+    </opt:section>
 </ol>
 ~~~~
 

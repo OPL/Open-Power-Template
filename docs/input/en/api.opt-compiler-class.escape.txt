@@ -1,6 +1,6 @@
 Title: escape()
 ShortTitle: Opt_Compiler_Class::escape()
-Reference: string escape(string $expression, [, bool $status = null])
+Reference: string escape(string $expression [, bool $status = null])
 
 ---
 

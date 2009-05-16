@@ -134,14 +134,14 @@ The components are still present, but they have been redesigned from scratch to 
 ~~~~
 [xml]
 <opt:myInput datasource="$fieldData">
-  <com:div>
-	<p>{$sys.component.title} <span opt:if="$sys.component.description">{$sys.component.description}</span></p>
-	<opt:display />
+    <com:div>
+        <p>{$sys.component.title} <span opt:if="$sys.component.description">{$sys.component.description}</span></p>
+        <opt:display />
 
-	<opt:onEvent name="error">
-		<p class="error">{$sys.component.errorMessage}</p>
-	</opt:onEvent>
-  </com:div>
+        <opt:onEvent name="error">
+            <p class="error">{$sys.component.errorMessage}</p>
+        </opt:onEvent>
+    </com:div>
 </opt:myInput>
 ~~~~
 

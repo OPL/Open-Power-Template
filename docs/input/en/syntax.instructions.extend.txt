@@ -37,20 +37,20 @@ The content of `opt:extend` may contain `opt:snippet` instructions only. Any oth
 [xml]
 <?xml version="1.0"?>
 <html>
-	<head>
-		<title>{$title}</title>
-	</head>
-	<body>
-		<div id="header">
-			<opt:insert snippet="header"/>
-		</div>
-		<div id="content">
-			<opt:insert snippet="content"/>
-		</div>
-		<div id="footer">
-			<p>&copy; Someone</p>
-		</div>
-	</body>
+<head>
+    <title>{$title}</title>
+</head>
+<body>
+<div id="header">
+    <opt:insert snippet="header"/>
+</div>
+<div id="content">
+    <opt:insert snippet="content"/>
+</div>
+<div id="footer">
+    <p>&copy; Someone</p>
+</div>
+</body>
 </html>
 ~~~~
 
@@ -73,21 +73,21 @@ The result:
 [xml]
 <?xml version="1.0"?>
 <html>
-	<head>
-		<title>Home page - Our Website</title>
-	</head>
-	<body>
-		<div id="header">
-			<h1>Our website</h1>
-			<p>Home page</p>
-		</div>
-		<div id="content">
-			<p>Welcome to our website!</p>	
-		</div>
-		<div id="footer">
-			<p>&copy; Someone</p>
-		</div>
-	</body>
+<head>
+    <title>Home page - Our Website</title>
+</head>
+<body>
+<div id="header">
+    <h1>Our website</h1>
+    <p>Home page</p>
+</div>
+<div id="content">
+    <p>Welcome to our website!</p>	
+</div>
+<div id="footer">
+    <p>&copy; Someone</p>
+</div>
+</body>
 </html>
 ~~~~
 
@@ -105,10 +105,10 @@ Using the `escaping` attribute you may control the HTML escaping in the current 
 ~~~~
 [xml]
 <opt:extend file="template_b.tpl" escaping="yes">
-  <opt:snippet name="foo">
-    <p>Enabled escaping: {$htmlContent}</p>
-    <opt:parent />
-  </opt:snippet>
+    <opt:snippet name="foo">
+        <p>Enabled escaping: {$htmlContent}</p>
+        <opt:parent />
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
@@ -117,10 +117,10 @@ Using the `escaping` attribute you may control the HTML escaping in the current 
 ~~~~
 [xml]
 <opt:extend file="template_c.tpl" escaping="no">
-  <opt:snippet name="foo">
-    <p>Disabled escaping: {$htmlContent}</p>
-    <opt:parent />
-  </opt:snippet>
+    <opt:snippet name="foo">
+        <p>Disabled escaping: {$htmlContent}</p>
+        <opt:parent />
+    </opt:snippet>
 </opt:extend>
 ~~~~
 
@@ -129,9 +129,9 @@ Using the `escaping` attribute you may control the HTML escaping in the current 
 ~~~~
 [xml]
 <opt:root escaping="yes">
-  <opt:insert snippet="foo">
-    <p>Enabled escaping: {$htmlContent}</p>
-  </opt:snippet>
+    <opt:insert snippet="foo">
+        <p>Enabled escaping: {$htmlContent}</p>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 

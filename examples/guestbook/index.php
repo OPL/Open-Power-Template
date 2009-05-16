@@ -30,7 +30,7 @@ Opl_Registry::setState('opl_extended_errors', true);
 
 if(!file_exists('./config.php'))
 {
-	die('Please create the config.php file from config.same.php!');
+	die('Please create the config.php file from config.sample.php!');
 }
 require('./config.php');
 require('./includes/forms.php');

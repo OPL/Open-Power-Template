@@ -22,7 +22,7 @@ This case is useful, if we need to include the specified file:
 ~~~~
 [xml]
 <div>
-  <opt:include file="left_menu.tpl" import="yes"/>
+    <opt:include file="left_menu.tpl" import="yes"/>
 </div>
 ~~~~
 
@@ -31,7 +31,7 @@ As the most important attributes are normal strings, we may change their namespa
 ~~~~
 [xml]
 <div>
- <opt:include parse:file="$leftMenuTemplate" import="yes" />
+    <opt:include parse:file="$leftMenuTemplate" import="yes" />
 </div>
 ~~~~
 
@@ -51,7 +51,7 @@ Here, the view is already created by the script and all we want to do is to exec
 ~~~~
 [xml]
 <div>
- <opt:include view="$leftMenuView" />
+    <opt:include view="$leftMenuView" />
 </div>
 ~~~~
 

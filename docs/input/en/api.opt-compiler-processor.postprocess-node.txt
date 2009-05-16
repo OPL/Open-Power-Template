@@ -14,15 +14,14 @@ Processes the registered instruction tags after their children have already been
 
 ~~~~
 [php]
+public function processNode(Opt_Xml_Node $node)
+{
+    // The node must be postprocessed after the children nodes are parsed.
+    $node->set('postprocess', true);
+} // end processNode();
 
-	public function processNode(Opt_Xml_Node $node)
-	{
-		// The node must be postprocessed after the children nodes are parsed.
-		$node->set('postprocess', true);
-	} // end processNode();
-
-	public function postprocessNode(Opt_Xml_Node $node)
-	{
-		echo 'Hello world!';
-	} // end postprocessNode();
+public function postprocessNode(Opt_Xml_Node $node)
+{
+    echo 'Hello world!';
+} // end postprocessNode();
 ~~~~

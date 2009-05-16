@@ -11,15 +11,14 @@ Works much like [Opt_Compiler_Processor::postprocessNode()][api.opt-compiler-pro
 
 ~~~~
 [php]
+public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+{
+    // The attribute must be postprocessed after the node children are parsed.
+    $attr->set('postprocess', true);
+} // end processAttribute();
 
-	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
-	{
-		// The attribute must be postprocessed after the node children are parsed.
-		$attr->set('postprocess', true);
-	} // end processAttribute();
-
-	public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
-	{
-		echo 'Hello world!';
-	} // end postprocessAttribute();
+public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+{
+    echo 'Hello world!';
+} // end postprocessAttribute();
 ~~~~

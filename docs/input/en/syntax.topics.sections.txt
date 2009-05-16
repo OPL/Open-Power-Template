@@ -166,9 +166,9 @@ Version 2:
 >
 >     [xml]
 >     <opt:section name="upper">
->        <opt:section name="lower" datasource="$upper.someVariable">
->          ....
->        </opt:section>
+>         <opt:section name="lower" datasource="$upper.someVariable">
+>             ...
+>         </opt:section>
 >     </opt:section>
 >
 > We strongly **do not recommend** using such code.

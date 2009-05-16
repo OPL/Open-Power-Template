@@ -13,7 +13,7 @@ The access to the captured parts is possible with `$sys.capture.name`:
 ~~~~
 [xml]
 <opt:capture as="options">
- <a href="page/edit">Edit</a> | <a href="page/remove">Remove</a>
+    <a href="page/edit">Edit</a> | <a href="page/remove">Remove</a>
 </opt:capture>
 
 <h1>Some data</h1>

@@ -11,7 +11,7 @@ Represents the action that must be performed for a block port closing tag:
 ~~~~
 [xml]
 <opt:block from="$var"> 
- ...
+    ...
 </opt:block> <!-- here -->
 ~~~~
 
