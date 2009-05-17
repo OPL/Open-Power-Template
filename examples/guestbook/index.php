@@ -50,6 +50,8 @@ try
 	$tpl->register(Opt_Class::OPT_COMPONENT, 'opt:textarea', 'TextareaComponent');
 
 	$tpl->setup();
+	
+	Opt_View::assignGlobal('baseHref', $config['script']['baseHref']);
 
 	// Connect to the database.
 	$pdo = new PDO($config['db']['dsn'], $config['db']['user'], $config['db']['password']);

@@ -26,7 +26,7 @@ class TextareaComponent extends BaseComponent
 	public function display($attributes = array())
 	{
 		$attributes['name'] = $this->_params['name'];
-		$attributes['id'] = $this->_params['name'].'_id';
+		$attributes['id'] = 'form_'.$this->_params['name'].'_id';
 
 		echo '<textarea';
 		foreach($attributes as $name => $value)
@@ -34,10 +34,10 @@ class TextareaComponent extends BaseComponent
 			echo ' '.$name.'="'.$value.'"';
 		}
 		echo '>';
-
+		
 		if($this->_form->status() == Form::FORM_INVALID)
 		{
-			echo htmlspecialchars($_POST[$this->_params[$name]]);
+			echo htmlspecialchars($_POST[$this->_params['name']]);
 		}
 		elseif(isset($this->_params['value']))
 		{

@@ -26,7 +26,8 @@ class InputComponent extends BaseComponent
 	public function display($attributes = array())
 	{
 		$attributes['name'] = $this->_params['name'];
-		$attributes['id'] = $this->_params['name'].'_id';
+		$attributes['class'] = 'inputText';
+		$attributes['id'] = 'form_'.$this->_params['name'].'_id';
 
 		if($this->_form->status() == Form::FORM_INVALID)
 		{

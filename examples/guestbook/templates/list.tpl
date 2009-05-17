@@ -1,21 +1,26 @@
 <?xml version="1.0" ?>
 <opt:extend file="layout.tpl">
-	<opt:snippet name="content">
+<opt:snippet name="content">
+	<ul class="buttons">
+		<li><a href="index.php?action=add">Add your entry</a></li>
+	</ul>
 
-		<h2>The entries</h2>
-		<p><a href="index.php?action=add">Add your entry!</a></p>
+	{$count is count($entries) + 1}
+	<opt:section name="entries">
+	<div class="entry" parse:id="'e'~$entries.id">
+		<p class="header"><a parse:href="'#e'~$entries.id" class="number">#{--$count}</a> 
+		Written by <a parse:href="$entries.website" opt:if="$entries.website">{$entries.author}</a><strong opt:if="!$entries.website">{$entries.author}</strong>
+		on {$entries.date}</p>
 
-		<opt:section name="entries">
-		<div class="entry" parse:id="'e '~$entries.id">
-			<p>Written by <a parse:href="$entries.website" opt:on="$entries.website">{$entries.author}</a> on {$entries.date}</p>
+		<p>{u:nl2br($entries.body)}</p>
+	</div>
+	<opt:sectionelse>
+		<p class="message">There are no entries in the database now. Add one!</p>
+	</opt:sectionelse>
+	</opt:section>
 
-			<p>{nl2br($entries.body)}</p>
-		</div>
-		<opt:sectionelse>
-			<p>There are no entries in the database now. Add one!</p>
-		</opt:sectionelse>
-		</opt:section>
-
-		<p><a href="index.php?action=add">Add your entry!</a></p>
-	</opt:snippet>
+	<ul class="buttons" opt:if="count($entries) gt 0">
+		<li><a href="index.php?action=add">Add your entry</a></li>
+	</ul>
+</opt:snippet>
 </opt:extend>

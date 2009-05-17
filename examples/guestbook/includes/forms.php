@@ -138,19 +138,25 @@ class Form
 		{
 			// Check if the field is actually set, handling the "required" flag.
 			if(empty($_POST[$name]))
-			{
+			{                      
 				if(in_array('required', $info['rules']))
 				{
 					$this->_validationStatus[$name] = $info['error'];
 					$this->_status = self::FORM_INVALID;
 				}
+				else
+				{
+					// field is empty and not required
+					$this->_values[$name] = null;
+				}
 				continue;
 			}
+			
 			foreach($info['rules'] as $rule)
 			{
 				$data = explode('=', $rule);
 				$ok = true;
-				switch($data)
+				switch($data[0])
 				{
 					// The field must be an integer.
 					case 'integer':
@@ -158,16 +164,16 @@ class Form
 						break;
 					// The field must be URL
 					case 'url':
-						$_POST[$name] = filter_var($_POST[$name], FILTER_VALIDATE_URL, FILTER_SANITIZE_URL);
-						if($_POST[$name] === false)
+						$test = filter_var($_POST[$name], FILTER_VALIDATE_URL, FILTER_SANITIZE_URL);
+						if($test === false)
 						{
 							$ok = false;
 						}
 						break;
 					// The field must be e-mail
 					case 'email':
-						$_POST[$name] = filter_var($_POST[$name], FILTER_VALIDATE_EMAIL, FILTER_SANITIZE_EMAIL);
-						if($_POST[$name] === false)
+						$test = filter_var($_POST[$name], FILTER_VALIDATE_EMAIL, FILTER_SANITIZE_EMAIL);
+						if($test === false)
 						{
 							$ok = false;
 						}
@@ -185,11 +191,12 @@ class Form
 				{
 					$this->_validationStatus[$name] = $info['error'];
 					$this->_status = self::FORM_INVALID;
+					break;
 				}
-				else
-				{
-					$this->_values[$name] = $_POST[$name];
-				}
+			}
+			if($ok)
+			{
+				$this->_values[$name] = $_POST[$name];
 			}
 		}
 		return ($this->_status == self::FORM_VALID);
@@ -205,6 +212,17 @@ class Form
 	{
 		return !isset($this->_validationStatus[$name]);
 	} // end getValidationStatus();
+	
+	/**
+	 * Checks if given field is required
+	 *
+	 * @param String $name The field name.
+	 * @return Boolean
+	 */
+	public function isRequired($name)
+	{
+		return in_array('required', $this->_fields[$name]['rules']);
+	} // end isRequired();
 
 	/**
 	 * Returns the error message for a certain field or NULL

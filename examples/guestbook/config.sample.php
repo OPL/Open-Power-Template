@@ -21,7 +21,8 @@
 
 $config = array(
 	'script' => array(
-		'dateFormat' => 'F j, Y, g:i a'
+		'dateFormat' => 'F j, Y, g:i a',
+		'baseHref' => '/'
 	),
 	'db' => array(
 		// The DSN for PDO library.
@@ -35,6 +36,7 @@ $config = array(
 		// The source directory for the templates
 		'sourceDir' => './templates/',
 		// The compilation directory for the templates
-		'compileDir' => './templates_c/'
+		'compileDir' => './templates_c/',
+		'stripWhitespaces' => false
 	)
 );

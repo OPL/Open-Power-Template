@@ -165,7 +165,7 @@ abstract class BaseComponent implements Opt_Component_Interface
 		switch($event)
 		{
 			case 'isRequired':
-				if($ok && $this->_form->status() != Form::FORM_INVALID)
+				if($this->_form->isRequired($this->_params['name']))
 				{
 					return true;
 				}
