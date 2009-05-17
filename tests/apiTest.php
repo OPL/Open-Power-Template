@@ -31,12 +31,12 @@
 
 	class apiTest extends PHPUnit_Framework_TestCase
 	{
-	    protected $classes = array();
-	    protected $methods = array();
-	    protected $loaded = false;
+		protected $classes = array();
+		protected $methods = array();
+		protected $loaded = false;
 
-	    protected function setUp()
-	    {
+		protected function setUp()
+		{
 			if(!$this->loaded)
 			{
 				$this->classes = array(
@@ -65,28 +65,28 @@
 				}
 				$this->loaded = true;
 			}
-	    } // end setUp();
+		} // end setUp();
 	 
-	    protected function tearDown()
-	    {
-	        $this->tpl = NULL;
-	    } // end tearDown();
-	    
-	    protected function inManual($id)
-	    {
+		protected function tearDown()
+		{
+			$this->tpl = NULL;
+		} // end tearDown();
+		
+		protected function inManual($id)
+		{
 			if(is_null($id))
 			{
 				// This is not supposed to be documented.
 				return true;
 			}
-	    	return file_exists(DOC_DIR.'input/en/'.$id.'.txt');
-	    } // end inManual();
-	    
-	    public static function methodProvider()
-	    {
-	    	return array(0 =>
-	    		// Opt_Class methods
-	    		array(0 => 'Opt_Class', 'getCompiler', 'api.opt-class.get-compiler', M_PUBLIC),
+			return file_exists(DOC_DIR.'input/en/'.$id.'.txt');
+		} // end inManual();
+		
+		public static function methodProvider()
+		{
+			return array(0 =>
+				// Opt_Class methods
+				array(0 => 'Opt_Class', 'getCompiler', 'api.opt-class.get-compiler', M_PUBLIC),
 				array(0 => 'Opt_Class', 'setup', 'api.opt-class.setup', M_PUBLIC),
 				array(0 => 'Opt_Class', 'register', 'api.opt-class.register', M_PUBLIC),
 				array(0 => 'Opt_Class', 'getTranslationInterface', 'api.opt-class.get-translation-interface', M_PUBLIC),
@@ -112,7 +112,7 @@
 				array(0 => 'Opt_View', 'assignGroupGlobal', 'api.opt-view.assign-group-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'assignRefGlobal', 'api.opt-view.assign-ref-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'definedGlobal', 'api.opt-view.defined-global', M_PUBLIC | M_STATIC),
-	    		array(0 => 'Opt_View', 'removeGlobal', 'api.opt-view.remove-global', M_PUBLIC | M_STATIC),
+				array(0 => 'Opt_View', 'removeGlobal', 'api.opt-view.remove-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'getGlobal', 'api.opt-view.get-global', M_PUBLIC | M_STATIC),
 				
 				array(0 => 'Opt_View', 'inherit', 'api.opt-view.inherit', M_PUBLIC),
@@ -192,13 +192,13 @@
 				array(0 => 'Opt_Compiler_Format', 'isDecorating', 'api.opt-compiler-format.is-decorating', M_PUBLIC | M_FINAL),
 
 			);
-	    } // end provider();
+		} // end provider();
 
- 	   /**
- 	    * @dataProvider methodProvider
- 	    */
-	    public function testMethod($class, $method, $manualId, $type)
-	    {
+		/**
+ 		 * @dataProvider methodProvider
+ 		 */
+		public function testMethod($class, $method, $manualId, $type)
+		{
 			if(!$this->classes[$class]->hasMethod($method))
 			{
 				$this->fail('Method '.$method.' not found in '.$class);
@@ -245,6 +245,6 @@
 				$this->fail('Method '.$class.'::'.$method.' not found in the manual.');
 			}
 			return true;
-	    } // end testMethod();
+		} // end testMethod();
 	} // end expressionTestSuite;
 ?>

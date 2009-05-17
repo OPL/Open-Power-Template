@@ -23,43 +23,43 @@
 
 	class filesystemTest extends PHPUnit_Framework_TestCase
 	{
-	    protected $tpl;
+		protected $tpl;
 
-	    protected function setUp()
-	    {
+		protected function setUp()
+		{
 			$this->tpl = new Opt_Class;
 			$this->tpl->sourceDir = './templates';
 			$this->tpl->compileDir = './templates_c';
-	    } // end setUp();
+		} // end setUp();
 	 
-	    protected function tearDown()
-	    {
-	        $this->tpl = NULL;
-	    } // end tearDown();
+		protected function tearDown()
+		{
+			$this->tpl = NULL;
+		} // end tearDown();
 		
-	    public function testSlashing()
-	    {
-	    	$this->tpl->setup();
-	    	
-	    	if($this->tpl->sourceDir['file'] != './templates/' || $this->tpl->compileDir != './templates_c/')
-	    	{
-	    		$this->fail('No ending slash in the paths. SourceDir: '.$this->tpl->sourceDir.'; CompileDir: '.$this->tpl->compileDir);
-	    	}
-	    } // end testSlashing();
-	    
-	    public function testInvalidTemplate()
-	    {
-	    	try
-	    	{
-	    		$view = new Opt_View('template_that_doesnt_exist.tpl');
-	    		$out = new Opt_Output_Return;
-	    		$out->render($view);
-	    	}
-	    	catch(Opt_TemplateNotFound_Exception $exception)
-	    	{
-	    		return true;
-	    	}
-	    	$this->fail('Opt_TemplateNotFound_Exception not returned.');
-	    } // end testInvalidTemplate();
+		public function testSlashing()
+		{
+			$this->tpl->setup();
+			
+			if($this->tpl->sourceDir['file'] != './templates/' || $this->tpl->compileDir != './templates_c/')
+			{
+				$this->fail('No ending slash in the paths. SourceDir: '.$this->tpl->sourceDir.'; CompileDir: '.$this->tpl->compileDir);
+			}
+		} // end testSlashing();
+		
+		public function testInvalidTemplate()
+		{
+			try
+			{
+				$view = new Opt_View('template_that_doesnt_exist.tpl');
+				$out = new Opt_Output_Return;
+				$out->render($view);
+			}
+			catch(Opt_TemplateNotFound_Exception $exception)
+			{
+				return true;
+			}
+			$this->fail('Opt_TemplateNotFound_Exception not returned.');
+		} // end testInvalidTemplate();
 	} // end expressionTestSuite;
 ?>

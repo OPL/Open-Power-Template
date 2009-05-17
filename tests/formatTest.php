@@ -23,11 +23,11 @@
 
 	class formatTest extends PHPUnit_Framework_TestCase
 	{
-	    protected $tpl;
-	    protected $dataGenerators = array();
+		protected $tpl;
+		protected $dataGenerators = array();
 
-	    protected function setUp()
-	    {
+		protected function setUp()
+		{
 			$tpl = new Opt_Class;
 			$tpl->sourceDir = 'test://templates/';
 			$tpl->compileDir = CPL_DIR;
@@ -36,39 +36,39 @@
 			$tpl->prologRequired = true;
 			$tpl->setup();
 			$this->tpl = $tpl;
-	    } // end setUp();
+		} // end setUp();
 
-	    protected function tearDown()
-	    {
-	        unset($this->tpl);
-	    } // end tearDown();
+		protected function tearDown()
+		{
+			unset($this->tpl);
+		} // end tearDown();
 
-	    public static function correctProvider()
-	    {
-	    	return array(0 =>
+		public static function correctProvider()
+		{
+			return array(0 =>
 				array('array_1.txt'),
 				array('array_2.txt'),
 				array('objective_1.txt'),
 				array('objective_2.txt'),
 			/*	array('objective_3.txt'),
 				array('objective_4.txt'),
-	    		array('singlearray_1.txt'),
-	    		array('singlearray_2.txt'),*/
-	    	);
-	    } // end correctProvider();
+				array('singlearray_1.txt'),
+				array('singlearray_2.txt'),*/
+			);
+		} // end correctProvider();
 
-	    private function stripWs($text)
-	    {
-	    	return str_replace(array("\r", "\n"),array('', ''), $text);
-	    } // end stripws();
+		private function stripWs($text)
+		{
+			return str_replace(array("\r", "\n"),array('', ''), $text);
+		} // end stripws();
 
- 	   /**
- 	    * @dataProvider correctProvider
- 	    */
-	    public function testCorrect($test)
-	    {
+ 		/**
+ 		 * @dataProvider correctProvider
+ 		 */
+		public function testCorrect($test)
+		{
 			testFSWrapper::loadFilesystem(FEAT_DIR.$test);
-	    	$view = new Opt_View('test.tpl');
+			$view = new Opt_View('test.tpl');
 			if(file_exists('test://data.php'))
 			{
 				eval(file_get_contents('test://data.php'));
@@ -80,15 +80,15 @@
 			if(strpos($expected, 'OUTPUT') === 0)
 			{
 				// This test shoud give correct results
-	    		try
-	    		{
+				try
+				{
 					$result = $out->render($view);
-	    			$this->assertEquals($this->stripWs(trim(file_get_contents('test://result.txt'))), $this->stripWs(trim($result)));
-	    		}
-	    		catch(Opt_Exception $e)
-	    		{
-	    			$this->fail('Exception returned: #'.get_class($e).': '.$e->getMessage());
-	    		}
+					$this->assertEquals($this->stripWs(trim(file_get_contents('test://result.txt'))), $this->stripWs(trim($result)));
+				}
+				catch(Opt_Exception $e)
+				{
+					$this->fail('Exception returned: #'.get_class($e).': '.$e->getMessage());
+				}
 			}
 			else
 			{
@@ -100,13 +100,13 @@
 				}
 				catch(Opt_Exception $e)
 				{
-	    			if($expected != get_class($e))
-	    			{
-	    				$this->fail('Invalid exception returned: #'.get_class($e).', '.$expected.' expected.');
-	    			}
-	    			return true;
+					if($expected != get_class($e))
+					{
+						$this->fail('Invalid exception returned: #'.get_class($e).', '.$expected.' expected.');
+					}
+					return true;
 				}
 				$this->fail('Exception NOT returned, but should be: '.$expected);
 			}
-	    } // end testCorrect();
+		} // end testCorrect();
 	}

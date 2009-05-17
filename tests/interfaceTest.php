@@ -57,13 +57,13 @@
 	class interfaceTest extends PHPUnit_Framework_TestCase
 	{
 
-	    private function stripWs($text)
-	    {
-	    	return trim(str_replace(array("\r", "\n"),array('', ''), $text));
-	    } // end stripws();
+		private function stripWs($text)
+		{
+			return trim(str_replace(array("\r", "\n"),array('', ''), $text));
+		} // end stripws();
 
-	    protected function setUp()
-	    {
+		protected function setUp()
+		{
 			$tpl = new Opt_Class;
 			$tpl->sourceDir = './interface/';
 			$tpl->compileDir = CPL_DIR;
@@ -72,30 +72,30 @@
 			$tpl->prologRequired = true;
 			$tpl->setup();
 			$this->tpl = $tpl;
-	    } // end setUp();
+		} // end setUp();
 
-	    protected function tearDown()
-	    {
-	        unset($this->tpl);
-	    } // end tearDown();
+		protected function tearDown()
+		{
+			unset($this->tpl);
+		} // end tearDown();
 
 		/**
 		 * Does the engine add the slashes to the paths?
 		 */
-	    public function testSlashing()
-	    {
-	    	$foo = new Opt_Class;
+		public function testSlashing()
+		{
+			$foo = new Opt_Class;
 			$foo->sourceDir = './templates';
 			$foo->compileDir = './templates_c';
 			$foo->setup();
 
-	    	if($foo->sourceDir['file'] != './templates/' || $foo->compileDir != './templates_c/')
-	    	{
-	    		$this->fail('No ending slash in the paths. SourceDir: '.$foo->sourceDir.'; CompileDir: '.$foo->compileDir);
-	    	}
+			if($foo->sourceDir['file'] != './templates/' || $foo->compileDir != './templates_c/')
+			{
+				$this->fail('No ending slash in the paths. SourceDir: '.$foo->sourceDir.'; CompileDir: '.$foo->compileDir);
+			}
 
 			unset($foo);
-	    } // end testSlashing();
+		} // end testSlashing();
 
 		/**
 		 * Check if the Return output actually returns the output.

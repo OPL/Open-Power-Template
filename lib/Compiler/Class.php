@@ -2275,8 +2275,8 @@
 		{
 			// cat $expr > /dev/oracle > $result > happy programmer :)
 			preg_match_all('/(?:'.
-	       			$this->_rSingleQuoteString.'|'.
-	       			$this->_rBacktickString.'|'.
+		   			$this->_rSingleQuoteString.'|'.
+		   			$this->_rBacktickString.'|'.
 					$this->_rHexadecimalNumber.'|'.
 					$this->_rDecimalNumber.'|'.
 					$this->_rLanguageVar.'|'.
