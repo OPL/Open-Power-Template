@@ -14,7 +14,7 @@ SeeAlso:
 
  Name           | Type                | Required? | Description
 ----------------|---------------------|-----------|:-----------------------------------
- container      | Expression          | Yes       | A container with the elements. Note that if the container will be a scalar value, we will get an PHP error.
+ array          | Expression          | Yes       | A container with the elements. Note that if the container will be a scalar value, we will get an PHP error.
  value          | ID                  | Yes       | The name of the variable to save the element values to.
  index          | ID                  | No        | The name of the variable to save the element indices to.
  separator      | Expression          | No        | The separator that will be put between every two list elements. [More about separators][syntax.instructions.separator].
@@ -25,7 +25,7 @@ A sample code:
 [xml]
 <p>The options:</p>
 <ol>
-	<opt:foreach container="$optionList" index="name" value="value">
+	<opt:foreach array="$optionList" index="name" value="value">
 	<li><strong>{@name}:</strong>{@value}</li>
 	</opt:foreach>
 </ol>
@@ -51,7 +51,7 @@ In OPT this loop has one extra feature: `opt:foreachelse` placed directly in `op
 [xml]
 <p>The options:</p>
 <ol>
-	<opt:foreach container="$optionList" index="name" value="value">
+	<opt:foreach array="$optionList" index="name" value="value">
 	<li><strong>{@name}:</strong>{@value}</li>
 	<opt:foreachelse>
 	<li>We are sorry, there are no options.</li>
@@ -79,7 +79,7 @@ The result for an empty container will look like this:
 
 ~~~~
 [xml]
-<p><opt:foreach container="$things" value="name" str:separator=", ">{@name}</opt:foreach></p>
+<p><opt:foreach array="$things" value="name" str:separator=", ">{@name}</opt:foreach></p>
 ~~~~
 
 A sample result:
