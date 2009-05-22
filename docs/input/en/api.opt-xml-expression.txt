@@ -1,6 +1,6 @@
 Title: Opt_Xml_Expression class
 ShortTitle: Opt_Xml_Expression
-Status: public
+Construct: class
 Extends: api.opt-xml-node
 
 ----

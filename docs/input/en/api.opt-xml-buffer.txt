@@ -1,6 +1,6 @@
 Title: Opt_Xml_Buffer class
 ShortTitle: Opt_Xml_Buffer
-Status: abstract
+Construct: abstract class
 ExtendedBy:
  - api.opt-xml-attribute
  - api.opt-xml-node

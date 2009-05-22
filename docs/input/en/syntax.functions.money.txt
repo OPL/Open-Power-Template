@@ -12,3 +12,8 @@ Formats the specified number `$amount` in order to be a valid money amount strin
 
 > [warning]
 > The behaviour of this function depends on the current script locale.
+
+<!-- .. -->
+
+> [warning]
+> This function is not available the systems without strfmon capabilities. This definition includes Microsoft Windows operating system family.

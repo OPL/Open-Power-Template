@@ -1,5 +1,12 @@
 Title: Opt_Compiler_Format class
 ShortTitle: Opt_Compiler_Format
+Construct: class
+EExtendedBy:
+ - Opt_Format_Array
+ - Opt_Format_SingleArray
+ - Opt_Format_Objective
+ - Opt_Format_StaticGenerator
+ - Opt_Format_RuntimeGenerator
 
 ----
 

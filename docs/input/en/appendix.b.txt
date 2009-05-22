@@ -1,4 +1,5 @@
-Title: B. Error messages
+Title: Error messages
+Appendix: Yes
 
 ----
 

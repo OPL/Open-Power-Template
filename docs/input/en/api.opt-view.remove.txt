@@ -1,7 +1,8 @@
 Title: remove()
 ShortTitle: Opt_View::remove()
+Construct: method
 Reference: boolean remove( string $name )
-Status: public
+Visibility: public
 SeeAlso:
  - api.opt-view.remove-global
 

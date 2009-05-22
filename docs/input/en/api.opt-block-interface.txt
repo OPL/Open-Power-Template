@@ -1,4 +1,5 @@
 Title: Opt_Block_Interface
+Construct: interface
 SeeAlso:
  - syntax.topics.blocks
  - api.opt-component-interface

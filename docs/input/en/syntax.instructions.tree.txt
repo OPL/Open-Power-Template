@@ -1,4 +1,5 @@
 Title: opt:tree
+FeatureInformation: sections
 SeeAlso:
  - syntax.topics.sections
  - syntax.instructions.section
@@ -8,9 +9,6 @@ SeeAlso:
  - syntax.instructions.separator
 
 ----
-
-> [help]
-> This chapter describes one of section instructions. We recommend to read [Sections][syntax.topics.sections] first to get to know more about them.
 
 `opt:tree` is one of the section instructions designed to display hierarchical data (trees) with any level of nesting. The instruction does not support one of section attributes, `order` - because of the used algorithm the result displayed in the descending order would be strange.
 

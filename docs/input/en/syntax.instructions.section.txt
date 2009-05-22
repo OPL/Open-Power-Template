@@ -1,4 +1,5 @@
 Title: opt:section
+FeatureInformation: sections
 SeeAlso:
  - syntax.instructions.tree
  - syntax.instructions.grid
@@ -8,9 +9,6 @@ SeeAlso:
  - syntax.attributes.section
 
 ----
-
-> [help]
-> This chapter describes one of section instructions. We recommend to read [Sections][syntax.topics.sections] first to get to know more about them.
 
 `opt:section` is the basic section istruction used to display flat, linear lists and supports all the section basic features. Inside the `opt:section` we define the layout of a single list element:
 

@@ -1,4 +1,5 @@
-Title: E. Reporting bugs
+Title: Reporting bugs
+Appendix: Yes
 
 ----
 

@@ -1,7 +1,8 @@
 Title: assign()
 ShortTitle: Opt_View::assign()
+Construct: method
 Reference: void Opt_View::assign( string $name, mixed $data )
-Status: public
+Visibility: public
 SeeAlso:
  - api.opt-view.assign-global
  - api.opt-view.__set

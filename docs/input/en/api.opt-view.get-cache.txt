@@ -1,7 +1,10 @@
 Title: getCache()
 ShortTitle: Opt_View::getCache()
+Construct: method
 Reference: Opt_Caching_Interface getCache()
 VersionSince: 2.0-RC1
+Visibility: public
+Returns: The caching interface object
 SeeAlso:
  - api.opt-view.set-cache
  - guide.cache

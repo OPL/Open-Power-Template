@@ -1,7 +1,8 @@
 Title: setTemplate()
 ShortTitle: Opt_View::setTemplate()
+Construct: method
 Reference: void setTemplate( string $template )
-Status: public
+Visibility: public
 SeeAlso:
  - api.opt-view.__construct
 

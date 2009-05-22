@@ -1,6 +1,6 @@
 Title: Opt_Xml_Element class
 ShortTitle: Opt_Xml_Element
-Status: public
+Construct: class
 Extends: api.opt-xml-scannable
 
 ----

@@ -1,6 +1,6 @@
 Title: Opt_Xml_Dtd class
 ShortTitle: Opt_Xml_Dtd
-Status: public
+Construct: class
 
 ----
 

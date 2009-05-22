@@ -1,4 +1,5 @@
 Title: opt:selector
+FeatureInformation: sections
 SeeAlso:
  - syntax.topics.sections
  - syntax.instructions.section
@@ -9,9 +10,6 @@ SeeAlso:
  - syntax.attributes.selector
 
 ----
-
-> [help]
-> This chapter describes one of section instructions. We recommend to read [Sections][syntax.topics.sections] first to get to know more about them.
 
 `opt:selector` works much like `opt:section`. The difference is that here we may define several types of element layout. OPT will choose one for each element, depending on one of its fields (by default, it is called "item"). Below, we can find an example of displaying the links to the result pages. Each list element represents one page, however we do not want them do look exactly the same. With `opt:separator` we define different looks for various types of pages (standard, active, dotted part to hide too many pages etc.):
 

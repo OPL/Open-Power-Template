@@ -1,7 +1,8 @@
 Title: inherit()
 ShortTitle: Opt_View::inherit()
+Construct: method
 Reference: void inherit( string $sourceFile [, string $destinationFile ] )
-Status: public
+Visibility: public
 
 ----
 

@@ -1,8 +1,12 @@
 Title: get()
 ShortTitle: Opt_View::get()
+Construct: method
 Reference: boolean get( string $name )
 VersionSince: 2.0-beta2
-Status: public
+Visibility: public
+Arguments:
+ - Name: $name | EType: string | Desc: The variable name
+Returns: The template variable value
 SeeAlso:
  - api.opt-view.__get
 

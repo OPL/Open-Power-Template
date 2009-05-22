@@ -1,7 +1,8 @@
 Title: setFormat()
 ShortTitle: Opt_View::setFormat()
+Construct: method
 Reference: void setFormat( string $variable, string $format )
-Status: public
+Visibility: public
 SeeAlso:
  - api.opt-view.set-format-global
  - guide.data-formats

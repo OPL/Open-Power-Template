@@ -1,7 +1,8 @@
 Title: assignRefGlobal()
 ShortTitle: Opt_View::assignRefGlobal()
+Construct: static method
 Reference: void assignRefGlobal( string $name, mixed &$value )
-Status: static public
+Visibility: public
 SeeAlso:
  - api.opt-view.assign-ref
 
