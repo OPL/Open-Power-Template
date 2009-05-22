@@ -9,7 +9,7 @@
 	<opt:section name="entries">
 	<div class="entry" parse:id="'e'~$entries.id">
 		<p class="header"><a parse:href="'#e'~$entries.id" class="number">#{--$count}</a> 
-		Written by <a parse:href="$entries.website" opt:if="$entries.website">{$entries.author}</a><strong opt:if="!$entries.website">{$entries.author}</strong>
+		Written by <a parse:href="$entries.website" opt:on="$entries.website"><strong>{$entries.author}</strong></a>
 		on {$entries.date}</p>
 
 		<p>{u:nl2br($entries.body)}</p>

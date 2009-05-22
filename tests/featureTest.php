@@ -57,6 +57,7 @@
 				array('translation_1.txt'),
 				array('translation_2.txt'),
 				array('specialvar_1.txt'),
+				array('stripws_1.txt'),
 			);
 		} // end correctProvider();
 		

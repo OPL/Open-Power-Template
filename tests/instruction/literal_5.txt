@@ -9,11 +9,14 @@ A text with
 </opt:literal>
 </opt:root>
 
+>>>>data.php
+$this->tpl->printComments = true;
+
 >>>>expected.txt
 OUTPUT
 
 >>>>result.txt
 <!--
 A text with
- comments
+ comments 
 -->

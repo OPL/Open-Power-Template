@@ -138,6 +138,8 @@
 				array('literal_2.txt'),
 				array('literal_3.txt'),
 				array('literal_4.txt'),
+				array('literal_5.txt'),
+				array('literal_6.txt'),
 				array('on_1.txt'),
 				array('prolog_1.txt'),
 				array('prolog_2.txt'),

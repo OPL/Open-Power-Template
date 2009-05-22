@@ -30,7 +30,7 @@
 			$this->_extractAttributes($node, $params);
 			
 			// First, disable displaying CDATA around all CDATA text parts found
-			$this->disableCDATA($node);		
+			$this->disableCDATA($node, true);
 			
 			// Define, what to display...
 			$node->clear();

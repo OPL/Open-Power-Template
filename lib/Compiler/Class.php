@@ -2110,11 +2110,11 @@
 									// to single spaces in the text.
 									if($item->get('noEntitize') === true)
 									{
-										$output .= trim(preg_replace('/\s\s+/', ' ', (string)$item));
+										$output .= preg_replace('/\s\s+/', ' ', (string)$item);
 									}
 									else
 									{
-										$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+										$output .= $this->parseSpecialChars(preg_replace('/\s\s+/', ' ', (string)$item));
 									}
 								}
 							}

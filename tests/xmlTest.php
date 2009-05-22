@@ -83,6 +83,7 @@
 				array('cdata_2.txt'),
 				array('cdata_3.txt'),
 				array('cdata_4.txt'),
+				array('cdata_5.txt'),
 				array('comments_1.txt'),
 				array('comments_2.txt'),
 				array('comments_3.txt'),
