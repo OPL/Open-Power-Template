@@ -28,6 +28,7 @@
 			$tpl->sourceDir = './templates/';
 			$tpl->compileDir = './templates_c/';
 
+			$tpl->register(Opt_Class::PHP_FUNCTION, '_', '_');
 			$tpl->register(Opt_Class::PHP_FUNCTION, 'foo', 'foo');
 			$tpl->register(Opt_Class::PHP_FUNCTION, 'bar', 'bar');
 			$tpl->register(Opt_Class::PHP_FUNCTION, 'joe', 'joe');
@@ -160,6 +161,9 @@
 				array(false, 'Text body {$variable}', '', $exceptionClass),
 				array(false, 'foo(\'text\'~$foo\')', '', $exceptionClass),
 				array(false, 'foo(\'text\'~$foo\")', '', $exceptionClass),
+				// Other issues
+				array(false, '_()', '_()', 0),
+				array(false, '_(\'foo\')', '_(\'foo\')', 0),
 		  	);
 		} // end provider();
 
