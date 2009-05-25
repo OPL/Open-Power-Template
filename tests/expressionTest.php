@@ -27,6 +27,7 @@
 			$tpl->sourceDir = '/';
 			$tpl->sourceDir = './templates/';
 			$tpl->compileDir = './templates_c/';
+			$tpl->escape = false;
 
 			$tpl->register(Opt_Class::PHP_FUNCTION, '_', '_');
 			$tpl->register(Opt_Class::PHP_FUNCTION, 'foo', 'foo');
@@ -39,6 +40,9 @@
 			$tpl->register(Opt_Class::PHP_FUNCTION, 'lmao2', '#2,1#lmao');
 			$tpl->register(Opt_Class::PHP_FUNCTION, 'lmao3', '#3,1,2:null#lmao');
 			$tpl->register(Opt_Class::PHP_CLASS, 'class', '_class');
+			$tpl->register(Opt_Class::PHP_CLASS, 'e', 'e');
+			$tpl->register(Opt_Class::PHP_CLASS, 'u', 'u');
+			$tpl->register(Opt_Class::PHP_CLASS, 'a', 'a');
 			Opl_Registry::register('opl_translate', new tl);
 			$tpl->setup();
 			$this->tpl = $tpl;
@@ -164,6 +168,15 @@
 				// Other issues
 				array(false, '_()', '_()', 0),
 				array(false, '_(\'foo\')', '_(\'foo\')', 0),
+
+				// Expression modifiers
+				array(false, 'u:\'foo\'', '\'foo\'', 0),
+				array(false, 'e:\'foo\'', 'htmlspecialchars(\'foo\')', 0),
+				array(false, 'a:\'foo\'', '', 'Opt_InvalidExpressionModifier_Exception'),
+				array(false, '\':\'', '\':\'', 0),
+				array(false, 'e::method()', 'e::method()', 0),
+				array(false, 'u::method()', 'u::method()', 0),
+				array(false, 'a::method()', 'a::method()', 0),
 		  	);
 		} // end provider();
 
@@ -174,7 +187,7 @@
 		{
 			try
 			{
-				$info = $this->cpl->compileExpression($src, $assign, false);
+				$info = $this->cpl->compileExpression($src, $assign, Opt_Compiler_Class::ESCAPE_BOTH);
 				
 				if($result == 0)
 				{

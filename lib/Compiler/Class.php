@@ -2273,6 +2273,21 @@
 		 */
 		public function compileExpression($expr, $allowAssignment = false, $escape = self::ESCAPE_ON)
 		{
+			// The expression modifier must not be tokenized, so we
+			// capture it before doing anything with the expression.
+			$modifier = '';
+			if(preg_match('/^([^\'])\:[^\:]/', $expr, $found))
+			{
+				$modifier = $found[1];
+
+				if($modifier != 'e' && $modifier != 'u')
+				{
+					throw new Opt_InvalidExpressionModifier_Exception($modifier, $expr);
+				}
+
+				$expr = substr($expr, 2, strlen($expr) - 2);
+			}
+
 			// cat $expr > /dev/oracle > $result > happy programmer :)
 			preg_match_all('/(?:'.
 		   			$this->_rSingleQuoteString.'|'.
@@ -2417,13 +2432,9 @@
 			$result = $expression;
 			if($escape != self::ESCAPE_OFF && !$assign)
 			{
-				if($expr[1] == ':' && $expr[2] != ':')
+				if($modifier != '')
 				{
-					if($expr[0] != 'e' && $expr[0] != 'u')
-					{
-						throw new Opt_InvalidExpressionModifier_Exception($expr[0], $expr);
-					}
-					$result = $this->escape($result, $expr[0] == 'e');
+					$result = $this->escape($result, $modifier == 'e');
 				}
 				else
 				{
@@ -2533,7 +2544,6 @@
 					'source' => $token,		// Original form of the token is also remembered.
 					'result' => null,		// Here we have to put the result PHP code generated from the token.
 				);
-				
 				// Find out, what it is and process it.
 				switch($token)
 				{
