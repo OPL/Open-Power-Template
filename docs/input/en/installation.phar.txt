@@ -30,7 +30,7 @@ try
 	$tpl = new Opt_Class;
 	$tpl->sourceDir = './templates/';
 	$tpl->compileDir = './templates_c/';
-	$tpl->contentType = Opt_Class::XHTML;
+	$tpl->contentType = Opt_Output_Http::XHTML;
 	$tpl->charset = 'utf-8';
 	$tpl->setup();
 

@@ -24,9 +24,9 @@ In the beginning, you must load the OPL core, configure the path to the librarie
 ~~~~
 [php]
 <?php
-require('./libs/opl/base.php');		// 1
+require('./libs/Opl/Base.php');		// 1
 Opl_Loader::setDirectory('./libs/');	// 2
-spl_autoload_register(array('Opl_Loader', 'autoload'));	// 3
+Opl_Loader::register();// 3
 
 $tpl = new Opt_Class;	// 4
 // your script
@@ -68,7 +68,7 @@ try
 	$tpl = new Opt_Class;
 	$tpl->sourceDir = './templates/';
 	$tpl->compileDir = './templates_c/';
-	$tpl->contentType = Opt_Class::XHTML;
+	$tpl->contentType = Opt_Output_Http::XHTML;
 	$tpl->charset = 'utf-8';
 	$tpl->setup();
 
