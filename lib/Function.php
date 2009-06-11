@@ -75,6 +75,50 @@
 		} // end firstof();
 
 		/**
+		 * Returns true, if the container contains the specified value.
+		 *
+		 * @static
+		 * @param string $item The container
+		 * @param mixed $value The value
+		 * @return True, if the value exists in the container.
+		 */
+		static public function contains($item, $value)
+		{
+			if(is_array($item))
+			{
+				return in_array($value, $item);
+			}
+			elseif($item instanceof ArrayAccess && $item instanceof Traversable)
+			{
+				foreach($item as $r)
+				{
+					if($r === $value)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		} // end contains();
+
+		/**
+		 * Returns true, if the container contains the specified key.
+		 *
+		 * @static
+		 * @param string $item The container
+		 * @param mixed $key The key
+		 * @return True, if the key exists in the container.
+		 */
+		static public function containsKey($item, $key)
+		{
+			if(is_array($item) || $item instanceof ArrayAccess)
+			{
+				return isset($item[$key]);
+			}
+			return false;
+		} // end containsKey();
+
+		/**
 		 * Puts the specified string $delim between every two characters of $string.
 		 * By default, it puts spaces between the $string characters.
 		 *
