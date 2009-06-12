@@ -1,4 +1,5 @@
 Title: Template inheritance
+VCSKeywords: $Id$
 SeeAlso:
  - syntax.instructions.snippet
  - syntax.instructions.include

@@ -55,3 +55,8 @@ Alternative use:
 </body>
 </html>
 ~~~~
+
+There is no requirement to place `opt:dtd` at the beginning of the template. Even if it is deeply nested in other XML tags, the document type definition will always appear before the document content.
+
+> [error]
+> There cannot be two document type definitions in the template. The last `opt:dtd` call overwrites the previous DTD-s set by this and/or other instructions.

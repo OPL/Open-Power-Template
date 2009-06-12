@@ -186,7 +186,7 @@
 				return self::processContainer(array('Opt_Function', 'strip'), array($string));
 			}
 
-			return preg_replace('/\s\s+/', ' ', $string);
+			return trim(preg_replace('/\s+/', ' ', $string));
 		} // end strip();
 
 		/**

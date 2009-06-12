@@ -1,4 +1,5 @@
 Title: containsKey()
+VersionSince: 2.0-RC2
 Reference: boolean containsKey(container $container, mixed $key)
 
 ----

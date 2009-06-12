@@ -38,6 +38,23 @@
 					closed, this would lead to produce invalid XML output. To modularize your templates, you have
 					to use <em>opt:include</em> instruction and/or the template inheritance.')
 			),
+			'Opt_FilesystemAccess_Exception' => array(
+				'ErrorInfo' => array(1 => 'OPT encountered a problem with filesystem permissions. Check if the script
+					has a proper permission to read from <em>sourceDir</em> and write to <em>compileDir</em>.'),
+				'BasicConfiguration' => array()
+			),
+			'Opt_InvalidEntityName_Exception' => array(
+				'ErrorInfo' => array(1 => 'This exception is thrown by the <em>entity()</em> template function if
+					the specified argument is not a valid XML entity name. The entity name must be either a decimal/hexadecimal
+					character number or the character name built of letters, number, underscores, pauzes and colons.'),
+			),
+			'Opt_TreeInvalidDepth_Exception' => array(
+				'ErrorInfo' => array(1 => 'This exception is thrown by the <em>opt:tree()</em> template instruction which attempts
+					to render a tree structure. The list elements must contain a "depth" field that specifies the element
+					depth. The first element determines the minimum depth and no element can have a lower value there.
+					In order to remove the problem, please check your PHP script and/or database to see, what depth values
+					it provides.'),
+			),
 			'Opt_SnippetRecursion_Exception' => array(
 				'StackInfo' => array(1 => 'Snippet call stack'),
 				'ErrorInfo' => array(1 => 'The compiler detected the infinite snippet insertion. For example, the snippet A inserts B, which inserts A again, and so on.

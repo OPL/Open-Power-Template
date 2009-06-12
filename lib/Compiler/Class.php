@@ -2114,7 +2114,7 @@
 									}
 									else
 									{
-										$output .= $this->parseSpecialChars(preg_replace('/\s\s+/', ' ', (string)$item));
+										$output .= $this->parseSpecialChars(preg_replace('/(\s){1,}/', ' ', (string)$item));
 									}
 								}
 							}

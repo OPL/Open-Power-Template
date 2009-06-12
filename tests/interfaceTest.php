@@ -224,4 +224,50 @@
 			$output = new Opt_Output_Return;
 			$this->assertEquals('CACHE-CHECK-START', $this->stripWs($output->render($view)));
 		} // end testCacheProvidedAndUsed();
+
+		/**
+		 * Testing the various compilation modes: CM_DEFAULT
+		 */
+		public function testCompileModeDefault()
+		{
+			$this->tpl->compileMode = Opt_Class::CM_DEFAULT;
+			file_put_contents('./interface/mod_template.tpl', 'TEST 1');
+
+			$view = new Opt_View('mod_template.tpl');
+
+			$output = new Opt_Output_Return;
+			$this->assertEquals('TEST 1', $this->stripWs($output->render($view)));
+
+			$this->assertEquals('TEST 1', $this->stripWs($output->render($view)));
+
+			sleep(2);
+
+			file_put_contents('./interface/mod_template.tpl', 'TEST 2');
+
+			$this->assertEquals('TEST 2', $this->stripWs($output->render($view)));
+		} // end testCompileModeDefault();
+
+		/**
+		 * Testing the various compilation modes: CM_PERFORMANCE
+		 */
+		public function testCompileModePerformance()
+		{
+			sleep(2);
+			$this->tpl->compileMode = Opt_Class::CM_DEFAULT;
+			file_put_contents('./interface/mod_template.tpl', 'TEST 1');
+
+			$view = new Opt_View('mod_template.tpl');
+
+			$output = new Opt_Output_Return;
+			$this->assertEquals('TEST 1', $this->stripWs($output->render($view)));
+
+			$this->tpl->compileMode = Opt_Class::CM_PERFORMANCE;
+
+			$this->assertEquals('TEST 1', $this->stripWs($output->render($view)));
+			sleep(2);
+
+			file_put_contents('./interface/mod_template.tpl', 'TEST 2');
+
+			$this->assertEquals('TEST 1', $this->stripWs($output->render($view)));
+		} // end testCompileModePerformance();
 	} // end interfaceTest;

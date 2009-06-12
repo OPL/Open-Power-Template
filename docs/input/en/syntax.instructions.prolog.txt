@@ -20,3 +20,5 @@ The instruction has one advantage over a typical prolog - we may read the values
 <?xml version="1.0" encoding="UTF-8" ?>   <!-- with "prologRequired" enabled, this line won't appear in the browser. -->
 <opt:prolog standalone="yes"/>    <!-- the prolog for the browser will be generated here. -->
 ~~~~
+
+There is no requirement to place `opt:prolog` at the beginning of the template. Even if it is deeply nested in other XML tags, the prolog will always appear before the document content.

@@ -1,8 +1,9 @@
-Checks the default DTD templates
+There should not be two doctypes in the document.
 
 >>>>templates/test.tpl
 <?xml version="1.0" ?>
 <opt:root>
+<opt:dtd template="xhtml10transitional" />
 <opt:dtd template="xhtml10strict" />
 </opt:root>
 

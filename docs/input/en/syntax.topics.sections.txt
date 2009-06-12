@@ -1,4 +1,5 @@
 Title: Sections
+VCSKeywords: $Id$
 SeeAlso:
  - syntax.instructions.section
  - syntax.instructions.tree

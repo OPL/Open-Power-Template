@@ -1,4 +1,5 @@
 Title: Blocks
+VCSKeywords: $Id$
 SeeAlso:
  - syntax.instructions.block
 

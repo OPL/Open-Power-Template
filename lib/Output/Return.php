@@ -19,15 +19,6 @@
 	 */
 	class Opt_Output_Return implements Opt_Output_Interface
 	{
-
-		/**
-		 * Creates the output.
-		 */
-		public function __construct()
-		{
-			$this->_tpl = Opl_Registry::get('opt');
-		} // end __construct();
-
 		/**
 		 * Returns the output name.
 		 *

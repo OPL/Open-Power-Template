@@ -1,4 +1,5 @@
 Title: opt:tree
+VCSKeywords: $Id$
 FeatureInformation: sections
 SeeAlso:
  - syntax.topics.sections

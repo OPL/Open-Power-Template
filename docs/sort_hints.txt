@@ -35,6 +35,7 @@ guide.inheritance
 guide.escaping
 guide.i18n
 guide.components
+guide.cache
 extending
 extending.plugins
 extending.functions
