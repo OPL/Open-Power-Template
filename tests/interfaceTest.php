@@ -7,12 +7,6 @@
  */
 	require_once('PHPUnit/Framework.php');
 
-	define('M_PUBLIC', 1);
-	define('M_PROTECTED', 2);
-	define('M_STATIC', 4);
-	define('M_FINAL', 8);
-	define('M_ABSTRACT', 16);
-
 	if(!defined('GROUPED'))
 	{
 		define('INS_DIR', './instruction/');
@@ -96,6 +90,24 @@
 
 			unset($foo);
 		} // end testSlashing();
+
+		/**
+		 * Test if the exception is returned, if the template does not exist.
+		 */
+		public function testInvalidTemplate()
+		{
+			try
+			{
+				$view = new Opt_View('template_that_doesnt_exist.tpl');
+				$out = new Opt_Output_Return;
+				$out->render($view);
+			}
+			catch(Opt_TemplateNotFound_Exception $exception)
+			{
+				return true;
+			}
+			$this->fail('Opt_TemplateNotFound_Exception not returned.');
+		} // end testInvalidTemplate();
 
 		/**
 		 * Check if the Return output actually returns the output.

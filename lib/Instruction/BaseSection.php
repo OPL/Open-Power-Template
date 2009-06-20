@@ -447,7 +447,7 @@
 			$section['format'] = $this->_compiler->getFormat($section['name']);
 			if(!$section['format']->supports('section'))
 			{
-				throw new Opt_FormatNotSupported($section['format']->getName(), 'section');
+				throw new Opt_FormatNotSupported_Exception($section['format']->getName(), 'section');
 			}
 		} // end _validateSection();
 

@@ -19,6 +19,7 @@
 		$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
 		require('./includes/filesystemWrapper.php');
+		require('./includes/testFormat.php');
 	}
 
 	class formatTest extends PHPUnit_Framework_TestCase
@@ -34,6 +35,7 @@
 			$tpl->compileMode = Opt_Class::CM_REBUILD;
 			$tpl->stripWhitespaces = false;
 			$tpl->prologRequired = true;
+			$tpl->register(Opt_Class::OPT_FORMAT, 'Test');
 			$tpl->setup();
 			$this->tpl = $tpl;
 		} // end setUp();
@@ -48,12 +50,21 @@
 			return array(0 =>
 				array('array_1.txt'),
 				array('array_2.txt'),
+				array('custom_assign_1.txt'),
+				array('custom_assign_2.txt'),
 				array('objective_1.txt'),
 				array('objective_2.txt'),
-			/*	array('objective_3.txt'),
+				array('objective_3.txt'),
 				array('objective_4.txt'),
+				array('objective_5.txt'),
+				array('objective_6.txt'),
+				array('objective_7.txt'),
+				array('runtimegen_1.txt'),
 				array('singlearray_1.txt'),
-				array('singlearray_2.txt'),*/
+				array('singlearray_2.txt'),
+				array('singlearray_3.txt'),
+				array('singlearray_4.txt'),
+				array('staticgen_1.txt'),
 			);
 		} // end correctProvider();
 

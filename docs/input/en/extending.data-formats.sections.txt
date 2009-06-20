@@ -1,0 +1,73 @@
+Title: Sections
+
+----
+
+The data formats can be used to affect the section behaviour. Sections are quite complex elements, when it comes to the implementation and there are many issues that you have to pay attention to.
+
+Configuration
+=============
+
+The snippets that affect section behaviour are a part of `section` group that must be added to your `$_supports` list. The following properties are required to be set:
+
+1. `section:useReference` - **true**, if the list of items is going to be moved by reference (i.e. it is an array). If the list is provided as an object, PHP does not allow references and the value of this property should be **false**
+2. `section:anyRequests` - specify there any extra requests from the section manager that are required by the data format to create a relationship with the parent section. The request is saved to the `requestedData` format variable. The recognized values are:
+   - `ancestorNames` - returns the names of all the section ancestors.
+   - `ancestorNumbers` - returns the numbers (nesting levels) of all the section ancestors.
+   
+The list of all the snippets used by sections is:
+
+1. `section:init`
+2. `section:endLoop`
+3. `section:isNotEmpty`
+4. `section:started`
+5. `section:finished`
+6. `section:done`
+7. `section:loopBefore`
+8. `section:startAscLoop`
+9. `section:startDescLoop`
+10. `section:item`
+11. `section:variable`
+12. `section:reset`
+13. `section:next`
+14. `section:valid`
+15. `section:populate`
+16. `section:count`
+17. `section:size`
+18. `section:iterator`
+19. `section:isFirst`
+20. `section:isLast`
+21. `section:isExtreme`
+
+Conventions
+===========
+
+The section instructions require the data format to use the following variable names in PHP code snippets:
+
+1. `$_sectSECTIONNAME_vals` - the list of section items.
+2. `$_sectSECTIONNAME_v` - the currently rendered item.
+3. `$_sectSECTIONNAME_cnt` - the number of items in the list.
+
+> [error]
+> The code snippets returned by your data formats are obliged to use the variable names mentioned above.
+
+Unsually, the default data formats use also `$_sectSECTIONNAME_i` or `$_sectSECTIONNESTING_i` as an iterator variables, but this is not required.
+
+Basic iteration
+===============
+
+The most important snippets are `section:init`, `section:isNotEmpty, `section:startAscLoop`, `section:startDescLoop` and `section:endLoop`.
+
+Section record structure
+========================
+
+Relationships with other sections
+=================================
+
+Iteration snippets
+==================
+
+Special section variable
+========================
+
+Conclusion
+==========

@@ -105,7 +105,6 @@
 				array(false, '($a + $b))::bar()', '', $exceptionClass),
 				array(false, 'foo(bar(joe(1))', '', $exceptionClass),
 				array(false, 'foo()::', '', $exceptionClass),
-				array(true, '5 is 2', '', $exceptionClass),
 				array(false, '$foo add $bar', '$this->_data[\'foo\']+$this->_data[\'bar\']', 0),
 				array(false, '$foo sub $bar', '$this->_data[\'foo\']-$this->_data[\'bar\']', 0),
 				array(false, '$foo mul $bar', '$this->_data[\'foo\']*$this->_data[\'bar\']', 0),
@@ -134,9 +133,6 @@
 				array(false, '--$obj::foo()', '', $exceptionClass),
 				array(false, '++($a + $b)', '', $exceptionClass),
 				array(false, '($a + $b)++', '', $exceptionClass),
-				array(true, '++$a is 5', '', $exceptionClass),
-				array(true, '$a + $b is $c + $d', '', $exceptionClass),
-				array(true, 'foo() is $c + $d', '', $exceptionClass),
 				array(false, 'null', 'null', 0),
 				array(false, 'false', 'false', 0),
 				array(false, 'true', 'true', 0),
@@ -160,6 +156,23 @@
 				array(false, 'lol($a, $b, $c)', 'lol($this->_data[\'a\'],$this->_data[\'b\'],$this->_data[\'c\'])', 0),	
 				array(false, 'assign($foo@bar, 5)', '$this->_tf->assign(\'foo\',\'bar\',5)', 0),
 				array(true, '$foo@bar is 5', '', $exceptionClass),
+
+				// Assignment stuff
+				array(true, '$a = 5', '$this->_data[\'a\']=5', 0),
+				array(true, '@a = 5', 'self::$_vars[\'a\']=5', 0),
+				array(true, '$a = $b = 5', '$this->_data[\'a\']=$this->_data[\'b\']=5', 0),
+				array(true, '++$a is 5', '', $exceptionClass),
+				array(true, '$a + $b is $c + $d', '', $exceptionClass),
+				array(true, 'foo() is $c + $d', '', $exceptionClass),
+				array(true, '5 is 2', '', $exceptionClass),
+				array(true, '$foo is', '', $exceptionClass),
+				array(true, '$foo is ($bar is 3 * (5 + 3))', '$this->_data[\'foo\']=($this->_data[\'bar\']=3*(5+3))', 0),
+				array(true, '$a = (((($b = 5))))', '$this->_data[\'a\']=(((($this->_data[\'b\']=5))))', 0),
+				array(true, 'rotfl($a = 5)', 'rotfl($this->_data[\'a\']=5)', 0),
+				array(true, 'rotfl($a = 5, $b = 10)', 'rotfl($this->_data[\'a\']=5,$this->_data[\'b\']=10)', 0),
+				array(true, 'is', '\'is\'', $exceptionClass),
+				array(true, 'is eq is', '\'is\'==\'is\'', $exceptionClass),
+				array(true, '$foo is is', '$this->_data[\'foo\']=\'is\'', $exceptionClass),
 				// Stupid syntax misuses
 				array(false, '\'Text body\'~{$brackettedVariable}', '', $exceptionClass),
 				array(false, 'Text body {$variable}', '', $exceptionClass),
@@ -206,7 +219,7 @@
 					}
 					return true;
 				}
-				$this->fail('Exception returned: #'.get_class($e).': '.$e->getMessage());
+				$this->fail('Exception returned: #'.get_class($e).': '.$e->getMessage().' (line: '.$e->getLine().')');
 			}
 		} // end testCompile();
 	} // end expressionTestSuite;

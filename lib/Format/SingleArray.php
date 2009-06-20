@@ -19,7 +19,10 @@
 	{
 		protected $_properties = array(
 			'section:useReference' => true,
-			'section:anyRequests' => null
+			'section:anyRequests' => null,
+			'variable:assign' => true,
+			'item:assign' => true,
+			'section:itemAssign' => false
 		);
 
 		protected function _build($hookName)

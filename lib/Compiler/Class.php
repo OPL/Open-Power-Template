@@ -2307,6 +2307,7 @@
 			$maxTuid = 0;
 			$prev = '';
 			$chr = chr(18);
+			$assignments = array();
 
 			/* The translation units allow to avoid recursive compilation of the
 			 * expression. Each sub-expression within parentheses and that is a
@@ -2331,8 +2332,18 @@
 							throw new Opt_Expression_Exception('OP_COMMA', $match[0][$i], $expr);
 						}
 						$tuid = $stack->pop();
+						if(in_array($tuid, $assignments))
+						{
+							$tuid = $stack->pop();
+						}
 					case '[':
 					case '(':
+					case 'is':
+					case '=':
+						if($match[0][$i] == '=' || $match[0][$i] == 'is')
+						{
+							$assignments[] = $tuid;
+						}
 						$tu[$tuid][] = $match[0][$i];
 						++$maxTuid;
 						$tu[$tuid][] = $chr.$maxTuid;	// A fake token that marks the translation unit which goes here.
@@ -2352,6 +2363,10 @@
 						if($stack->count() > 0)
 						{
 							$tuid = $stack->pop();
+							if(in_array($tuid, $assignments))
+							{
+								$tuid = $stack->pop();
+							}
 						}
 						if($prev == '(')
 						{
@@ -2367,7 +2382,7 @@
 						$tu[$tuid][] = $match[0][$i];
 				}
 				$prev = $match[0][$i];
-			}			
+			}
 			/*
 			 * Now we have an array of translation units and their tokens and
 			 * we can process it linearly, thus avoiding recursive calls.
@@ -2388,7 +2403,7 @@
 			$i = -1;
 			$cnt = sizeof($tu[0][0]);
 			$stack = new SplStack;
-			
+			$prev = null;
 			$expression = '';
 			
 			while(true)
@@ -2400,10 +2415,15 @@
 				// and link the new.
 				if(strlen($token) > 0 && $token[0] == $chr)
 				{
+					$wasAssignment = in_array($tuid, $assignments);
 					$stack->push(Array($tuid, $i, $cnt));
 					$tuid = (int)ltrim($token, $chr);
 					$i = -1;
 					$cnt = sizeof($tu[$tuid][0]);
+					if($cnt == 0 && $wasAssignment)
+					{
+						throw new Opt_Expression_Exception('OP_NULL', '', $expr);
+					}
 					continue;				
 				}
 				else
@@ -2422,6 +2442,7 @@
 					unset($tu[$tuid]);
 					list($tuid, $i, $cnt) = $stack->pop();
 				}
+				$prev = $token;
 			}
 			
 			/*
@@ -2663,7 +2684,7 @@
 						if($state['next'] & self::OP_STRING)
 						{
 							$current['result'] = '\''.$token.'\'';
-							$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E;
+							$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E | self::OP_TU;
 							break;
 						}
 					case '=':
@@ -2674,10 +2695,11 @@
 						// We have to assign the data to the variable or object field.
 						if(($previous['token'] == self::OP_VARIABLE || $previous['token'] == self::OP_FIELD) && !$state['oper'] && $previous['token'] != self::OP_LANGUAGE_VAR)
 						{
-							$current['result'] = '=';
+							$current['result'] = '';
 							$current['token'] = self::OP_ASSIGN;
 							$state['variable'] = false;
-							$state['next'] = $valueSet ^ self::OP_NULL;
+							$state['next'] = self::OP_TU;
+							$state['tu'] = self::OP_NULL;
 							$assign = true;
 						}
 						else
@@ -2898,7 +2920,10 @@
 							{
 								throw new Opt_Expression_Exception('OP_TU', 'Translation unit #'.ltrim($token, $chr), $expr);
 							}
-							$result[] = $token;
+							if($previous['token'] != self::OP_ASSIGN)
+							{
+								$result[] = $token;
+							}
 							$state['next'] = $state['tu'];
 						}
 						elseif(preg_match('/^'.$this->_rVariable.'$/', $token))
@@ -2914,8 +2939,28 @@
 							{
 								throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
 							}
-							$current['result'] = $this->_compileVariable($token);
-							$current['token'] = self::OP_VARIABLE;
+							// Moreover, we need to know the future (assignments)
+							$assignment = null;
+							if(isset($tokens[$i+1]) && ($tokens[$i+1] == '=' || $tokens[$i+1] == 'is'))
+							{
+								$assignment = $tokens[$i+2];
+							}
+
+							$out = $this->_compileVariable($token, $assignment);
+							if(is_array($out))
+							{
+								foreach($out as $t)
+								{
+									$result[] = $t;
+								}
+								$current['result'] = '';
+								$current['token'] = self::OP_VARIABLE;
+							}
+							else
+							{
+								$current['result'] = $out;
+								$current['token'] = self::OP_VARIABLE;
+							}
 							if(is_null($state['variable']))
 							{
 								$state['variable'] = true;
@@ -2987,7 +3032,10 @@
 						}
 				}
 				$previous = $current;
-				$result[] = $current['result'];
+				if($current['result'] != '')
+				{
+					$result[] = $current['result'];
+				}
 			}
 			// Finally, test if the pre- operators have been used properly.
 			$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
@@ -3030,10 +3078,10 @@
 		 *
 		 * @internal
 		 * @param String $name Variable call
-		 * @param Boolean $saveContext True, if the variable is used in the save context.
+		 * @param String $newValue Null or the new value to assign
 		 * @return String The output PHP code.
 		 */
-		protected function _compileVariable($name, $saveContext = false)
+		protected function _compileVariable($name, $saveContext = null)
 		{
 			// TODO: Add the support for the save context
 			// It is set to true, if the expression is going to save something
@@ -3076,6 +3124,10 @@
 						$result .= '[\''.$item.'\']';
 					}
 				}
+				if($saveContext !== null)
+				{
+					return array($result.'=', $saveContext);
+				}
 				return $result;
 			}
 			else
@@ -3103,6 +3155,10 @@
 					case 'opt':
 					case 'sys':
 					case 'system':
+						if($saveContext !== null)
+						{
+							throw new Opt_AssignNotSupported_Exception($name);
+						}
 						return $this->_compileSys($ns);
 					case 'this':
 						$state['access'] = Opt_Class::ACCESS_LOCAL;
@@ -3114,6 +3170,7 @@
 						break;
 				}
 				// Scan the rest of the name
+				$final = sizeof($ns) - 1;
 				foreach($ns as $id => $item)
 				{
 					$previous = $path;
@@ -3150,6 +3207,16 @@
 								if($id == $count - 1)
 								{
 									// This is the last name element.
+									if($saveContext !== null)
+									{
+										if(!$format->property('section:itemAssign'))
+										{
+											throw new Opt_AssignNotSupported_Exception($name);
+										}
+										$format->assign('value', $saveContext);
+										return $section['format']->get('section:itemAssign');
+									}
+
 									return $section['format']->get('section:item');
 								}
 								continue;
@@ -3181,10 +3248,24 @@
 						{
 							throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
 						}
-						$format->assign('access', $state['access']);
-						$format->assign('item', $item);
 
-						$code = $format->get('variable:main');
+						if($final == $id && $saveContext !== null)
+						{
+							if(!$format->property('variable:assign'))
+							{
+								throw new Opt_AssignNotSupported_Exception($name);
+							}
+							$format->assign('access', $state['access']);
+							$format->assign('item', $item);
+							$format->assign('value', $saveContext);
+							$code = $format->get('variable:assign');
+						}
+						else
+						{
+							$format->assign('access', $state['access']);
+							$format->assign('item', $item);
+							$code = $format->get('variable:main');
+						}
 					}
 					else
 					{
@@ -3201,9 +3282,31 @@
 						{
 							throw new Opt_FormatNotSupported_Exception($format->getName(), 'item');
 						}
-						$format->assign('item', $item);
-						$code .= $format->get('item:item');
+						if($final == $id && $saveContext !== null)
+						{
+							if(!$format->property('item:assign'))
+							{
+								throw new Opt_AssignNotSupported_Exception($name);
+							}
+							$format->assign('item', $item);
+							$format->assign('value', $saveContext);
+							$code .= $format->get('item:assign');
+						}
+						else
+						{
+							$format->assign('item', $item);
+							$code .= $format->get('item:item');
+						}
 					}
+				}
+				if($saveContext !== null)
+				{
+					$out = explode($saveContext, $code);
+					if(sizeof($out) == 0)
+					{
+						return $code;
+					}
+					return array(0 => $out[0], $saveContext, $out[1]);
 				}
 				return $code;
 			}

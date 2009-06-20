@@ -61,13 +61,17 @@
 				// The condition that should test if the section is not empty.
 				case 'section:isNotEmpty':
 					$section = $this->_getVar('section');
-					return 'is_object($_sect'.$section['name'].'_vals) && ($_sect'.$section['name'].'_vals instanceof Traversable) && ($_sect'.$section['name'].'_vals instanceof Countable) && ($_sect'.$section['name'].'_vals->count() > 0)';
+					return 'is_object($_sect'.$section['name'].'_vals) && ($_sect'.$section['name'].'_vals instanceof Traversable) && ($_sect'.$section['name'].'_vals instanceof Countable) && (($_sect'.$section['name'].'_cnt = $_sect'.$section['name'].'_vals->count()) > 0)';
 				// The code block after the condition
 				case 'section:started':
+					$section = $this->_getVar('section');
+					return 'if($_sect'.$section['name'].'_vals instanceof IteratorAggregate){ $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_vals->getIterator(); }';
 				// The code block before the end of the conditional block.
 				case 'section:finished':
+					return '';
 				// The code block after the conditional block
 				case 'section:done':
+					return '';
 				// The code block before entering the loop.
 				case 'section:loopBefore':
 					$section = $this->_getVar('section');
@@ -101,7 +105,7 @@
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['name'].'_vals->reset();';
+						return '$_sect'.$section['name'].'_vals->rewind();';
 					}
 					else
 					{
@@ -117,17 +121,31 @@
 					}
 					else
 					{
-						return 'prev($_sect'.$section['name'].'_vals);';
+						return 'prev($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
 					}
 					break;
 				// Checking whether the iterator is valid.
 				case 'section:valid':
 					$section = $this->_getVar('section');
-					return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i])';
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['name'].'_vals->valid()';
+					}
+					else
+					{
+						return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['name'].'_i])';
+					}
 				// Populate the current element
 				case 'section:populate':
 					$section = $this->_getVar('section');
-					return '$_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['name'].'_v = $_sect'.$section['name'].'_vals->current(); $_sect'.$section['name'].'_i = $_sect'.$section['name'].'_vals->key();';
+					}
+					else
+					{
+						return '$_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
+					}
 				// The code that returns the number of items in the section;
 				case 'section:count':
 					$section = $this->_getVar('section');
