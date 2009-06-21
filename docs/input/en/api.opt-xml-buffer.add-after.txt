@@ -11,7 +11,6 @@ Appends the code snippet `$code` to the end of the specified buffer `$buffer`.
 
 ~~~~
 [php]
-
 class Opt_Processor_Foo extends Opt_Compiler_Processor
 {
 	protected $_name = 'foo';

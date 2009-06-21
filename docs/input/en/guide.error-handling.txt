@@ -59,7 +59,6 @@ The context information is stored in the protected variable `$_context`. It is a
 ~~~~
 [php]
 <?php
-
 class My_ErrorHandler extends Opt_ErrorHandler
 {
 	public function __construct()
@@ -104,11 +103,10 @@ Writing your own informator is very easy. All you have to do is to create a prot
 
 ~~~~
 [php]
-<?php
-protected function _printMyInformator(Opt_Exception $exception, $argument)
-{
-	echo 'I am the informator and I have an argument: '.$argument;
-} // end _printMyInformator();
+    protected function _printMyInformator(Opt_Exception $exception, $argument)
+    {
+        echo 'I am the informator and I have an argument: '.$argument;
+    } // end _printMyInformator();
 ~~~~
 
 You can now use it in your exception context definition:

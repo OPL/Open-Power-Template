@@ -12,7 +12,6 @@ Registers a single or a group of XML attributes that can be parsed with this par
 
 ~~~~
 [php]
-
 class Opt_Processor_Foo extends Opt_Compiler_Processor
 {
 	protected $_name = 'foo';

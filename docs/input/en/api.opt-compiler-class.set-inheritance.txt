@@ -1,6 +1,6 @@
 Title: setInheritance()
 ShortTitle: Opt_Compiler_Class::setInheritance()
-Reference: void setInheritance(array $templates`)
+Reference: void setInheritance(array $templates)
 
 ----
 

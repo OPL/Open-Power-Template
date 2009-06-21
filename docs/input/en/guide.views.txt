@@ -151,7 +151,7 @@ And this is one of our modules (`news.tpl`):
 
 ~~~~
 [xml]
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <opt:root>
 	<h1>News</h1>
 	

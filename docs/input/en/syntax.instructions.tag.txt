@@ -30,7 +30,7 @@ A sample result:
 ~~~~
 [xml]
 <abc name="foo" id="bar">
-  Some content
+	Some content
 </abc>
 ~~~~
 

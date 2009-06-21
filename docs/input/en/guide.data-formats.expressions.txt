@@ -10,8 +10,6 @@ Formats and functions
 In case of the following code:
 
 ~~~~
-[xml]
-
 {@container = someFunction($otherContainer)}
 ~~~~
 
@@ -23,8 +21,6 @@ Formats and assignment operators
 In the following code:
 
 ~~~~
-[xml]
-
 {@bar is $foo.bar}
 ~~~~
 
@@ -36,7 +32,6 @@ Formats and other expressions
 In the complicated expressions, like `$foo.bar + $foo.joe` the variables behave according to their formats. However, some results may have no sense:
 
 ~~~~
-[xml]
 {$joe is $foo~$bar}
 ~~~~
 

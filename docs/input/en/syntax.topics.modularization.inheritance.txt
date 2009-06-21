@@ -72,7 +72,7 @@ This template defines two placeholders: `header` and `content`, so we can overwr
     <opt:snippet name="content">
         <opt:insert snippet="hello_text" />
         <h1>News</h1>
-        <div class="news" parse:id="'e '~$news.id" opt:section="news">
+        <div class="news" parse:id="'e'~$news.id" opt:section="news">
             <h1>{$news.title}</h1>
             <p>{$news.body}</p>
         </div>
@@ -94,12 +94,12 @@ Once we compile and execute this template, we should get something like this:
     </div>
     <div id="content">
         <h1>News</h1>
-        <div class="news" id="e 2">
+        <div class="news" id="e2">
             <h1>New articles</h1>
             <p>Today, the new articles have been published. We encourage you
             to read them, because they are really brilliant!</p>
         </div>
-        <div class="news" id="e 1">
+        <div class="news" id="e1">
             <h1>Hello world!</h1>
             <p>Welcome to my new website!</p>
         </div>
@@ -143,12 +143,12 @@ Now, if the user reads the news through the index page, he or she should see the
     <div id="content">
         <p>Welcome to my website!</p>
         <h1>News</h1>
-        <div class="news" id="e 2">
+        <div class="news" id="e2">
             <h1>New articles</h1>
             <p>Today, the new articles have been published. We encourage you
             to read them, because they are really brilliant!</p>
         </div>
-        <div class="news" id="e 1">
+        <div class="news" id="e1">
             <h1>Hello world!</h1>
             <p>Welcome to my new website!</p>
         </div>
@@ -249,7 +249,7 @@ In custom selection, we let the script to choose the template we inherit for us.
     <opt:snippet name="content">
         <opt:insert snippet="hello_text" />
         <h1>News</h1>
-        <div class="news" parse:id="'e '~$news.id" opt:section="news">
+        <div class="news" parse:id="'e'~$news.id" opt:section="news">
             <h1>{$news.title}</h1>
             <p>{$news.body}</p>
         </div>

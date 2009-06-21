@@ -130,11 +130,11 @@ This example also shows that in the nested sections we still have the full acces
 
 To sum up, the following codes do exactly the same:
 
+
+##### Version 1:
+
 ~~~~
 [xml]
-
-Version 1:
-
 <opt:section name="categories">
 	<p>Category: {$categories.name}</p>
 	<p>Featured products:</p>
@@ -146,9 +146,12 @@ Version 1:
 
 	</ul>
 </opt:section>
+~~~~
 
-Version 2:
+##### Version 2:
 
+~~~~
+[xml]
 <opt:section name="categories">
 	<p>Category: {$categories.name}</p>
 	<p>Featured products:</p>

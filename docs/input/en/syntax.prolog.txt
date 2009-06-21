@@ -9,15 +9,16 @@ If `prologRequired` is set to **true**, the XML prolog must be set in every temp
 
 ~~~~
 [xml]
-<?xml version="1.0" standalone="yes"?>
+<?xml version="1.0" standalone="yes" ?>
 <opt:root>
-	<opt:prolog standalone="no"/>
-	<opt:dtd template="xhtml-strict"/>
-	<html>
-		<head>
-		</head>
-		<!-- the template -->
-	</html>
+<opt:prolog standalone="no"/>
+<opt:dtd template="xhtml-strict"/>
+<html>
+<head>
+</head>
+
+<!-- the template -->
+</html>
 </opt:root> 
 ~~~~
 

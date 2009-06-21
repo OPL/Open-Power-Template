@@ -1,5 +1,5 @@
 Title: __get()
-ShortTitle: Opt_Class::__get()
+ShortTitle: Opt_View::__get()
 Construct: magic method
 Reference: mixed __get(string $name)
 VersionSince: 2.0-beta2

@@ -42,7 +42,7 @@ In order to make the dynamic inheritance possible, the templates must allow it:
 ~~~~
 
 > [information]
-> Another way to create the dynamic inheritance is to use branches. See [the chapter about inheritance][syntax.topics.inheritance] to get to know more.
+> Another way to create the dynamic inheritance is to use branches. See [the chapter about inheritance][syntax.topics.modularization.inheritance] to get to know more.
 
 Extending snippets
 ==================

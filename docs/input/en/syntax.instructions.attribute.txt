@@ -33,3 +33,16 @@ The instruction cooperates with OPT instruction attributes. If we wish to read t
 
 > [error]
 > `opt:attribute` cannot add attributes to other OPT instructions, except for `opt:tag`.
+
+Conditional attributes
+----------------------
+
+`opt:attribute` can also cooperate with [opt:if][syntax.attributes.if] attribute to add an attribute to the parent tag conditionally.
+
+~~~~
+[xml]
+<div>
+	<opt:attribute name="class" value="highlight" opt:if="$highlightDiv"/>
+	Content
+</div>
+~~~~

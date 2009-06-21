@@ -16,9 +16,12 @@ This attribute applied to any tag changes it into a section with the specified n
 <ol>
     <li opt:section="list">{$list.variable}</li>
 </ol>
+~~~~
 
 Instead:
 
+~~~~
+[xml]
 <ol>
     <opt:section name="list">
     <li>{$list.variable}</li>

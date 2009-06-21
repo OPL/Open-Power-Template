@@ -30,7 +30,7 @@ Below, we present two simple templates of a tiny website written in the XML mode
 
 ~~~~
 [xml]
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <opt:root>
 <opt:prolog />
 <opt:dtd template="xhtml10transitional" />
@@ -63,7 +63,7 @@ Below, we present two simple templates of a tiny website written in the XML mode
 			<opt:include from="content"/>
 		</opt:section>
 	</div>
-		<div id="footer">
+	<div id="footer">
 		<p>Copyright ABC 2007</p>
 	</div>
 </body>

@@ -1,5 +1,5 @@
 Title: __set()
-ShortTitle: Opt_Class::__set()
+ShortTitle: Opt_View::__set()
 Construct: magic method
 Reference: mixed __set(string $name, mixed $value)
 Visibility: public

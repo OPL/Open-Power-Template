@@ -60,14 +60,24 @@ The most important snippets are `section:init`, `section:isNotEmpty, `section:st
 Section record structure
 ========================
 
+To be written.
+
 Relationships with other sections
 =================================
+
+To be written.
 
 Iteration snippets
 ==================
 
+To be written.
+
 Special section variable
 ========================
 
+To be written.
+
 Conclusion
 ==========
+
+To be written.

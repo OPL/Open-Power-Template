@@ -19,14 +19,14 @@ The content of `opt:extend` may contain `opt:snippet` instructions only. Any oth
 
 ~~~~
 [xml]
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <opt:extend file="layout.tpl">
 	<opt:snippet name="header">
-			<h1>Our website</h1>
-			<p>Home page</p>
+		<h1>Our website</h1>
+		<p>Home page</p>
 	</opt:snippet>
 	<opt:snippet name="content">
-			<p>Welcome to our website!</p>	
+		<p>Welcome to our website!</p>	
 	</opt:snippet>
 </opt:extend>
 ~~~~
@@ -35,7 +35,7 @@ The content of `opt:extend` may contain `opt:snippet` instructions only. Any oth
 
 ~~~~
 [xml]
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <html>
 <head>
     <title>{$title}</title>
@@ -71,7 +71,7 @@ The result:
 
 ~~~~
 [xml]
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <html>
 <head>
     <title>Home page - Our Website</title>

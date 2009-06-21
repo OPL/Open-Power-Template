@@ -1,13 +1,11 @@
 Title: PHAR installation
+FeatureInformation: experimental
 SeeAlso:
  - installation.standard
 
 ----
 
 This chapter describes installing OPT as PHAR. It is recommended to read the previous chapter, too, because here we will only explain the differences.
-
-> [warning]
-> This chapter describes an experimental feature that is not completed yet. The details might change before releasing the first stable version.
 
 PHARs
 =====

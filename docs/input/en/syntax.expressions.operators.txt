@@ -45,7 +45,7 @@ A very important thing is the operator precendence. It defines, which operators 
 2. `!`
 3. `mul`, `div`, `mod`
 4. `add`, `sub`, `~`
-5. `lt`, `lte`, `gt, `gte`
+5. `lt`, `lte`, `gt`, `gte`
 6. `eq`, `neq`, `eqt`, `neqt`
 7. `and`, `or`, `xor`
 

@@ -24,11 +24,11 @@ In the beginning, you must load the OPL core, configure the path to the librarie
 ~~~~
 [php]
 <?php
-require('./libs/Opl/Base.php');		// 1
-Opl_Loader::setDirectory('./libs/');	// 2
-Opl_Loader::register();// 3
+require('./libs/Opl/Base.php'); // 1
+Opl_Loader::setDirectory('./libs/'); // 2
+Opl_Loader::register(); // 3
 
-$tpl = new Opt_Class;	// 4
+$tpl = new Opt_Class; // 4
 // your script
 ~~~~
 
@@ -54,12 +54,12 @@ contentType
 charset
 :	Used output encoding.
 
-Before we definietly start, we must also call [Opt_Class::setup()[api.opt-class.setup]. Do not forget about it, because it plays a very important role:
+Before we definietly start, we must also call [Opt_Class::setup()][api.opt-class.setup]. Do not forget about it, because it plays a very important role:
 
 ~~~~
 [php]
 <?php
-require('./libs/opl/base.php');
+require('./libs/Opl/Base.php');
 Opl_Loader::setDirectory('./libs/');
 spl_autoload_register(array('Opl_Loader', 'autoload'));
 

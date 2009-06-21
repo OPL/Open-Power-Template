@@ -36,7 +36,6 @@ Using `Opt_Output_Http` is easy:
 // Initialize the OPT
 $tpl = new Opt_Class;
 
-
 // Create the view
 $view = new Opt_View('template.tpl');
 $view->data = $someData;

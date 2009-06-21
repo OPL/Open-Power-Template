@@ -8,7 +8,6 @@ The attribute does exactly the same, as [opt:capture][syntax.instructions.captur
 
 ~~~~
 [xml]
-
 <div>
     <a href="$url" opt:capture="url">{$urlName}</a>
     <p>{$sys.capture.url}</p>

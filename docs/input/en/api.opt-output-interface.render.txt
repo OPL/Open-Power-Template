@@ -9,7 +9,6 @@ Executes the `Opt_View::_parse()` method in [Opt_View][api.opt-view] class in or
 
 ~~~~
 [php]
-
 public function render(Opt_View $view, Opt_Cache_Hook_Interface $cache = null)
 {
 	$view->_parse($this, Opl_Registry::get('opt')->mode);

@@ -7,4 +7,4 @@ SeeAlso:
 
 ---
 
-Builds a PHP code hook identified by the name `$name`. The list of the default code hooks supported by OPT can be found in the `Opt_Compiler_Format::get()` method documentation page.
+Builds a PHP code hook identified by the name `$name`. The list of the default code hooks supported by OPT can be found in the [Opt_Compiler_Format::get()][api.opt-compiler-format.get] method documentation page.

@@ -1,5 +1,5 @@
 Title: __isset()
-ShortTitle: Opt_Class::__isset()
+ShortTitle: Opt_View::__isset()
 Construct: magic method
 Reference: boolean __isset(string $name)
 VersionSince: 2.0-beta2

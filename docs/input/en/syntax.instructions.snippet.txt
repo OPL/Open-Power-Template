@@ -53,7 +53,7 @@ Although the snippet name must be unique, it is possible to create several snipp
 <opt:insert snippet="foo" /> <!-- what will be the result? -->
 ~~~~
 
-The first look at the code suggests that the new snippets overwrite the old ones and we will see "SNIPPET 3". Unfortunately, they don't because of the way the template inheritance is processed in the compiler. The output will be "SNIPPET 1", the first snippet that uses the name `foo`. However, the latter definitions are not lost. Snippet 2 becomes a parent of snippet 1, and snippet 3 - of snippet 2. Each snippet may display the content of its parent using the `opt:parent` tag. (Do you see here some similarities to the method overloading in the object oriented programming?)
+The first look at the code suggests that the new snippets overwrite the old ones and we will see "SNIPPET 3". Unfortunately, they don't because of the way the template inheritance is processed in the compiler. The output will be "SNIPPET 1", the first snippet that uses the name `foo`. However, the later definitions are not lost. Snippet 2 becomes a parent of snippet 1, and snippet 3 - of snippet 2. Each snippet may display the content of its parent using the `opt:parent` tag. (Do you see here some similarities to the method overloading in the object oriented programming?)
 
 ~~~~
 [xml]

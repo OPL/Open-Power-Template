@@ -24,7 +24,7 @@ If the script assigns the text *sunglasses* to `$item`, the parser returns the f
 In the next part of the documentation, the term *variables* means unsually *simple variables*.
 
 > [information]
-> By default, the variables are assigned to the specified template only. So, if the script assigns some value to `$foo` in `template1.tpl`, this value will not be seen in `$template2.tpl`. In this case we say that the variables are local. The configuration allows to make the variables global by default.
+> By default, the variables are assigned to the specified template only. So, if the script assigns some value to `$foo` in `template1.tpl`, this value will not be seen in `template2.tpl`. In this case we say that the variables are local. The configuration allows to make the variables global by default.
 
 Template variables
 ==================
@@ -87,7 +87,7 @@ The next example illustrates, how to create some kind of financial report:
 ~~~~
 
 `{@formattedProfits are money($profits)}`
-:	Here we say that we want to keep all the values in `$profits` in the money notation, for example *$35.45**. The new container must be saved to the new variable: `$formattedProfits` in order not to overwrite the original container.
+:	Here we say that we want to keep all the values in `$profits` in the money notation, for example **$35.45**. The new container must be saved to the new variable: `$formattedProfits` in order not to overwrite the original container.
 
 `{money(sum($profits))}`
 :	We request to sum all the values in `$profits` (that is why we have not overwritten that container!) and display the result in the money notation.

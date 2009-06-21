@@ -20,9 +20,12 @@ This attribute applied to any tag changes it into a [selector][syntax.instructio
         <opt:joe>Layout 3: {$list.variable}</opt:joe>
     </li>
 </ol>
+~~~~
 
 Instead:
 
+~~~~
+[xml]
 <ol>
     <opt:selector name="list">
         <opt:foo><li>Layout 1: {$list.variable}</li></opt:foo>

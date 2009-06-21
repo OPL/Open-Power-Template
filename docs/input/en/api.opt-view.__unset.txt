@@ -1,5 +1,5 @@
 Title: __unset()
-ShortTitle: Opt_Class::__unset()
+ShortTitle: Opt_View::__unset()
 Construct: magic method
 Reference: void __unset(string $name)
 VersionSince: 2.0-beta2
