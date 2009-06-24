@@ -152,6 +152,7 @@
 				array('prolog_3.txt'),
 				array('put_1.txt'),
 				array('put_2.txt'),
+				array('put_3.txt'),
 				array('repeat_1.txt'),
 				array('repeat_2.txt'),
 				array('repeat_3.txt'),

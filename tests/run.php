@@ -8,7 +8,7 @@
  * Usage: run.php /directory/something.txt
  */
 
-if($argc != 2)
+if($argc != 2 && $argc != 3)
 {
 	die("Invalid call!\n");
 }
@@ -24,6 +24,11 @@ Opl_Loader::register();
 $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
 require('./includes/filesystemWrapper.php');
+
+if($argc == 3)
+{
+	require('./includes/'.$argv[2]);
+}
 
 class test
 {

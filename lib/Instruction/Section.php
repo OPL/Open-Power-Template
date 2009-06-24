@@ -22,31 +22,7 @@
 			$this->_addInstructions(array('opt:section', 'opt:sectionelse', 'opt:show', 'opt:showelse'));
 			$this->_addAttributes('opt:section');
 		} // end configure();
-/*
-		public function processNode(Opt_Xml_Node $node)
-		{
-			$name = '_process'.ucfirst($node->getName());
-			$this->$name($node);
-		} // end processNode();
-		
-		public function postprocessNode(Opt_Xml_Node $node)
-		{
-			$name = '_postprocess'.ucfirst($node->getName());
-			$this->$name($node);
-		} // end postprocessNode();
-		
-		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
-		{
-			$name = '_processAttr'.ucfirst($attr->getName());
-			$this->$name($node, $attr);
-		} // end processAttribute();
-		
-		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
-		{
-			$name = '_postprocessAttr'.ucfirst($attr->getName());
-			$this->$name($node, $attr);
-		} // end postprocessAttribute();
-*/
+
 		protected function _processSection(Opt_Xml_Element $node)
 		{
 			$section = $this->_sectionCreate($node);

@@ -30,7 +30,7 @@
 				'value' => array(0 => self::REQUIRED, self::ASSIGN_EXPR)		
 			);
 			$this->_extractAttributes($node, $params);
-			
+
 			$node->set('single', false);
 			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' echo '.$params['value'].'; ');
 		} // end processNode();

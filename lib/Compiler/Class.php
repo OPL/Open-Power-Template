@@ -1252,8 +1252,15 @@
 				case 'Opt_Xml_Element':
 					if($this->isNamespace($item->getNamespace()))
 					{
-						$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
-							Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+						if($item->get('single'))
+						{
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+						}
+						else
+						{
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
+								Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+						}
 					}
 					else
 					{
@@ -2083,6 +2090,7 @@
 					 * the code executed BEFORE the children are parsed. The latter situation
 					 * is implemented in the _doPostlinking() method.
 					 */
+					$doPostlinking = false;
 					switch($item->getType())
 					{
 						case 'Opt_Xml_Cdata':
@@ -2139,8 +2147,8 @@
 								// we do not need to display their tags.
 								if(!$item->hasChildren() && $item->get('single'))
 								{
-									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE,
-										Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE);
+									$doPostlinking = true;
 								}
 								elseif($item->hasChildren())
 								{
@@ -2153,8 +2161,8 @@
 								else
 								{
 									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
-										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
-										Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
+									$doPostlinking = true;
 								}
 							}
 							else
@@ -2234,14 +2242,27 @@
 					}
 				}
 				catch(Opl_Goto_Exception $goto){}	// postprocess:
-				
+				if($doPostlinking)
+				{
+					$output .= $this->_doPostlinking($item);
+				}
+
 				if($queue->count() == 0)
 				{
 					if($stack->count() == 0)
 					{
 						break;
 					}
-					$output .= $this->_doPostlinking($item);
+					/**
+					 * !!!!!!!!!!!!THIS IS WRONG!!!!!!!!!!!!!!!!
+					 *
+					 * Some items get this called only if they are
+					 * the last in the queue.
+					 */
+					if(!$doPostlinking)
+					{
+						$output .= $this->_doPostlinking($item);
+					}
 					
 					list($item, $queue, $pp) = $stack->pop();
 					
