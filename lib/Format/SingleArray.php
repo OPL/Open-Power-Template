@@ -21,8 +21,11 @@
 			'section:useReference' => true,
 			'section:anyRequests' => null,
 			'variable:assign' => true,
+			'variable:useReference' => true,
 			'item:assign' => true,
-			'section:itemAssign' => false
+			'item:useReference' => true,
+			'section:itemAssign' => false,
+			'section:variableAssign' => true
 		);
 
 		protected function _build($hookName)
@@ -35,7 +38,11 @@
 				{
 					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
 					$parent['format']->assign('item', $section['name']);
-					return '$_sect'.$section['name'].'_vals = &'.$parent['format']->get('section:variable').'; ';
+					if($parent['format']->property('section:useReference'))
+					{
+						return '$_sect'.$section['name'].'_vals = &'.$parent['format']->get('section:variable').'; ';
+					}
+					return '$_sect'.$section['name'].'_vals = '.$parent['format']->get('section:variable').'; ';
 				}
 				elseif(!is_null($section['datasource']))
 				{

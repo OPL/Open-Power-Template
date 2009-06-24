@@ -2,4 +2,4 @@ Title: New components
 
 ----
 
-To be written.
+See: [Syntax / Topics / Components][syntax.topics.components] and [Guide / Components][guide.components]

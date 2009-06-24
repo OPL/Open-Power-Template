@@ -2,4 +2,4 @@ Title: New blocks
 
 ----
 
-To be written.
+See: [Syntax / Topics / Blocks][syntax.topics.blocks]

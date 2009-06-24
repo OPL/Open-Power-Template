@@ -21,11 +21,19 @@ The code hooks below are used by OPT and are grouped into three feature sets (se
 `variable:main`
 :	The PHP code for the template variable call, for example `$templateVariable`. The variable name can be read from the format variable `item`.
 
+`variable:assign`
+:	The PHP code that assigns a new value to the variable. The value marker is provided in the format variable `value`.
+:	Required, if the `item:assign` property is set to **true**.
+
 `item` feature set
 ==================
 
 `item:main`
 :	The PHP code for the container call, for example `$container.item.subitem`. The code hook is called for each of the container elements separately, because they may be processed by different data formats. The item name can be read from the format variable `item`.
+
+`item:assign`
+:	The PHP code that assigns a new value to the item. The value marker is provided in the format variable `value`.
+:	Required, if the `item:assign` property is set to **true**.
 
 `section` feature set
 =====================
@@ -62,8 +70,16 @@ All the hooks in this feature set have the access to the format variable `sectio
 `section:variable`
 :	The PHP code that retrieves the section item variable, for example `$sectionName.variable`. If the data format decorates another format, you should order that format to return the code hook `item:item` for the `.variable`.
 
+`section:variableAssign`
+:	The PHP code that assigns a new value to the section variable. The value marker is provided in the format variable `value`.
+:	Required, if the `section:variableAssign` property is set to **true**.
+
 `section:item`
 :	The PHP code that returns the whole current section item.
+
+`section:itemAssign`
+:	The PHP code that assigns a new value to the item. The value marker is provided in the format variable `value`.
+:	Required, if the `section:itemAssign` property is set to **true**.
 
 `section:reset`
 :	Resets the section back to the first item.

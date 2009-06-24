@@ -10,7 +10,7 @@ The data formats allow you to control the access to the container subitems, for 
 Configuration
 =============
 
-The variable access snippets are located in the `item` group, so you must add it to `$_supports` field in your data format. Furthermore, you need to set up the property `variable:assign`. It is a boolean value that controls whether your data format supports assignments of a new value to the variables.
+The variable access snippets are located in the `item` group, so you must add it to `$_supports` field in your data format. Furthermore, you need to set up the property `variable:assign`. It is a boolean value that controls whether your data format supports assignments of a new value to the variables. Another property is `item:useReference` that should be set to **true** if the item value can be accessed via reference, similarly to `variable:useReference`.
 
 Reading the values
 ==================

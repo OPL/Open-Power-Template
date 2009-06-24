@@ -22,8 +22,14 @@
 		);
 
 		protected $_properties = array(
-			'section:useReference' => false,
-			'section:anyRequests' => null
+			'section:useReference' => true,
+			'section:anyRequests' => null,
+			'section:itemAssign' => false,
+			'section:variableAssign' => true,
+			'variable:useReference' => true,
+			'variable:assign' => true,
+			'item:assign' => true,
+			'item:useReference' => true,
 		);
 
 		/**
@@ -100,6 +106,13 @@
 						return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:item');
 					}					
 					return '$_sect'.$section['name'].'_v->'.$this->_getVar('item');
+				case 'section:variableAssign':
+					$section = $this->_getVar('section');
+					if($this->isDecorating())
+					{
+						return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:assign');
+					}
+					return '$_sect'.$section['name'].'_v->'.$this->_getVar('item').'='.$this->_getVar('value');
 				// Resetting the section to the first element.
 				case 'section:reset':
 					$section = $this->_getVar('section');
@@ -196,8 +209,21 @@
 					{
 						return 'self::$_global[\''.$item.'\']';
 					}
+				case 'variable:assign':
+					$this->_applyVars = false;
+					$item = $this->_getVar('item');
+					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
+					{
+						return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
+					}
+					else
+					{
+						return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
+					}
 				case 'item:item':
 					return '->'.$this->_getVar('item');
+				case 'item:assign':
+					return '->'.$this->_getVar('item').'='.$this->_getVar('value');
 				default:
 					return NULL;
 			}

@@ -166,6 +166,11 @@
 		protected $_message = 'The format %s does not support %s.';
 	} // end Opt_FormatNotSupported_Exception;
 
+	class Opt_AssignNotSupported_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'The data format of the %s variable does not allow to assign a new value to it.';
+	} // end Opt_AssignNotSupported_Exception;
+
 	class Opt_FormatNotDecorated_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'The format %s cannot be used without decoration.';

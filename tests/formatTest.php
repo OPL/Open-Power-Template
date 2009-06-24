@@ -50,8 +50,13 @@
 			return array(0 =>
 				array('array_1.txt'),
 				array('array_2.txt'),
+				array('array_3.txt'),
+				array('array_4.txt'),
 				array('custom_assign_1.txt'),
 				array('custom_assign_2.txt'),
+				array('custom_assign_3.txt'),
+				array('decoration_1.txt'),
+				array('decoration_2.txt'),
 				array('objective_1.txt'),
 				array('objective_2.txt'),
 				array('objective_3.txt'),

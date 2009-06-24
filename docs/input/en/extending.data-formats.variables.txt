@@ -7,7 +7,7 @@ In this chapter, we are going to learn, how to change the behaviour of variables
 Configuration
 =============
 
-The variable access snippets are located in the `variable` group, so you must add it to `$_supports` field in your data format. Furthermore, you need to set up the property `variable:assign`. It is a boolean value that controls whether your data format supports assignments of a new value to the variables.
+The variable access snippets are located in the `variable` group, so you must add it to `$_supports` field in your data format. Furthermore, you need to set up the property `variable:assign`. It is a boolean value that controls whether your data format supports assignments of a new value to the variables. Another property is `variable:useReference`. Its value should be **true** if the data format permits reading the variables via references. For example, the data format shown in the example below that implements the template variables as functions, should use **false** here, as it is not possible in PHP to access the returned function values via references.
 
 Reading the values
 ==================

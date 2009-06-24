@@ -3104,11 +3104,6 @@
 		 */
 		protected function _compileVariable($name, $saveContext = null)
 		{
-			// TODO: Add the support for the save context
-			// It is set to true, if the expression is going to save something
-			// with the "is" operator.
-			// Note that the expression compiler must be changed a bit in order
-			// to compile the right side of this operator as a translation unit.
 			$value = substr($name, 1, strlen($name) - 1);
 			$result = '';
 			if(strpos($value, '.') !== FALSE)
@@ -3219,10 +3214,10 @@
 						{
 							// Check if any section with the specified name exists.
 							$proc = $this->processor('section');
-							$name = $this->convert($item);
-							if(!is_null($section = $proc->getSection($name)))
+							$sectionName = $this->convert($item);
+							if(!is_null($section = $proc->getSection($sectionName)))
 							{
-								$path = $name;
+								$path = $sectionName;
 								$state['section'] = $section;
 
 								if($id == $count - 1)
@@ -3230,7 +3225,7 @@
 									// This is the last name element.
 									if($saveContext !== null)
 									{
-										if(!$format->property('section:itemAssign'))
+										if(!$section['format']->property('section:itemAssign'))
 										{
 											throw new Opt_AssignNotSupported_Exception($name);
 										}
@@ -3247,8 +3242,20 @@
 						{
 							// The section has been found, we need to process the item.
 							$state['section']['format']->assign('item', $item);
-							$code = $state['section']['format']->get('section:variable');
-							
+
+							if($saveContext !== null && $id == $final)
+							{
+								if(!$state['section']['format']->property('section:variableAssign'))
+								{
+									throw new Opt_AssignNotSupported_Exception($name);
+								}
+								$state['section']['format']->assign('value', $saveContext);
+								$code = $state['section']['format']->get('section:variableAssign');
+							}
+							else
+							{
+								$code = $state['section']['format']->get('section:variable');
+							}
 							$state['section'] = null;
 							continue;
 						}

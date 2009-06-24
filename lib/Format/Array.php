@@ -27,8 +27,11 @@
 			'section:useReference' => true,
 			'section:anyRequests' => 'ancestorNumbers',
 			'variable:assign' => true,
+			'variable:useReference' => true,
 			'item:assign' => true,
-			'section:itemAssign' => false
+			'item:useReference' => true,
+			'section:itemAssign' => false,
+			'section:variableAssign' => true
 		);
 
 		protected $_sectionItemVariables = false;
@@ -107,6 +110,23 @@
 						return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]'.$this->_decorated->get('item:item');
 					}					
 					return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\']';
+				// Retrieving a variable from a section item.
+				case 'section:variableAssign':
+					$section = $this->_getVar('section');
+					if($this->_sectionItemVariables)
+					{
+						if($this->isDecorating())
+						{
+							return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:assign');
+						}
+						$section = $this->_getVar('section');
+						return '$_sect'.$section['name'].'_v[\''.$this->_getVar('item').'\']='.$this->_getVar('value');
+					}
+					if($this->isDecorating())
+					{
+						return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]'.$this->_decorated->get('item:assign');
+					}
+					return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\']='.$this->_getVar('value');
 				// Resetting the section to the first element.
 				case 'section:reset':
 					$section = $this->_getVar('section');
@@ -154,7 +174,6 @@
 					{
 						return 'sizeof($_sect'.$section['name'].'_v)';
 					}
-					$section = $this->_getVar('section');
 					return 'sizeof($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i])';
 				// Section iterator.
 				case 'section:iterator':
