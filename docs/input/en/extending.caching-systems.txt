@@ -1,0 +1,58 @@
+Title: New caching systems
+SeeAlso:
+ - guide.cache
+
+----
+
+OPT does not come bundled with any native caching system, although one is being developed as a part of *Open Power Classes* project. This article shows, how to connect the template engine to an external caching system, provided (for example) by your framework. All you need is to implement the `Opt_Caching_Interface` in one of your classes. The interface consists of two methods:
+
+~~~~
+[php]
+public function templateCacheStart(Opt_View $view);
+public function templateCacheStop(Opt_View $view);
+~~~~
+
+The first method must perform the following operations:
+
+1. Check, if the cached content needs to be refreshed.
+2. If the cache must be refreshed, the method is expected to start capturing the content and return **false**.
+3. Otherwise, it must read and display the content with **echo** and return **true**.
+
+The second method is executed at the end of cache rebuilding. Its purpose is to finalize the capturing and save the new content.
+
+A sample implementation could look like this:
+
+~~~~
+[php]
+
+class myCache implements Opt_Caching_Interface
+{
+	private $_refresh = false;
+
+	public function refresh()
+	{
+		$this->_refresh = true;
+	} // end refresh();
+
+	public function templateCacheStart(Opt_View $view)
+	{
+		if(!file_exists('./'.$view->getTemplate().'.txt') || $this->_refresh)
+		{
+			ob_start();
+			return false;
+		}
+		echo file_get_contents('./cache.txt');
+		return true;
+	} // end templateCacheStop();
+
+	public function templateCacheStop(Opt_View $view)
+	{
+		file_put_contents('./'.$view->getTemplate().'.txt', ob_get_clean());
+	} // end templateCacheStop();
+} // end myCache;
+~~~~
+
+Such caching object can be registered now in the `Opt_View` object to enable caching features.
+
+> [help]
+> If you are working with Zend Framework, please take a look at the [OPL for Zend Framework port](http://www.invenzzia.org/en/projects/ports/opl4zf) which contains a plugin that allows to use the `Zend_Cache` component with OPT.

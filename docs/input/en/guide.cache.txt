@@ -1,4 +1,6 @@
 Title: Caching
+SeeAlso:
+ - extending.caching-systems
 
 ----
 
