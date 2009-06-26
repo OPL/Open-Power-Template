@@ -24,7 +24,6 @@ A sample implementation could look like this:
 
 ~~~~
 [php]
-
 class myCache implements Opt_Caching_Interface
 {
 	private $_refresh = false;
