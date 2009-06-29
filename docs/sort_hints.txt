@@ -42,6 +42,7 @@ extending.functions
 extending.blocks
 extending.components
 extending.output-systems
+extending.caching-systems
 extending.data-formats
 extending.instructions
 migration
