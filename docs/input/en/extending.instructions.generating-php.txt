@@ -15,7 +15,7 @@ The locations of the code buffers around the XML tags are shown below:
 > `<tag>...</tag>` node:
 > ![Location of the code buffers around the XML tag](media/code_buffers_1.png "Location of the code buffers around the XML tag")
 
-<!-- ... ->
+<!-- ... -->
 
 > `<tag />` node:
 > ![Location of the code buffers around the single XML tag](media/code_buffers_2.png "Location of the code buffers around the single XML tag")
