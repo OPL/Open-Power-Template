@@ -72,3 +72,9 @@ api.opt-component-interface
 api.opt-generator-interface
 api.opt-output-interface
 appendix
+appendix.resources
+appendix.error-messages
+appendix.possible-problems
+appendix.support
+appendix.bugs
+appendix.license
