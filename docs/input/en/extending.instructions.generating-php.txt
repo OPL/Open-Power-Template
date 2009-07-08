@@ -13,11 +13,13 @@ Code buffers in XML tags
 The locations of the code buffers around the XML tags are shown below:
 
 > `<tag>...</tag>` node:
+> 
 > ![Location of the code buffers around the XML tag](media/code_buffers_1.png "Location of the code buffers around the XML tag")
 
 <!-- ... -->
 
 > `<tag />` node:
+> 
 > ![Location of the code buffers around the single XML tag](media/code_buffers_2.png "Location of the code buffers around the single XML tag")
 
 The `TAG_AFTER` and `TAG_BEFORE` buffers wrap the whole node and are present in both tag types. We may paste there the PHP code snippets that affect the whole tag, for example pack it in a conditional block or a loop. It is also possible to wrap either opening or closing tag. The content buffers are available only, if the tag *is not empty*, that is - it contains any children or the `TAG_CONTENT` buffer is set. This buffer has a priority over the XML content when rendering.

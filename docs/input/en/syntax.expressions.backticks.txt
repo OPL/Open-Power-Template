@@ -4,12 +4,12 @@ SeeAlso:
 
 ----
 
-OPT supports a special type of strings written in the backticks: `\``. Their behaviour can be programmed by the programmer. In the example above, the backticks are used as a template access to the Access Control List system:
+OPT supports a special type of strings written in the backticks: `` ` ``. Their behaviour can be programmed by the programmer. In the example above, the backticks are used as a template access to the Access Control List system:
 
 ~~~~
 [xml]
 <opt:if test="`/user/control/security`">
-<p>User IP: {$user.ip}</p>
+    <p>User IP: {$user.ip}</p>
 </opt:if>
 ~~~~
 
@@ -22,7 +22,6 @@ Backtick string handler is an ordinary function or object method that takes one 
 
 ~~~~
 [php]
-
 function myBacktickHandler($string)
 {
 	return strtoupper($string);

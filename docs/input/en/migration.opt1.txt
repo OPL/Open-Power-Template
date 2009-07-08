@@ -203,14 +203,14 @@ And the template code:
 ~~~~
 [xml]
 <html>
- <head>
-  <title>{$title}</title>
- </head>
- <body>
-  <opt:section name="content">
-   <opt:include from="content"><p>Sorry, the specified template has not been found.</p></opt:include>
-  </opt:section>
- </body>
+<head>
+    <title>{$title}</title>
+</head>
+<body>
+<opt:section name="content">
+    <opt:include from="content"><p>Sorry, the specified template has not been found.</p></opt:include>
+</opt:section>
+</body>
 </html>
 ~~~~
 
@@ -224,21 +224,21 @@ Another concept, completely new in the OPT project, is the [template inheritance
 <opt:root>
 <!-- base template -->
 <html>
- <head>
-  <title>{$title}</title>
- </head>
- <body>
-   <div id="header">
-     <opt:insert snippet="header">
-	 <h1>My website</h1> 
-	 </opt:insert>
-   </div>
-   <div id="content">
-     <opt:insert snippet="content">
-	 <p>Default content</p> 
-	 </opt:insert>
-   </div>
- </body>
+<head>
+    <title>{$title}</title>
+</head>
+<body>
+<div id="header">
+    <opt:insert snippet="header">
+        <h1>My website</h1> 
+    </opt:insert>
+</div>
+<div id="content">
+    <opt:insert snippet="content">
+        <p>Default content</p> 
+    </opt:insert>
+</div>
+</body>
 </html>
 </opt:root>
 ~~~~
@@ -249,13 +249,13 @@ And the extending template:
 [xml]
 <?xml version="1.0" ?>
 <opt:extend file="base.tpl">
-  <opt:snippet name="header">
-    <h1>My website</h1>
-	<h2>My awesome module</h2>
-  </opt:snippet>
-  <opt:snippet name="content">
-    <p>The module-specific content.</p>
-  </opt:snippet>
+    <opt:snippet name="header">
+        <h1>My website</h1>
+        <h2>My awesome module</h2>
+    </opt:snippet>
+    <opt:snippet name="content">
+        <p>The module-specific content.</p>
+    </opt:snippet>
 </opt:extend>
 ~~~~
 

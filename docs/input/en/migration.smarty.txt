@@ -156,10 +156,10 @@ The same effect using sections is horrible:
 
 Open Power Template provides four types of loops:
 
-1. `[opt:for][syntax.instructions.for]`
-2. `[opt:foreach][syntax.instructions.foreach]`
-3. `[opt:repeat][syntax.instructions.repeat]`
-4. `[sections][syntax.topics.sections]`
+1. [opt:for][syntax.instructions.for]
+2. [opt:foreach][syntax.instructions.foreach]
+3. [opt:repeat][syntax.instructions.repeat]
+4. [sections][syntax.topics.sections]
 
 However, in most cases you would only need the last one. OPT sections have almost nothing to do with Smarty's. They provide, abstract, high-level interface to display lists on the template side, hiding all the implementation details from the template designer. Let's take at the same example in OPT:
 
@@ -181,11 +181,11 @@ Another advantage of sections is the fact that the template code is completely i
 [php]
 // For the example with foreach
 $tpl->assign('categories', array(0 =>
-	array('name => 'Category 1', 'products' => array(0 =>
+	array('name' => 'Category 1', 'products' => array(0 =>
 		array('name' => 'Product 1'),
 		array('name' => 'Product 2'),
 		array('name' => 'Product 3'),
-	)
+	))
 ));
 
 // For the example with section
@@ -208,11 +208,11 @@ OPT sections use the data formats, mentioned eariler, to deal with such details.
 $view->setFormat('categories', 'SingleArray');
 $view->setFormat('products', 'SingleArray');
 $view->categories = array(0 =>
-	array('name => 'Category 1', 'products' => array(0 =>
+	array('name' => 'Category 1', 'products' => array(0 =>
 		array('name' => 'Product 1'),
 		array('name' => 'Product 2'),
 		array('name' => 'Product 3'),
-	)
+	))
 );
 
 // For the example with section

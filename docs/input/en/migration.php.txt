@@ -117,14 +117,14 @@ Below, you can find a sample code that makes use of these features to create a f
 ~~~~
 [xml]
 <html>
- <head>
-  <title>{$title}</title>
- </head>
- <body>
-  <opt:section name="content">
-   <opt:include from="content"><p>Sorry, the specified template has not been found.</p></opt:include>
-  </opt:section>
- </body>
+<head>
+    <title>{$title}</title>
+</head>
+<body>
+<opt:section name="content">
+    <opt:include from="content"><p>Sorry, the specified template has not been found.</p></opt:include>
+</opt:section>
+</body>
 </html>
 ~~~~
 
