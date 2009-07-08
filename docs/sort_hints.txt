@@ -45,6 +45,14 @@ extending.output-systems
 extending.caching-systems
 extending.data-formats
 extending.instructions
+extending.instructions.processor-overview
+extending.instructions.generating-php
+extending.instructions.parsing-attributes
+extending.instructions.xml-manipulations
+extending.instructions.system
+extending.instructions.data-formats
+extending.instructions.node-variables
+extending.instructions.tips
 migration
 api
 api.opt-class

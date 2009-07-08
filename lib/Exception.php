@@ -213,7 +213,7 @@
 	
 	class Opt_SysVariableInvalidUse_Exception extends Opt_Template_Exception
 	{
-		protected $_message = 'OPT block %s can be used in %s only.';
+		protected $_message = 'OPT variable %s can be used in %s only.';
 	} // end Opt_SysVariableInvalidUse_Exception;
 	
 	class Opt_AttributeNotDefined_Exception extends Opt_Template_Exception

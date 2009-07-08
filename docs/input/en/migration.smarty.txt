@@ -1,0 +1,245 @@
+Title: Smarty™
+
+----
+
+Smarty™ is the most popular template engine for PHP. This chapter covers the migration issues from Smarty 2.6.x to OPT 2.0 and provides a help for the programmers that would like to switch from it.
+
+Basic issues and ideas
+======================
+
+The most important difference between the template engines is the syntax. Smarty packs its instructions and commands into curly brackets. The rest of the document is treated as static text and there is no possibility to manipulate its structure. Open Power Template treats the templates as XML documents. The instructions are represented by tags in the `opt:` namespace and furthermore, the parser understands the HTML structure. The curly brackets are still present, but their usage is limited to put the variables and expressions into a static text:
+
+~~~~
+[xml]
+<p>This is a text {$variable}</p>
+~~~~
+
+The basic idea behind both of the template engines is the same. The template is firstly compiled into the PHP code, and then the template engine simply executes it as a normal script.
+
+When it comes to the project structure, Smarty features imperative programming on the template side, using similar control flow instructions, like in PHP. We use loops and conditional instructions to achieve the required effect. There is also a limited number of eye-candy functions like `{mailto}` or `{html_radios}`. Open Power Template favourizes declarative programming. Although the ordinary programming instructions are still present, they should not be used unless necessary. The template engine offers a set of portable high-level instructions such as [opt:section][syntax.instructions.section] or [opt:component][syntax.instructions.component] to solve the common problems appearing in the templates. The key is to concentrate on the final effect we want to achieve rather than the implementation. Well-written OPT templates are very portable, clean and actually free from the implementation-specific details.
+
+> [warning]
+> OPT requires the template to be a correct XML document. Especially, the tags must be closed in the proper order.
+
+Syntax elements: instructions and expressions
+=============================================
+
+In Smarty, we work with template functions and expressions containing variables. The template provided a limited number of built-in advanced functions, and the operations on the variable values were possible with *modifiers*:
+
+~~~~
+[smarty]
+{* displaying a variable *}
+{$variable}
+
+{* a built-in function *}
+{if $something}
+	Hi universe!
+{/if}
+
+{* a modifier *}
+{$variable|spacify:" "}
+~~~~
+
+Open Power Template structure is completely different. The variables and operators form expressions, like `$a + $b`. The expression syntax is very similar to the one from the PHP and other programming languages. The expressions may contain functions, also taken from the ordinary programming languages:
+
+~~~~
+[xml]
+<!-- displaying a variable value -->
+<p>{$variable}</p>
+<!-- a more complex expression -->
+<p>{$a + $b}</p>
+<!-- a function as a part of the expression -->
+<p>{spacify($variable, ' ')}</p>
+~~~~
+
+The functions operate on the argument values and produce a result, similarly to PHP. To create conditions, loops and the rest of this piece of stuff, Open Power Template uses the concept of *instructions*. An instruction may consist of one or more XML tags or attributes, for example:
+
+~~~~
+[xml]
+<opt:if test="$variable">
+<p>A conditionally displayed text</p>
+<opt:else><p>Alternative text.</p></opt:else>
+</opt:if>
+
+<p opt:if="$variable">A conditionally displayed tag.</p>
+~~~~
+
+As the template is an XML document, we cannot use curly brackets directly in the tag, like `<tag {$variable}>`. Instead, OPT provides several possible techniques, depending on our needs:
+
+~~~~
+[xml]
+<p parse:class="$dynamicallySelectedClass">...</p>
+
+<p><opt:attribute name="$attrName" value="$attrValue" />Some text...</p>
+~~~~
+
+In the first case, we simply want to use a dynamic value of an attribute. In this case, we simply change the tag namespace to `parse:`. In the second one, we want to create a dynamic attribute, where we do not know the name during the compilation. The `opt:attribute` instruction helps us then.
+
+Expressions
+===========
+
+The [expression language][syntax.expressions] uses the syntax typical to the ordinary programming languages. Below, you can find a short list of the supported features:
+
+1. Template variables: `$variable`.
+2. Local template variables: `@variable` - they are created and managed by the template only to avoid potential naming collisions with the script data.
+3. Containers: `$variable.item`
+4. Language variables: `$group@text_id` - a part of the [internationalization system][guide.i18n].
+5. Mathematical operators: `+`, `-`, `*`, `/`
+6. Logical operators: `and`, `or`, `xor`, `not`
+7. Assignment operator: `=`, `is`: `$a is 5`
+8. The strings are written using **single quotes only**. Double quotes are not allowed!
+9. Special backtick strings, programmable by the user.
+10. PHP structures syntax: arrays and [objects][syntax.expressions.objects].
+11. Functions: `functionName(arguments)`
+
+Contrary to Smarty and PHP, template variables do not have actually to be variables. Open Power Template provides an abstraction layer called [data formats][guide.data-formats]. Data formats decide, what the particular syntax elements are. It makes the code more portable and frees it from the implementation details. For example, it is not recommended to specify directly the data structure-specific syntax elements:
+
+~~~~
+[xml]
+<!-- not recommended! -->
+<p>{$user['id']}</p>
+<p>{$anotherUser::name}</p>
+~~~~
+
+Instead, we could use containers and select the appropriate data format on the script side:
+
+~~~~
+[xml]
+<p>{$user.id}</p>
+<p>{$anotherUser.name}</p>
+~~~~
+
+The PHP code:
+
+~~~~
+[php]
+$view->setFormat('user', 'Array');
+$view->setFormat('user', 'Objective');
+~~~~
+
+The effect is the same, but now the code is more refactorization-friendly.
+
+Loops
+=====
+
+In the template engines, loops are unsually used to produce various lists. Smarty offers the programmer two loops: `{foreach}`, similar to the same control structure in PHP, and `{section}`. Although Smarty sections had a nice number of features, both of the loops are rather low-level control structures which unsually requires to write more code with a higher level of complexity. Let's take a look at a nested loop in Smarty using `{foreach}`:
+
+~~~~
+[smarty]
+{foreach from=$categories key=categoryId item=category}
+<div id="c{$categoryId}">
+	<h1>{$category.name}</h1>
+	<ol>
+	{foreach from=$category.products key=productId item=product}
+		<li>{$product.name}</li>	
+	{/foreach}
+	</ol>
+</div>
+{/foreach}
+~~~~
+
+The same effect using sections is horrible:
+
+~~~~
+[smarty]
+{section name=i loop=$categories}
+<div id="c{$categories[i].id}">
+	<h1>{$categories[i].name}</h1>
+	<ol>
+	{section name=j loop=$products[i]}
+		<li>{$products[i][j].name}</li>	
+	{/section}
+	</ol>
+</div>
+{/section}
+~~~~
+
+Open Power Template provides four types of loops:
+
+1. `[opt:for][syntax.instructions.for]`
+2. `[opt:foreach][syntax.instructions.foreach]`
+3. `[opt:repeat][syntax.instructions.repeat]`
+4. `[sections][syntax.topics.sections]`
+
+However, in most cases you would only need the last one. OPT sections have almost nothing to do with Smarty's. They provide, abstract, high-level interface to display lists on the template side, hiding all the implementation details from the template designer. Let's take at the same example in OPT:
+
+~~~~
+[xml]
+<div parse:id="'c'~$categories.id" opt:section="categories">
+	<h1>{$categories.name}</h1>
+	<ol>
+		<li opt:section="products">{$products.name}</li>
+	</ol>
+</div>
+~~~~
+
+Here, we used the attribute form, but sections can be also expressed with an `<opt:section>` tag. Note that we do not have to tell explicitely that products are connected with a relationship with categories. OPT always assumes that the nested section is related to its parent, and if the default behaviour does not suit us, we may change it with the `parent` attribute.
+
+Another advantage of sections is the fact that the template code is completely independent from the real section nature. In the Smarty example, both of the code snippets accepted different data formats:
+
+~~~~
+[php]
+// For the example with foreach
+$tpl->assign('categories', array(0 =>
+	array('name => 'Category 1', 'products' => array(0 =>
+		array('name' => 'Product 1'),
+		array('name' => 'Product 2'),
+		array('name' => 'Product 3'),
+	)
+));
+
+// For the example with section
+$tpl->assign('categories', array(0 =>
+	array('name' => 'Category 1')
+));
+$tpl->assign('products', array(0 =>
+	array(0 =>
+		array('name' => 'Product 1'),
+		array('name' => 'Product 2'),
+		array('name' => 'Product 3'),
+	)
+));
+~~~~
+
+OPT sections use the data formats, mentioned eariler, to deal with such details. We do not have to know them during writing the templates, we just write the PHP script and select the appropriate data format:
+
+~~~~
+[php]
+$view->setFormat('categories', 'SingleArray');
+$view->setFormat('products', 'SingleArray');
+$view->categories = array(0 =>
+	array('name => 'Category 1', 'products' => array(0 =>
+		array('name' => 'Product 1'),
+		array('name' => 'Product 2'),
+		array('name' => 'Product 3'),
+	)
+);
+
+// For the example with section
+$view->categories = array(0 =>
+	array('name' => 'Category 1')
+);
+$view->products = array(0 =>
+	array(0 =>
+		array('name' => 'Product 1'),
+		array('name' => 'Product 2'),
+		array('name' => 'Product 3'),
+	)
+));
+
+~~~~
+
+HTML forms
+==========
+
+Template modularization
+=======================
+
+API
+===
+
+Extending OPT
+=============
+
+Conclusion
+==========

@@ -10,6 +10,8 @@ The code snippet below shows the general structure of an instruction processor:
 
 class Opt_Instruction_MyInstruction extends Opt_Compiler_Processor
 {
+	protected $_name = 'processorname';
+	
 	public function configure()
 	{
 		$this->_addInstructions(array('opt:myInstruction1', 'opt:myInstruction2'));

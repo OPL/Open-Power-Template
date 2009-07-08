@@ -10,4 +10,4 @@ SeeAlso:
  
 ----
 
-Registers a new view caching interface, overwriting the global caching settings. The method called without parameters, removes the existing caching interface from the view.
+Registers a new view caching interface, overwriting the global caching settings. The method called without arguments, removes the existing caching interface from the view.

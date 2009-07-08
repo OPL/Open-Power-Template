@@ -97,8 +97,3 @@ Another interesting feature of the translation interface is that you can assign 
 It is up to you, how you implement this feature in your script. In our case, we used PHP `vsprintf()` function so that we can use formatting codes like `%s` or `%d` to indicate the places in the text, where to put some values.
 
 The translation interface has one disadvantage - you cannot specify the default interface messages directly in the template, so you must be sure they are defined in some external file and load them somehow.
-
-Backtick syntax
-===============
-
-To be written.

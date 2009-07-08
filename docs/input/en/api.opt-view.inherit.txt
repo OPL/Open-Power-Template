@@ -17,10 +17,10 @@ In this case, the template associated to the view is inherited by `inherited_by.
 
 ~~~~
 [php]
-$view->inherit('inherited_template.tpl', 'inherited_by.tpl');
+$view->inherit('inheriting_template.tpl', 'inherited_by.tpl');
 ~~~~
 
-Now we inherit the `inherited_template.tpl` with `inherited_by.tpl`. This allows to create compound inheritance chains:
+Now we inherit the `inheriting_template.tpl` with `inherited_by.tpl`. This allows to create compound inheritance chains:
 
 ~~~~
 [php]
