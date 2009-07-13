@@ -205,6 +205,7 @@ OPT sections use the data formats, mentioned eariler, to deal with such details.
 
 ~~~~
 [php]
+// Version 1
 $view->setFormat('categories', 'SingleArray');
 $view->setFormat('products', 'SingleArray');
 $view->categories = array(0 =>
@@ -215,7 +216,9 @@ $view->categories = array(0 =>
 	))
 );
 
-// For the example with section
+// Version 2
+$view->setFormat('categories', 'Array');
+$view->setFormat('products', 'Array');
 $view->categories = array(0 =>
 	array('name' => 'Category 1')
 );
@@ -226,20 +229,202 @@ $view->products = array(0 =>
 		array('name' => 'Product 3'),
 	)
 ));
-
 ~~~~
 
 HTML forms
 ==========
 
+Smarty actually does not provide any support for HTML forms, except five custom functions to produce lists of checkboxes or `<select>` options. The entire form processing code must be written from scratch. The situation in Open Power Template 2 is completely different. The template engine provides a feature called *components* which provides the necessary abstraction layer to render and manage the form layouts.
+
+A component consists of two parts:
+
++ Component object - it is simply a PHP object of the class that implements the `Opt_Component_Interface`.
++ Component port - a special place in the template, where the component objects could be rendered.
+
+The division is quite similar to the MVC pattern. Component objects provide the form field logic, whereas the ports decide, how to display them. Furthermore, they are quite independent, as they are connected one to each other during the exection. This means that it is very easy to produce a dynamic HTML form, generated entirely by the script, still retaining the control over the layout in the templates.
+
+To simplify the construction of small or specific ports, OPT supports two types of component ports:
+
++ Dynamically deployed - the component object is created by the application and assigned to already existing port through a template variable.
++ Statically deployed - the component object is created by the port itself.
+
+Below, we can find a sample statically deployed port:
+
+~~~~
+[xml]
+<form:input name="name">
+	<com:div>
+		<label parse:for="$system.component.name">Name:</label>
+		<opt:display />
+		
+		<opt:onEvent name="error">
+			<p class="error">Error: {$system.component.error}</p>
+		</opt:onEvent>
+	</com:div>
+</form:input>
+~~~~
+
+The `form:input` tag can be assigned to the component class that produces a text input field which will be used to create the component object. The components can have various parameters (in the example above, we have one - `name` with the field identifier). The other features include:
+
++ Event handling - the component objects may generate events that will cause to display some extra content around the field, for example the error messages, if the field was filled incorrectly.
++ Tag attribute management. In the example above, we have the `<com:div>` tag. The `com:` namespace means, that the component object can modify the list of the tag attributes, for example to set a different CSS class for incorrectly filled fields.
++ Displaying themselves: the `<opt:display/>` tag specifies, where the `<input>` tag will be displayed.
+
+The dynamically deployed ports must load an existing object from a template variable:
+
+~~~~
+[php]
+<opt:component from="$someField">
+	<com:div>
+		<label parse:for="$system.component.id">{$system.component.title}:</label>
+		<opt:display />
+		
+		<opt:onEvent name="error">
+			<p class="error">Error: {$system.component.error}</p>
+		</opt:onEvent>
+	</com:div>
+</opt:component>
+~~~~
+
+Such port can handle any field.
+
+> [important]
+> OPT does not provide ready-to-use components. The programmer must write them on his/her own.
+
 Template modularization
 =======================
+
+Unsually, the application output is constructed of smaller templates. Smarty provides the `{include}` function:
+
+~~~~
+[smarty]
+<div class="content">
+	{include file='content.tpl' title=$someTitle otherStuff=$foo}
+</div>
+~~~~
+
+Furthermore, as the templates are treated as plain text files, it is possible to concatenate the output on the script-side:
+
+~~~~
+[smarty]
+{* header.tpl *}
+<html>
+  <head>
+  
+  ...
+  
+  </head>
+  <body>
+  
+{* content.tpl *}
+	<div>
+		...
+	</div>
+	
+{* footer.tpl *}
+  </body>
+</html>
+~~~~
+
+This is not possible in Open Power Template unless you work with the quirks mode. Because of the XML nature of the language, the opened HTML tag must be closed in the same template. The template language provides the `opt:include` instruction and a feature called *template inheritance*.
+
+`opt:include` works similarly to Smarty, except that it can operate on OPT views:
+
+~~~~
+[xml]
+<opt:include str:file="some_template.tpl" localVar="$ourVariable"/>
+
+<opt:include view="$viewObject" />
+~~~~
+
+> [warning]
+> Smarty templates work within the same variable scope. In Open Power Template, the views have their own private scopes and do not see each other's variables. When working with `opt:include`, we can assign the local view variables with the custom attributes or use the `import` attribute to import the variables from the current view:
+> 
+>     [xml]
+>     <opt:include str:file="some_template.tpl" import="yes" />
+
+`opt:include` can be also integrated with sections:
+
+~~~~
+[xml]
+<div id="content">
+	<opt:section name="content">
+		<opt:include from="content" />
+	</opt:section>
+</div>
+~~~~
+
+The template inheritance treats the templates similarly to classes in the object-oriented programming. The template contents are grouped into [snippets][syntax.instructions.snippet], and a template can extend another template, providing new or overwriting different snippets. The base template provides a structure, where the snippets are rendered. More about the template inheritance and modularization in general can be found [here][guide.modularization].
 
 API
 ===
 
+Smarty API consists of one class-for-everything and the template compiler. OPT uses a more objective approach that resembles the ideas from the popular PHP frameworks. The base class, `Opt_Class` is used to keep the global configuration, whereas the script operates on *views*. A view is an object of `Opt_View` class which consists of the script data assigned to a specified template. To render a view, we need also an *output system* which decides, where to send the view output. A sample initialization can be found here:
+
+~~~~
+[php]
+// Configure the library
+$tpl = new Opt_Class;
+$tpl->sourceDir = './templates/';
+$tpl->compileDir = './templates_c/';
+$tpl->setup();
+
+$view = new Opt_View('some_template.tpl');
+$view->templateVariable = 'foo';
+$view->anotherVariable = 'bar';
+
+$output = new Opt_Output_Http;
+$output->render($view);
+~~~~
+
+Furthermore, Open Power Template is not a standalone library, but a part of the *Open Power Libs* project and requires the OPL core in order to work. The core itself is quite small and provides such features, as:
+
++ Generic autoloader for the `Library_Item_Subitem` class naming convention.
++ Error handling
++ Plugin architecture
++ The global registry class
++ Basic debugging features
+
+It is included in the OPT package, so you do not have to download anything extra.
+
+The errors are handled using the PHP5 exceptions. The library provides an advanced, default error handler which provides a rich context help for many exceptions that help identifying the problem and solving it.
+
+Below, you can find an API feature comparison for OPT and Smarty:
+
+ Item name                       | Smarty                        | Open Power Template
+---------------------------------|-------------------------------|--------------------------------------
+ PHP version                     | PHP4, PHP5                    | PHP5
+ API design                      | Class-for-everything          | Smaller, specialized classes
+ Views                           | No                            | Yes
+ Separate variable scopes for templates | No                     | Yes
+ Global configuration            | Yes                           | Yes
+ Output                          | Two hard-coded methods        | Output systems
+ Template variable management    | Yes                           | Yes
+ Error handling                  | With `trigger_error()`        | With PHP5 exceptions
+ Plugin architecture             | Yes                           | Yes
+ Caching                         | Yes                           | Interface only
+ Resources                       | Yes                           | No
+
+OPT does not provide any caching system, as it has been decided that this is not a task for template engines. Instead, it provides the `Opt_Caching_Interface` which can be used to connect any external caching engine to the library. The resource functionality has been dropped in the early development stage, because it can be implemented independently with [PHP streams](http://docs.php.net/manual/en/book.stream.php) and the support from the template engine is not necessary.
+
 Extending OPT
 =============
 
+Similarly to Smarty, OPT provides a plugin architecture that can be used to extend the template engine with new features. The new features can be registered with [Opt_Class::register()][api.opt-class.register] method or packed as [plugins][extending.plugins].
+
+The features that the template engine can be extended with:
+
++ New instructions
++ New functions
++ New data formats
++ New caching systems
++ New output systems
++ New components and blocks
++ New translation engines (for the multilingual websites).
+
+Note that many of them actually do not need the plugin architecture thanks to the object-oriented library design. Sometimes we just need to create an object of a specified class and assign it somewhere. The special plugin structure is required to instructions and the data formats only, the other plugins are just plain PHP scripts executed within the `Opt_Class` context.
+
 Conclusion
 ==========
+
+There are many significant differences between Smarty and Open Power Template 2. The libraries feature different goals and approaches to the topic. Writing templates in OPT is a bit different from the ordinary programming known from PHP or many other template engines due to lots of declarative features and the concept of *Write, what you want to get, not - how it is supposed to work*.

@@ -11,3 +11,6 @@ OUTPUT
 
 >>>>result.txt
 13.02.2009
+
+>>>>data.php
+date_default_timezone_set('Europe/Warsaw');

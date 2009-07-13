@@ -57,7 +57,6 @@
 				$section['format']->assign('item', 'view');
 				$view = $section['format']->get('section:variable');
 
-				// TODO: File-specific blocks and variables!!!
 				$viewExistenceCond = '!'.$view.' instanceof Opt_View ||';
 			}
 			

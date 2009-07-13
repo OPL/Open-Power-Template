@@ -114,6 +114,8 @@
 				array(0 => 'Opt_View', 'definedGlobal', 'api.opt-view.defined-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'removeGlobal', 'api.opt-view.remove-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'getGlobal', 'api.opt-view.get-global', M_PUBLIC | M_STATIC),
+
+				array(0 => 'Opt_View', 'clear', 'api.opt-view.clear', M_PUBLIC | M_STATIC),
 				
 				array(0 => 'Opt_View', 'inherit', 'api.opt-view.inherit', M_PUBLIC),
 				array(0 => 'Opt_View', 'getBranch', 'api.opt-view.get-branch', M_PUBLIC),

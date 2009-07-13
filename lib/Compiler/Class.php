@@ -89,7 +89,7 @@
 		private $_rXmlTagExpression;
 		private $_rTagExpandExpression;
 		private $_rQuirksTagExpression = '';
-		private $_rExpressionTag = '/(\{([^\}]+)\})/msi';
+		private $_rExpressionTag = '/(\{([^\}]*)\})/msi';
 		private $_rAttributeTokens = '/(?:[^\=\"\'\s]+|\=|\"|\'|\s)/x';
 		private $_rPrologTokens = '/(?:[^\=\"\'\s]+|\=|\'|\"|\s)/x';
 		private $_rModifiers = 'si';
@@ -1352,61 +1352,6 @@
 			return '';
 		} // end _linkAttributes();
 		
-		/**
-		 * A debugging method. Remove in the final version.
-		 *
-		 * @internal
-		 * @param Opt_Xml_Node $node The node to be printed.
-		 */
-		public function _debugPrintNodes($node)
-		{
-			echo '<ul>';
-			
-			foreach($node as $id => $subnode)
-			{
-				if(!is_object($subnode))
-				{
-					echo '<li><font color="red"><strong>Non-object value detected in the node list! Type: '.gettype($subnode).'</strong></font></li>';
-					continue;
-				}
-				
-				$hidden = $subnode->get('hidden') ? ' (HIDDEN)' : '';
-				switch($subnode->getType())
-				{
-					case 'Opt_Xml_Cdata':
-						echo '<li>'.$id.': <strong>Character data:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
-						break;
-					case 'Opt_Xml_Comment':
-						echo '<li>'.$id.': <strong>Comment:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
-						break;
-					case 'Opt_Xml_Text':
-						echo '<li>'.$id.': <strong>Text:</strong> ';
-						$this ->_debugPrintNodes($subnode);
-						echo $hidden.'</li>';
-						break;
-					case 'Opt_Xml_Expression':
-						echo '<li>'.$id.': <strong>Expression:</strong> '.$subnode.$hidden.'</li>';
-						break;
-					case 'Opt_Xml_Element':
-						echo '<li>'.$id.': <strong>Element node:</strong> '.$subnode->getXmlName().' (';
-						$args = $subnode->getAttributes();
-						foreach($args as $name => $value)
-						{
-							echo $name.'="'.$value.'" ';
-						}
-						echo ')';
-						if($subnode->get('single') === true)
-						{
-							echo ' single';	
-						}
-						$this ->_debugPrintNodes($subnode);
-						echo $hidden.'</li>';
-						break;
-				}				
-			}
-			echo '</ul>';
-		} // end _debugPrintNodes();
-		
 		/*
 		 * Main compilation methods
 		 */
@@ -1583,6 +1528,12 @@
 					}
 				}
 				$this->_template = NULL;
+
+				// Run the new garbage collector, if it is available.
+			/*	if(version_compare(PHP_VERSION, '5.3.0', '>='))
+				{
+					gc_collect_cycles();
+				}*/
 			}
 			catch(Exception $e)
 			{
@@ -1599,6 +1550,11 @@
 				{
 					$processor->reset();
 				}
+				// Run the new garbage collector, if it is available.
+			/*	if(version_compare(PHP_VERSION, '5.3.0', '>='))
+				{					
+					gc_collect_cycles();
+				}*/
 				// And throw it forward.
 				throw $e;
 			}
@@ -1995,18 +1951,20 @@
 							break;
 						case 'Opt_Xml_Expression':
 							$stateSet and $item->set('hidden', false);
-							$result = $this->compileExpression((string)$item, true);
-							// TODO: prevent against generating a code like "echo ;"
-							// It happens, when the expression is empty or not properly processed.
-							// If there was an assignment, we do not display the result.
-							if(!$result[1])
+							// Empty expressions will be caught by the try... catch.
+							try
 							{
-								$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result[0].'; ');
+								$result = $this->compileExpression((string)$item, true);
+								if(!$result[1])
+								{
+									$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result[0].'; ');
+								}
+								else
+								{
+									$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result[0].';');
+								}
 							}
-							else
-							{
-								$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result[0].';');
-							}
+							catch(Opt_EmptyExpression_Exception $e){}
 							break;
 						case 'Opt_Xml_Root':
 							$stateSet and $item->set('hidden', false);
@@ -2167,7 +2125,6 @@
 							}
 							else
 							{
-								// TODO: Rebuild according to the docs.
 								$wasElement = true;
 								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE);
 								if($item->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
@@ -2343,8 +2300,6 @@
 				{
 					continue;
 				}
-				
-				// TODO: Add error checking here!
 				switch($match[0][$i])
 				{
 					case ',':
@@ -2403,6 +2358,10 @@
 						$tu[$tuid][] = $match[0][$i];
 				}
 				$prev = $match[0][$i];
+			}
+			if(sizeof($tu[0]) == 0)
+			{
+				throw new Opt_EmptyExpression_Exception();
 			}
 			/*
 			 * Now we have an array of translation units and their tokens and
@@ -2832,6 +2791,10 @@
 						if(!($state['next'] & self::OP_CALL))
 						{
 							throw new Opt_Expression_Exception('OP_CALL', $token, $expr);
+						}
+						if(!$this->_tpl->basicOOP)
+						{
+							throw new Opt_NotSupported_Exception('object-oriented programming', 'disabled');
 						}
 						// OPT decides from the context, whether "::" means a static
 						// or dynamic call.
@@ -3396,6 +3359,7 @@
 		protected function _compileString($str)
 		{
 			// TODO: Fix
+			// COMMENT: Fix what?
 			switch($str[0])
 			{
 				case '\'':
@@ -3441,11 +3405,10 @@
 		 */
 		protected function _compileIdentifier($token, $previous, $pt, $next, $operatorSet, &$expr, &$current, &$state)
 		{
-			// TODO: Add the ability to disable OOP completely.
 			if($previous == self::OP_OBJMAN)
 			{
 				// Class constructor call
-				if(isset($this->_classes[$token]))
+				if(isset($this->_classes[$token]) && $this->_tpl->basicOOP)
 				{
 					$current['result'] = $this->_classes[$token];
 					$current['token'] = self::OP_CLASS;

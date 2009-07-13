@@ -194,9 +194,6 @@
 		{
 			self::_addSection($section);
 
-			// This code provides a support for opt:use attribute, which marks its presence
-			// with the "call:use" tag variable.
-			// TODO: Test also the call:use in opt:show! It may be useful!
 			if(!is_null($section['node']->get('call:use')))
 			{
 				$this->_compiler->setConversion('##simplevar_'.$section['node']->get('call:use'), $section['name']);
@@ -254,6 +251,13 @@
 		 */
 		private function _createShowCondition(Opt_Xml_Element $node, &$section)
 		{
+			// First, try to check for the call:use tag variable.
+			if($node->get('call:use') !== NULL)
+			{
+				$section['node']->set('call:use', $node->get('call:use'));
+			}
+
+			// Deal with the data formats
 			$format = $section['format'];
 			$format->assign('section', $section);
 
@@ -412,12 +416,9 @@
 			// Note that "parent" is ignored when we set "datasource"
 			if(is_null($section['parent']))
 			{
-				// TODO: Replace with simple top() from the stack :)
-				self::$_stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
-				foreach(self::$_stack as $up)
+				if(self::$_stack->count() > 0)
 				{
-					$section['parent'] = $up;
-					break;
+					$section['parent'] = self::$_stack->top();
 				}
 			}
 			elseif($section['parent'] != '')

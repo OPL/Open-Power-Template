@@ -35,6 +35,9 @@
 			$tpl->compileMode = Opt_Class::CM_REBUILD;
 			$tpl->stripWhitespaces = false;
 			$tpl->prologRequired = true;
+
+			$tpl->register(Opt_Class::PHP_CLASS, 'foo', 'stdClass');
+
 			$tpl->setup();
 			$this->tpl = $tpl;
 		} // end setUp();
@@ -54,6 +57,9 @@
 				array('escaping_3.txt'),
 				array('escaping_4.txt'),
 				array('escaping_5.txt'),
+				array('no_oop_1.txt'),
+				array('no_oop_2.txt'),
+				array('no_oop_3.txt'),
 				array('translation_1.txt'),
 				array('translation_2.txt'),
 				array('specialvar_1.txt'),

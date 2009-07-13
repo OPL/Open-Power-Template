@@ -44,6 +44,8 @@
 			$tpl->register(Opt_Class::OPT_BLOCK, 'opt:myBlock', 'myBlock');
 			$tpl->setup();
 			$this->tpl = $tpl;
+
+			Opt_View::clear();
 		} // end setUp();
 		
 		protected function tearDown()
@@ -187,6 +189,7 @@
 				array('show_7.txt'),
 				array('show_8.txt'),
 				array('show_9.txt'),
+				array('show_10.txt'),
 				array('single_1.txt'),
 				array('single_2.txt'),
 				array('single_3.txt'),

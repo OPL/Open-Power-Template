@@ -180,6 +180,11 @@
 	{
 		protected $_message = 'Unexpected token: %s (%s) in expression %s';
 	} // end Opt_Expression_Exception;
+
+	class Opt_EmptyExpression_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'The specified exception is empty.';
+	} // end Opt_EmptyExpression_Exception;
 	
 	class Opt_FunctionArgument_Exception extends Opt_Template_Exception
 	{

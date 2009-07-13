@@ -83,7 +83,7 @@
 		const PHP_CLASS = 7;
 		const XML_ENTITY = 8;
 	
-		const VERSION = '2.0-RC1';
+		const VERSION = '2.0.0';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration
@@ -125,7 +125,6 @@
 		public $translate = null;
 		public $strictCallbacks = true;
 		public $htmlEntities = true;
-	//	public $componentAttributeLevel = 2;
 		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
 
@@ -790,6 +789,17 @@
 			}
 			return false;
 		} // end removeGlobal();
+
+		/**
+		 * Clears all the possible static private buffers.
+		 */
+		static public function clear()
+		{
+			self::$_vars = array();
+			self::$_capture = array();
+			self::$_global = array();
+			self::$_globalFormatInfo = array();
+		} // end clear();
 
 		/**
 		 * Returns the value of the internal template variable or
