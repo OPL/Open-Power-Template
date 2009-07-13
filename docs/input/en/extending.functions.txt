@@ -76,6 +76,7 @@ $tpl->register(Opt_Class::PHP_FUNCTION, 'regexReplace', '#3,1,2#preg_replace');
 ~~~~
 
 It could be read like this:
+
 * The first argument in templates must be in the third place in the compiled template.
 * The second argument - in the first one.
 * The third one - in the second.

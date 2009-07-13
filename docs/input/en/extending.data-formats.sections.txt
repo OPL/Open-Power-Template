@@ -60,7 +60,7 @@ Unsually, the default data formats use also `$_sectSECTIONNAME_i` or `$_sectSECT
 Basic iteration
 ===============
 
-The most important snippets are `section:init`, `section:isNotEmpty, `section:startAscLoop`, `section:startDescLoop` and `section:endLoop`.
+The most important snippets are `section:init`, `section:isNotEmpty`, `section:startAscLoop`, `section:startDescLoop` and `section:endLoop`.
 
 First, the section must obtain the list data that are going to be rendered. This is done in `section:init`. Basically, if the section has no parent, the data should be located somewhere in the `$this->_data` array that stores the local variables unless the `datasource` attribute is provided. However, in other case we must ask the parent section for the necessary data. Below, you can find the complete implementation from `SingleArray` data format:
 

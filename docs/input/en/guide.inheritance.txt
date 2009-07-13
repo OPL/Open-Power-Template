@@ -214,7 +214,7 @@ True dynamic inheritance
 Branches, yet interesting, do not offer a true dynamic template inheritance, as the script cannot select the template names to extend directly. Fortunately, such system is also present in OPT 2. The template part is very simple - we just need to inform that OPT may expect a dynamically selected file in the template:
 
 ~~~~
-[php]
+[xml]
 <?xml version="1.0" ?>
 <opt:extend file="default.tpl" dynamic="yes">
 	<!-- ... -->

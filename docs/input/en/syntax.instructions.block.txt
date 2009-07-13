@@ -17,6 +17,5 @@ The block port is a runtime instruction and the script may freely assign differe
 
 ~~~~
 [xml]
-
 <opt:block from="$block">The content controlled by the block.</opt:block>
 ~~~~

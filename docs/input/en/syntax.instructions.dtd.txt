@@ -13,7 +13,7 @@ Although OPT neither parses nor checks the DTD of the document, it is not said t
 The accepted values of `template` are:
 
 * `xhtml10strict` - DTD for XHTML 1.0-Strict
-* `xhtml10transitional` -DTD for XHTML 1.0-Transitional
+* `xhtml10transitional` - DTD for XHTML 1.0-Transitional
 * `xhtml10frameset` - DTD for XHTML 1.0-Frameset
 * `xhtml11` - DTD for XHTML 1.1
 * `html40` - DTD for HTML 4.01

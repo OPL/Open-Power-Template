@@ -105,7 +105,7 @@ while($queue->count() > 0)
 Node comparison
 ===============
 
-To compare the two nodes, use the **===** operator:
+To compare the two nodes, use the `===` operator:
 
 ~~~~
 [php]
