@@ -3,7 +3,7 @@ Reference: string replace(string $text, string $replacedText, string $replacemen
 
 ----
 
-Replaces all the occurences of `$replacedText` in `$text` with `$replacement`:
+Replaces all the occurrences of `$replacedText` in `$text` with `$replacement`:
 
 ~~~~
 [xml]

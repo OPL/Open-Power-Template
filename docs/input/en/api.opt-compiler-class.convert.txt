@@ -9,4 +9,4 @@ SeeAlso:
 
 The method tries to convert the specified `$string` using one of the patterns already defined in the compiler. If no conversion pattern is found, it returns the unmodified `$string`. 
 
-In the compiler, `convert()` is unsually used to change the variable names in some parts of the template. For example, if we combine the `opt:use` attribute with one of the sections, the instruction registers the pattern to convert the snippet variable name, like `$snippet.element` to the suitable section name: `$section.element`.
+In the compiler, `convert()` is usually used to change the variable names in some parts of the template. For example, if we combine the `opt:use` attribute with one of the sections, the instruction registers the pattern to convert the snippet variable name, like `$snippet.element` to the suitable section name: `$section.element`.

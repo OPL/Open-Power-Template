@@ -13,7 +13,7 @@ Component overview
 The components offer you the following features:
 
  - Displaying a particular form element.
- - Managing the form element neighbourhood look. This includes the field title, descriptions, error display fields etc.
+ - Managing the form element neighborhood look. This includes the field title, descriptions, error display fields etc.
  - Managing the layout of the element.
  - Generating various events, for example displaying the errors.
  - Being created directly in the template.
@@ -217,7 +217,7 @@ If we have a field that needs a custom treatment, we may still define it manuall
 Complex form technical issues
 =============================
 
-In the last example, one of the components used in the form was statically deployed. The static deployment means that the component object is created on the template-side. Our components should be prepared for that. Unsually, we would also export the whole form object or its data to the template, and such component could find and load them automatically in `setView()` method:
+In the last example, one of the components used in the form was statically deployed. The static deployment means that the component object is created on the template-side. Our components should be prepared for that. Usually, we would also export the whole form object or its data to the template, and such component could find and load them automatically in `setView()` method:
 
 ~~~~
 [php]
@@ -272,7 +272,7 @@ class inputComponent implements Opt_Component_Interface
 } // end inputComponent;
 ~~~~
 
-There is also another technique available, but it involves creating new instructions. Even more advanced form processors could have their own abstraction layer created over the `<form>` tag, for example `<opt:form>` that automatically integrates with the PHP form object created by the script and generates the necessary attributes. In this situation, the `<opt:form>` instruction processor is also allowed to modify the default compiler behaviour of the static component deployment.
+There is also another technique available, but it involves creating new instructions. Even more advanced form processors could have their own abstraction layer created over the `<form>` tag, for example `<opt:form>` that automatically integrates with the PHP form object created by the script and generates the necessary attributes. In this situation, the `<opt:form>` instruction processor is also allowed to modify the default compiler behavior of the static component deployment.
 
 > [information]
 > The component processor registers several possible conversions for the component deployment code. Instead of creating a new component object, the static deployment tag: `<form:input>` etc. **can** refer to the form processor factory object. The template code is not affected, but becomes even more flexible.
@@ -307,7 +307,7 @@ As the compiler generates the PHP code, our conversion pattern contains the new 
 
 1. `%CLASS%` - the component class name.
 2. `%TAG%` - the component tag name.
-3. `%ATTRIBUTES%` - the PHP code of the assotiative array that contains custom component port attributes.
+3. `%ATTRIBUTES%` - the PHP code of the associative array that contains custom component port attributes.
 
 They can help the factory method to identify, what component object should be returned.
 

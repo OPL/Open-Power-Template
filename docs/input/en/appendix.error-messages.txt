@@ -118,7 +118,7 @@ Template exceptions
 Compiler exceptions
 ===================
 
-These exceptions are unsually caused by buggy instructions or the compiler code.
+These exceptions are usually caused by buggy instructions or the compiler code.
 
 `Opt_UnknownProcessor_Exception`
 :	No instruction processor has been found for the specified postprocessed XML tag.
@@ -127,7 +127,7 @@ These exceptions are unsually caused by buggy instructions or the compiler code.
 :	The compiler can compile only one template at the same time.
 
 `Opt_CompilerCodeBufferConflict_Exception`
-:	The specified code buffer permits a limited numer of PHP code snippets only.
+:	The specified code buffer permits a limited number of PHP code snippets only.
 
 `Opt_APINoWildcard_Exception`
 :	Thrown by [Opt_Xml_Scannable::sort()][api.opt-xml-scannable.sort]
@@ -158,7 +158,7 @@ The following exceptions are thrown by the instruction processors.
 :	Invalid parent of the specified tag. Check the instruction documentation.
 
 `Opt_InstructionTooManyItems_Exception`
-:	Too many occurences of the specified tag in the instruction. Check the instruction documentation.
+:	Too many occurrences of the specified tag in the instruction. Check the instruction documentation.
 
 `Opt_SectionExists_Exception`
 :	The specified section is already registered.

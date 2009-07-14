@@ -2,7 +2,7 @@ Title: Parsing attributes
 
 ----
 
-Unsually, the instruction tags take some attributes to configure themselves. OPT supports parsing the attribute list with a convenient method, `_extractAttributes()`. The sample use can be found here:
+Usually, the instruction tags take some attributes to configure themselves. OPT supports parsing the attribute list with a convenient method, `_extractAttributes()`. The sample use can be found here:
 
 ~~~~
 [php]
@@ -35,7 +35,7 @@ The configuration is passed by reference and the method replaces it with the ext
 Attribute types
 ===============
 
-The attribute types divide into two groups. The first one are ordinary values - they are used by the compiler and the end user cannod read their values from a template variable or an expression. Moreover, the end user cannot change the expected type. This group includes `HARD_STRING`, `NUMBER`, `ID`, `ID_EMP` and `BOOL`. Another group are the OPT expressions, where the user may specify a template variable, function call etc. There are three such types: `EXPRESSION`, `ASSIGN_EXPR` and `STRING`. Note that the user may switch between these three types by changing the attribute namespace, so even if you have specified `STRING`, you must be prepared to work with an expression, too.
+The attribute types divide into two groups. The first one are ordinary values - they are used by the compiler and the end user cannot read their values from a template variable or an expression. Moreover, the end user cannot change the expected type. This group includes `HARD_STRING`, `NUMBER`, `ID`, `ID_EMP` and `BOOL`. Another group are the OPT expressions, where the user may specify a template variable, function call etc. There are three such types: `EXPRESSION`, `ASSIGN_EXPR` and `STRING`. Note that the user may switch between these three types by changing the attribute namespace, so even if you have specified `STRING`, you must be prepared to work with an expression, too.
 
 The instruction processor **does not** get an expression result in this place, but the expression compiled to PHP code that should be pasted to one of the code snippets and inserted to code buffers. There is no way to predict the expression value during the compilation. Sample use:
 

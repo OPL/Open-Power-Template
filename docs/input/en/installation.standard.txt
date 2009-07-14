@@ -38,7 +38,7 @@ $tpl = new Opt_Class; // 4
 > 3. We register the autoloader that will automatically locate and load the classes.
 > 4. We create the main parser object.
 
-All the OPL libraries report the errors as exceptions. For OPL, the base exception class is `Opl_Exception` and for OPT - `Opt_Exception`. OPT contains a very convenient error handler that shows some extra information that should help to solve the problem, and adds additional explainations, why you see it and where to look for mistakes.
+All the OPL libraries report the errors as exceptions. For OPL, the base exception class is `Opl_Exception` and for OPT - `Opt_Exception`. OPT contains a very convenient error handler that shows some extra information that should help to solve the problem, and adds additional explanations, why you see it and where to look for mistakes.
 
 Once we created the object, the library must be configured. We do it by setting the values of some fields in `$tpl` object. The most important are:
 
@@ -54,7 +54,7 @@ contentType
 charset
 :	Used output encoding.
 
-Before we definietly start, we must also call [Opt_Class::setup()][api.opt-class.setup]. Do not forget about it, because it plays a very important role:
+Before we definitely start, we must also call [Opt_Class::setup()][api.opt-class.setup]. Do not forget about it, because it plays a very important role:
 
 ~~~~
 [php]
@@ -87,7 +87,7 @@ catch(Opt_Exception $exception)
 
 Finally, to work with OPT, we need two types of objects:
 
-1. Views - they represent a template with some script data assigned to it, as well as other rules, such as format definitions or inheritance lists. In the script, they are objects of `Opt_View` class and one object should match exactly one top template (possibly accompanied with dependant templates).
+1. Views - they represent a template with some script data assigned to it, as well as other rules, such as format definitions or inheritance lists. In the script, they are objects of `Opt_View` class and one object should match exactly one top template (possibly accompanied with dependent templates).
 2. Outputs - they decide, where to send the processed view results.
 
 Using a view is very easy. In the constructor, we specify the template assigned to the view, and later we simply assign the data to template variables using the syntax `$view->variableName = value`. There are several other data assignment methods which are described deeper in the API reference. As our view is ready, we need to create an output. We are going to use `Opt_Output_Http`, a standard OPT class that is responsible for HTTP header management and sending the templates to the browser. Once it is initialized, we call [Opt_Output_Http::setContentType()][api.opt-output-http.set-content-type] to create the headers for the specified content type. The method supports full content negotiation, when connected with Open Power Classes library. Finally, we call [Opt_Output_Http::render()][api.opt-output-http.render] on our view object to send the results to the browser.

@@ -2,12 +2,12 @@ Title: Sections
 
 ----
 
-The data formats can be used to affect the section behaviour. Sections are quite complex elements, when it comes to the implementation and there are many issues that you have to pay attention to.
+The data formats can be used to affect the section behavior. Sections are quite complex elements, when it comes to the implementation and there are many issues that you have to pay attention to.
 
 Configuration
 =============
 
-The snippets that affect section behaviour are a part of `section` group that must be added to your `$_supports` list. The following properties are required to be set:
+The snippets that affect section behavior are a part of `section` group that must be added to your `$_supports` list. The following properties are required to be set:
 
 1. `section:useReference` - **true**, if the section variables can be obtained via reference (similarly to `variable:useReference` and `item:useReference`)
 2. `section:anyRequests` - specify there any extra requests from the section manager that are required by the data format to create a relationship with the parent section. The request is saved to the `requestedData` format variable. The recognized values are:

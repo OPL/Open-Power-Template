@@ -21,7 +21,7 @@ If the script assigns the text *sunglasses* to `$item`, the parser returns the f
 <p>Hello my friend, do you need sunglasses?</p>
 ~~~~
 
-In the next part of the documentation, the term *variables* means unsually *simple variables*.
+In the next part of the documentation, the term *variables* means usually *simple variables*.
 
 > [information]
 > By default, the variables are assigned to the specified template only. So, if the script assigns some value to `$foo` in `template1.tpl`, this value will not be seen in `template2.tpl`. In this case we say that the variables are local. The configuration allows to make the variables global by default.
@@ -55,7 +55,7 @@ You are not limited to store only one value in a variable. If a variable can han
 <p>Age: {$person_age}</p>
 ~~~~
 
-However, each of these variables must be assigned manually, whereas such data are unsually retrieved in the script as arrays or something like that. It's much easier to assign entire group of values, but this leads us to the following template:
+However, each of these variables must be assigned manually, whereas such data are usually retrieved in the script as arrays or something like that. It's much easier to assign entire group of values, but this leads us to the following template:
 
 ~~~~
 [xml]
@@ -95,7 +95,7 @@ The next example illustrates, how to create some kind of financial report:
 As you can see, many functions, like `money()` can operate both on single values and the entire containers.
 
 > [information]
-> Unlike many other template engines, containers **do not represent** any particular PHP type. Although they are arrays by default, they may be fully functionable objects as well. The script gives the compiler hints on the container types and OPT generates a suitable PHP template that fulfils the demands.
+> Unlike many other template engines, containers **do not represent** any particular PHP type. Although they are arrays by default, they may be fully functionable objects as well. The script gives the compiler hints on the container types and OPT generates a suitable PHP template that fulfills the demands.
 
 Arrays
 ======
@@ -142,4 +142,4 @@ Many instructions share their own information using `$sys`. For example, the sec
 For programmers
 ===============
 
-Contrary to PHP, OPT does not report unexisting variables as mistakes. However, if you wish to be informed of them, you can simply change the error reporting level in the configuration (`errorReporting` directive) to `E_ALL | E_NOTICE`.
+Contrary to PHP, OPT does not report nonexistent variables as mistakes. However, if you wish to be informed of them, you can simply change the error reporting level in the configuration (`errorReporting` directive) to `E_ALL | E_NOTICE`.

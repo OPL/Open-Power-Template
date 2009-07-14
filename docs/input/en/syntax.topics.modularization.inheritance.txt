@@ -29,7 +29,7 @@ Template inheritance can be processed at the two different stages: the compilati
 * The snippets from the extending template actually see and can interact with the code structure in the base template. For example, if a snippet with a section is put in the placeholder that lies in another section, the sections will be connected with a relationship.
 * The templates in the inheritance chain share the same set of local template variables.
 
-The disadvantage is that the name of the extended template must be known before the compilation and cannot be changed later. In other words, we cannot load the name from a variable or generate dynamically. Fortunately, OPT is free of these drawbacks and inspite of processing the inheritance during the compilation, the overall process can be still dynamic and your script may choose the template to be inherited at any moment.
+The disadvantage is that the name of the extended template must be known before the compilation and cannot be changed later. In other words, we cannot load the name from a variable or generate dynamically. Fortunately, OPT is free of these drawbacks and in spite of processing the inheritance during the compilation, the overall process can be still dynamic and your script may choose the template to be inherited at any moment.
 
 The template inheritance chain may be as long as you want. You may create a template that extends a template that extends another template. Moreover, we do not need to extend a physical template file, because OPT supports also extending snippets.
 
@@ -183,7 +183,7 @@ Suppose that the author of `news.tpl` template forgot to create a placeholder `h
 </opt:extend>
 ~~~~
 
-The effect will be exactly the same. What if the `content` snippet is not overwritten? There are two possible behaviours. If the placeholder does not define a default content, `opt:parent` does nothing. Otherwise, OPT inserts the default placeholder content on `opt:parent`. Sometimes, this is not a behaviour we would expect, so we can disable it in the placeholder:
+The effect will be exactly the same. What if the `content` snippet is not overwritten? There are two possible behaviors. If the placeholder does not define a default content, `opt:parent` does nothing. Otherwise, OPT inserts the default placeholder content on `opt:parent`. Sometimes, this is not a behavior we would expect, so we can disable it in the placeholder:
 
 ~~~~
 [xml]
@@ -297,7 +297,7 @@ Like `opt:root`, `opt:extend` also allows to specify the default HTML escaping p
 opt:root and inclusion
 ======================
 
-Sometimes we also want [opt:root][syntax.instructions.root] instruction in the base template to load some snippets. They may define the default layouts for the form fields or the pagination and it would be nice to load them without using the template inheritance, which could be a bit tricky and unconvenient. In this case we may employ the `include` attribute:
+Sometimes we also want [opt:root][syntax.instructions.root] instruction in the base template to load some snippets. They may define the default layouts for the form fields or the pagination and it would be nice to load them without using the template inheritance, which could be a bit tricky and inconvenient. In this case we may employ the `include` attribute:
 
 ~~~~
 [xml]

@@ -5,7 +5,7 @@ Reference: array manageAttributes(string $name, array $attributes)
 
 ----
 
-`manageAttributes()` handles the attribute lists of the XML tags in the `com` namespace within the component port. It allows the component to extend the tag with some extra attributes (or modify their default values), for example to configure its look according to the current component status. The attributes are passed as an assotiative array, where the index is the attribute name, and the method should return the same, but modified array. The `$name` argument contains the tag name and it can be used to identify the tag we are going to process.
+`manageAttributes()` handles the attribute lists of the XML tags in the `com` namespace within the component port. It allows the component to extend the tag with some extra attributes (or modify their default values), for example to configure its look according to the current component status. The attributes are passed as an associative array, where the index is the attribute name, and the method should return the same, but modified array. The `$name` argument contains the tag name and it can be used to identify the tag we are going to process.
 
 > [warning]
 > If your port contains two tags with the same name, OPT is not able to distinguish them during the template execution!
@@ -19,7 +19,7 @@ Let's take a look at the following component port:
 		<p>{$opt.component.title}</p>
 		<span><opt:display /></span>
 		<opt:onEvent name="error">
-			<p>An error occured: {$errorMessage}</p>
+			<p>An error occurred: {$errorMessage}</p>
 		</opt:onEvent>
 	</com:div>
 </opt:component>

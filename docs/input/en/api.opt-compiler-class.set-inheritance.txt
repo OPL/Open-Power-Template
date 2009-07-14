@@ -4,4 +4,4 @@ Reference: void setInheritance(array $templates)
 
 ----
 
-Exports the dynamic inheritance information to the compiler. The `$templates` is an assotiative array of pairs `extending template => extended template`.
+Exports the dynamic inheritance information to the compiler. The `$templates` is an associative array of pairs `extending template => extended template`.

@@ -4,7 +4,7 @@ SeeAlso:
 
 ----
 
-OPT supports a special type of strings written in the backticks: `` ` ``. Their behaviour can be programmed by the programmer. In the example above, the backticks are used as a template access to the Access Control List system:
+OPT supports a special type of strings written in the backticks: `` ` ``. Their behavior can be programmed by the programmer. In the example above, the backticks are used as a template access to the Access Control List system:
 
 ~~~~
 [xml]

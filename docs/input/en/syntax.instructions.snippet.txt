@@ -7,7 +7,7 @@ SeeAlso:
 
 `opt:snippet` saves its content under the specified name. It can be inserted in many other places with `opt:insert` instruction or `opt:use` attribute. Contrary to `opt:capture`, the saved code remains dynamic. If we change the value of an variable used in the snippet between two insertions, it will be visible in the output. The instruction is a part of template inheritance system, however it may be also used for many other purposes.
 
-Instrukcja pobiera jeden atrybut:
+attributes:
 
  Name           | Type                | Required? | Description
 ----------------|---------------------|-----------|:-----------------------------------

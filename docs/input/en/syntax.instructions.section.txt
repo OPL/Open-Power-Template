@@ -10,7 +10,7 @@ SeeAlso:
 
 ----
 
-`opt:section` is the basic section istruction used to display flat, linear lists and supports all the section basic features. Inside the `opt:section` we define the layout of a single list element:
+`opt:section` is the basic section instruction used to display flat, linear lists and supports all the section basic features. Inside the `opt:section` we define the layout of a single list element:
 
 ~~~~
 [xml]

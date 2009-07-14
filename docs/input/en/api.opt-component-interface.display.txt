@@ -5,7 +5,7 @@ Reference: void display([array $attributes = array()])
 
 ----
 
-`display()` should display the component. It is launched by the view in the place of `opt:display` tag. OPT passes the assotiative array of `opt:display` tag attributes as the `$attributes` argument. To render the HTML code, simply use `echo` statements, for example:
+`display()` should display the component. It is launched by the view in the place of `opt:display` tag. OPT passes the associative array of `opt:display` tag attributes as the `$attributes` argument. To render the HTML code, simply use `echo` statements, for example:
 
 ~~~~
 [php]

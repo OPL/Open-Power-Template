@@ -7,9 +7,9 @@ SeeAlso:
 
 ---
 
-This method simplifies the instruction tag attribute validation. As the first parameter, we pass the `Opt_Xml_Element` node we want to check, and the second one is a list of acceptable attributes and their definitions. It is passed by reference, because OPT replaces it with an assotiative array of attribute values. 
+This method simplifies the instruction tag attribute validation. As the first parameter, we pass the `Opt_Xml_Element` node we want to check, and the second one is a list of acceptable attributes and their definitions. It is passed by reference, because OPT replaces it with an associative array of attribute values. 
 
-`$attributes` is an assotiative array, where the index means the attribute name, and the value is a three-element array:
+`$attributes` is an associative array, where the index means the attribute name, and the value is a three-element array:
 
 1. Is the attribute required or optional: `Opt_Xml_Attribute::REQUIRED` or `Opt_Xml_Attribute::OPTIONAL`.
 2. Attribute type (described below).
@@ -53,7 +53,7 @@ public function processNode(Opt_Xml_Node $node)
 } // end processNode();
 ~~~~
 
-The method supports also undefined number of attributes. If we specify a special rule called `__UNKNOWN__`, all the attributes that are not declared in the array, are matched against it. The values of those attributes are **returned** by the method as an assotiative array. If `__UNKNOWN__` is required, the template designer must specify at least one custom attribute.
+The method supports also undefined number of attributes. If we specify a special rule called `__UNKNOWN__`, all the attributes that are not declared in the array, are matched against it. The values of those attributes are **returned** by the method as an associative array. If `__UNKNOWN__` is required, the template designer must specify at least one custom attribute.
 
 ~~~~
 [php]

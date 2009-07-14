@@ -16,7 +16,7 @@ The most important difference between the template engines is the syntax. Smarty
 
 The basic idea behind both of the template engines is the same. The template is firstly compiled into the PHP code, and then the template engine simply executes it as a normal script.
 
-When it comes to the project structure, Smarty features imperative programming on the template side, using similar control flow instructions, like in PHP. We use loops and conditional instructions to achieve the required effect. There is also a limited number of eye-candy functions like `{mailto}` or `{html_radios}`. Open Power Template favourizes declarative programming. Although the ordinary programming instructions are still present, they should not be used unless necessary. The template engine offers a set of portable high-level instructions such as [opt:section][syntax.instructions.section] or [opt:component][syntax.instructions.component] to solve the common problems appearing in the templates. The key is to concentrate on the final effect we want to achieve rather than the implementation. Well-written OPT templates are very portable, clean and actually free from the implementation-specific details.
+When it comes to the project structure, Smarty features imperative programming on the template side, using similar control flow instructions, like in PHP. We use loops and conditional instructions to achieve the required effect. There is also a limited number of eye-candy functions like `{mailto}` or `{html_radios}`. Open Power Template favors declarative programming. Although the ordinary programming instructions are still present, they should not be used unless necessary. The template engine offers a set of portable high-level instructions such as [opt:section][syntax.instructions.section] or [opt:component][syntax.instructions.component] to solve the common problems appearing in the templates. The key is to concentrate on the final effect we want to achieve rather than the implementation. Well-written OPT templates are very portable, clean and actually free from the implementation-specific details.
 
 > [warning]
 > OPT requires the template to be a correct XML document. Especially, the tags must be closed in the proper order.
@@ -122,7 +122,7 @@ The effect is the same, but now the code is more refactorization-friendly.
 Loops
 =====
 
-In the template engines, loops are unsually used to produce various lists. Smarty offers the programmer two loops: `{foreach}`, similar to the same control structure in PHP, and `{section}`. Although Smarty sections had a nice number of features, both of the loops are rather low-level control structures which unsually requires to write more code with a higher level of complexity. Let's take a look at a nested loop in Smarty using `{foreach}`:
+In the template engines, loops are usually used to produce various lists. Smarty offers the programmer two loops: `{foreach}`, similar to the same control structure in PHP, and `{section}`. Although Smarty sections had a nice number of features, both of the loops are rather low-level control structures which usually requires to write more code with a higher level of complexity. Let's take a look at a nested loop in Smarty using `{foreach}`:
 
 ~~~~
 [smarty]
@@ -173,7 +173,7 @@ However, in most cases you would only need the last one. OPT sections have almos
 </div>
 ~~~~
 
-Here, we used the attribute form, but sections can be also expressed with an `<opt:section>` tag. Note that we do not have to tell explicitely that products are connected with a relationship with categories. OPT always assumes that the nested section is related to its parent, and if the default behaviour does not suit us, we may change it with the `parent` attribute.
+Here, we used the attribute form, but sections can be also expressed with an `<opt:section>` tag. Note that we do not have to tell explicitly that products are connected with a relationship with categories. OPT always assumes that the nested section is related to its parent, and if the default behavior does not suit us, we may change it with the `parent` attribute.
 
 Another advantage of sections is the fact that the template code is completely independent from the real section nature. In the Smarty example, both of the code snippets accepted different data formats:
 
@@ -201,7 +201,7 @@ $tpl->assign('products', array(0 =>
 ));
 ~~~~
 
-OPT sections use the data formats, mentioned eariler, to deal with such details. We do not have to know them during writing the templates, we just write the PHP script and select the appropriate data format:
+OPT sections use the data formats, mentioned earlier, to deal with such details. We do not have to know them during writing the templates, we just write the PHP script and select the appropriate data format:
 
 ~~~~
 [php]
@@ -241,7 +241,7 @@ A component consists of two parts:
 + Component object - it is simply a PHP object of the class that implements the `Opt_Component_Interface`.
 + Component port - a special place in the template, where the component objects could be rendered.
 
-The division is quite similar to the MVC pattern. Component objects provide the form field logic, whereas the ports decide, how to display them. Furthermore, they are quite independent, as they are connected one to each other during the exection. This means that it is very easy to produce a dynamic HTML form, generated entirely by the script, still retaining the control over the layout in the templates.
+The division is quite similar to the MVC pattern. Component objects provide the form field logic, whereas the ports decide, how to display them. Furthermore, they are quite independent, as they are connected one to each other during the execution. This means that it is very easy to produce a dynamic HTML form, generated entirely by the script, still retaining the control over the layout in the templates.
 
 To simplify the construction of small or specific ports, OPT supports two types of component ports:
 

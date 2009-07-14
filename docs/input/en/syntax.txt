@@ -30,7 +30,7 @@ No programming in templates
 How much PHP is in OPT syntax?
 ==============================
 
-Like many other template engines, OPT compiles the templates into the native PHP code. This means that unsually the syntax is based on that language and includes some sort of support for the default PHP types, etc. The programmers can even put PHP code snippets in the templates. It has some disadvantages, like:
+Like many other template engines, OPT compiles the templates into the native PHP code. This means that usually the syntax is based on that language and includes some sort of support for the default PHP types, etc. The programmers can even put PHP code snippets in the templates. It has some disadvantages, like:
 
 1. Poor code reusability - sometimes the code sample cannot be reused again in another place even inside the same PHP application!
 2. Problems with refactoring - as the applications grow, we may need to change some solutions. The templates must be rewritten as well.
@@ -48,7 +48,7 @@ The access to the PHP syntax part can be controlled in the compiler configuratio
 Who is this chapter for?
 ========================
 
-We recommed the PHP programmers to read this chapter, too, because they can find here a lot of practical notices and advices. OPT syntax contains several programming instructions and ports to PHP language elements, and this document may be read by people who are not familiar with programming. Because of this, we marked the chapters:
+We recommend the PHP programmers to read this chapter, too, because they can find here a lot of practical notices and advices. OPT syntax contains several programming instructions and ports to PHP language elements, and this document may be read by people who are not familiar with programming. Because of this, we marked the chapters:
 
 1. For everyone - recommended to read.
 2. Simple programming construct that is recommended.

@@ -78,7 +78,7 @@ And the PHP code:
 $barNodes = $node->getElementsByTagNameNS('opt', 'bar');
 ~~~~
 
-The code returns only the first occurence of `opt:bar` and does not reach the deeper node. This is a very important feature of this method, especially in the instruction context. Suppose that your instruction consists of several tags and moreover it may be nested one in another. The outer instruction must not find and operate on the inner instruction tags and it can be achieved with `getElementsExt()`.
+The code returns only the first occurrence of `opt:bar` and does not reach the deeper node. This is a very important feature of this method, especially in the instruction context. Suppose that your instruction consists of several tags and moreover it may be nested one in another. The outer instruction must not find and operate on the inner instruction tags and it can be achieved with `getElementsExt()`.
 
 If you need yet another way of visiting the nodes, take a look at the following PHP code template that you might extend to suit your needs:
 

@@ -24,4 +24,4 @@ $out->render($view);
 ~~~~
 
 > [error]
-> You must not render the views before using `Opt_Class::setup()`. This may cause an unexpected behaviour.
+> You must not render the views before using `Opt_Class::setup()`. This may cause an unexpected behavior.

@@ -2,7 +2,7 @@ Title: Variables
 
 ----
 
-In this chapter, we are going to learn, how to change the behaviour of variables with OPT data formats.
+In this chapter, we are going to learn, how to change the behavior of variables with OPT data formats.
 
 Configuration
 =============

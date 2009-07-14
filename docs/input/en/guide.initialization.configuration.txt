@@ -9,7 +9,7 @@ Paths and directories
 
 `sourceDir`
 :	The path to the directory with the XML templates. It must be readable by the script.
-:	The assotiative list of paths and their identifiers that contain XML templates. They must be readable by the script.
+:	The associative list of paths and their identifiers that contain XML templates. They must be readable by the script.
 
 `compileDir`
 :	The path to the directory with the compiled PHP templates. The script must have a write access to it.

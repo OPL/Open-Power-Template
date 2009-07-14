@@ -8,7 +8,7 @@ SeeAlso:
 
 ----
 
-By *sections* we understand a group of instructions providing a comprehensive support for displaying various types of lists. They are strongly automated, intuitive and allow to achieve a lot without much effor. In many other template engines, similar solutions often depend on the data format and moreover, the template designer must connect the nested lists manually. In this place we must make it clear: if you do not use sections in OPT, you do not use this library properly. In this chapter we would like to provide a complete explaination of this topic then. The chapter contains the information common for all of the section types. The details and differences are explained in the particular section type reference.
+By *sections* we understand a group of instructions providing a comprehensive support for displaying various types of lists. They are strongly automated, intuitive and allow to achieve a lot without much effort. In many other template engines, similar solutions often depend on the data format and moreover, the template designer must connect the nested lists manually. In this place we must make it clear: if you do not use sections in OPT, you do not use this library properly. In this chapter we would like to provide a complete explanation of this topic then. The chapter contains the information common for all of the section types. The details and differences are explained in the particular section type reference.
 
 Section types
 =============
@@ -78,7 +78,7 @@ The section elements do not have to be containers, but also simple scalar values
 Data formats
 ============
 
-Of course, if the section operates on some real data, they must have a format. Unsually, the template engines require you to deal with it on the template side, which is not convenient and decreases the portability. As you have probably noticed, we have said nothing about the formats in the already presented examples. This is one of the unique section features - they are fully format-independent. It is only the programmer and the PHP script issue and the template designer does not have to know, what the data really are. Notice that such code is much easier to read and portable. We can simply copy huge parts of one template, paste them in totally different place and they will simply adapt to the new location.
+Of course, if the section operates on some real data, they must have a format. Usually, the template engines require you to deal with it on the template side, which is not convenient and decreases the portability. As you have probably noticed, we have said nothing about the formats in the already presented examples. This is one of the unique section features - they are fully format-independent. It is only the programmer and the PHP script issue and the template designer does not have to know, what the data really are. Notice that such code is much easier to read and portable. We can simply copy huge parts of one template, paste them in totally different place and they will simply adapt to the new location.
 
 > [important]
 > The format independence is one of the most important section features. As a template designer, you only mark, how should *some elements* containing *some kind of data* look like. The exact implementation is chosen during the compilation according to the information provided by the PHP script.
@@ -104,7 +104,7 @@ The sections can be nested one in another. Suppose we want to display a list of 
 
 OPT assumes that if we nest one section in another, their data are connected with an one-to-many relationship. The compiler automatically establishes a connection between the categories and products using the data format rules.
 
-If the default behaviour does not satisfy us, OPT provides several management tools. The most important is the `parent` attribute which allows to choose the parent section for the one-to-many relationship. The asterisk value `*` means the section is not related to any upper-level ones. Below, we can find a more complex version of the last example. Now we have some discounts for each category, but we do not want to display them above the product list. Instead, the discounts should be repeated for each product, because we want to create a links that allow to check the new price etc. So, the discount section must be located in `products`, but connected with a relationship to `categories.`
+If the default behavior does not satisfy us, OPT provides several management tools. The most important is the `parent` attribute which allows to choose the parent section for the one-to-many relationship. The asterisk value `*` means the section is not related to any upper-level ones. Below, we can find a more complex version of the last example. Now we have some discounts for each category, but we do not want to display them above the product list. Instead, the discounts should be repeated for each product, because we want to create a links that allow to check the new price etc. So, the discount section must be located in `products`, but connected with a relationship to `categories.`
 
 ~~~~
 [xml]
@@ -166,7 +166,7 @@ To sum up, the following codes do exactly the same:
 ~~~~
 
 > [warning]
-> If you use the `datasource` attribute, such section must not be connected with a relationship to any other upper-level section. The `parent` attribute is ignored then. Of course, you can always create such relationship manually, by specifying one of the upper section element variables as a datasource, but we do not guarantee you this will always work correctly. It will decrease the code portability and partially, get you dependant on the data formats.
+> If you use the `datasource` attribute, such section must not be connected with a relationship to any other upper-level section. The `parent` attribute is ignored then. Of course, you can always create such relationship manually, by specifying one of the upper section element variables as a datasource, but we do not guarantee you this will always work correctly. It will decrease the code portability and partially, get you dependent on the data formats.
 >
 >     [xml]
 >     <opt:section name="upper">
@@ -281,4 +281,4 @@ Using the `$sys.section.sectionName` special variable, you can get some extra in
 Some section types might define also additional values.
 
 > [stop]
-> Remember that you must avoid attempts to modify any of the special variables above. Some of them are not in fact real variables, whereas others may cause unexpected behaviour, when modified.
+> Remember that you must avoid attempts to modify any of the special variables above. Some of them are not in fact real variables, whereas others may cause unexpected behavior, when modified.

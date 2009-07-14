@@ -19,7 +19,7 @@ Inside the `opt:tree` tag we place two new ones: `opt:list` and `opt:node`. The 
 [xml]
 <opt:tree name="tree">
 	<opt:list><ul><opt:content/></ul></opt:list>
-	<opt:node><li>{$tree.nazwa} <opt:content /></li></opt:node>  
+	<opt:node><li>{$tree.name} <opt:content /></li></opt:node>  
 </opt:tree>
 ~~~~
 

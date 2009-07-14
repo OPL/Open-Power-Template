@@ -98,7 +98,7 @@ $view->products = array(0 =>
 );
 ~~~~
 
-In `products`, we provide a separate list of products for each category listed in `categories`. The items are mached by the array indices.
+In `products`, we provide a separate list of products for each category listed in `categories`. The items are matched by the array indices.
 
 Using opt:tree
 ==============

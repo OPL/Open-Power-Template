@@ -9,7 +9,7 @@ SeeAlso:
 
 ----
 
-`opt:show` allows to define the section neighbourhood layout. It has an important property - if the section does not get any elements, the neighbourhood is not visible in the browser, too. In the example, we hide the `<ol>` tags, when there are no elements to display:
+`opt:show` allows to define the section neighborhood layout. It has an important property - if the section does not get any elements, the neighborhood is not visible in the browser, too. In the example, we hide the `<ol>` tags, when there are no elements to display:
 
 ~~~~
 [xml]
@@ -25,7 +25,7 @@ SeeAlso:
 When using `opt:show`, you have to remember about two issues:
 
 1. _All_ the section attributes are defined in `opt:show`, and the section tag (`opt:section`, `opt:tree`, etc.) remains empty in order to be connected with `opt:show`. The section tags with attributes are possible within `opt:show`, but they will become independent sections.
-2. `opt:show` *does not starta section*. We can neither access the section element variables etc. within this tag nor make it parent for any other nested section.
+2. `opt:show` *does not start section*. We can neither access the section element variables etc. within this tag nor make it parent for any other nested section.
 
 An example to the first issue:
 

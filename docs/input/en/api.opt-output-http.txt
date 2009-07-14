@@ -7,7 +7,7 @@ Construct: class
 
 ----
 
-This output sends the executed views as a HTTP response to the user. Inspite of executing views, it provides also the HTTP header management functionality.
+This output sends the executed views as a HTTP response to the user. In spite of executing views, it provides also the HTTP header management functionality.
 
 > [information]
 > Some of the features require Open Power Classes `Opc_Visit` class in order to work.

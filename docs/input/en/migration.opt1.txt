@@ -89,7 +89,7 @@ By default, `htmlspecialchars()` function is used to do the escaping, but the pr
 Sections
 ========
 
-At a first sight, the [sections][syntax.topics.sections] did not change, and the basic functionality remains the same. However, the section behaviour has been strictly defined in the new version, and the instructions themselves became more modular. This allows the programmers to create their own section instructions. By default, OPT provides four types of sections:
+At a first sight, the [sections][syntax.topics.sections] did not change, and the basic functionality remains the same. However, the section behavior has been strictly defined in the new version, and the instructions themselves became more modular. This allows the programmers to create their own section instructions. By default, OPT provides four types of sections:
 
 1. [`opt:section`][syntax.instructions.section] - an ordinary section.
 2. [`opt:tree`][syntax.instructions.tree] - displaying the tree. Similar to `{tree}` instruction from OPT 1.1, but the syntax is completely different.
@@ -129,7 +129,7 @@ OPT 2.0 brings several new instructions and changes the semantics and/or names o
 Components
 ==========
 
-The [components][syntax.topics.components] are still present, but they have been redesigned from scratch to make use of the new features of OPT 2.0. It is much easier to design the component neighbourhood and the components are more functional. The programmer may still decide, whether to work with them only on the template side or not. Below, you can find a code of a sample OPT 2.0 component:
+The [components][syntax.topics.components] are still present, but they have been redesigned from scratch to make use of the new features of OPT 2.0. It is much easier to design the component neighborhood and the components are more functional. The programmer may still decide, whether to work with them only on the template side or not. Below, you can find a code of a sample OPT 2.0 component:
 
 ~~~~
 [xml]
@@ -145,7 +145,7 @@ The [components][syntax.topics.components] are still present, but they have been
 </opt:myInput>
 ~~~~
 
-As you see, the component tag now defines the whole neighbourhood and the place to display the component itself is marked with `opt:display` tag. Moreover, the component can control the HTML attributes of the surrounding tags, if they are moved to the `com` namespace.
+As you see, the component tag now defines the whole neighborhood and the place to display the component itself is marked with `opt:display` tag. Moreover, the component can control the HTML attributes of the surrounding tags, if they are moved to the `com` namespace.
 
 Moreover, a much simpler alternative to components has been introduced: [blocks][syntax.topics.blocks].
 

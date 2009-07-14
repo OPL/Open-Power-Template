@@ -7,4 +7,4 @@ SeeAlsoExternal:
 
 ----
 
-Replaces all the occurences of `$replacedPattern` in `$text` with `$replacement`, using Perl-compatible regular expressions. 
+Replaces all the occurrences of `$replacedPattern` in `$text` with `$replacement`, using Perl-compatible regular expressions. 

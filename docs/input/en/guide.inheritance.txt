@@ -168,7 +168,7 @@ As we run the code, we should get the following result:
 
 In the PHP code, we call only the template on the top of the inheritance chain, or in other words - the template that we do not want to extend anymore. From the script-side, we do not have to know about the existence of the base template. The whole inheritance chain is executed in the content of a single view, so all the templates share the same data and see their template variables. The template inheritance increases the performance, compared to the same code achieved with an ordinary `opt:include` instruction. We have less objects and the template engine does not have to perform so many disk operations to detect whether the files need to be recompiled.
 
-Try to modify the base template. Although we do not mention it in the script, OPT knows that it exists and the change is visible automatically, because the library checks also for the modifications of the dependant templates.
+Try to modify the base template. Although we do not mention it in the script, OPT knows that it exists and the change is visible automatically, because the library checks also for the modifications of the dependent templates.
 
 > [help]
 > In both `opt:root` and `opt:extend` you may set the `escaping` attribute which defines the default escaping policy for a single template. The snippets always remember the policy of their "mother" template and restore it even after the insertion.

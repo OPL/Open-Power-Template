@@ -34,7 +34,7 @@ Some conversions recognized by the compiler:
 :	Allows to convert the variable name `$variable` to some other name. This feature is used in the example above. The section processor reads the snippet name and registers the conversion:
 	
 	    [php]
-		$this->_compiler->setConversion('##simplevar_foo', 'user');
+	    $this->_compiler->setConversion('##simplevar_foo', 'user');
 	
 	Once the section content has been processed, the conversion is removed.
 

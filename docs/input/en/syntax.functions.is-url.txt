@@ -12,5 +12,5 @@ Returns **true**, if the `$text` is a valid URL. The code below shows, how to us
 
 > [information]
 > The function **does not accept** malformed URL-s or URL parts, for example with removed protocol
-> that are unsually accepted by the current browsers. In other words, the string `www.example.com`
+> that are usually accepted by the current browsers. In other words, the string `www.example.com`
 > is not accepted as a valid URL, but `http://www.example.com` - is.

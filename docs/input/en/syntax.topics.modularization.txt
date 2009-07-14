@@ -11,7 +11,7 @@ Every bigger website consists of dozens or even hundreds template files. It is o
 Problem
 =======
 
-Let's take a look a simple website with some news, articles and contact data. Each module has its own template, because the news look different than articles, whereas contact data are unsually accompanied by a form that allows to send us an e-mail directly from the website. However, no matter what module we are looking at, they are always displayed within the same layout, with a header, menu, place for the main content and the footer. Moreover, as our database grows, we should think of a pagination mechanism - the page list should also look the same on whole website. The same issue concerns the forms - we need a generic form component design used every time we need to construct the form so that all the fors share the same layout and logics. If we need to make a change, it would be nice to make it only in one place and recompile the templates to propagate it rather than modifying about 50 files one by one.
+Let's take a look a simple website with some news, articles and contact data. Each module has its own template, because the news look different than articles, whereas contact data are usually accompanied by a form that allows to send us an e-mail directly from the website. However, no matter what module we are looking at, they are always displayed within the same layout, with a header, menu, place for the main content and the footer. Moreover, as our database grows, we should think of a pagination mechanism - the page list should also look the same on whole website. The same issue concerns the forms - we need a generic form component design used every time we need to construct the form so that all the fors share the same layout and logics. If we need to make a change, it would be nice to make it only in one place and recompile the templates to propagate it rather than modifying about 50 files one by one.
 
 To sum up, we need the following things:
 
@@ -90,7 +90,7 @@ Of course, it is possible to build a valid HTML output from them, but note that 
 Solution 2 - template inclusion
 ===============================
 
-This time, we are going to locate the main layout structure in one file. It will contain some places, where the script could plug-in module-dependant content, menus etc.
+This time, we are going to locate the main layout structure in one file. It will contain some places, where the script could plug-in module-dependent content, menus etc.
 
 ~~~~
 [xml]
@@ -316,4 +316,4 @@ Note that using the [Opt_View::inherit()][api.opt-view.inherit] API method, the 
 Conclusion
 ==========
 
-The template modularization is a very important issue and OPT provides several advanced tools that should satisfy all your needs. The details concering their features, possibilites and limitations can be found in the next pages of this documentation. 
+The template modularization is a very important issue and OPT provides several advanced tools that should satisfy all your needs. The details concerning their features, possibilities and limitations can be found in the next pages of this documentation. 

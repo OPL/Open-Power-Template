@@ -6,4 +6,4 @@ SeeAlso:
 
 ----
 
-Exports the list of variables and the formats associated with them to the compiler. The `$variables` is an assotiative array of pairs `variable => format description`.
+Exports the list of variables and the formats associated with them to the compiler. The `$variables` is an associative array of pairs `variable => format description`.

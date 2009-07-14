@@ -28,7 +28,7 @@ Opl_Loader::mapLibrary('Opt', '../anotherDirectory/Opt/');
 Opl_Loader::register();
 ~~~~
 
-While this feature is rather useless in most of the script, as we unsually want to keep similar pieces of the code in the same place, we might find it necessary if we wish to use PHAR-s.
+While this feature is rather useless in most of the script, as we usually want to keep similar pieces of the code in the same place, we might find it necessary if we wish to use PHAR-s.
 
 Once we have registered the autoloader, we might also configure the options that affect all the OPL libraries:
 

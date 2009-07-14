@@ -83,7 +83,7 @@ And so on for the deeper relationships.
 SingleArray
 ===========
 
-This data format is an extension to the ordinary `Array` format. It modifies the section behaviour, so that the nested sections are taken from the appropriate items of the upper-level sections. To populate the sections presented above, we would use the following code:
+This data format is an extension to the ordinary `Array` format. It modifies the section behavior, so that the nested sections are taken from the appropriate items of the upper-level sections. To populate the sections presented above, we would use the following code:
 
 ~~~~
 [php]

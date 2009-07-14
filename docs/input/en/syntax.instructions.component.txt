@@ -100,7 +100,7 @@ The components may manage the attributes of certain HTML tags. This is primarily
 Integration with snippets
 =========================
 
-Unsually, we would like to pack the port content into a snippet in order to use the same form layout across all the forms in our project. We may insert the snippet either using the ordinary `opt:use` attribute or with the `template` attribute that supports component-specific features.
+Usually, we would like to pack the port content into a snippet in order to use the same form layout across all the forms in our project. We may insert the snippet either using the ordinary `opt:use` attribute or with the `template` attribute that supports component-specific features.
 
 Take a look at the following example: we have some statically deployed components. We want to use the shared layout, but we need to set the extra component parameters, so we use the `template` attribute. It does not remove the `opt:set` tags from the default content:
 

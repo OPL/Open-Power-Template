@@ -15,7 +15,7 @@ ExtendedBy:
 Code buffers
 ============
 
-The XML nodes are not replaced with the PHP code line by line. The instruction processor may add the new code snippet to every node, even if it has already been parsed by other processor. The nodes contain a special data structure to keep the PHP snipptes assigned to them. The snippets are grouped into buffers that indicate where the code is located in the final file (i.e. before the opening tag). The compilation is nothing more but generating the PHP code for the node buffers.
+The XML nodes are not replaced with the PHP code line by line. The instruction processor may add the new code snippet to every node, even if it has already been parsed by other processor. The nodes contain a special data structure to keep the PHP snippets assigned to them. The snippets are grouped into buffers that indicate where the code is located in the final file (i.e. before the opening tag). The compilation is nothing more but generating the PHP code for the node buffers.
 
 Although there are many available buffers, the nodes may use only a part of them. They are identified by the `Opt_Xml_Buffer` constants:
 

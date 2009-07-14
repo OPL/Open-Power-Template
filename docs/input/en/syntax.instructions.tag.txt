@@ -10,7 +10,7 @@ SeeAlso:
 
  Name           | Type                | Required? | Description
 ----------------|---------------------|-----------|:-----------------------------------
- name           | Expression          | Tak       | The tag name
+ name           | Expression          | Yes       | The tag name
  single         | Option              | No        | If set to "no" (the default value), OPT shortens the tag to the single form: `<tag />` only if the same form is used in the template. "yes" shortens the tag also if its content is built from white characters.
 
 With `opt:attribute` you may add the `name` and `single` attributes to the new tag, so that they could not be parsed by OPT:

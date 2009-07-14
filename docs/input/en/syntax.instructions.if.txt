@@ -36,7 +36,7 @@ In the first place, we can see, how to use `opt:if` to test if a variable is set
 
 ~~~~
 [xml]
-<!-- the exact codition content is not important here -->
+<!-- the exact condition content is not important here -->
 	
 <opt:if test="condition1">
 	

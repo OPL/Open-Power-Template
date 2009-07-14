@@ -26,15 +26,15 @@ catch(Opt_Exception $exception)
 Default exception handler
 =========================
 
-A common practice is to let the programmer to write the exception handler that will handle information about the problem somehow. The application unsually provides an exception handling system, for example some sort of log files etc. but the displayed messages are often very laconic and hard to understand, especially for the new library users. On the other hand, Open Power Template provides a standard error handler that aims to display as much information about the problem, as possible. It respects the debugging settings and does not display any potentially dangerous pieces of information in the production mode, whereas in the development mode its diagnosis may be very helpful.
+A common practice is to let the programmer to write the exception handler that will handle information about the problem somehow. The application usually provides an exception handling system, for example some sort of log files etc. but the displayed messages are often very laconic and hard to understand, especially for the new library users. On the other hand, Open Power Template provides a standard error handler that aims to display as much information about the problem, as possible. It respects the debugging settings and does not display any potentially dangerous pieces of information in the production mode, whereas in the development mode its diagnosis may be very helpful.
 
 ![OPT error handler at work](media/opt_error.png "OPT error handler at work")
 
-In the picture, we can see that OPT error handler displayed the exception message and the place where the exception occured. Moreover, it noticed that the exception concerns template compilation and sections and provided some extra data:
+In the picture, we can see that OPT error handler displayed the exception message and the place where the exception occurred. Moreover, it noticed that the exception concerns template compilation and sections and provided some extra data:
 
 1. The name of the template that caused the problem.
 2. The current stack list that allows us to notice that we do not have a section named "foo" on the stack.
-3. The information explaining, *why* the exception probably occured and where to look for the solution.
+3. The information explaining, *why* the exception probably occurred and where to look for the solution.
 
 To use the exception handler, you must create an object of `Opt_ErrorHandler` class and call the `display()` method:
 
@@ -47,7 +47,7 @@ $handler->display($exception);
 To respect the tradition and the OPT 1.x legacy, OPT 2 provides also a function `Opt_ErrorHandler()` that does exactly the same task (in fact, it is only a wrapper for the code above).
 
 > [important]
-> If the exception is thrown during the template execution or compilation, the compiler state is resetted, so that it could be usable again, and the exception handler removes the already printed output HTML from the buffer.
+> If the exception is thrown during the template execution or compilation, the compiler state is reseted, so that it could be usable again, and the exception handler removes the already printed output HTML from the buffer.
 
 Extending the exception handler
 ===============================
@@ -68,10 +68,10 @@ class My_ErrorHandler extends Opt_ErrorHandler
 } // end My_ErrorHandler;
 ~~~~
 
-As you see, the `$_context` field is an assotiative array and the keys are exception class names. As a value, we provide another assotiative array with a list of *informators* that can display various data.
+As you see, the `$_context` field is an associative array and the keys are exception class names. As a value, we provide another associative array with a list of *informer* that can display various data.
 
 > [information]
-> *Informator* is a special method in the OPL error handling utility that is able to display something in the exception report.
+> *Informer* is a special method in the OPL error handling utility that is able to display something in the exception report.
 
 Below, you can find a sample configuration of the OPT exception shown on the screen above.
 
@@ -81,16 +81,16 @@ $this->_context['Opt_SectionNotExists_Exception'] = array(
 	'TemplateInfo' => array(),
 	'StackInfo' => array(1 => 'Actual section stack'),
 	'ErrorInfo' => array(1 => 'The nested sections can be connected together with a relationship. By default,
-		OPT tries to establish such relationship automatically, but you can modify the default behaviour with
+		OPT tries to establish such relationship automatically, but you can modify the default behavior with
 		the "parent" attribute. This exception occurs, because the template tries use the "parent" attribute
 		to create a relationship to a section that does not exist. Check whether the specified section names
 		are correct.')
 	);
 ~~~~
 
-This exception is handled by three informators and two of them accept arguments. The arguments for an informator are provided as a list of values indexed from 1.
+This exception is handled by three informers and two of them accept arguments. The arguments for an informer are provided as a list of values indexed from 1.
 
-The list of informators provided by OPT and OPL can be found below:
+The list of informers provided by OPT and OPL can be found below:
 
 1. `ErrorInfo` - used to display some extra information about the exception.
 2. `StackInfo` - prints a stack that has been assigned to the particular exception. Our task is to give it a name.
@@ -99,14 +99,14 @@ The list of informators provided by OPT and OPL can be found below:
 5. `TemplateInfo` - shows the name of the currently compiled template.
 6. `BugtrackerInfo` - informs that the exception is caused by a bug in the library and it should be reported to the developers.
 
-Writing your own informator is very easy. All you have to do is to create a protected method `_printInformatorName()` with at least one argument (the first one must be always the exception we are displaying). We can display the text, using the basic **echo** subroutine:
+Writing your own informer is very easy. All you have to do is to create a protected method `_printInformerName()` with at least one argument (the first one must be always the exception we are displaying). We can display the text, using the basic **echo** subroutine:
 
 ~~~~
 [php]
-    protected function _printMyInformator(Opt_Exception $exception, $argument)
+    protected function _printMyInformer(Opt_Exception $exception, $argument)
     {
-        echo 'I am the informator and I have an argument: '.$argument;
-    } // end _printMyInformator();
+        echo 'I am the informer and I have an argument: '.$argument;
+    } // end _printMyInformer();
 ~~~~
 
 You can now use it in your exception context definition:
@@ -114,7 +114,7 @@ You can now use it in your exception context definition:
 ~~~~
 [php]
 $this->_context['Opt_Some_Exception'] = array(
-	'MyInformator' => array(1 => 'Some argument')
+	'MyInformer' => array(1 => 'Some argument')
 );
 ~~~~
 

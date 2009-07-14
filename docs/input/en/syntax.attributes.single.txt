@@ -4,7 +4,7 @@ SeeAlso:
 
 ----
 
-The attribute creates a single tag, causing its content to be lost. Its purpose is to close properly the HTML tags that are naturally single, like `<IMG>` in case we had to use some OPT instructions to perform some operations on them. Below, you can find an example:
+The attribute creates a single tag, causing its content to be lost. Its purpose is to close properly the HTML tags that are naturally single, like `<img>` in case we had to use some OPT instructions to perform some operations on them. Below, you can find an example:
 
 ~~~~
 [xml]

@@ -45,7 +45,7 @@ $view->page = array(
 );
 ~~~~
 
-The `Opt_View` class provides several different methods to assign the data to a view. They allow for example to assign a variable by reference or to extract an assotiative array as a list of variables:
+The `Opt_View` class provides several different methods to assign the data to a view. They allow for example to assign a variable by reference or to extract an associative array as a list of variables:
 
 ~~~~
 [php]

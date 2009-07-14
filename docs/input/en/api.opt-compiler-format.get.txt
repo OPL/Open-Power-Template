@@ -41,7 +41,7 @@ The code hooks below are used by OPT and are grouped into three feature sets (se
 All the hooks in this feature set have the access to the format variable `section` that contains all the information on the current section.
 
 `section:init`
-:	The section intialization code hook. It should obtain the list data from the `datasource` attribute, the parent section, one of the template variables or some other place. The section data **should** be saved into the variable `$_sectSECTIONNAME_vals`.
+:	The section initialization code hook. It should obtain the list data from the `datasource` attribute, the parent section, one of the template variables or some other place. The section data **should** be saved into the variable `$_sectSECTIONNAME_vals`.
 
 `section:isNotEmpty`
 :	The condition that checks whether the element list is not empty and whether it contains the valid data.

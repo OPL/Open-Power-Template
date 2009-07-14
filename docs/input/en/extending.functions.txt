@@ -56,7 +56,7 @@ function myAggregateFunction($item, $argument)
 } // end myAggregateFunction();
 ~~~~
 
-If we notice that the first argument is a valid container (an OPT convention says that the value that we are going to operate on, should be provided as the first argument), we return the value from `processContainer()` static method. As the first argument, we must provide the name of the function that will modify a single value (unsually it will be the same function, but this does not have to be the rule), and as the second one - the list of arguments. Please note that the first item of this array must be the container!
+If we notice that the first argument is a valid container (an OPT convention says that the value that we are going to operate on, should be provided as the first argument), we return the value from `processContainer()` static method. As the first argument, we must provide the name of the function that will modify a single value (usually it will be the same function, but this does not have to be the rule), and as the second one - the list of arguments. Please note that the first item of this array must be the container!
 
 Registering functions
 =====================

@@ -39,7 +39,7 @@ Operator list:
  ~          |            | $a ~ $b     | concatenates two values as strings
  =          | is, are    | @a is $b    | assigns the value of the right-side expression to the variable on the left
 
-A very important thing is the operator precendence. It defines, which operators are processed in the first place, if they are used one by another, like: `$a + $b * $c`. Multiplication is more important, so the parser will start from `$b * $c` and then the value of `$a` will be added to the result. The operator precendence is the same, as in PHP and it is illustrated below:
+A very important thing is the operator precedence. It defines, which operators are processed in the first place, if they are used one by another, like: `$a + $b * $c`. Multiplication is more important, so the parser will start from `$b * $c` and then the value of `$a` will be added to the result. The operator precedence is the same, as in PHP and it is illustrated below:
 
 1. `++`, `--`
 2. `!`

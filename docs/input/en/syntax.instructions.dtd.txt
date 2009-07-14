@@ -18,7 +18,7 @@ The accepted values of `template` are:
 * `xhtml11` - DTD for XHTML 1.1
 * `html40` - DTD for HTML 4.01
 
-If the `template` attribute is not specified, `opt:dtd` expects its content to contain the custom DTD that will be sent to the browser. It should be enclosed in the CDATA section in order to fulfil the XML semantics (CDATA tags will be ignored, like in `opt:literal`).
+If the `template` attribute is not specified, `opt:dtd` expects its content to contain the custom DTD that will be sent to the browser. It should be enclosed in the CDATA section in order to fulfill the XML semantics (CDATA tags will be ignored, like in `opt:literal`).
 
 ~~~~
 [xml]

@@ -44,7 +44,7 @@ public function processNode(Opt_Xml_Node $node)
 
 The description of the steps:
 
-1.  As this processor registed only one tag, we are sure that `$node` always points to the `opt:for`. We begin the compilation with parsing the instruction attributes with [Opt_Compiler_Processor::_extractAttributes()][api.opt-compiler-processor._extract-attributes]. 
+1.  As this processor registers only one tag, we are sure that `$node` always points to the `opt:for`. We begin the compilation with parsing the instruction attributes with [Opt_Compiler_Processor::_extractAttributes()][api.opt-compiler-processor._extract-attributes]. 
 
 2.  We modify some of the processor object fields. In this case, `$this->_nesting` represents the current `opt:for` nesting level. We need this value to create unique variable names for the very loop.
 

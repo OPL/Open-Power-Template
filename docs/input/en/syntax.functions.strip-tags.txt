@@ -22,4 +22,4 @@ Strips the XML/HTML tags from `$text`. In the optional argument, `$allowedTags`,
 <!-- ... -->
 
 > [error]
-> Remember that the allowed tag names **must be** written using entities, if they are specified explicitely in the template.
+> Remember that the allowed tag names **must be** written using entities, if they are specified explicitly in the template.

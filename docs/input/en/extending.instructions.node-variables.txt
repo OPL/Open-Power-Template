@@ -18,7 +18,7 @@ echo $node->get('name');
 ~~~~
 
 > [information]
-> Accessing to the unexisting variable causes the `get()` method to return **NULL**.
+> Accessing to the nonexistent variable causes the `get()` method to return **NULL**.
 
 The same methods are available in the `Opt_Compiler_Class` object.
 

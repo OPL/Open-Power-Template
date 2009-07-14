@@ -4,9 +4,9 @@ Title: PHP
 
 Many template engines, mostly in the popular frameworks, use PHP as a template language. This article shows, how to switch from PHP-based templates to OPT, what are the differences and why you should do that.
 
-In the presentation layer written in pure PHP, the most characteristical issues are:
+In the presentation layer written in pure PHP, the most characteristic issues are:
 
-1. Many functions and classes that generate HTML code snippets and return them as their results. They are unsually called *helpers*, because they help writing clean templates.
+1. Many functions and classes that generate HTML code snippets and return them as their results. They are usually called *helpers*, because they help writing clean templates.
 2. PHP control structures, such as *if* or *foreach* are very common. Every relationship between them must be programmed manually by the template designer.
 3. Complex output flow between nested templates. It is common to parse one template, store its result in a variable and display it later in the other template.
 4. Sometimes the presentation layer reads the data directly from the script structures, or even generates them.
@@ -14,7 +14,7 @@ In the presentation layer written in pure PHP, the most characteristical issues 
 Imperative vs declarative programming
 =====================================
 
-PHP is an imperative language. It means that you specify all the operations it must perform step-by-step using functions and control structures. The control you have is very good, if you are going to optimize something or write a complex algorithm, but it has one important disadvantage. When you look at such code for the first time, you see that it does something and how it is done, but without extra explainations it is often hard to say, *what* this "it" is. Take a look at the example. You can say *get up, find the window, if it is too far away from you, move there. Then push it up, catch the handle and turn it right* or simply *close that window, please*. The first sentence is too long, too complex and someone may not guess, what we want from him to be done. There is one more problem: what if you have to turn the handle to the left or if the window has a completely different closing mechanism?
+PHP is an imperative language. It means that you specify all the operations it must perform step-by-step using functions and control structures. The control you have is very good, if you are going to optimize something or write a complex algorithm, but it has one important disadvantage. When you look at such code for the first time, you see that it does something and how it is done, but without extra explanations it is often hard to say, *what* this "it" is. Take a look at the example. You can say *get up, find the window, if it is too far away from you, move there. Then push it up, catch the handle and turn it right* or simply *close that window, please*. The first sentence is too long, too complex and someone may not guess, what we want from him to be done. There is one more problem: what if you have to turn the handle to the left or if the window has a completely different closing mechanism?
 
 OPT encourages you to concentrate on the final effect, not the ways to implement it. You should build your template from ready-to-use blocks that implement a small and commonly used algorithm and that can co-operate one with another. However, in order to use them properly, you should forget for a while about functions, PHP loops, and finally - about reinventing the wheel with them. Let's assume we want to display a list of books with their authors. Using PHP, we would write something like this:
 
@@ -71,7 +71,7 @@ The sections are the most commonly used tools in OPT and they provide even more 
 </ul>
 ~~~~
 
-We know that declarative programming is different from the solutions you have already got used to. However, once you lear more about the declarative instructions in OPT, you will notice that things were never so simple. When we are going to create a new website, we unsually begin with the presentation layer which is completed within 30 minutes and unsually does not require any further modifications after the script is written. The templates for the administration panel can be used in different projects without changes, even if they are powered by different frameworks. It saves our time and allows us to focus on the project.
+We know that declarative programming is different from the solutions you have already got used to. However, once you learn more about the declarative instructions in OPT, you will notice that things were never so simple. When we are going to create a new website, we usually begin with the presentation layer which is completed within 30 minutes and usually does not require any further modifications after the script is written. The templates for the administration panel can be used in different projects without changes, even if they are powered by different frameworks. It saves our time and allows us to focus on the project.
 
 Error handling
 ==============
@@ -106,7 +106,7 @@ Here we would like to show you, what problems can be solved using declarative pr
 OPT from the script-side
 ========================
 
-The advantage of PHP-based view layer is unsually a good programmer API, especially when we talk about framework. OPT comes with a framework-style API out-of-the-box. You do not have to write massive wrappers that handle the configuration and attempt to put the template engine into a framework structure. OPT's objective architecture provides the following terms:
+The advantage of PHP-based view layer is usually a good programmer API, especially when we talk about framework. OPT comes with a framework-style API out-of-the-box. You do not have to write massive wrappers that handle the configuration and attempt to put the template engine into a framework structure. OPT's objective architecture provides the following terms:
 
 + *Main object* - the object of `Opt_Class` class that manages the configuration and the basic, common services.
 + *Views* - the objects of `Opt_View` class, they contain the data associated to the template.
@@ -166,4 +166,4 @@ Conclusion
 
 As you can see, a good template engine does not have to introduce new limitations, but may also remove some limitations of PHP. In the past, PHP actually was intended to be a template language, but it is a history now. The language is equipped with richer and richer OOP, the new objective extensions are introduced and the programmers find it as a better and better tool to write massive frameworks and enterprise solutions. At the same time, nothing is done to make writing the templates actually easier.
 
-We know that many programmers do not like template engines because they introduce in fact even more limitations than PHP, as they unsually offer just a subset of PHP enclosed in curly brackets. However, this is not the Open Power Template way. And to enjoy OPT, you must not think about it as *yet another imperative language for templates*...
+We know that many programmers do not like template engines because they introduce in fact even more limitations than PHP, as they usually offer just a subset of PHP enclosed in curly brackets. However, this is not the Open Power Template way. And to enjoy OPT, you must not think about it as *yet another imperative language for templates*...

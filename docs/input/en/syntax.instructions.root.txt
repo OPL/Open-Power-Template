@@ -86,7 +86,7 @@ In this case, we have to declare the form in the snippet, too. It must be loaded
 
 Now we do not have to pack the form content in a fake snippet, because we do not use the template inheritance. 
 
-Note that the `include` attribute is processed during the template compilation and it is not possible to load its value from a variable. In the included template, all the content, except `opt:snippet` tags, is ignored, because it is hard to say, where it should appear. (Before? After the main template content? If so, then why?) OPT prevents us against the infinite recursive inclusions (A includes B, which includes A). The compilation is cancelled and the library shows the error message.
+Note that the `include` attribute is processed during the template compilation and it is not possible to load its value from a variable. In the included template, all the content, except `opt:snippet` tags, is ignored, because it is hard to say, where it should appear. (Before? After the main template content? If so, then why?) OPT prevents us against the infinite recursive inclusions (A includes B, which includes A). The compilation is canceled and the library shows the error message.
 
 However, note that you may set the attribute `dynamic` to `yes`, which has the same effect as in `opt:extend` - it allows to set the template to be included by the script using the [Opt_View::inherit()][api.opt-view.inherit] method.
 
