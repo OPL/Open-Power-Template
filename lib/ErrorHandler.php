@@ -1,16 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: ErrorHandler.php 22 2008-12-03 11:32:29Z zyxist $
+ * $Id$
  */
 
 	/**
@@ -37,6 +37,23 @@
 					to the browser using the parse() method. Because in the template, all the opened tags must be
 					closed, this would lead to produce invalid XML output. To modularize your templates, you have
 					to use <em>opt:include</em> instruction and/or the template inheritance.')
+			),
+			'Opt_FilesystemAccess_Exception' => array(
+				'ErrorInfo' => array(1 => 'OPT encountered a problem with filesystem permissions. Check if the script
+					has a proper permission to read from <em>sourceDir</em> and write to <em>compileDir</em>.'),
+				'BasicConfiguration' => array()
+			),
+			'Opt_InvalidEntityName_Exception' => array(
+				'ErrorInfo' => array(1 => 'This exception is thrown by the <em>entity()</em> template function if
+					the specified argument is not a valid XML entity name. The entity name must be either a decimal/hexadecimal
+					character number or the character name built of letters, number, underscores, pauzes and colons.'),
+			),
+			'Opt_TreeInvalidDepth_Exception' => array(
+				'ErrorInfo' => array(1 => 'This exception is thrown by the <em>opt:tree()</em> template instruction which attempts
+					to render a tree structure. The list elements must contain a "depth" field that specifies the element
+					depth. The first element determines the minimum depth and no element can have a lower value there.
+					In order to remove the problem, please check your PHP script and/or database to see, what depth values
+					it provides.'),
 			),
 			'Opt_SnippetRecursion_Exception' => array(
 				'StackInfo' => array(1 => 'Snippet call stack'),
@@ -75,6 +92,12 @@
 				'ErrorInfo' => array(1 => 'Many instructions consist of many XML tags and some of them must follow various restrictions.
 					In this case, the reported tag must be enclosed directly within another tag. Any other location causes the exception.
 					Please refer the OPT manual in order to check, how to use this instruction.')
+			),
+			'Opt_XmlInvalidOrder_Exception' => array(
+				'TemplateInfo' => array(),
+				'ErrorInfo' => array(1 => 'The tags must be closed in the same order they have been opened. Check the tags mentioned in
+					the exception message to ensure that you have closed them properly. Note that single tags need to be ended
+					with " /&gt;" sequence.')
 			),
 			'Opt_XmlNoProlog_Exception' => array(
 				'TemplateInfo' => array(),

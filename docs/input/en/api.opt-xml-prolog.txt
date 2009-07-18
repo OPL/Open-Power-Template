@@ -1,6 +1,6 @@
 Title: Opt_Xml_Prolog class
 ShortTitle: Opt_Xml_Prolog
-Status: public
+Construct: class
 
 ----
 

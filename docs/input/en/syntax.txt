@@ -1,4 +1,5 @@
 Title: Template syntax
+VCSKeywords: $Id$
 
 ----
 
@@ -51,7 +52,7 @@ We recommed the PHP programmers to read this chapter, too, because they can find
 
 1. For everyone - recommended to read.
 2. Simple programming construct that is recommended.
-3. Programming construct that probably will not be necessary. You 
+3. Programming construct that probably will not be necessary. You
 
 The second type is marked with:
 

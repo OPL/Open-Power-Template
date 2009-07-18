@@ -1,4 +1,5 @@
 Title: opt:show
+FeatureInformation: sections
 SeeAlso:
  - syntax.topics.sections
  - syntax.instructions.section
@@ -8,18 +9,15 @@ SeeAlso:
 
 ----
 
-> [help]
-> This chapter describes one of section instructions. We recommend to read [Sections][syntax.topics.sections] first to get to know more about them.
-
-`opt:show` allows to define the section neighbourhood layout. It has an important property - if the section does not get any elements, the neighbourhood is not visible in the browser, too. In the example, we hide the `<ol>` tags, when there are no elements to display:
+`opt:show` allows to define the section neighborhood layout. It has an important property - if the section does not get any elements, the neighborhood is not visible in the browser, too. In the example, we hide the `<ol>` tags, when there are no elements to display:
 
 ~~~~
 [xml]
 <opt:show name="list">
 <ol>
-  <opt:section>
-  <li>{$list.name}</li>
-  </opt:section>
+    <opt:section>
+    <li>{$list.name}</li>
+    </opt:section>
 </ol>
 </opt:show>
 ~~~~
@@ -27,14 +25,13 @@ SeeAlso:
 When using `opt:show`, you have to remember about two issues:
 
 1. _All_ the section attributes are defined in `opt:show`, and the section tag (`opt:section`, `opt:tree`, etc.) remains empty in order to be connected with `opt:show`. The section tags with attributes are possible within `opt:show`, but they will become independent sections.
-2. `opt:show` *does not starta section*. We can neither access the section element variables etc. within this tag nor make it parent for any other nested section.
+2. `opt:show` *does not start section*. We can neither access the section element variables etc. within this tag nor make it parent for any other nested section.
 
 An example to the first issue:
 
 ~~~~
 [xml]
 <opt:show name="section1">
-
 	<opt:section name="section2">
 
 	</opt:section>
@@ -42,7 +39,6 @@ An example to the first issue:
 	<opt:section>
 
 	</opt:section>
-
 </opt:show>
 ~~~~
 
@@ -51,13 +47,11 @@ The first `opt:section` contains some attributes, so it is not connected to `opt
 ~~~~
 [xml]
 <opt:show name="section1">
-
 	<opt:section>
 		<opt:section name="section2">
 
 		</opt:section>
 	</opt:section>
-
 </opt:show>
 ~~~~
 
@@ -70,9 +64,9 @@ We may define the optional content to be displayed if the list is empty. We use 
 [xml]
 <opt:show name="list">
 <ol>
-  <opt:section>
-  <li>{$list.name}</li>
-  </opt:section>
+	<opt:section>
+	<li>{$list.name}</li>
+	</opt:section>
 </ol>
 <opt:showelse>
 	<p>We are sorry, the list is empty.</p>

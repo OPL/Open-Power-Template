@@ -1,7 +1,8 @@
 Title: assignGroupGlobal()
-ShortTitle: Opt_View::assignGroup()
-Reference: void assignGroup( array $variables )
-Status: static public
+ShortTitle: Opt_View::assignGroupGlobal()
+Construct: static method
+Reference: void assignGroupGlobal( array $variables )
+Visibility: public
 SeeAlso:
  - api.opt-view.assign-group
 

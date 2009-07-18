@@ -3,7 +3,7 @@ ShortTitle: Opt_Xml_Root::hasDtd()
 Reference: bool hasDtd()
 Status: public
 SeeAlso:
- - api.opt-xml-node.set-dtd
+ - api.opt-xml-root.set-dtd
 
 ---
 

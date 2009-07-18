@@ -1,6 +1,6 @@
 Title: Opt_Xml_Buffer class
 ShortTitle: Opt_Xml_Buffer
-Status: abstract
+Construct: abstract class
 ExtendedBy:
  - api.opt-xml-attribute
  - api.opt-xml-node
@@ -40,7 +40,7 @@ Although there are many available buffers, the nodes may use only a part of them
 19. `ATTRIBUTE_BEGIN`
 20. `ATTRIBUTE_END`
 
-The pictures below show, how they surround the XML tag. 
+The pictures below show, how they surround the XML tag.
 
 ![Location of the code buffers around the XML tag](media/code_buffers_1.png "Location of the code buffers around the XML tag")
 
@@ -53,7 +53,7 @@ The situation changes a bit, if we have a single tag:
 There is no content and there are `TAG_SINGLE_BEFORE` and `TAG_SINGLE_AFTER`. Note that in this way we have two types of code buffer that surround the tag. This is not a mistake as there is important difference. The linker always adds the `TAG_BEFORE` snippets, whereas `TAG_SINGLE_BEFORE` only if the tag is single.
 
 > [information]
-> Note that the text and OPT expression nodes are surrounded only with `TAG_BEFORE` and `TAG_AFTER`. 
+> Note that the text and OPT expression nodes are surrounded only with `TAG_BEFORE` and `TAG_AFTER`.
 
 We can find the code buffers around the XML attributes, too:
 

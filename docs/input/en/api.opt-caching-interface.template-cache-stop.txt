@@ -1,0 +1,8 @@
+Title: templateCacheStop()
+ShortTitle: Opt_Caching_Interface::templateCacheStop()
+Reference: void templateCacheStop(Opt_View $view)
+Status: abstract public
+
+----
+
+Finalizes capturing the template output. The method is executed only if `Opt_Caching_Interface::templateCacheStart()` returned **false**.

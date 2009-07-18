@@ -1,15 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Processor.php 23 2008-12-03 14:11:58Z extremo $
+ * $Id$
  */
 
 	class Opt_Compiler_Processor
@@ -23,10 +24,10 @@
 		const ID = 6;
 		const BOOL = 7;
 		const ID_EMP = 8; // Same as "ID", but allows empty content.
-		
+
 		const REQUIRED = 1;
 		const OPTIONAL = 2;
-	
+
 		// Class fields
 		/**
 		 * The compiler object.
@@ -52,14 +53,14 @@
 
 		/**
 		 * Creates a new instruction processor for the specified compiler.
-		 * 
+		 *
 		 * @param Opt_Compiler_Class $compiler The compiler object.
 		 */
 		public function __construct(Opt_Compiler_Class $compiler)
 		{
 			$this->_compiler = $compiler;
 			$this->_tpl = Opl_Registry::get('opt');
-			
+
 			$this->configure();
 		} // end __construct();
 
@@ -195,7 +196,7 @@
 		 */
 		final public function getInstructions()
 		{
-			return $this->_instructions;		
+			return $this->_instructions;
 		} // end getInstructions();
 
 		/**
@@ -228,11 +229,11 @@
 			{
 				foreach($node as $child)
 				{
-					$this->_queue->enqueue($child);		
+					$this->_queue->enqueue($child);
 				}
 			}
 		} // end _process();
-		
+
 		final protected function _debugPrintQueue()
 		{
 			var_dump($this->_queue);
@@ -302,7 +303,7 @@
 			{
 				if($name == '__UNKNOWN__')
 				{
-					$unknown = &$data;					
+					$unknown = &$data;
 				}
 				elseif($data[0] == self::REQUIRED)
 				{
@@ -376,7 +377,7 @@
 					$config[$name] = $data[2];
 					continue;
 				}
-			
+
 				$config[$name] = $this->_extractAttribute($subitem, $attrList[$aname], $data[1]);
 				unset($attrList[$aname]);
 			}
@@ -387,7 +388,7 @@
 				// TODO: Add here namespace check!
 				$type = $unknown[1];
 				foreach($attrList as $name => $attr)
-				{					
+				{
 					if(strpos($name, 'str:') === 0 && ($type == self::STRING || $type == self::EXPRESSION || $type == self::ASSIGN_EXPR))
 					{
 						$type = self::STRING;

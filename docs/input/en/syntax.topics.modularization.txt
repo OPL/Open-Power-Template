@@ -1,4 +1,8 @@
 Title: Template modularization
+VCSKeywords: $Id$
+SeeAlso:
+ - syntax.topics.modularization.inclusion
+ - syntax.topics.modularization.inheritance
 
 ----
 
@@ -15,7 +19,7 @@ To sum up, we need the following things:
  - A template with the layout structure.
  - Extra template with the form component and pagination styles.
  - Error templates, messages, questions etc.
- 
+
 Solution 1 - template concatenation
 ===================================
 
@@ -29,54 +33,55 @@ Many template engines, as well as PHP, allow you to build the output document fr
 
 This leads us to the following templates:
 
-`overall_header.tpl`:
+##### overall_header.tpl:
 
 ~~~~
-[html]
+[xml]
 <html>
-  <head>
+<head>
     ...
-	
-  </head>
-  <body>
-   <div id="header"> ... </div>
-   <div id="menu">
+</head>
+<body>
+<div id="header">
+    ...
+</div>
+<div id="menu">
 ~~~~
 
-`menu.tpl`:
+##### menu.tpl:
 
 ~~~~
-[html]
- <ul>
-   <li><a href="#">Index</a></li>
-    ....
- </ul>
+[xml]
+    <ul>
+        <li><a href="#">Index</a></li>
+        ....
+    </ul>
 ~~~~
 
-`content_begin.tpl`:
+##### content_begin.tpl:
 
 ~~~~
-[html]
- </div>
- <div id="content">
+[xml]
+</div>
+<div id="content">
 ~~~~
 
-`index.tpl`:
+##### index.tpl:
 
 ~~~~
-[html]
- Some index content here.
+[xml]
+    Some index content here.
 ~~~~
 
-`overall_footer.tpl`:
+##### overall_footer.tpl:
 
 ~~~~
-[html]
- </div>
- <div id="footer">
-   ...
- </div>
- </body>
+[xml]
+</div>
+<div id="footer">
+    ...
+</div>
+</body>
 </html>
 ~~~~
 
@@ -88,25 +93,25 @@ Solution 2 - template inclusion
 This time, we are going to locate the main layout structure in one file. It will contain some places, where the script could plug-in module-dependant content, menus etc.
 
 ~~~~
-[html]
+[xml]
 <html>
- <head>
-   ....
- </head>
- <body>
-  <div id="header">
+<head>
+    ....
+</head>
+<body>
+<div id="header">
     ...
-  </div>
-  <div id="menu">
+</div>
+<div id="menu">
     [ LAUNCH ASSIGNED MENU TEMPLATES HERE ]
-  </div>
-  <div id="content">
+</div>
+<div id="content">
     [ LAUNCH ASSIGNED CONTENT TEMPLATES HERE ]
-  </div>
-  <div id="footer">
-   ...
-  </div>
- </body>
+</div>
+<div id="footer">
+    ...
+</div>
+</body>
 </html>
 ~~~~
 
@@ -117,35 +122,35 @@ Solution 3 - template inheritance
 
 Template inheritance works much like inheritance in the object-oriented programming, but it applies to templates instead of classes. Here, the script does not even know about the common layout file - it only executes the module template which *extends* the layout template it wants and fills the empty placeholders with some HTML code. Take a look at sample templates:
 
-`layout.tpl`:
+##### layout.tpl:
 
 ~~~~
-[html]
+[xml]
 <html>
- <head>
-   ....
- </head>
- <body>
-  <div id="header">
+<head>
+    ....
+</head>
+<body>
+<div id="header">
     ...
-  </div>
-  <div id="menu">
+</div>
+<div id="menu">
     ...
-  </div>
-  <div id="content">
+</div>
+<div id="content">
     [ CONTENT PLACEHOLDER ]
-  </div>
-  <div id="footer">
-   ...
-  </div>
- </body>
+</div>
+<div id="footer">
+    ...
+</div>
+</body>
 </html>
 ~~~~
 
-`module.tpl`:
+##### module.tpl:
 
 ~~~~
-[html]
+[xml]
 [ EXTEND layout.tpl ]
 
 [ CONTENT SNIPPET ]
@@ -179,7 +184,7 @@ OPT provides a complex and built-in support for template inclusion and inheritan
 > [help]
 > `opt:include` works during the template execution, whereas the template inheritance is processed during the compilation.
 
-The details on the implementation of those two elements can be found in [syntax.topics.modularization.inheritance] and [syntax.topics.modularization.inclusion].
+The details on the implementation of those two elements can be found in chapters about [the inheritance][syntax.topics.modularization.inheritance] and [the inclusion][syntax.topics.modularization.inclusion].
 
 Mixing the template inheritance and inclusion
 =============================================
@@ -189,29 +194,29 @@ As we mentioned before, OPT allows you to use both inheritance and inclusion at 
 ~~~~
 [xml]
 <html>
- <head>
-   ....
- </head>
- <body>
-  <div id="header">
+<head>
+    ....
+</head>
+<body>
+<div id="header">
     ...
-  </div>
-  <div id="menu">
+</div>
+<div id="menu">
     <!-- display all the menu views here -->
     <opt:section name="menuViews">
-	  <opt:include from="menuViews" />
-	</opt:section>
-  </div>
-  <div id="content">
+        <opt:include from="menuViews" />
+    </opt:section>
+</div>
+<div id="content">
     <!-- display all the content views here -->
     <opt:section name="contentViews">
-	  <opt:include from="contentViews" />
-	</opt:section>
-  </div>
-  <div id="footer">
-   ...
-  </div>
- </body>
+        <opt:include from="contentViews" />
+    </opt:section>
+</div>
+<div id="footer">
+    ...
+</div>
+</body>
 </html>
 ~~~~
 
@@ -219,64 +224,64 @@ The inheritance can be used in at the module template level. It is especially us
 
 Let's get to work. First, we start with two sample templates that define the component layout:
 
-`standardComponentLayout.tpl`:
+##### standardComponentLayout.tpl:
 
 ~~~~
 [xml]
 <opt:root>
-  <opt:snippet name="componentLayout">
-    <div class="form element">
-	  <opt:display /> <!-- a component element -->
-	  <p>{$opt.component.title}</p>
-	</div>
-  </opt:snippet>
+    <opt:snippet name="componentLayout">
+        <div class="form element">
+            <opt:display /> <!-- a component element -->
+            <p>{$opt.component.title}</p>
+        </div>
+    </opt:snippet>
 </opt:root>
 ~~~~
 
-`otherComponentLayout.tpl`:
+##### otherComponentLayout.tpl:
 
 ~~~~
 [xml]
 <opt:root>
-  <opt:snippet name="componentLayout">
-    <div class="other classes">
-	  <span>{$opt.component.title}</span>
-	  <opt:display /> <!-- a component element -->
-	</div>
-  </opt:snippet>
+    <opt:snippet name="componentLayout">
+        <div class="other classes">
+            <span>{$opt.component.title}</span>
+            <opt:display /> <!-- a component element -->
+        </div>
+    </opt:snippet>
 </opt:root>
 ~~~~
 
 Now, we need the basic form template:
 
-`some_form.tpl`:
+##### some_form.tpl:
 
 ~~~~
 [xml]
 <opt:root include="standardComponentLayout.tpl" dynamic="yes">
-  <form method="post" parse:action="$form.action">
-  <div class="form">
-    <opt:insert snippet="initialExtraComponents" />
-	
-	<opt:inputField template="componentLayout">
-	  <opt:set name="name" str:value="field1" />
-	  <opt:set name="title" str:value="Some field" />
-	</opt:inputField>
+    <form method="post" parse:action="$form.action">
+    <div class="form">
+        <opt:insert snippet="initialExtraComponents" />
 
-	<opt:inputField template="componentLayout">
-	  <opt:set name="name" str:value="field2" />
-	  <opt:set name="title" str:value="Some other field" />
-	</opt:inputField>
-	
-	<opt:insert snippet="finalExtraComponents" />
-	
-	<opt:insert snippet="actionButtons">
-	<div class="buttons">
-	  <input type="submit" value="Send" />
-	</div>
-	</opt:insert>
-  </div>
-  </form>
+        <opt:inputField template="componentLayout">
+            <opt:set name="name" str:value="field1" />
+            <opt:set name="title" str:value="Some field" />
+        </opt:inputField>
+
+        <opt:inputField template="componentLayout">
+            <opt:set name="name" str:value="field2" />
+            <opt:set name="title" str:value="Some other field" />
+        </opt:inputField>
+
+        <opt:insert snippet="finalExtraComponents" />
+
+        <opt:insert snippet="actionButtons">
+        <div class="buttons">
+            <input type="submit" value="Send" />
+        </div>
+        </opt:insert>
+    </div>
+    </form>
 </opt:root>
 ~~~~
 
@@ -284,19 +289,19 @@ Here we assume that the script contains the implementations of the *inputField* 
 
 If we need to reuse the same form in other place, but with extra components, we just extend the basic template:
 
-`some_form_modified.tpl`:
+##### some_form_modified.tpl:
 
 ~~~~
 [xml]
 <opt:extend file="some_form.tpl">
-  <opt:snippet name="finalExtraComponents">
+    <opt:snippet name="finalExtraComponents">
 
-	<opt:inputField template="componentLayout">
-	  <opt:set name="name" str:value="field3" />
-	  <opt:set name="title" str:value="Yet another field" />
-	</opt:inputField>
-  
-  </opt:snippet>
+        <opt:inputField template="componentLayout">
+            <opt:set name="name" str:value="field3" />
+            <opt:set name="title" str:value="Yet another field" />
+        </opt:inputField>
+
+    </opt:snippet>
 </opt:extend>
 ~~~~
 

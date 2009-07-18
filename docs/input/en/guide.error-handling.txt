@@ -7,7 +7,7 @@ Another aspect of Open Power Template 2 that needs to be described is the error 
 OPT errors
 ==========
 
-OPT reports the errors as PHP exceptions. Each error type has its own exception class and all of them share the same base exception class, `Opt_Exception`, derivated from `Opl_Exception`. Moreover, the certain groups of exception have also their own base classes in the middle. The modularization helps the programmer to choose, which exceptions must be handled in the specified piece of code. To see the list of available exceptions, please read the [appendix.b][Error messages] appendix.
+OPT reports the errors as PHP exceptions. Each error type has its own exception class and all of them share the same base exception class, `Opt_Exception`, derivated from `Opl_Exception`. Moreover, the certain groups of exception have also their own base classes in the middle. The modularization helps the programmer to choose, which exceptions must be handled in the specified piece of code. To see the list of available exceptions, please read the [Error messages][appendix.b] appendix.
 
 Basically speaking, capturing a thrown exception is nothing more but using the `try ... catch` construct:
 
@@ -59,7 +59,6 @@ The context information is stored in the protected variable `$_context`. It is a
 ~~~~
 [php]
 <?php
-
 class My_ErrorHandler extends Opt_ErrorHandler
 {
 	public function __construct()
@@ -104,11 +103,10 @@ Writing your own informator is very easy. All you have to do is to create a prot
 
 ~~~~
 [php]
-<?php
-protected function _printMyInformator(Opt_Exception $exception, $argument)
-{
-	echo 'I am the informator and I have an argument: '.$argument;
-} // end _printMyInformator();
+    protected function _printMyInformator(Opt_Exception $exception, $argument)
+    {
+        echo 'I am the informator and I have an argument: '.$argument;
+    } // end _printMyInformator();
 ~~~~
 
 You can now use it in your exception context definition:
@@ -123,7 +121,7 @@ $this->_context['Opt_Some_Exception'] = array(
 PHP Bug #40479 problem
 ======================
 
-PHP Bug #40479 is a bug found in Zend Engine 2 memory management code in 2007. It seems to appear only in certain, complex scripts and causes the PHP parser to make a segmentation fault. It is very hard to track and so far, nobody has managed to create a simple test case that could give a clue, why it exactly occurs. Unfortunately, one of the OPT code parts is affected by the problem. If the data format parser tries to raise `Opt_APIHookNotDefined_Exception`, the script goes down. This is only a minor issue and unless you are writing your own data format, you should never encounter it, however we decided that in this particular case OPT will display the error message with a simple `die()` subroutine in order not to lead to a potential damage of your data. 
+PHP Bug #40479 is a bug found in Zend Engine 2 memory management code in 2007. It seems to appear only in certain, complex scripts and causes the PHP parser to make a segmentation fault. It is very hard to track and so far, nobody has managed to create a simple test case that could give a clue, why it exactly occurs. Unfortunately, one of the OPT code parts is affected by the problem. If the data format parser tries to raise `Opt_APIHookNotDefined_Exception`, the script goes down. This is only a minor issue and unless you are writing your own data format, you should never encounter it, however we decided that in this particular case OPT will display the error message with a simple `die()` subroutine in order not to lead to a potential damage of your data.
 
 Conclusion
 ==========

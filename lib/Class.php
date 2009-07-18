@@ -1,15 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Class.php 22 2008-12-03 11:32:29Z zyxist $
+ * $Id$
  */
 
 	/*
@@ -81,8 +82,8 @@
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
 		const XML_ENTITY = 8;
-	
-		const VERSION = '2.0-RC1';
+
+		const VERSION = '2.1-dev';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 
 		// Directory configuration
@@ -124,7 +125,6 @@
 		public $translate = null;
 		public $strictCallbacks = true;
 		public $htmlEntities = true;
-	//	public $componentAttributeLevel = 2;
 		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
 
@@ -146,10 +146,10 @@
 			'capitalize' => 'Opt_Function::capitalize', 'countWords' => 'str_word_count', 'countChars' => 'strlen',
 			'replace' => '#3,1,2#str_replace', 'repeat' => 'str_repeat', 'nl2br' => 'Opt_Function::nl2br', 'date' => 'date',
 			'regexReplace' => '#3,1,2#preg_replace', 'truncate' => 'Opt_Function::truncate', 'wordWrap' => 'Opt_Function::wordwrap',
-			'contains' => '#2,1#in_array', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
+			'contains' => 'Opt_Function::contains', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
 			'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
 			'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
-			'entity' => 'Opt_Function::entity',
+			'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey'
 		);
 		protected $_classes = array();
 		protected $_components = array();
@@ -791,6 +791,17 @@
 		} // end removeGlobal();
 
 		/**
+		 * Clears all the possible static private buffers.
+		 */
+		static public function clear()
+		{
+			self::$_vars = array();
+			self::$_capture = array();
+			self::$_global = array();
+			self::$_globalFormatInfo = array();
+		} // end clear();
+
+		/**
 		 * Returns the value of the internal template variable or
 		 * NULL if it does not exist.
 		 *
@@ -818,7 +829,7 @@
 		{
 			$this->_formatInfo[$item] = $format;
 		} // end setFormat();
-		
+
 		/**
 		 * Sets the specified data format for the identifier that may
 		 * identify a global template variable or some other things. The details
@@ -852,7 +863,7 @@
 		{
 			return $this->_cache;
 		} // end getCache();
-		
+
 		/*
 		 * Dynamic inheritance
 		 */
@@ -913,7 +924,7 @@
 			$this->_tf = $this->_tpl->getTranslationInterface();
 			if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 			{
-				list($compileName, $compileTime) = $this->_preprocess($exception);	
+				list($compileName, $compileTime) = $this->_preprocess($exception);
 				if(is_null($compileName))
 				{
 					return false;

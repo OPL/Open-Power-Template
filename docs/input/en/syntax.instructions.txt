@@ -1,4 +1,5 @@
 Title: Instructions
+VCSKeywords: $Id$
 
 ----
 
@@ -38,7 +39,7 @@ The code between `<opt:section>` and `</opt:section>` is treated as a look of th
 
 Some of the instructions have very sophisticated form and consist of many tags. The other ones can be used in certain places only.
 
-Unsually, the instructions are written in the declarative style. It means that you only tell, *what* you want to see, not *how* to implement it or how it should work. The goal is to eliminate the imperative programming with lots of loops and conditions from the templates, because it only makes the code ugly and hard to modify. The programming constructs are still available, but we recommend not to use it, and let the compiler work for you.
+Usually, the instructions are written in the declarative style. It means that you only tell, *what* you want to see, not *how* to implement it or how it should work. The goal is to eliminate the imperative programming with lots of loops and conditions from the templates, because it only makes the code ugly and hard to modify. The programming constructs are still available, but we recommend not to use it, and let the compiler work for you.
 
 The instruction tags may take arguments as XML attributes. Each of them has strictly defined type that you have to follow. The following types are possible:
 

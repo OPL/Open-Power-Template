@@ -31,12 +31,12 @@
 
 	class apiTest extends PHPUnit_Framework_TestCase
 	{
-	    protected $classes = array();
-	    protected $methods = array();
-	    protected $loaded = false;
+		protected $classes = array();
+		protected $methods = array();
+		protected $loaded = false;
 
-	    protected function setUp()
-	    {
+		protected function setUp()
+		{
 			if(!$this->loaded)
 			{
 				$this->classes = array(
@@ -65,33 +65,35 @@
 				}
 				$this->loaded = true;
 			}
-	    } // end setUp();
+		} // end setUp();
 	 
-	    protected function tearDown()
-	    {
-	        $this->tpl = NULL;
-	    } // end tearDown();
-	    
-	    protected function inManual($id)
-	    {
+		protected function tearDown()
+		{
+			$this->tpl = NULL;
+		} // end tearDown();
+		
+		protected function inManual($id)
+		{
 			if(is_null($id))
 			{
 				// This is not supposed to be documented.
 				return true;
 			}
-	    	return file_exists(DOC_DIR.'input/en/'.$id.'.txt');
-	    } // end inManual();
-	    
-	    public static function methodProvider()
-	    {
-	    	return array(0 =>
-	    		// Opt_Class methods
-	    		array(0 => 'Opt_Class', 'getCompiler', 'api.opt-class.get-compiler', M_PUBLIC),
+			return file_exists(DOC_DIR.'input/en/'.$id.'.txt');
+		} // end inManual();
+		
+		public static function methodProvider()
+		{
+			return array(0 =>
+				// Opt_Class methods
+				array(0 => 'Opt_Class', 'getCompiler', 'api.opt-class.get-compiler', M_PUBLIC),
 				array(0 => 'Opt_Class', 'setup', 'api.opt-class.setup', M_PUBLIC),
 				array(0 => 'Opt_Class', 'register', 'api.opt-class.register', M_PUBLIC),
 				array(0 => 'Opt_Class', 'getTranslationInterface', 'api.opt-class.get-translation-interface', M_PUBLIC),
 				array(0 => 'Opt_Class', 'setTranslationInterface', 'api.opt-class.set-translation-interface', M_PUBLIC),
-	    		array(0 => 'Opt_Class', '_getList', null, M_PUBLIC),
+				array(0 => 'Opt_Class', 'setCache', 'api.opt-class.set-cache', M_PUBLIC),
+				array(0 => 'Opt_Class', 'getCache', 'api.opt-class.get-cache', M_PUBLIC),
+				array(0 => 'Opt_Class', '_getList', null, M_PUBLIC),
 
 				// Opt_View methods
 				array(0 => 'Opt_View', '__construct', 'api.opt-view.__construct', M_PUBLIC),
@@ -110,8 +112,10 @@
 				array(0 => 'Opt_View', 'assignGroupGlobal', 'api.opt-view.assign-group-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'assignRefGlobal', 'api.opt-view.assign-ref-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'definedGlobal', 'api.opt-view.defined-global', M_PUBLIC | M_STATIC),
-	    		array(0 => 'Opt_View', 'removeGlobal', 'api.opt-view.remove-global', M_PUBLIC | M_STATIC),
+				array(0 => 'Opt_View', 'removeGlobal', 'api.opt-view.remove-global', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_View', 'getGlobal', 'api.opt-view.get-global', M_PUBLIC | M_STATIC),
+
+				array(0 => 'Opt_View', 'clear', 'api.opt-view.clear', M_PUBLIC | M_STATIC),
 				
 				array(0 => 'Opt_View', 'inherit', 'api.opt-view.inherit', M_PUBLIC),
 				array(0 => 'Opt_View', 'getBranch', 'api.opt-view.get-branch', M_PUBLIC),
@@ -119,12 +123,13 @@
 				array(0 => 'Opt_View', 'getTime', 'api.opt-view.get-time', M_PUBLIC),
 				array(0 => 'Opt_View', 'getTemplate', 'api.opt-view.get-template', M_PUBLIC),
 				array(0 => 'Opt_View', 'setTemplate', 'api.opt-view.set-template', M_PUBLIC),
-				
+				array(0 => 'Opt_View', 'setCache', 'api.opt-view.get-cache', M_PUBLIC),
+				array(0 => 'Opt_View', 'getCache', 'api.opt-view.set-cache', M_PUBLIC),
+
 				// Opt_Compiler_Class methods
 				array(0 => 'Opt_Compiler_Class', '__construct', 'api.opt-compiler-class.__construct', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'getCurrentTemplate', 'api.opt-compiler-class.get-current-template', M_PUBLIC | M_STATIC),
 				array(0 => 'Opt_Compiler_Class', 'cleanCompiler', 'api.opt-compiler-class.clean-compiler', M_PUBLIC | M_STATIC),
-				array(0 => 'Opt_Compiler_Class', 'getParser', 'api.opt-compiler-class.get-parser', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'get', 'api.opt-compiler-class.get', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'set', 'api.opt-compiler-class.set', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Class', 'escape', 'api.opt-compiler-class.escape', M_PUBLIC),
@@ -159,7 +164,6 @@
 				array(0 => 'Opt_Compiler_Class', 'compileExpression', 'api.opt-compiler-class.compile-expression', M_PUBLIC),
 
 				// Opt_Compiler_Processor methods
-
 				array(0 => 'Opt_Compiler_Processor', '__construct', 'api.opt-compiler-processor.__construct', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Processor', 'configure', 'api.opt-compiler-processor.configure', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Processor', 'reset', 'api.opt-compiler-processor.reset', M_PUBLIC),
@@ -178,7 +182,6 @@
 				array(0 => 'Opt_Compiler_Format', '__construct', 'api.opt-compiler-format.__construct', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Format', '_build', 'api.opt-compiler-format._build', M_PROTECTED | M_ABSTRACT),
 				array(0 => 'Opt_Compiler_Format', '_getVar', 'api.opt-compiler-format._get-var', M_PROTECTED | M_FINAL),
-				array(0 => 'Opt_Compiler_Format', '_decorateHook', 'api.opt-compiler-format._decorate-hook', M_PROTECTED | M_FINAL),
 				array(0 => 'Opt_Compiler_Format', 'property', 'api.opt-compiler-format.property', M_PUBLIC | M_FINAL),
 				array(0 => 'Opt_Compiler_Format', 'action', 'api.opt-compiler-format.action', M_PUBLIC),
 				array(0 => 'Opt_Compiler_Format', 'supports', 'api.opt-compiler-format.supports', M_PUBLIC),
@@ -191,13 +194,13 @@
 				array(0 => 'Opt_Compiler_Format', 'isDecorating', 'api.opt-compiler-format.is-decorating', M_PUBLIC | M_FINAL),
 
 			);
-	    } // end provider();
+		} // end provider();
 
- 	   /**
- 	    * @dataProvider methodProvider
- 	    */
-	    public function testMethod($class, $method, $manualId, $type)
-	    {
+		/**
+ 		 * @dataProvider methodProvider
+ 		 */
+		public function testMethod($class, $method, $manualId, $type)
+		{
 			if(!$this->classes[$class]->hasMethod($method))
 			{
 				$this->fail('Method '.$method.' not found in '.$class);
@@ -244,6 +247,6 @@
 				$this->fail('Method '.$class.'::'.$method.' not found in the manual.');
 			}
 			return true;
-	    } // end testMethod();
+		} // end testMethod();
 	} // end expressionTestSuite;
 ?>

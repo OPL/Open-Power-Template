@@ -1,4 +1,0 @@
-Title: A. Error handling
-
-----
-To do...

@@ -1,4 +1,6 @@
 Title: opt:tree
+VCSKeywords: $Id$
+FeatureInformation: sections
 SeeAlso:
  - syntax.topics.sections
  - syntax.instructions.section
@@ -9,18 +11,15 @@ SeeAlso:
 
 ----
 
-> [help]
-> This chapter describes one of section instructions. We recommend to read [Sections][syntax.topics.sections] first to get to know more about them.
-
 `opt:tree` is one of the section instructions designed to display hierarchical data (trees) with any level of nesting. The instruction does not support one of section attributes, `order` - because of the used algorithm the result displayed in the descending order would be strange.
 
 Inside the `opt:tree` tag we place two new ones: `opt:list` and `opt:node`. The first tag tells, how to open and close the new nesting level, whereas `opt:node` defines the layout of a single element within a tree. In both of them, we need to put also another tag: `opt:content` to mark, where to display the nested content:
 
 ~~~~
 [xml]
-<opt:tree name="gfdd">
+<opt:tree name="tree">
 	<opt:list><ul><opt:content/></ul></opt:list>
-	<opt:node><li>{$tree.nazwa} <opt:content /></li></opt:node>  
+	<opt:node><li>{$tree.name} <opt:content /></li></opt:node>  
 </opt:tree>
 ~~~~
 
@@ -74,7 +73,6 @@ With `opt:show` instruction, `opt:treeelse` must not be used:
 ~~~~
 [xml]
 <opt:show name="tree">
-
 	<p>Tree:</p>
 
 	<opt:tree>
@@ -85,7 +83,6 @@ With `opt:show` instruction, `opt:treeelse` must not be used:
 	<opt:showelse>
 		<p>We are sorry, but there is nothing to show.</p>
 	</opt:showelse>
-
 </opt:show>
 ~~~~
 

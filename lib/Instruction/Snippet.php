@@ -1,16 +1,15 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Snippet.php 22 2008-12-03 11:32:29Z zyxist $
+ * $Id$
  */
 
 	class Opt_Instruction_Snippet extends Opt_Compiler_Processor
@@ -159,52 +158,74 @@
 
 		public function _processInsert(Opt_Xml_Element $node)
 		{
-			$params = array(
-				'snippet' => array(0 => self::REQUIRED, self::ID),		
-				'ignoredefault' => array(0 => self::OPTIONAL, self::BOOL, false)
-			);
-			$this->_extractAttributes($node, $params);
-
-			if(in_array($params['snippet'], $this->_current))
+			// A support for the dynamically chosen part captured by opt:capture
+			if($node->getAttribute('captured') !== NULL)
 			{
-				array_push($this->_current, $params['snippet']);
-				$err = new Opt_SnippetRecursion_Exception($params['snippet']);
-				throw $err->setData($this->_current);
-			}
-			if(isset($this->_snippets[$params['snippet']]))
-			{			
-				array_push($this->_current, $params['snippet']);
-				$snippet = &$this->_snippets[$params['snippet']];
-				
-				// Move all the stuff to the fake node.
-				if($node->hasChildren() && $params['ignoredefault'] == false)
+				$params = array(
+					'captured' => array(0 => self::REQUIRED, self::EXPRESSION)
+				);
+				$this->_extractAttributes($node, $params);
+				if($node->hasChildren())
 				{
-					$newNode = new Opt_Xml_Element('opt:_');
-					$newNode->set('escaping', $this->_compiler->get('escaping'));
-					$newNode->moveChildren($node);				
-					$size = sizeof($snippet);
-					$snippet[$size] = $newNode;
-					$node->set('insertSize', $size);
+					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(!isset(self::$_capture['.$params['captured'].'])){ ');
+					$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, '} else { echo self::$_capture['.$params['captured'].']; } ');
+					$this->_process($node);
 				}
-				// We must do the cleaning for the inserted node.
-				$node->removeChildren();
-				
-				// Process the snippets
-				$node->set('escaping', $this->_compiler->get('escaping'));
-				$this->_compiler->set('escaping', $snippet[0]->get('escaping'));
-
-				foreach($snippet[0] as $subnode)
+				else
 				{
-					$node->appendChild(clone $subnode);
+					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(isset(self::$_capture['.$params['captured'].'])){ echo self::$_capture['.$params['captured'].']; } ');
 				}
-				$this->_process($node);
-				$node->set('insertSnippet', $params['snippet']);
-				$node->set('postprocess', true);
 			}
 			else
 			{
-				// Processing the default content - snippet not found.
-				$this->_process($node);
+			// Snippet insertion
+				$params = array(
+					'snippet' => array(0 => self::REQUIRED, self::ID),
+					'ignoredefault' => array(0 => self::OPTIONAL, self::BOOL, false)
+				);
+				$this->_extractAttributes($node, $params);
+
+				if(in_array($params['snippet'], $this->_current))
+				{
+					array_push($this->_current, $params['snippet']);
+					$err = new Opt_SnippetRecursion_Exception($params['snippet']);
+					throw $err->setData($this->_current);
+				}
+				if(isset($this->_snippets[$params['snippet']]))
+				{
+					array_push($this->_current, $params['snippet']);
+					$snippet = &$this->_snippets[$params['snippet']];
+
+					// Move all the stuff to the fake node.
+					if($node->hasChildren() && $params['ignoredefault'] == false)
+					{
+						$newNode = new Opt_Xml_Element('opt:_');
+						$newNode->set('escaping', $this->_compiler->get('escaping'));
+						$newNode->moveChildren($node);
+						$size = sizeof($snippet);
+						$snippet[$size] = $newNode;
+						$node->set('insertSize', $size);
+					}
+					// We must do the cleaning for the inserted node.
+					$node->removeChildren();
+
+					// Process the snippets
+					$node->set('escaping', $this->_compiler->get('escaping'));
+					$this->_compiler->set('escaping', $snippet[0]->get('escaping'));
+
+					foreach($snippet[0] as $subnode)
+					{
+						$node->appendChild(clone $subnode);
+					}
+					$this->_process($node);
+					$node->set('insertSnippet', $params['snippet']);
+					$node->set('postprocess', true);
+				}
+				else
+				{
+					// Processing the default content - snippet not found.
+					$this->_process($node);
+				}
 			}
 		} // end _processInsert();
 		

@@ -14,15 +14,18 @@ This attribute applied to any tag changes it into a section with the specified n
 ~~~~
 [xml]
 <ol>
- <li opt:section="list">{$list.variable}</li>
+    <li opt:section="list">{$list.variable}</li>
 </ol>
+~~~~
 
 Instead:
 
+~~~~
+[xml]
 <ol>
- <opt:section name="list">
- <li>{$list.variable}</li>
- </opt:section>
+    <opt:section name="list">
+    <li>{$list.variable}</li>
+    </opt:section>
 </ol>
 ~~~~
 
@@ -31,7 +34,7 @@ The tag with `opt:section` attribute is also a member of section content and the
 ~~~~
 [xml]
 <ol>
- <li parse:class="$list.css" opt:section="list">{$list.variable}</li>
+    <li parse:class="$list.css" opt:section="list">{$list.variable}</li>
 </ol>
 ~~~~
 
@@ -57,7 +60,7 @@ The `opt:section` attribute can be used together with `opt:show`. Because the at
 [xml]
 <opt:show name="list" order="desc">
 <ol>
- <li opt:section="list">{$list.variable}</li>
+    <li opt:section="list">{$list.variable}</li>
 </ol>
 </opt:show>
 ~~~~

@@ -1,15 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: HEADER 10 2008-08-23 13:38:25Z extremo $
+ * $Id$
  */
 
 // Objective format for OPT
@@ -21,8 +22,14 @@
 		);
 
 		protected $_properties = array(
-			'section:useReference' => false,
-			'section:anyRequests' => null
+			'section:useReference' => true,
+			'section:anyRequests' => null,
+			'section:itemAssign' => false,
+			'section:variableAssign' => true,
+			'variable:useReference' => true,
+			'variable:assign' => true,
+			'item:assign' => true,
+			'item:useReference' => true,
 		);
 
 		/**
@@ -60,13 +67,17 @@
 				// The condition that should test if the section is not empty.
 				case 'section:isNotEmpty':
 					$section = $this->_getVar('section');
-					return 'is_object($_sect'.$section['name'].'_vals) && ($_sect'.$section['name'].'_vals instanceof Traversable) && ($_sect'.$section['name'].'_vals instanceof Countable) && ($_sect'.$section['name'].'_vals->count() > 0)';
+					return 'is_object($_sect'.$section['name'].'_vals) && ($_sect'.$section['name'].'_vals instanceof Traversable) && ($_sect'.$section['name'].'_vals instanceof Countable) && (($_sect'.$section['name'].'_cnt = $_sect'.$section['name'].'_vals->count()) > 0)';
 				// The code block after the condition
 				case 'section:started':
+					$section = $this->_getVar('section');
+					return 'if($_sect'.$section['name'].'_vals instanceof IteratorAggregate){ $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_vals->getIterator(); }';
 				// The code block before the end of the conditional block.
 				case 'section:finished':
+					return '';
 				// The code block after the conditional block
 				case 'section:done':
+					return '';
 				// The code block before entering the loop.
 				case 'section:loopBefore':
 					$section = $this->_getVar('section');
@@ -89,18 +100,25 @@
 					return '$_sect'.$section['name'].'_v';
 				// Retrieving a variable from a section item.
 				case 'section:variable':
+					$section = $this->_getVar('section');
 					if($this->isDecorating())
 					{
 						return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:item');
 					}
-					$section = $this->_getVar('section');
 					return '$_sect'.$section['name'].'_v->'.$this->_getVar('item');
+				case 'section:variableAssign':
+					$section = $this->_getVar('section');
+					if($this->isDecorating())
+					{
+						return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:assign');
+					}
+					return '$_sect'.$section['name'].'_v->'.$this->_getVar('item').'='.$this->_getVar('value');
 				// Resetting the section to the first element.
 				case 'section:reset':
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['name'].'_vals->reset();';
+						return '$_sect'.$section['name'].'_vals->rewind();';
 					}
 					else
 					{
@@ -116,17 +134,31 @@
 					}
 					else
 					{
-						return 'prev($_sect'.$section['name'].'_vals);';
+						return 'prev($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
 					}
 					break;
 				// Checking whether the iterator is valid.
 				case 'section:valid':
 					$section = $this->_getVar('section');
-					return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i])';
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['name'].'_vals->valid()';
+					}
+					else
+					{
+						return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['name'].'_i])';
+					}
 				// Populate the current element
 				case 'section:populate':
 					$section = $this->_getVar('section');
-					return '$_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
+					if($section['order'] == 'asc')
+					{
+						return '$_sect'.$section['name'].'_v = $_sect'.$section['name'].'_vals->current(); $_sect'.$section['name'].'_i = $_sect'.$section['name'].'_vals->key();';
+					}
+					else
+					{
+						return '$_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
+					}
 				// The code that returns the number of items in the section;
 				case 'section:count':
 					$section = $this->_getVar('section');
@@ -177,8 +209,21 @@
 					{
 						return 'self::$_global[\''.$item.'\']';
 					}
+				case 'variable:assign':
+					$this->_applyVars = false;
+					$item = $this->_getVar('item');
+					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
+					{
+						return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
+					}
+					else
+					{
+						return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
+					}
 				case 'item:item':
 					return '->'.$this->_getVar('item');
+				case 'item:assign':
+					return '->'.$this->_getVar('item').'='.$this->_getVar('value');
 				default:
 					return NULL;
 			}

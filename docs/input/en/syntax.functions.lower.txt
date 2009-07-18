@@ -7,8 +7,8 @@ Makes all characters lowercase in `$text`:
 
 ~~~~
 [xml]
-<!-- result: "FOO" -->
-{upper('Foo')}
+<!-- result: "foo" -->
+{lower('Foo')}
 ~~~~
 
 > [information]

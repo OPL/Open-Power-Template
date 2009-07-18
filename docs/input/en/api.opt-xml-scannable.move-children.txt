@@ -5,4 +5,4 @@ Status: public
 
 ---
 
-Moves the children of the current node to `$node`. The method checks the types of the nodes in order to detect if they are allowed to be children of `$node`. In case of any problems, it throws `Opt_IncompatibleNodes_Exception`.
+Moves the children of the current node to `$node`. The method checks the types of the nodes in order to detect if they are allowed to be children of `$node`. In case of any problems, it throws `Opt_APIInvalidNodeType_Exception`.

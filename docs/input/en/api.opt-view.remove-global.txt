@@ -1,7 +1,8 @@
 Title: removeGlobal()
 ShortTitle: Opt_View::removeGlobal()
+Construct: static method
 Reference: boolean removeGlobal( string $name )
-Status: static public
+Visibility: public
 SeeAlso:
  - api.opt-view.remove
 

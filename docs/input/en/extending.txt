@@ -1,6 +1,6 @@
 Title: Extending OPT
 SeeAlso:
- - coding
+ - guide
  - api
 
 ----

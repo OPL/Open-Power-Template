@@ -44,9 +44,12 @@ public function processNode(Opt_Xml_Node $node)
 
 The description of the steps:
 
-1. As this processor registed only one tag, we are sure that `$node` always points to the `opt:for`. We begin the compilation with parsing the instruction attributes with [Opt_Compiler_Processor::_extractAttributes()][api.opt-compiler-processor._extract-attributes]. 
-2. We modify some of the processor object fields. In this case, `$this->_nesting` represents the current `opt:for` nesting level. We need this value to create unique variable names for the very loop.
-3. With [Opt_Xml_Buffer::addBefore()][api.opt-xml-buffer.add-before] and [Opt_Xml_Buffer::addAfter()][api.opt-xml-buffer.add-after] we bind some PHP code that will replace the instruction tag in the output file to the node buffers. Note that we fill the parts of the `for` declaration with the attribute values that have already been parsed as OPT expressions.
-4. As the node content is not processed by default, we have to call [Opt_Compiler_Processor::_process()][api.opt-compiler-processor._process] on the node. This method registers its children in the processing queue. Moreover, once the children are processed, we have to decrement the nesting counter. We can do it by setting `postprocess` to **true** on the `$node`. It forces the compiler to send our `opt:for` again to the processor after it finishes with the children. However, the next processing will be performed by [Opt_Compiler_Processor::postprocessNode()][api.opt-compiler-processor.postprocess-node].
+1.  As this processor registers only one tag, we are sure that `$node` always points to the `opt:for`. We begin the compilation with parsing the instruction attributes with [Opt_Compiler_Processor::_extractAttributes()][api.opt-compiler-processor._extract-attributes]. 
+
+2.  We modify some of the processor object fields. In this case, `$this->_nesting` represents the current `opt:for` nesting level. We need this value to create unique variable names for the very loop.
+
+3.  With [Opt_Xml_Buffer::addBefore()][api.opt-xml-buffer.add-before] and [Opt_Xml_Buffer::addAfter()][api.opt-xml-buffer.add-after] we bind some PHP code that will replace the instruction tag in the output file to the node buffers. Note that we fill the parts of the `for` declaration with the attribute values that have already been parsed as OPT expressions.
+
+4.  As the node content is not processed by default, we have to call [Opt_Compiler_Processor::_process()][api.opt-compiler-processor._process] on the node. This method registers its children in the processing queue. Moreover, once the children are processed, we have to decrement the nesting counter. We can do it by setting `postprocess` to **true** on the `$node`. It forces the compiler to send our `opt:for` again to the processor after it finishes with the children. However, the next processing will be performed by [Opt_Compiler_Processor::postprocessNode()][api.opt-compiler-processor.postprocess-node].
 
 Some instructions may require much more sophisticated implementations.

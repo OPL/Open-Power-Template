@@ -1,0 +1,41 @@
+Title: generate()
+ShortTitle: Opt_Generator_Interface::generate()
+Reference: mixed generate(string $what)
+Status: abstract public
+
+----
+
+Generates the data for the section. The data format provides the section name with the `$what` attribute, so that one class may support different sections.
+
+A sample generator:
+
+~~~~
+[php]
+class myGenerator implements Opt_Generator_Interface
+{
+	public function generate($what)
+	{
+		return array(0 =>
+			array('item' => 'Item 1'),
+			array('item' => 'Item 2'),
+			array('item' => 'Item 3'),
+		);
+	} // end generate();
+} // end myGenerator;
+
+$view = new Opt_View('view.tpl');
+$view->section = new myGenerator();
+$view->setFormat('section', 'RuntimeGenerator/Array');
+~~~~
+
+The template:
+
+~~~~
+[xml]
+<?xml version="1.0" ?>
+<opt:root>
+	<opt:section name="section">
+		<p>{$section.item}</p>
+	</opt:section>
+</opt:root>
+~~~~

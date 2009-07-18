@@ -1,6 +1,6 @@
 Title: Opt_Output_Interface class
 ShortTitle: Opt_Output_Interface
-Status: Interface
+Construct: interface
 ImplementedBy:
  - api.opt-output-http
  - api.opt-output-return

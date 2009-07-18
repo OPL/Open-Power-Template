@@ -1,15 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Component.php 19 2008-11-20 16:09:45Z zyxist $
+ * $Id$
  */
 
 	class Opt_Instruction_Component extends Opt_Compiler_Processor
@@ -21,13 +22,13 @@
 		// The stack is required by the processSystemVar() method to determine, which component
 		// the call refers to.
 		protected $_stack;
-		
+
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:component', 'opt:onEvent', 'opt:display', ));
 			$this->_stack = new SplStack;
 		} // end configure();
-	
+
 		public function processNode(Opt_Xml_Node $node)
 		{
 			switch($node->getName())
@@ -43,15 +44,15 @@
 					);
 					$vars = $this->_extractAttributes($node, $params);
 					$this->_stack->push($params['from']);
-					
+
 					$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Component_Interface){ '.$params['from'].'->setView($this); ';
 					if(!is_null($params['datasource']))
 					{
 						$mainCode .= $params['from'].'->setDatasource('.$params['datasource'].'); ';
-					}			
-					
+					}
+
 					$mainCode .= $this->_commonProcessing($node, $params['from'], $params, $vars);
-		
+
 					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
 					$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 					break;
@@ -60,7 +61,7 @@
 					{
 						throw new Opt_ComponentNotActive_Exception($node->getXmlName());
 					}
-				
+
 					$tagParams = array(
 						'name' => array(self::REQUIRED, self::EXPRESSION)
 					);
@@ -70,7 +71,7 @@
 					$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 					$this->_process($node);
 					break;
-					
+
 				case 'display':
 					if($this->_stack->count() == 0)
 					{
@@ -96,9 +97,9 @@
 					}
 					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->display('.$subCode.'); ');
 					break;
-			}			
+			}
 		} // end processNode();
-		
+
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
 			if(!is_null($attribute = $node->get('_componentTemplate')))
@@ -158,14 +159,14 @@
 			if(!is_null($params['datasource']))
 			{
 				$mainCode .= $cn.'->setDatasource('.$params['datasource'].'); ';
-			}	
+			}
 
 			$mainCode .= $this->_commonProcessing($node, $cn, $params, $vars);
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
 		} // end processComponent();
-		
+
 		public function postprocessComponent(Opt_Xml_Node $node)
-		{			
+		{
 			if(!is_null($attribute = $node->get('_componentTemplate')))
 			{
 				$this->_compiler->processor('snippet')->postprocessAttribute($node, $attribute);
@@ -182,17 +183,17 @@
 			{
 				// Scan for opt:set tags - they may contain some custom arguments.
 				$set2 = $node->getElementsByTagNameNS('opt', 'set');
-				
+
 				// Now a little trick - how to cheat the opt:insert instruction
 				$attribute = new Opt_Xml_Attribute('opt:use', $params['template']);
-				$this->_compiler->processor('snippet')->processAttribute($node, $attribute);		
+				$this->_compiler->processor('snippet')->processAttribute($node, $attribute);
 			}
 
 			// Find all the important component elements
 			// Remember that some opt:set tags may have been found above and are located in $set2 array.
 			$everything = $this->_find($node);
 			$everything[0] = array_merge($everything[0], $set2);
-			
+
 			$code = '';
 			// opt:set
 			foreach($everything[0] as $set)
@@ -229,8 +230,8 @@
 				$wtf->removeAttributes();
 				$wtf->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $subCode.')); ');
 				$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, ' if(is_array($out)){ foreach($out as $name=>$value){ echo \' \'.$name.\'="\'.$value.\'"\'; } } ');
-			}	
-			
+			}
+
 			$node->set('postprocess', true);
 			if(isset($attribute))
 			{
@@ -259,11 +260,11 @@
 				1 => array(),	// com:*
 			);
 			$map = array('opt:set' => 0);
-			
+
 			do
 			{
 				$current = $queue->dequeue();
-				
+
 				if($current instanceof Opt_Xml_Element)
 				{
 					if(isset($map[$current->getXmlName()]))
@@ -273,12 +274,12 @@
 					elseif($current->getNamespace() == 'com')
 					{
 						$result[1][] = $current;
-					}					
+					}
 				}
 				foreach($current as $subnode)
 				{
 					$queue->enqueue($subnode);
-				}				
+				}
 			}
 			while($queue->count() > 0);
 			return $result;

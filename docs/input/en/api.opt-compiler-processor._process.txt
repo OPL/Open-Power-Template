@@ -11,10 +11,9 @@ This method should be used only in [Opt_Compiler_Processor::processNode()][api.o
 
 ~~~~
 [php]
-
-	public function processNode(Opt_Xml_Node $node)
-	{
-		// Parse the children, too.
-		$this->_process($node);
-	} // end processNode();
+public function processNode(Opt_Xml_Node $node)
+{
+    // Parse the children, too.
+    $this->_process($node);
+} // end processNode();
 ~~~~

@@ -9,10 +9,10 @@
  <body>
   <h1>Instruction test: put</h1>
   <p>This template tests the opt:put instruction, which behaves like brackets.</p>
-  
+
   <h2>Standalone call</h2>
   <p>Hello my friend, do you need <opt:put value="$item"/>?</p>
-  
+
   <h2>Extended call</h2>
   <p>The code below shoud create a section with a separator :)</p>
 

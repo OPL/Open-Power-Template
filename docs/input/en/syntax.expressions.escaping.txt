@@ -32,7 +32,7 @@ Text-level control
 
 On the level of expressions in curly brackets, the escaping is controlled in three ways:
 
-1. In the OPT configuration, using the `escaping` directive.
+1. In the OPT configuration, using the `escape` directive.
 2. In the current template - in `opt:root` or `opt:extend` instructions the attribute `escape` with the values *yes* or *no*.
 3. In the current expression with the modifiers **e:** and **u:**
 

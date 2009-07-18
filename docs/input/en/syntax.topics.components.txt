@@ -1,4 +1,5 @@
 Title: Components
+VCSKeywords: $Id$
 SeeAlso:
  - syntax.topics.blocks
  - syntax.instructions.component
@@ -34,14 +35,14 @@ Let's begin with a component port. Like blocks, you can register component class
 ~~~~
 [xml]
 <opt:myInput datasource="$fieldData">
-  <com:div>
-	<p>{$sys.component.title} <span opt:if="$sys.component.description">{$sys.component.description}</span></p>
-	<opt:display />
+    <com:div>
+        <p>{$sys.component.title} <span opt:if="$sys.component.description">{$sys.component.description}</span></p>
+        <opt:display />
 
-	<opt:onEvent name="error">
-		<p class="error">{$sys.component.errorMessage}</p>
-	</opt:onEvent>
-  </com:div>
+        <opt:onEvent name="error">
+            <p class="error">{$sys.component.errorMessage}</p>
+        </opt:onEvent>
+    </com:div>
 </opt:myInput>
 ~~~~
 
@@ -57,22 +58,22 @@ Now we are ready to write a component PHP class that makes use of all those feat
 ~~~~
 [php]
 <?php
-	class myInputComponent implements Opt_Component_Interface
-	{
-		private $view;
-		private $name = '';
-		private $valid = true;
-		private $params = array();
+class myInputComponent implements Opt_Component_Interface
+{
+    private $view;
+    private $name = '';
+    private $valid = true;
+    private $params = array();
 
-		public function __construct($name = '')
-		{
-			$this->name = $name;
-		} // end __construct();
+    public function __construct($name = '')
+    {
+        $this->name = $name;
+    } // end __construct();
 
-		public function setView(Opt_View $view)
-		{
-			$this->view = $view;
-		} // end setOptInstance();
+    public function setView(Opt_View $view)
+    {
+        $this->view = $view;
+    } // end setOptInstance();
 ~~~~
 
 For user convenience, we allow to specify the name in the class constructor. Later, we have to implement `setView()` method. It is called by the template to pass the view object to the component. Using it, we can also recognize, when the object is being deployed in the template.
@@ -81,60 +82,60 @@ Now we must implement the component parameter support:
 
 ~~~~
 [php]
-		public function setDatasource($data)
-		{
-			foreach($data as $name => $value)
-			{
-				$this->set($name, $value);
-			}
-		} // end setDatasource();
+    public function setDatasource($data)
+    {
+        foreach($data as $name => $value)
+        {
+            $this->set($name, $value);
+        }
+    } // end setDatasource();
 
-		public function set($name, $value)
-		{
-			switch($name)
-			{
-				case 'name':
-					$this->name = $value;
-					break;
-				case 'valid':
-					$this->valid = $value;
-					break;
-				default:
-					$this->params[$name] = $value;
-			}
-		} // end set();
+    public function set($name, $value)
+    {
+        switch($name)
+        {
+            case 'name':
+                $this->name = $value;
+                break;
+            case 'valid':
+                $this->valid = $value;
+                break;
+            default:
+                $this->params[$name] = $value;
+        }
+    } // end set();
 
-		public function get($name)
-		{
-			if($name == 'name')
-			{
-				return $this->name;
-			}
-			if(isset($this->params['_'.$name]))
-			{
-				return $this->params['_'.$name];
-			}
-			return $this->params[$name];
-		} // end get();
+    public function get($name)
+    {
+        if($name == 'name')
+        {
+            return $this->name;
+        }
+        if(isset($this->params['_'.$name]))
+        {
+            return $this->params['_'.$name];
+        }
+        return $this->params[$name];
+    } // end get();
 
-		public function defined($name)
-		{
-			return isset($this->params[$name]);
-		} // end defined();
+    public function defined($name)
+    {
+        return isset($this->params[$name]);
+    } // end defined();
 ~~~~
 
 The `set()` and `get()` methods are used to manage single parameters, whereas `setDatasource()` is programmed to treat the specified data source as a set of parameters for the components. Of course, you might modify the meaning of the "datasource" term to suit your needs.
 
 ~~~~
 [php]
-		public function manageAttributes($nodeName, $attributeList)
-		{
-			if($nodeName == 'div' && !$this->valid)
-			{
-				$attributeList['class'] = 'error';
-			}
-			return $attributeList;
-		} // end manageAttributes();
+    public function manageAttributes($nodeName, $attributeList)
+    {
+        if($nodeName == 'div' && !$this->valid)
+        {
+            $attributeList['class'] = 'error';
+        }
+        return $attributeList;
+    } // end manageAttributes();
 ~~~~
 
 Using the `manageAttributes()` method, the component can manipulate the attribute lists of all the tags in the `com` namespace. Here, we want to add/modify the `class` attribute in case of error.
@@ -143,28 +144,28 @@ The code that displays the component must be placed in the `display()` methods, 
 
 ~~~~
 [php]
-		public function display($attributes = array())
-		{
-			$attributes['type'] = 'text';
-			$attributes['name'] = $this->name;
-			$attributes['id'] = $this->name.'_id';
-			
-			if(!$this->valid)
-			{
-				$attributes['value'] = htmlspecialchars($_POST[$this->name]);
-			}
-			elseif(isset($this->params['value']))
-			{
-				$attributes['value'] = htmlspecialchars($this->params['value']);
-			}
-			
-			echo '<input';
-			foreach($attributes as $name=>$value)
-			{
-				echo ' '.$name.'="'.$value.'"';
-			}
-			echo '/>';
-		} // end display();
+    public function display($attributes = array())
+    {
+        $attributes['type'] = 'text';
+        $attributes['name'] = $this->name;
+        $attributes['id'] = $this->name.'_id';
+
+        if(!$this->valid)
+        {
+            $attributes['value'] = htmlspecialchars($_POST[$this->name]);
+        }
+        elseif(isset($this->params['value']))
+        {
+            $attributes['value'] = htmlspecialchars($this->params['value']);
+        }
+
+        echo '<input';
+        foreach($attributes as $name=>$value)
+        {
+            echo ' '.$name.'="'.$value.'"';
+        }
+        echo '/>';
+    } // end display();
 ~~~~
 
 In the example implementation, we can see, what the components can do. In our case, if the component flag `valid` is set to **false**, the field value is read directly from the POST data, so neither the script nor the template has to deal with it.
@@ -173,19 +174,19 @@ The last thing is event processing. In the template port we may define one or mo
 
 ~~~~
 [php]
-		public function processEvent($event)
-		{
-			if($event == 'error')
-			{
-				if(!$this->valid)
-				{
-					$this->_view->errorMessage = (isset($this->params['errorMessage']) ? $this->params['errorMessage'] : 'No error message specified');
-					return true;	// Fire the event!
-				}
-			}
-			return false;
-		} // end processEvent();
-	}
+    public function processEvent($event)
+    {
+        if($event == 'error')
+        {
+            if(!$this->valid)
+            {
+                $this->_view->errorMessage = (isset($this->params['errorMessage']) ? $this->params['errorMessage'] : 'No error message specified');
+                return true;	// Fire the event!
+            }
+        }
+        return false;
+    } // end processEvent();
+} // end myInputComponent;
 ~~~~
 
 Our component is ready. However, currently it can be deployed only in the default `opt:component` port. If you want to make this component deployed statically, you have to register the component class in OPT:
@@ -211,12 +212,12 @@ We have two types of ports:
 [xml]
 <!-- custom port -->
 <opt:component from="$variable">
-  ...
+    ...
 </opt:component>
 
 <!-- static port -->
 <opt:someComponent>
-  ...
+    ...
 </opt:someComponent>
 ~~~~
 
@@ -230,9 +231,9 @@ A nice trick about custom ports is that the components can be loaded from the se
 ~~~~
 [xml]
 <opt:section name="dynamicForm">
-  <opt:component from="$dynamicForm.component">
-    ....
-  </opt:component>
+    <opt:component from="$dynamicForm.component">
+        ....
+    </opt:component>
 </opt:section>
 ~~~~
 
@@ -241,15 +242,15 @@ The content of the port represents the component layout. In case of HTML forms, 
 ~~~~
 [xml]
 <opt:snippet name="componentLayout">
-  <com:div>
-    <p><label parse:for="$system.component.id">{$system.component.title}</label></p>
-	
-	<opt:display />
-	
-	<opt:onEvent name="error">
-	  <p>An error occured: {$errorMessage}</p>
-	</opt:onEvent>
-  </com:div>
+    <com:div>
+        <p><label parse:for="$system.component.id">{$system.component.title}</label></p>
+
+        <opt:display />
+
+        <opt:onEvent name="error">
+            <p>An error occured: {$errorMessage}</p>
+        </opt:onEvent>
+    </com:div>
 </opt:snippet>
 
 <!-- now we can build a nice HTML form: -->
@@ -273,11 +274,9 @@ The component API provides the support for the component parameters. They can be
 ~~~~
 [xml]
 <opt:component from="$component">
-  <opt:set str:name="title" str:value="Some title" />
+    <opt:set str:name="title" str:value="Some title" />
 </opt:component>
 ~~~~
-
-<!-- . -->
 
 > [information]
 > The custom port tag attributes are also iterpreted as component parameters.
@@ -307,7 +306,7 @@ The bigger data sets can be loaded from the *data sources*. You may specify a da
 ~~~~
 [xml]
 <opt:component datasource="$list">
-...
+    ...
 </opt:component>
 ~~~~
 
@@ -322,16 +321,16 @@ The port represents the overall component layout, but the component itself must 
 ~~~~
 [xml]
 <forms:input>
-  <com:div>
-    <p><label parse:for="$system.component.id">{$system.component.title}</label></p>
-	
-	<!-- show the INPUT field here -->
-	<opt:display />
-	
-	<opt:onEvent name="error">
-	  <p>An error occured: {$errorMessage}</p>
-	</opt:onEvent>
-  </com:div>
+    <com:div>
+        <p><label parse:for="$system.component.id">{$system.component.title}</label></p>
+
+        <!-- show the INPUT field here -->
+        <opt:display />
+
+        <opt:onEvent name="error">
+            <p>An error occured: {$errorMessage}</p>
+        </opt:onEvent>
+    </com:div>
 </forms:input>
 ~~~~
 
@@ -349,9 +348,9 @@ The component may generate also various events which can be captured by the comp
 
 ~~~~
 [xml]
-	<opt:onEvent name="error">
-	  <p>An error occured: {$errorMessage}</p>
-	</opt:onEvent>
+<opt:onEvent name="error">
+    <p>An error occured: {$errorMessage}</p>
+</opt:onEvent>
 ~~~~
 
 The name specifies the name of the event we want to capture. Note that you can capture events that the component object does not support. In this case it **should** not fire them, however please note that the exact component implementations may not follow this suggestion.

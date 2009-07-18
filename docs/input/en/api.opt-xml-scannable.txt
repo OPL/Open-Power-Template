@@ -1,6 +1,6 @@
 Title: Opt_Xml_Scannable class
 ShortTitle: Opt_Xml_Scannable
-Status: abstract
+Construct: class
 Extends: api.opt-xml-node
 EImplements:
  - Iterator

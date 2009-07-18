@@ -1,15 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: HEADER 10 2008-08-23 13:38:25Z extremo $
+ * $Id$
  */
 
 	class Opt_Output_Http implements Opt_Output_Interface
@@ -20,10 +21,10 @@
 		const WML = 3;
 		const XML = 4;
 		const TXT = 5;
-	
+
 		protected $_tpl;
 		protected $_mode;
-		
+
 		// Headers
 		protected $_headers = array();
 		protected $_headersSent = false;
@@ -45,7 +46,7 @@
 		{
 			return 'HTTP';
 		} // end getName();
-		
+
 		/*
 		 * Header management
 		 */
@@ -131,7 +132,7 @@
 				self::WML => 'text/vnd.wap.wml',
 				self::TXT => 'text/plain'
 			);
-			
+
 			if($this->_tpl->contentNegotiation)
 			{
 				// This part of the code requires OPC!
@@ -166,11 +167,11 @@
 					{
 						$contentType = $replacements[$replacements];
 					}
-					
+
 					if(!in_array($contentType, $visit->mimeTypes))
 					{
 						$contentType = 'application/octet-stream';
-					}					
+					}
 				}
 				$this->setHeader('Vary', 'Accept');
 			}
@@ -199,7 +200,7 @@
 			}
 			$this->setHeader('Content-type', $contentType.$charset);
 		} // end setContentType();
-		
+
 		/*
 		 * Template rendering
 		 */
@@ -215,7 +216,7 @@
 		 * @return Boolean True, if succeed.
 		 */
 		public function render(Opt_View $view)
-		{			
+		{
 			if(is_null($this->_mode))
 			{
 				$this->_mode = $view->getMode();

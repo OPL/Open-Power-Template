@@ -119,3 +119,26 @@ The result:
 ~~~~
 
 Now, the default content will never appear, if there is any snippet named *foo*.
+
+Inserting the content from opt:capture
+======================================
+
+`opt:insert` may also display the content captured by `opt:capture`. Contrary to the `$system` variable, the captured part can be chosen dynamically. The instruction takes only one attribute then:
+
+ Name           | Type                | Required? | Description
+----------------|---------------------|-----------|:-----------------------------------
+ captured       | Expression          | Yes       | The name of the captured part
+ 
+If the tag contains some content, it is treated as a default content and displayed, if the specified captured part does not exist:
+
+~~~~
+[xml]
+<opt:capture as="foo">
+Some content here...
+</opt:capture>
+
+{@captured is 'foo'}
+<opt:insert captured="@captured">
+The default content.
+</opt:insert>
+~~~~

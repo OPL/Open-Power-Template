@@ -1,27 +1,28 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Capture.php 22 2008-12-03 11:32:29Z zyxist $
+ * $Id$
  */
 
 	class Opt_Instruction_Capture extends Opt_Compiler_Processor
 	{
 		protected $_name = 'capture';
-		
+
 		public function configure()
 		{
 			$this->_addInstructions('opt:capture');
 			$this->_addAttributes('opt:capture');
 		} // end configure();
-	
+
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -32,7 +33,7 @@
 			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'self::$_capture[\''.$params['as'].'\'] = ob_get_clean();');
 			$this->_process($node);
 		} // end processNode();
-		
+
 		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
 			if($this->_compiler->isIdentifier($attr->getValue()))
@@ -46,7 +47,7 @@
 				throw new Opt_InvalidAttributeType_Exception('opt:capture', 'identifier');
 			}
 		} // end processAttribute();
-		
+
 		public function processSystemVar($opt)
 		{
 			return 'self::$_capture[\''.$opt[2].'\']';

@@ -1,5 +1,6 @@
 Title: Opt_Compiler_Class class
 ShortTitle: Opt_Compiler_Class
+Construct: class
 
 ----
 

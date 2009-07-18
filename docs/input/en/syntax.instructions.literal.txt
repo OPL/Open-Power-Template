@@ -1,10 +1,12 @@
 Title: opt:literal
 SeeAlso:
  - syntax.cdata
+SeeAlsoExternal:
+ - https://developer.mozilla.org/en/Properly_Using_CSS_and_JavaScript_in_XHTML_Documents#Using_CDATA_Instead_of_Comments Mozilla Developer Center - Properly Using CSS and JavaScript in XHTML Documents
 
 ----
 
-`opt:literal` instruction controls the parsing of XML CDATA sections with OPT. Normally, OPT compiles them according to their semantics: it moves them to the output, but without parsing their content. CDATA tags are moved, too. For template designer, such behaviour is not always acceptable. Having the JavaScript code and some data do be put into it, we would like to escape part of that code not to be parsed by OPT, but at the same time, it will be decorated with a huge amount of `<![CDATA[` and `]]>` and the browser will not parse such result.
+`opt:literal` instruction controls the parsing of XML CDATA sections with OPT. Normally, OPT compiles them according to their semantics: it moves them to the output, but without parsing their content. CDATA tags are moved, too. For template designer, such behavior is not always acceptable. Having the JavaScript code and some data do be put into it, we would like to escape part of that code not to be parsed by OPT, but at the same time, it will be decorated with a huge amount of `<![CDATA[` and `]]>` and the browser will not parse such result.
 
 ~~~~
 [xml]
@@ -39,7 +41,7 @@ Result:
 </script>
 ~~~~
 
-However, `opt:literal` offers you more decorators. It can be used to generate dynamic HTML comments or simply to hide the existence of CDATA sections from the browser. The behaviour may be chosen with the following attribute:
+However, `opt:literal` offers you more decorators. It can be used to generate dynamic HTML comments or simply to hide the existence of CDATA sections from the browser. The behavior may be chosen with the following attribute:
 
  Name  | Type | Required? | Default | Description
 -------|------|-----------|---------|:-----------------------------------

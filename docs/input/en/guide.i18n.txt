@@ -23,46 +23,46 @@ In order to make it work, you have to register an object of a class that impleme
 [php]
 <?php
 
-	class translationInterface implements Opl_Translation_Interface
-	{
-		private $_original = array(
-			'foo' => array('bar' => 'Value 1', 'joe' => 'Value 2'),
-			'goo' => array('bar' => 'Modificable value: %s'),
-		);
+class translationInterface implements Opl_Translation_Interface
+{
+    private $_original = array(
+        'foo' => array('bar' => 'Value 1', 'joe' => 'Value 2'),
+        'goo' => array('bar' => 'Modificable value: %s'),
+    );
 
-		private $_modified = array();
+    private $_modified = array();
 
-		public function _($group, $id)
-		{
-			if(isset($this->_modified[$group][$id]))
-			{
-				return $this->_modified[$group][$id];
-			}
-			if(isset($this->_original[$group][$id]))
-			{
-				return $this->_original[$group][$id];
-			}
-			return '';
-		} // end _();
-		public function assign($group, $id)
-		{
-			$args = func_get_args();
-			unset($args[0]);
-			unset($args[1]);
-			if(isset($this->_original[$group][$id]))
-			{
-				if(!isset($this->_modified[$group]))
-				{
-					$this->_modified[$group] = array();
-				}
-				$this->_modified[$group][$id] = vsprintf($this->_original[$group][$id], $args);
-			}
-		} // end assign();
-	} // end translationInterface;
+    public function _($group, $id)
+    {
+        if(isset($this->_modified[$group][$id]))
+        {
+            return $this->_modified[$group][$id];
+        }
+        if(isset($this->_original[$group][$id]))
+        {
+            return $this->_original[$group][$id];
+        }
+        return '';
+    } // end _();
+    public function assign($group, $id)
+    {
+        $args = func_get_args();
+        unset($args[0]);
+        unset($args[1]);
+        if(isset($this->_original[$group][$id]))
+        {
+            if(!isset($this->_modified[$group]))
+            {
+                $this->_modified[$group] = array();
+            }
+            $this->_modified[$group][$id] = vsprintf($this->_original[$group][$id], $args);
+        }
+    } // end assign();
+} // end translationInterface;
 
-	$tpl->setTranslationInterface(new translationInterface());
+$tpl->setTranslationInterface(new translationInterface());
 
-	// You can create the views and parse the templates now
+// You can create the views and parse the templates now
 ~~~~
 
 There are two ways of registering the translation interface in OPT. The first one is to use the [Opt_Class::setTranslationInterface()][api.opt-class.set-translation-interface] method:
@@ -97,8 +97,3 @@ Another interesting feature of the translation interface is that you can assign 
 It is up to you, how you implement this feature in your script. In our case, we used PHP `vsprintf()` function so that we can use formatting codes like `%s` or `%d` to indicate the places in the text, where to put some values.
 
 The translation interface has one disadvantage - you cannot specify the default interface messages directly in the template, so you must be sure they are defined in some external file and load them somehow.
-
-Backtick syntax
-===============
-
-To be written.

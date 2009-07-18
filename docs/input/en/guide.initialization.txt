@@ -55,7 +55,7 @@ $tpl->sourceDir = './templates/';
 $tpl->compileDir = './templates_c/';
 ~~~~
 
-The complete list of configuration options can be found in [guide.initialization.configuration][List of configuration options]. Note that you can also load the configuration from an array or INI file with `loadConfig()` method:
+The complete list of configuration options can be found in [List of configuration options][guide.initialization.configuration]. Note that you can also load the configuration from an array or INI file with `loadConfig()` method:
 
 ~~~~
 [php]
@@ -77,7 +77,7 @@ The external configuration source does not have to set all the directives. Feel 
 Registering additional stuff
 ============================
 
-Although OPT comes bundled with a wide variety of different template instructions and functions, you will probably want to write custom system-specific ones. This is the right place to do it. You can either use plugins (see [extending.plugins][Plugins] ) or register the new stuff manually using `Opt_Class::register()` method. The details, how to register different items can be found in [extending][Extending OPT].
+Although OPT comes bundled with a wide variety of different template instructions and functions, you will probably want to write custom system-specific ones. This is the right place to do it. You can either use plugins (see [Plugins][extending.plugins]) or register the new stuff manually using `Opt_Class::register()` method. The details, how to register different items can be found in [Extending OPT][extending].
 
 Finalizing the initialization
 =============================

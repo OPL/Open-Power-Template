@@ -20,9 +20,9 @@ The full list of issues concerning XML can be found below:
 1. Document prolog - in the XML mode it is required in all templates, however it it is not sent to the output system. To display an XML prolog in the template result, we must use `opt:prolog` instruction.
 2. DTD - currently OPT does nothing with DTD, but it can be changed in the future versions. In the XML mode, it is recommended to use `opt:dtd` instruction with some predefined DOCTYPE templates.
 3. Root node - in the XML mode, the document may contain only one root node. For sub-templates that generate only a small part of the output, `opt:root` instruction is designed.
-4. CDATA sections - they are sent to the output, but its content is not parsed by OPT. The exact behaviour can be controlled by `opt:literal` instruction.
+4. CDATA sections - they are sent to the output, but its content is not parsed by OPT. The exact behavior can be controlled by `opt:literal` instruction.
 5. Comments - by default they are ignored by the parser, but there is a possibility to send them to the output.
-6. White spaces - the programmer may decide whether to cut out the unncesessary white spaces.
+6. White spaces - the programmer may decide whether to cut out the unnecessary white spaces.
 7. Unicode - the XML standard allows to use Unicode characters in the tag names. By default, this is disabled in out due to performance issues, but it can be turned on.
 8. Namespaces - it the namespace is registered in OPT, the elements assigned to it are processed by the parser. The rest is sent to the output.
 
@@ -30,7 +30,7 @@ Below, we present two simple templates of a tiny website written in the XML mode
 
 ~~~~
 [xml]
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <opt:root>
 <opt:prolog />
 <opt:dtd template="xhtml10transitional" />
@@ -63,7 +63,7 @@ Below, we present two simple templates of a tiny website written in the XML mode
 			<opt:include from="content"/>
 		</opt:section>
 	</div>
-		<div id="footer">
+	<div id="footer">
 		<p>Copyright ABC 2007</p>
 	</div>
 </body>
@@ -103,4 +103,4 @@ For programmers
 
 In the script-side, there are only two real modes: XML and quirks. The HTML mode is in fact a set of additional settings that can be turned on or off, depending on our needs. To mark that we mean both XML and HTML modes, we will use the "XML/HTML" name in the next chapters of this documentation.
 
-In the quirks mode, the output document can be generated from separate templates parsed one by another. In XML/HTML, we can parse only one template directly, but it can include sub-templates. This assures the compiler that the sum of valid XML templates will also give a valid output with the tags enclosed in the correct order. The output is buffered, and in case of error, the default error handler deletes the current content and displays the message instead. The errors are handled as exceptions, so it is not hard to change the default behaviour.
+In the quirks mode, the output document can be generated from separate templates parsed one by another. In XML/HTML, we can parse only one template directly, but it can include sub-templates. This assures the compiler that the sum of valid XML templates will also give a valid output with the tags enclosed in the correct order. The output is buffered, and in case of error, the default error handler deletes the current content and displays the message instead. The errors are handled as exceptions, so it is not hard to change the default behavior.

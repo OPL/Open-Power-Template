@@ -1,4 +1,5 @@
 Title: opt:grid
+FeatureInformation: sections
 SeeAlso:
  - syntax.topics.sections
  - syntax.instructions.section
@@ -8,9 +9,6 @@ SeeAlso:
  - syntax.instructions.separator
 
 ----
-
-> [help]
-> This chapter describes one of section instructions. We recommend to read [Sections][syntax.topics.sections] first to get to know more about them.
 
 `opt:grid` is one of section instructions used to display the lists in tables of the specified column number. If the list size is not a multiplication of the column number, the last row is automatically filled with empty items. The instruction breaks the lists, when this is necessary. Despite standard attributes, it requires one extra attribute:
 

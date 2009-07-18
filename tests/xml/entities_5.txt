@@ -1,4 +1,4 @@
-Check extra entities
+Check whether the HTML entities are correctly replaced with the corresponding characters.
 
 >>>>templates/test.tpl
 <?xml version="1.0" ?>
@@ -6,8 +6,12 @@ Check extra entities
 &amp;
 &nbsp;
 &#184;
-&amp;amp;nbsp;
+&#xb8;
+&amp;nbsp;
 </foo>
+
+>>>>data.php
+$this->tpl->htmlEntities=true;
 
 >>>>expected.txt
 OUTPUT
@@ -15,7 +19,8 @@ OUTPUT
 >>>>result.txt
 <foo>
 &amp;
-&nbsp;
-&#184;
+ 
+¸
+¸
 &amp;nbsp;
 </foo>

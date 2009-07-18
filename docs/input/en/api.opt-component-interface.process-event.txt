@@ -15,7 +15,7 @@ public function processEvent($event)
 	{
 		if(!$this->valid)
 		{
-			// An error occured
+			// An error occurred
 			$this->view->errorMessage = $this->errorMessage;
 			return true;
 		}
@@ -27,11 +27,11 @@ public function processEvent($event)
 Now we can use it in the template:
 
 ~~~~
-[php]
+[xml]
 <opt:component from="$component">
 	...
 	<opt:onEvent name="error">
-		<p>An error occured: {$errorMessage}</p>
+		<p>An error occurred: {$errorMessage}</p>
 	</opt:onEvent>
 </opt:component>
 ~~~~

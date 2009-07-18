@@ -8,7 +8,7 @@
     	public function setView(Opt_View $view)
     	{
     		$this->_view = $view;
-    	} // end setOptInstance();
+    	} // end setView();
     	
 		public function onOpen(Array $attributes)
 		{

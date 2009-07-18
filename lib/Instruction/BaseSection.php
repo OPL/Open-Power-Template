@@ -1,15 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: BaseSection.php 22 2008-12-03 11:32:29Z zyxist $
+ * $Id$
  */
 
 	abstract class Opt_Instruction_BaseSection extends Opt_Instruction_Loop
@@ -86,16 +87,16 @@
 		 * Creates a new section record, using the information from the specified node.
 		 * If the node is not a valid OPT instruction, the method scans the ancestors
 		 * to find a free opt:show node.
-		 * 
+		 *
 		 * The method can also initialize the attributed section, if we provide the
 		 * opt:section attribute object as the second argument.
-		 * 
+		 *
 		 * The method initializes also the neighbourhood of the section by parsing the
 		 * opt:show tag, if necessary and creating the enter condition. Note that it
 		 * does not start the section - the record is neither put onto the section stack
 		 * nor opt:use integration is not made. You have to use _sectionStart() in order
 		 * to fully initialize the section.
-		 * 
+		 *
 		 * @param Opt_Xml_Element $node
 		 * @param Opt_Xml_Attribute $attr optional
 		 * @param Array $extraAttributes optional
@@ -193,9 +194,6 @@
 		{
 			self::_addSection($section);
 
-			// This code provides a support for opt:use attribute, which marks its presence
-			// with the "call:use" tag variable.
-			// TODO: Test also the call:use in opt:show! It may be useful!
 			if(!is_null($section['node']->get('call:use')))
 			{
 				$this->_compiler->setConversion('##simplevar_'.$section['node']->get('call:use'), $section['name']);
@@ -253,6 +251,13 @@
 		 */
 		private function _createShowCondition(Opt_Xml_Element $node, &$section)
 		{
+			// First, try to check for the call:use tag variable.
+			if($node->get('call:use') !== NULL)
+			{
+				$section['node']->set('call:use', $node->get('call:use'));
+			}
+
+			// Deal with the data formats
 			$format = $section['format'];
 			$format->assign('section', $section);
 
@@ -312,10 +317,10 @@
 			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, $code);
 			$node->set('priv:initialized', true);
 		} // end _createShowCondition();
-		
+
 		/**
 		 * Finds the nearest free opt:show node in the ascentors of the specified node.
-		 * 
+		 *
 		 * @internal
 		 * @param Opt_Xml_Element $item The current node.
 		 * @param String $name optional The name that opt:show must match.
@@ -338,11 +343,6 @@
 								return $item;
 							}
 						}
-					}
-					else
-					{
-						// For the situation, if we had 'parent=""' in the template.
-						$params['parent'] = null;
 					}
 				}
 			}
@@ -416,12 +416,9 @@
 			// Note that "parent" is ignored when we set "datasource"
 			if(is_null($section['parent']))
 			{
-				// TODO: Replace with simple top() from the stack :)
-				self::$_stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
-				foreach(self::$_stack as $up)
+				if(self::$_stack->count() > 0)
 				{
-					$section['parent'] = $up;
-					break;
+					$section['parent'] = self::$_stack->top();
 				}
 			}
 			elseif($section['parent'] != '')
@@ -451,7 +448,7 @@
 			$section['format'] = $this->_compiler->getFormat($section['name']);
 			if(!$section['format']->supports('section'))
 			{
-				throw new Opt_FormatNotSupported($section['format']->getName(), 'section');
+				throw new Opt_FormatNotSupported_Exception($section['format']->getName(), 'section');
 			}
 		} // end _validateSection();
 
@@ -549,7 +546,7 @@
 		protected function _sortSectionContents(Opt_Xml_Element $node, $ns, $name)
 		{
 			$else = $node->getElementsByTagNameNS($ns, $name, false);
-			
+
 			if(sizeof($else) == 1)
 			{
 				if(!$node->hasAttributes())
@@ -584,7 +581,7 @@
 			}
 			switch($opt[3])
 			{
-				case 'count':					
+				case 'count':
 					return $section['format']->get('section:count');
 				case 'iterator':
 					return $section['format']->get('section:iterator');

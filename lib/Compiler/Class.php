@@ -1,16 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Class.php 23 2008-12-03 14:11:58Z extremo $
+ * $Id$
  */
 
 	class Opt_Compiler_Class
@@ -89,7 +89,7 @@
 		private $_rXmlTagExpression;
 		private $_rTagExpandExpression;
 		private $_rQuirksTagExpression = '';
-		private $_rExpressionTag = '/(\{([^\}]+)\})/msi';
+		private $_rExpressionTag = '/(\{([^\}]*)\})/msi';
 		private $_rAttributeTokens = '/(?:[^\=\"\'\s]+|\=|\"|\'|\s)/x';
 		private $_rPrologTokens = '/(?:[^\=\"\'\s]+|\=|\'|\"|\s)/x';
 		private $_rModifiers = 'si';
@@ -104,7 +104,7 @@
 		private $_rLanguageVar = '\$[a-zA-Z0-9\_]+@[a-zA-Z0-9\_]+';
 		private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]*';
 		private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|\'|\"|';
-		private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]+';
+		private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]*';
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
 
 		// Help fields
@@ -190,8 +190,8 @@
 
 			// Register the rest of the expressions
 			$this->_rNameExpression = '/('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)/'.$this->_rModifiers;
-			$this->_rXmlTagExpression = '/(\<((\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?)\>)/'.$this->_rModifiers;
-			$this->_rTagExpandExpression = '/^(\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?$/'.$this->_rModifiers;
+			$this->_rXmlTagExpression = '/(\<((\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]*)?(\/)?)\>)/'.$this->_rModifiers;
+			$this->_rTagExpandExpression = '/^(\/)?('.$this->_rOpeningChar.'?'.$this->_rNameChar.'*)( [^\<\>]*)?(\/)?$/'.$this->_rModifiers;
 
 
 			$this->_rQuirksTagExpression = '/(\<((\/)?(('.implode('|', $this->_namespaces).')\:'.$this->_rNameChar.'*)( [^\<\>]+)?(\/)?)\>)/'.$this->_rModifiers;
@@ -818,6 +818,14 @@
 			return $result;
 		} // end _compileAttributes();
 
+		/**
+		 * Parses the XML prolog and returns its attributes as an array. The parsing
+		 * algorith is the same, as in _compileAttributes().
+		 *
+		 * @internal
+		 * @param String $prolog The prolog string.
+		 * @return Array
+		 */
 		protected function _compileProlog($prolog)
 		{
 			// Tokenize the list
@@ -913,6 +921,13 @@
 			return $returnedResult;
 		} // end _compileProlog();
 
+		/**
+		 * Adds the PHP code with dependencies to the code buffers in the tree
+		 * root node.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $tree The tree root node.
+		 */
 		protected function _addDependencies($tree)
 		{
 			// OK, there is really some info to include!
@@ -1018,6 +1033,17 @@
 			return $current;
 		} // end _treeTextAppend();
 
+		/**
+		 * A helper method for building the XML tree. It appends the
+		 * node to the current node and returns the new node that should
+		 * become the new current node.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The current node.
+		 * @param Opt_Xml_Node $node The newly created node.
+		 * @param Boolean $goInto Whether we visit the new node.
+		 * @return Opt_Xml_Node
+		 */
 		protected function _treeNodeAppend($current, $node, $goInto)
 		{
 			$current->appendChild($node);
@@ -1028,6 +1054,14 @@
 			return $current;
 		} // end _treeNodeAppend();
 
+		/**
+		 * A helper method for building the XML tree. It jumps out of the
+		 * current node to the parent and switches to it.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $current The current node.
+		 * @return Opt_Xml_Node
+		 */
 		protected function _treeJumpOut($current)
 		{
 			$parent = $current->getParent();
@@ -1039,6 +1073,15 @@
 			return $current;
 		} // end _treeJumpOut();
 
+		/**
+		 * Looks for special OPT attributes in the element attribute list and
+		 * processes them. Returns the list of nodes that need to be postprocessed.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Element $node The scanned element.
+		 * @param Boolean $specialNs Do we recognize "parse" and "str" namespaces?
+		 * @return Array
+		 */
 		protected function _processXml(Opt_Xml_Element $node, $specialNs = true)
 		{
 			if(!$node->hasAttributes())
@@ -1087,6 +1130,13 @@
 			return $pp;
 		} // end _processXml();
 
+		/**
+		 * Runs the postprocessors for the specified attributes.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The scanned node.
+		 * @param Array $list The list of XML attribute processors that need to be postprocessed.
+		 */
 		protected function _postprocessXml(Opt_Xml_Node $node, Array $list)
 		{
 			$cnt = sizeof($list);
@@ -1125,6 +1175,13 @@
 			return $queue;
 		} // end _pushQueue();
 
+		/**
+		 * Does the postprocessing in the second stage of compilation.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node|Null $item The postprocessed node.
+		 * @param Array $pp The list of postprocessed attributes.
+		 */
 		protected function _doPostprocess($item, $pp)
 		{
 			// Postprocess code for the compilation stage 2
@@ -1160,6 +1217,14 @@
 			}
 		} // end _doPostprocess();
 
+		/**
+		 * Does the post-linking for the third stage of the compilation and returns
+		 * the linked code.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $item The linked item.
+		 * @return String
+		 */
 		protected function _doPostlinking($item)
 		{
 			// Post code
@@ -1187,8 +1252,15 @@
 				case 'Opt_Xml_Element':
 					if($this->isNamespace($item->getNamespace()))
 					{
-						$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
-							Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+						if($item->get('single'))
+						{
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+						}
+						else
+						{
+							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
+								Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+						}
 					}
 					else
 					{
@@ -1204,6 +1276,13 @@
 			return $output;
 		} // end _doPostlinking();
 
+		/**
+		 * Closes the XML comment for the commented item.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $item The commented item.
+		 * @param String &$output The reference to the output buffer.
+		 */
 		protected function _closeComments($item, &$output)
 		{
 			if($item->get('commented'))
@@ -1222,6 +1301,14 @@
 			}
 		} // end _closeComments();
 
+		/**
+		 * Links the element attributes into a valid XML code and returns
+		 * the output code.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Element $subitem The XML element.
+		 * @return String
+		 */
 		protected function _linkAttributes($subitem)
 		{
 			// Links the attributes into the PHP code
@@ -1264,56 +1351,6 @@
 			}
 			return '';
 		} // end _linkAttributes();
-
-		// TODO: Remove in the final version.
-		public function _debugPrintNodes($node)
-		{
-			echo '<ul>';
-
-			foreach($node as $id => $subnode)
-			{
-				if(!is_object($subnode))
-				{
-					echo '<li><font color="red"><strong>Non-object value detected in the node list! Type: '.gettype($subnode).'</strong></font></li>';
-					continue;
-				}
-
-				$hidden = $subnode->get('hidden') ? ' (HIDDEN)' : '';
-				switch($subnode->getType())
-				{
-					case 'Opt_Xml_Cdata':
-						echo '<li>'.$id.': <strong>Character data:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
-						break;
-					case 'Opt_Xml_Comment':
-						echo '<li>'.$id.': <strong>Comment:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
-						break;
-					case 'Opt_Xml_Text':
-						echo '<li>'.$id.': <strong>Text:</strong> ';
-						$this ->_debugPrintNodes($subnode);
-						echo $hidden.'</li>';
-						break;
-					case 'Opt_Xml_Expression':
-						echo '<li>'.$id.': <strong>Expression:</strong> '.$subnode.$hidden.'</li>';
-						break;
-					case 'Opt_Xml_Element':
-						echo '<li>'.$id.': <strong>Element node:</strong> '.$subnode->getXmlName().' (';
-						$args = $subnode->getAttributes();
-						foreach($args as $name => $value)
-						{
-							echo $name.'="'.$value.'" ';
-						}
-						echo ')';
-						if($subnode->get('single') === true)
-						{
-							echo ' single';
-						}
-						$this ->_debugPrintNodes($subnode);
-						echo $hidden.'</li>';
-						break;
-				}
-			}
-			echo '</ul>';
-		} // end _debugPrintNodes();
 
 		/*
 		 * Main compilation methods
@@ -1491,6 +1528,12 @@
 					}
 				}
 				$this->_template = NULL;
+
+				// Run the new garbage collector, if it is available.
+			/*	if(version_compare(PHP_VERSION, '5.3.0', '>='))
+				{
+					gc_collect_cycles();
+				}*/
 			}
 			catch(Exception $e)
 			{
@@ -1507,6 +1550,11 @@
 				{
 					$processor->reset();
 				}
+				// Run the new garbage collector, if it is available.
+			/*	if(version_compare(PHP_VERSION, '5.3.0', '>='))
+				{
+					gc_collect_cycles();
+				}*/
 				// And throw it forward.
 				throw $e;
 			}
@@ -1669,7 +1717,6 @@
 					{
 						throw new Opt_XmlInvalidCharacter_Exception('--&gt;');
 					}
-
 					// Find XML tags
 					preg_match_all($tagExpression, $subgroups[$i], $result, PREG_SET_ORDER);
 					/*
@@ -1751,11 +1798,10 @@
 							throw new Opt_XmlInvalidTagStructure_Exception($result[$j][0]);
 						}
 					}
-				}
-				$i--;
-				if(strlen($subgroups[$i]) > $offset)
-				{
-					$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, strlen($subgroups[$i]) - $offset));
+					if(strlen($subgroups[$i]) > $offset)
+					{
+						$current = $this->_treeTextCompile($current, substr($subgroups[$i], $offset, strlen($subgroups[$i]) - $offset));
+					}
 				}
 			}
 			if($mode == Opt_Class::XML_MODE && $this->_tpl->singleRootNode)
@@ -1905,18 +1951,20 @@
 							break;
 						case 'Opt_Xml_Expression':
 							$stateSet and $item->set('hidden', false);
-							$result = $this->compileExpression((string)$item, true);
-							// TODO: prevent against generating a code like "echo ;"
-							// It happens, when the expression is empty or not properly processed.
-							// If there was an assignment, we do not display the result.
-							if(!$result[1])
+							// Empty expressions will be caught by the try... catch.
+							try
 							{
-								$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result[0].'; ');
+								$result = $this->compileExpression((string)$item, true);
+								if(!$result[1])
+								{
+									$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result[0].'; ');
+								}
+								else
+								{
+									$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result[0].';');
+								}
 							}
-							else
-							{
-								$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result[0].';');
-							}
+							catch(Opt_EmptyExpression_Exception $e){}
 							break;
 						case 'Opt_Xml_Root':
 							$stateSet and $item->set('hidden', false);
@@ -2000,6 +2048,7 @@
 					 * the code executed BEFORE the children are parsed. The latter situation
 					 * is implemented in the _doPostlinking() method.
 					 */
+					$doPostlinking = false;
 					switch($item->getType())
 					{
 						case 'Opt_Xml_Cdata':
@@ -2027,11 +2076,11 @@
 									// to single spaces in the text.
 									if($item->get('noEntitize') === true)
 									{
-										$output .= trim(preg_replace('/\s\s+/', ' ', (string)$item));
+										$output .= preg_replace('/\s\s+/', ' ', (string)$item);
 									}
 									else
 									{
-										$output .= $this->parseSpecialChars(trim(preg_replace('/\s\s+/', ' ', (string)$item)));
+										$output .= $this->parseSpecialChars(preg_replace('/(\s){1,}/', ' ', (string)$item));
 									}
 								}
 							}
@@ -2056,8 +2105,8 @@
 								// we do not need to display their tags.
 								if(!$item->hasChildren() && $item->get('single'))
 								{
-									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE,
-										Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE);
+									$doPostlinking = true;
 								}
 								elseif($item->hasChildren())
 								{
@@ -2070,13 +2119,12 @@
 								else
 								{
 									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
-										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
-										Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
+										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
+									$doPostlinking = true;
 								}
 							}
 							else
 							{
-								// TODO: Rebuild according to the docs.
 								$wasElement = true;
 								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE);
 								if($item->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
@@ -2151,6 +2199,10 @@
 					}
 				}
 				catch(Opl_Goto_Exception $goto){}	// postprocess:
+				if($doPostlinking)
+				{
+					$output .= $this->_doPostlinking($item);
+				}
 
 				if($queue->count() == 0)
 				{
@@ -2158,7 +2210,16 @@
 					{
 						break;
 					}
-					$output .= $this->_doPostlinking($item);
+					/**
+					 * !!!!!!!!!!!!THIS IS WRONG!!!!!!!!!!!!!!!!
+					 *
+					 * Some items get this called only if they are
+					 * the last in the queue.
+					 */
+					if(!$doPostlinking)
+					{
+						$output .= $this->_doPostlinking($item);
+					}
 
 					list($item, $queue, $pp) = $stack->pop();
 
@@ -2190,10 +2251,25 @@
 		 */
 		public function compileExpression($expr, $allowAssignment = false, $escape = self::ESCAPE_ON)
 		{
+			// The expression modifier must not be tokenized, so we
+			// capture it before doing anything with the expression.
+			$modifier = '';
+			if(preg_match('/^([^\'])\:[^\:]/', $expr, $found))
+			{
+				$modifier = $found[1];
+
+				if($modifier != 'e' && $modifier != 'u')
+				{
+					throw new Opt_InvalidExpressionModifier_Exception($modifier, $expr);
+				}
+
+				$expr = substr($expr, 2, strlen($expr) - 2);
+			}
+
 			// cat $expr > /dev/oracle > $result > happy programmer :)
 			preg_match_all('/(?:'.
-	       			$this->_rSingleQuoteString.'|'.
-	       			$this->_rBacktickString.'|'.
+		   			$this->_rSingleQuoteString.'|'.
+		   			$this->_rBacktickString.'|'.
 					$this->_rHexadecimalNumber.'|'.
 					$this->_rDecimalNumber.'|'.
 					$this->_rLanguageVar.'|'.
@@ -2209,6 +2285,7 @@
 			$maxTuid = 0;
 			$prev = '';
 			$chr = chr(18);
+			$assignments = array();
 
 			/* The translation units allow to avoid recursive compilation of the
 			 * expression. Each sub-expression within parentheses and that is a
@@ -2223,8 +2300,6 @@
 				{
 					continue;
 				}
-
-				// TODO: Add error checking here!
 				switch($match[0][$i])
 				{
 					case ',':
@@ -2233,8 +2308,18 @@
 							throw new Opt_Expression_Exception('OP_COMMA', $match[0][$i], $expr);
 						}
 						$tuid = $stack->pop();
+						if(in_array($tuid, $assignments))
+						{
+							$tuid = $stack->pop();
+						}
 					case '[':
 					case '(':
+					case 'is':
+					case '=':
+						if($match[0][$i] == '=' || $match[0][$i] == 'is')
+						{
+							$assignments[] = $tuid;
+						}
 						$tu[$tuid][] = $match[0][$i];
 						++$maxTuid;
 						$tu[$tuid][] = $chr.$maxTuid;	// A fake token that marks the translation unit which goes here.
@@ -2254,6 +2339,10 @@
 						if($stack->count() > 0)
 						{
 							$tuid = $stack->pop();
+							if(in_array($tuid, $assignments))
+							{
+								$tuid = $stack->pop();
+							}
 						}
 						if($prev == '(')
 						{
@@ -2269,6 +2358,10 @@
 						$tu[$tuid][] = $match[0][$i];
 				}
 				$prev = $match[0][$i];
+			}
+			if(sizeof($tu[0]) == 0)
+			{
+				throw new Opt_EmptyExpression_Exception();
 			}
 			/*
 			 * Now we have an array of translation units and their tokens and
@@ -2290,7 +2383,7 @@
 			$i = -1;
 			$cnt = sizeof($tu[0][0]);
 			$stack = new SplStack;
-
+			$prev = null;
 			$expression = '';
 
 			while(true)
@@ -2302,10 +2395,15 @@
 				// and link the new.
 				if(strlen($token) > 0 && $token[0] == $chr)
 				{
+					$wasAssignment = in_array($tuid, $assignments);
 					$stack->push(Array($tuid, $i, $cnt));
 					$tuid = (int)ltrim($token, $chr);
 					$i = -1;
 					$cnt = sizeof($tu[$tuid][0]);
+					if($cnt == 0 && $wasAssignment)
+					{
+						throw new Opt_Expression_Exception('OP_NULL', '', $expr);
+					}
 					continue;
 				}
 				else
@@ -2324,6 +2422,7 @@
 					unset($tu[$tuid]);
 					list($tuid, $i, $cnt) = $stack->pop();
 				}
+				$prev = $token;
 			}
 
 			/*
@@ -2334,13 +2433,9 @@
 			$result = $expression;
 			if($escape != self::ESCAPE_OFF && !$assign)
 			{
-				if($expr[1] == ':' && $expr[2] != ':')
+				if($modifier != '')
 				{
-					if($expr[0] != 'e' && $expr[0] != 'u')
-					{
-						throw new Opt_InvalidExpressionModifier_Exception($expr[0], $expr);
-					}
-					$result = $this->escape($result, $expr[0] == 'e');
+					$result = $this->escape($result, $modifier == 'e');
 				}
 				else
 				{
@@ -2450,7 +2545,6 @@
 					'source' => $token,		// Original form of the token is also remembered.
 					'result' => null,		// Here we have to put the result PHP code generated from the token.
 				);
-
 				// Find out, what it is and process it.
 				switch($token)
 				{
@@ -2570,7 +2664,7 @@
 						if($state['next'] & self::OP_STRING)
 						{
 							$current['result'] = '\''.$token.'\'';
-							$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E;
+							$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E | self::OP_TU;
 							break;
 						}
 					case '=':
@@ -2581,10 +2675,11 @@
 						// We have to assign the data to the variable or object field.
 						if(($previous['token'] == self::OP_VARIABLE || $previous['token'] == self::OP_FIELD) && !$state['oper'] && $previous['token'] != self::OP_LANGUAGE_VAR)
 						{
-							$current['result'] = '=';
+							$current['result'] = '';
 							$current['token'] = self::OP_ASSIGN;
 							$state['variable'] = false;
-							$state['next'] = $valueSet ^ self::OP_NULL;
+							$state['next'] = self::OP_TU;
+							$state['tu'] = self::OP_NULL;
 							$assign = true;
 						}
 						else
@@ -2697,6 +2792,10 @@
 						{
 							throw new Opt_Expression_Exception('OP_CALL', $token, $expr);
 						}
+						if(!$this->_tpl->basicOOP)
+						{
+							throw new Opt_NotSupported_Exception('object-oriented programming', 'disabled');
+						}
 						// OPT decides from the context, whether "::" means a static
 						// or dynamic call.
 						if($previous['token'] == self::OP_CLASS)
@@ -2805,7 +2904,10 @@
 							{
 								throw new Opt_Expression_Exception('OP_TU', 'Translation unit #'.ltrim($token, $chr), $expr);
 							}
-							$result[] = $token;
+							if($previous['token'] != self::OP_ASSIGN)
+							{
+								$result[] = $token;
+							}
 							$state['next'] = $state['tu'];
 						}
 						elseif(preg_match('/^'.$this->_rVariable.'$/', $token))
@@ -2821,8 +2923,28 @@
 							{
 								throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
 							}
-							$current['result'] = $this->_compileVariable($token);
-							$current['token'] = self::OP_VARIABLE;
+							// Moreover, we need to know the future (assignments)
+							$assignment = null;
+							if(isset($tokens[$i+1]) && ($tokens[$i+1] == '=' || $tokens[$i+1] == 'is'))
+							{
+								$assignment = $tokens[$i+2];
+							}
+
+							$out = $this->_compileVariable($token, $assignment);
+							if(is_array($out))
+							{
+								foreach($out as $t)
+								{
+									$result[] = $t;
+								}
+								$current['result'] = '';
+								$current['token'] = self::OP_VARIABLE;
+							}
+							else
+							{
+								$current['result'] = $out;
+								$current['token'] = self::OP_VARIABLE;
+							}
 							if(is_null($state['variable']))
 							{
 								$state['variable'] = true;
@@ -2894,7 +3016,10 @@
 						}
 				}
 				$previous = $current;
-				$result[] = $current['result'];
+				if($current['result'] != '')
+				{
+					$result[] = $current['result'];
+				}
 			}
 			// Finally, test if the pre- operators have been used properly.
 			$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
@@ -2937,16 +3062,11 @@
 		 *
 		 * @internal
 		 * @param String $name Variable call
-		 * @param Boolean $saveContext True, if the variable is used in the save context.
+		 * @param String $newValue Null or the new value to assign
 		 * @return String The output PHP code.
 		 */
-		protected function _compileVariable($name, $saveContext = false)
+		protected function _compileVariable($name, $saveContext = null)
 		{
-			// TODO: Add the support for the save context
-			// It is set to true, if the expression is going to save something
-			// with the "is" operator.
-			// Note that the expression compiler must be changed a bit in order
-			// to compile the right side of this operator as a translation unit.
 			$value = substr($name, 1, strlen($name) - 1);
 			$result = '';
 			if(strpos($value, '.') !== FALSE)
@@ -2983,6 +3103,10 @@
 						$result .= '[\''.$item.'\']';
 					}
 				}
+				if($saveContext !== null)
+				{
+					return array($result.'=', $saveContext);
+				}
 				return $result;
 			}
 			else
@@ -3010,6 +3134,10 @@
 					case 'opt':
 					case 'sys':
 					case 'system':
+						if($saveContext !== null)
+						{
+							throw new Opt_AssignNotSupported_Exception($name);
+						}
 						return $this->_compileSys($ns);
 					case 'this':
 						$state['access'] = Opt_Class::ACCESS_LOCAL;
@@ -3021,6 +3149,7 @@
 						break;
 				}
 				// Scan the rest of the name
+				$final = sizeof($ns) - 1;
 				foreach($ns as $id => $item)
 				{
 					$previous = $path;
@@ -3048,15 +3177,25 @@
 						{
 							// Check if any section with the specified name exists.
 							$proc = $this->processor('section');
-							$name = $this->convert($item);
-							if(!is_null($section = $proc->getSection($name)))
+							$sectionName = $this->convert($item);
+							if(!is_null($section = $proc->getSection($sectionName)))
 							{
-								$path = $name;
+								$path = $sectionName;
 								$state['section'] = $section;
 
 								if($id == $count - 1)
 								{
 									// This is the last name element.
+									if($saveContext !== null)
+									{
+										if(!$section['format']->property('section:itemAssign'))
+										{
+											throw new Opt_AssignNotSupported_Exception($name);
+										}
+										$format->assign('value', $saveContext);
+										return $section['format']->get('section:itemAssign');
+									}
+
 									return $section['format']->get('section:item');
 								}
 								continue;
@@ -3066,8 +3205,20 @@
 						{
 							// The section has been found, we need to process the item.
 							$state['section']['format']->assign('item', $item);
-							$code = $state['section']['format']->get('section:variable');
 
+							if($saveContext !== null && $id == $final)
+							{
+								if(!$state['section']['format']->property('section:variableAssign'))
+								{
+									throw new Opt_AssignNotSupported_Exception($name);
+								}
+								$state['section']['format']->assign('value', $saveContext);
+								$code = $state['section']['format']->get('section:variableAssign');
+							}
+							else
+							{
+								$code = $state['section']['format']->get('section:variable');
+							}
 							$state['section'] = null;
 							continue;
 						}
@@ -3088,10 +3239,24 @@
 						{
 							throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
 						}
-						$format->assign('access', $state['access']);
-						$format->assign('item', $item);
 
-						$code = $format->get('variable:main');
+						if($final == $id && $saveContext !== null)
+						{
+							if(!$format->property('variable:assign'))
+							{
+								throw new Opt_AssignNotSupported_Exception($name);
+							}
+							$format->assign('access', $state['access']);
+							$format->assign('item', $item);
+							$format->assign('value', $saveContext);
+							$code = $format->get('variable:assign');
+						}
+						else
+						{
+							$format->assign('access', $state['access']);
+							$format->assign('item', $item);
+							$code = $format->get('variable:main');
+						}
 					}
 					else
 					{
@@ -3108,9 +3273,31 @@
 						{
 							throw new Opt_FormatNotSupported_Exception($format->getName(), 'item');
 						}
-						$format->assign('item', $item);
-						$code .= $format->get('item:item');
+						if($final == $id && $saveContext !== null)
+						{
+							if(!$format->property('item:assign'))
+							{
+								throw new Opt_AssignNotSupported_Exception($name);
+							}
+							$format->assign('item', $item);
+							$format->assign('value', $saveContext);
+							$code .= $format->get('item:assign');
+						}
+						else
+						{
+							$format->assign('item', $item);
+							$code .= $format->get('item:item');
+						}
 					}
+				}
+				if($saveContext !== null)
+				{
+					$out = explode($saveContext, $code);
+					if(sizeof($out) == 0)
+					{
+						return $code;
+					}
+					return array(0 => $out[0], $saveContext, $out[1]);
 				}
 				return $code;
 			}
@@ -3172,6 +3359,7 @@
 		protected function _compileString($str)
 		{
 			// TODO: Fix
+			// COMMENT: Fix what?
 			switch($str[0])
 			{
 				case '\'':
@@ -3217,11 +3405,10 @@
 		 */
 		protected function _compileIdentifier($token, $previous, $pt, $next, $operatorSet, &$expr, &$current, &$state)
 		{
-			// TODO: Add the ability to disable OOP completely.
 			if($previous == self::OP_OBJMAN)
 			{
 				// Class constructor call
-				if(isset($this->_classes[$token]))
+				if(isset($this->_classes[$token]) && $this->_tpl->basicOOP)
 				{
 					$current['result'] = $this->_classes[$token];
 					$current['token'] = self::OP_CLASS;

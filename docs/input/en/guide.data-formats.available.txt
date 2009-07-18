@@ -130,32 +130,31 @@ It can be also applied to sections, allowing to iterate through objects that imp
 StaticGenerator
 ===============
 
-This data format can be used with sections only. It allows to specify a function that generates the section data on demand. The script must provide a callback to this function in the template variable that corresponds to the specified section:
+This data format can be used with sections only and allows to lazy-load their data when they are really needed. The script must provide an object of `Opt_Generator_Interface` to the section variable instead of the list of elements.
 
 > [important]
 > The data format **must** be decorated in order to specify, what type of data the requested function is going to generate.
 
 ~~~~
 [php]
-
-function generateMeSection()
+class myGenerator implements Opt_Generator_Interface
 {
-	return array(0 =>
-		array('item' => 'Foo'),
-		array('item' => 'Bar'),
-		array('item' => 'Joe'),
-	);
-} // end generateMeSection();
+	public function generate($what)
+	{
+		return array(0 =>
+			array('item' => 'Item 1'),
+			array('item' => 'Item 2'),
+			array('item' => 'Item 3'),
+		);
+	} // end generate();
+} // end myGenerator;
 
-// We must provide a valid PHP callback
-$view->mySection = 'generateMeSection';
-
-// Our function returns the section data packed in array, so we decorate
-// the generator with "SingleArray" data format.
-$view->setFormat('mySection', 'StaticGenerator/SingleArray');
+$view = new Opt_View('view.tpl');
+$view->section = new myGenerator();
+$view->setFormat('section', 'RuntimeGenerator/Array');
 ~~~~
 
-The data format is useful if we want to provide the template designers the sections that do not have to be used by the particular layout. We may request using generator for them, so that the script does not waste the time to retrieve the data that are not displayed at all.
+The format is especially useful, if our web application supports many different themes. Some sections may be not used in some themes and with the generators, the web application does not waste the time to return the unnecessary data for them.
 
 RuntimeGenerator
 ================

@@ -1,24 +1,31 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: generic.php 15 2008-10-05 19:11:42Z zyxist $
+ * $Id$
  */
 
  // The format class, where sub-sections are parts of the upper-level section array.
- 
+
 	class Opt_Format_SingleArray extends Opt_Format_Array
 	{
 		protected $_properties = array(
 			'section:useReference' => true,
-			'section:anyRequests' => null
+			'section:anyRequests' => null,
+			'variable:assign' => true,
+			'variable:useReference' => true,
+			'item:assign' => true,
+			'item:useReference' => true,
+			'section:itemAssign' => false,
+			'section:variableAssign' => true
 		);
 
 		protected function _build($hookName)
@@ -31,7 +38,11 @@
 				{
 					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
 					$parent['format']->assign('item', $section['name']);
-					return '$_sect'.$section['name'].'_vals = &'.$parent['format']->get('section:variable').'; ';
+					if($parent['format']->property('section:useReference'))
+					{
+						return '$_sect'.$section['name'].'_vals = &'.$parent['format']->get('section:variable').'; ';
+					}
+					return '$_sect'.$section['name'].'_vals = '.$parent['format']->get('section:variable').'; ';
 				}
 				elseif(!is_null($section['datasource']))
 				{

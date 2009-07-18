@@ -1,15 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Scannable.php 19 2008-11-20 16:09:45Z zyxist $
+ * $Id$
  */
 
 	/**
@@ -24,7 +25,7 @@
 		protected $_i;
 		protected $_size;
 		protected $_copy;
-		
+
 		private $_prototypes;
 
 		/**
@@ -34,7 +35,7 @@
 		{
 			parent::__construct();
 		} // end __construct();
-		
+
 		/*
 		 * Public DOM-like API
 		 */
@@ -326,7 +327,7 @@
 				if(is_object($this->_subnodes[$i]))
 				{
 					$result[] = $this->_subnodes[$i];
-				}			
+				}
 			}
 			return $result;
 		} // end getChildren();
@@ -378,7 +379,7 @@
 			{
 				return $this->_getElementsByTagName($name, '*');
 			}
-			
+
 			if(!is_array($this->_subnodes))
 			{
 				return array();
@@ -390,13 +391,13 @@
 				{
 					continue;
 				}
-				
+
 				if($subnode->getName() == $name || $name == '*')
 				{
 					$result[] = $subnode;
 				}
 			}
-			return $result;			
+			return $result;
 		} // end getElementsByTagName();
 
 		/**
@@ -515,7 +516,7 @@
 				if($node instanceof Opt_Xml_Buffer)
 				{
 					$node->set('_ssort', $i++);
-				}				
+				}
 			}
 			// Sort!
 			usort($this->_subnodes, array($this, 'sortCmp'));
@@ -532,7 +533,7 @@
 		{
 			if(!is_array($this->_subnodes))
 			{
-				return false;			
+				return false;
 			}
 			if(is_object($node))
 			{
@@ -588,7 +589,7 @@
 			while($queue->count() > 0)
 			{
 				$item = $queue->dequeue();
-				
+
 				foreach($item as $subitem)
 				{
 					$queue->enqueue($subitem);
@@ -646,7 +647,7 @@
 					$pair = $queue->dequeue();
 					$pair[0]->set('__nrc', true);
 					$pair[1]->appendChild($clone = clone $pair[0]);
-					
+
 					// Only Opt_Xml_Scannable instances must go deeper.
 					if($pair[0] instanceof Opt_Xml_Scannable)
 					{
@@ -657,7 +658,7 @@
 								$queue->enqueue(array($subitem, $clone));
 							}
 						}
-					}		
+					}
 				}
 			}
 		} // end __clone();
@@ -716,7 +717,7 @@
 		/*
 		 * Iterator interface implementation
 		 */
-		
+
 		public function rewind()
 		{
 			if(!is_array($this->_subnodes))
@@ -727,15 +728,15 @@
 			$this->_i = 0;
 			end($this->_subnodes);
 			$this->_size = key($this->_subnodes);
-			
+
 			while(!isset($this->_subnodes[$this->_i]) && $this->_i <= $this->_size)
 			{
 				$this->_i++;
 			}
-			
+
 			$this->_copy = $this->_subnodes;
 		} // end rewind();
-		
+
 		public function valid()
 		{
 			if($this->_i <= $this->_size)
@@ -745,12 +746,12 @@
 			$this->_copy = null;
 			return false;
 		} // end valid();
-		
+
 		public function current()
 		{
 			return $this->_copy[$this->_i];
 		} // end current();
-		
+
 		public function next()
 		{
 			do
@@ -759,16 +760,16 @@
 			}
 			while(!isset($this->_copy[$this->_i]) && $this->_i <= $this->_size);
 		} // end next();
-		
+
 		public function key()
 		{
 			return $this->_i;
 		} // end key();
-		
+
 		/*
 		 * Internal methods
 		 */
-		
+
 		final public function sortCmp($node1, $node2)
 		{
 			$name1 = (string)$node1;
@@ -795,7 +796,7 @@
 			}
 			return +1;
 		} // end sortCmp();
-		
+
 		final protected function _getElementsByTagName($name, $ns)
 		{
 			if(!is_array($this->_subnodes))
@@ -826,7 +827,7 @@
 					}
 					else
 					{
-						
+
 						if(($current->getName() == $name || $name == '*') && ($current->getNamespace() == $ns || $ns == '*') )
 						{
 							$result[] = $current;
@@ -843,7 +844,7 @@
 			}
 			return $result;
 		} // end _getElementsByTagName();
-		
+
 		final protected function _appendChild(Opt_Xml_Node $child, $appendOnError)
 		{
 			if($appendOnError)
@@ -859,7 +860,7 @@
 				throw new Opt_APIInvalidBorders_Exception;
 			}
 		} // end _appendChild();
-		
+
 		protected function _testNode(Opt_Xml_Node $node)
 		{
 			// This method tests, whether the specified node can be a child

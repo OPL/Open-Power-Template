@@ -16,4 +16,4 @@ If the variable `$article.title` is not defined, we see the text *Default title*
 Escaping issues
 ===============
 
-To be written.
+The attribute value may use the escaping modifiers **e:** and **u:**. The escaped content is used only to display the expression value. The emptiness is checked on the original value.

@@ -1,4 +1,5 @@
 Title: Sections
+VCSKeywords: $Id$
 SeeAlso:
  - syntax.instructions.section
  - syntax.instructions.tree
@@ -19,7 +20,7 @@ There is a group of instructions that may be called *sections*. They share the c
 3. `opt:tree` - sections to display hierarchical lists (tree data).
 4. `opt:grid` - displays the data in a grid M x N elements.
 
-However, because they share the basic API, they can cooperate one with another. 
+However, because they share the basic API, they can cooperate one with another.
 
 Section structure
 =================
@@ -83,6 +84,7 @@ Of course, if the section operates on some real data, they must have a format. U
 > The format independence is one of the most important section features. As a template designer, you only mark, how should *some elements* containing *some kind of data* look like. The exact implementation is chosen during the compilation according to the information provided by the PHP script.
 
 Nested sections
+===============
 
 The sections can be nested one in another. Suppose we want to display a list of categories, and each of them must contain some sample products. The code below solves this problem:
 ~~~~
@@ -113,7 +115,7 @@ If the default behaviour does not satisfy us, OPT provides several management to
 
 	<opt:section name="products">
 		<li><p>{$products.name}</p>
-			<p>Discounts: 
+			<p>Discounts:
 			<opt:section name="discounts" parent="categories" str:separator=", ">
 				<a parse:href="'discount.php?did='~$discounts.id~'&amp;prodid='~$products.id">Discount  {$discount.name}</a>
 			</opt:section>
@@ -128,11 +130,11 @@ This example also shows that in the nested sections we still have the full acces
 
 To sum up, the following codes do exactly the same:
 
+
+##### Version 1:
+
 ~~~~
 [xml]
-
-Version 1:
-
 <opt:section name="categories">
 	<p>Category: {$categories.name}</p>
 	<p>Featured products:</p>
@@ -144,9 +146,12 @@ Version 1:
 
 	</ul>
 </opt:section>
+~~~~
 
-Version 2:
+##### Version 2:
 
+~~~~
+[xml]
 <opt:section name="categories">
 	<p>Category: {$categories.name}</p>
 	<p>Featured products:</p>
@@ -165,9 +170,9 @@ Version 2:
 >
 >     [xml]
 >     <opt:section name="upper">
->        <opt:section name="lower" datasource="$upper.someVariable">
->          ....
->        </opt:section>
+>         <opt:section name="lower" datasource="$upper.someVariable">
+>             ...
+>         </opt:section>
 >     </opt:section>
 >
 > We strongly **do not recommend** using such code.

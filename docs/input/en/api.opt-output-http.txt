@@ -3,11 +3,11 @@ ShortTitle: Opt_Output_Http
 VersionSince: 2.0-dev7
 Implements:
  - api.opt-output-interface
-Status: public
+Construct: class
 
 ----
 
-This output sends the executed views as a HTTP response to the user. Inspite of executing views, it provides also the HTTP header management functionality.
+This output sends the executed views as a HTTP response to the user. In spite of executing views, it provides also the HTTP header management functionality.
 
 > [information]
 > Some of the features require Open Power Classes `Opc_Visit` class in order to work.
@@ -24,9 +24,10 @@ The class defines six constants:
 These are the default content types for `Opt_Output_Http::setContentType()` method.
 
 > [warning]
-> If the templates are written in the XML/HTML mode, the `render()` method can be called only once, for one view, in this output system. The next attempt raises an exception. This prevents the script from generating an invalid script output from the valid XML templates. In order to create modular templates, please read [syntax.topics.modularization].
+> If the templates are written in the XML/HTML mode, the `render()` method can be called only once, for one view, in this output system. The next attempt raises an exception. This prevents the script from generating an invalid script output from the valid XML templates. In order to create modular templates, please read [the template modularization][syntax.topics.modularization].
 
-== Usage ==
+Usage
+=====
 
 Using `Opt_Output_Http` is easy:
 
@@ -34,7 +35,6 @@ Using `Opt_Output_Http` is easy:
 [php]
 // Initialize the OPT
 $tpl = new Opt_Class;
-
 
 // Create the view
 $view = new Opt_View('template.tpl');

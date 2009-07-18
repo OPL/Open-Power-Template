@@ -1,26 +1,27 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Include.php 22 2008-12-03 11:32:29Z zyxist $
+ * $Id$
  */
 
 	class Opt_Instruction_Include extends Opt_Compiler_Processor
 	{
 		protected $_name = 'include';
-		
+
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:include'));
 		} // end configure();
-	
+
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -43,7 +44,8 @@
 			// Possible section integration
 			$codeBegin = '';
 			$codeEnd = '';
-			
+			$viewExistenceCond = '';
+
 			if(isset($params['from']))
 			{
 				$section = Opt_Instruction_BaseSection::getSection($params['from']);
@@ -54,13 +56,14 @@
 				}
 				$section['format']->assign('item', 'view');
 				$view = $section['format']->get('section:variable');
-				
-				// TODO: File-specific blocks and variables!!!
+
+				$viewExistenceCond = '!'.$view.' instanceof Opt_View ||';
 			}
-			
+
 			if(isset($params['view']))
 			{
 				$view = $params['view'];
+				$viewExistenceCond = '!'.$view.' instanceof Opt_View || ';
 			}
 			elseif(isset($params['file']))
 			{
@@ -84,19 +87,18 @@
 			{
 				$codeBegin .= $view.'->'.$name.' = '.$value.'; ';
 			}
-			
+
 			if(isset($params['branch']))
 			{
 				$codeBegin .= $view.'->setBranch('.$params['branch'].'); ';
 			}
-			
 			if(!is_null($params['default']))
 			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $codeBegin.' if(!'.$view.'->_parse($output, false)){ '.$view.'->_template = '.$params['default'].'; '.$view.'->_parse($output, true); } '.$codeEnd);
+				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $codeBegin.' if('.$viewExistenceCond.'!'.$view.'->_parse($output, false)){ '.$view.'->_template = '.$params['default'].'; '.$view.'->_parse($output, true); } '.$codeEnd);
 			}
 			elseif($node->hasChildren())
 			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, $codeBegin.' if(!'.$view.'->_parse($output, false)){ ');
+				$node->addBefore(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, $codeBegin.' if('.$viewExistenceCond.'!'.$view.'->_parse($output, false)){ ');
 				$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, ' } '.$codeEnd);
 				$this->_process($node);
 			}

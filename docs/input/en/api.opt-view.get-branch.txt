@@ -1,7 +1,9 @@
 Title: getBranch()
 ShortTitle: Opt_View::getBranch()
+Construct: method
 Reference: string getBranch()
-Status: public
+Visibility: public
+Returns: The branch name
 SeeAlso:
  - api.opt-view.set-branch
  - syntax.topics.modularization.inheritance

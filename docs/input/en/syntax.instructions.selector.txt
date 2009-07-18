@@ -1,4 +1,5 @@
 Title: opt:selector
+FeatureInformation: sections
 SeeAlso:
  - syntax.topics.sections
  - syntax.instructions.section
@@ -9,9 +10,6 @@ SeeAlso:
  - syntax.attributes.selector
 
 ----
-
-> [help]
-> This chapter describes one of section instructions. We recommend to read [Sections][syntax.topics.sections] first to get to know more about them.
 
 `opt:selector` works much like `opt:section`. The difference is that here we may define several types of element layout. OPT will choose one for each element, depending on one of its fields (by default, it is called "item"). Below, we can find an example of displaying the links to the result pages. Each list element represents one page, however we do not want them do look exactly the same. With `opt:separator` we define different looks for various types of pages (standard, active, dotted part to hide too many pages etc.):
 
@@ -38,11 +36,11 @@ Normally, OPT looks for the element type name in the variable `$sectionName.item
 
  Name           | Type                | Required? | Description
 ----------------|---------------------|-----------|:-----------------------------------
- type           | ID                  | No        | The name of element variable with the type name
+ test           | ID                  | No        | The name of element variable with the type name
  
 ~~~~
 [xml]
-<opt:selector name="pages" type="pageType">
+<opt:selector name="pages" test="pageType">
 	<opt:page>[ <a parse:href="$page.address">{$page.number}</a> ]</opt:page>
 	<opt:active>[ <a parse:href="$page.address" style="active">{$page.number}</a> ]</opt:active>
 	<opt:dots>...</opt:dots>
@@ -58,7 +56,7 @@ You may define the alternative content to be displayed, if the list is empty, us
 
 ~~~~
 [xml]
-<opt:selector name="pages" type="pageType">
+<opt:selector name="pages" test="pageType">
 	<opt:page>[ <a parse:href="$page.address">{$page.number}</a> ]</opt:page>
 	<opt:active>[ <a parse:href="$page.address" style="active">{$page.number}</a> ]</opt:active>
 	<opt:dots>...</opt:dots>
@@ -70,7 +68,7 @@ Note that you must not use `opt:selectorelse`, if our selector works together wi
 
 ~~~~
 [xml]
-<opt:show name="pages" type="pageType">
+<opt:show name="pages" test="pageType">
 	<p><opt:selector>
 		<opt:page>[ <a parse:href="$page.address">{$page.number}</a> ]</opt:page>
 		<opt:active>[ <a parse:href="$page.address" style="active">{$page.number}</a> ]</opt:active>

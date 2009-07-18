@@ -1,22 +1,24 @@
 Title: XML Prolog and DTD
+VCSKeywords: $Id$
 
 ----
 
-To keep the compatibility with the XML standard, the OPT compiler must provide support for XML prolog and DTD. The exact behaviour is controlled with `prologRequired` directive. The available values are **true** or **false**.
+To keep the compatibility with the XML standard, the OPT compiler must provide support for XML prolog and DTD. The exact behavior is controlled with `prologRequired` directive. The available values are **true** or **false**.
 
 If `prologRequired` is set to **true**, the XML prolog must be set in every template, but it is not sent to the output system. In order to create a prolog or DTD for the browser, we need `opt:prolog` and `opt:dtd` instructions:
 
 ~~~~
 [xml]
-<?xml version="1.0" standalone="yes"?>
+<?xml version="1.0" standalone="yes" ?>
 <opt:root>
-	<opt:prolog standalone="no"/>
-	<opt:dtd template="xhtml-strict"/>
-	<html>
-		<head>
-		</head>
-		<!-- the template -->
-	</html>
+<opt:prolog standalone="no"/>
+<opt:dtd template="xhtml-strict"/>
+<html>
+<head>
+</head>
+
+<!-- the template -->
+</html>
 </opt:root> 
 ~~~~
 

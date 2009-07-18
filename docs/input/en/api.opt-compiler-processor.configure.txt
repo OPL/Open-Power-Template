@@ -9,7 +9,6 @@ Performs an initial configuration of the instruction processor and informs about
 
 ~~~~
 [php]
-
 class Opt_Instruction_Foo extends Opt_Compiler_Processor
 {
 	protected $_name = 'foo';

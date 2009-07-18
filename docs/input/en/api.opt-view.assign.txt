@@ -1,9 +1,11 @@
 Title: assign()
 ShortTitle: Opt_View::assign()
-Reference: void assign( string $name, mixed $data )
-Status: public
+Construct: method
+Reference: void Opt_View::assign( string $name, mixed $data )
+Visibility: public
 SeeAlso:
  - api.opt-view.assign-global
+ - api.opt-view.__set
 
 ----
 
@@ -21,9 +23,5 @@ The template:
 <p>Hello my friend, do you need {$object}?</p>
 ~~~~
 
-Alternatively, you may use the following syntax:
-
-~~~~
-[php]
-$view->object = 'sunglasses';
-~~~~
+> [information]
+> You may also create a variable value using the magic method [Opt_View::__set()][api.opt-view.__set]: `$view->variable = 'foo'`. It is the recommended solution.

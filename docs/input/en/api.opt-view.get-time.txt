@@ -1,7 +1,9 @@
 Title: getTime()
 ShortTitle: Opt_View::getTime()
+Construct: method
 Reference: float getTime()
-Status: public
+Returns: The template processing time
+Visibility: public
 
 ----
 

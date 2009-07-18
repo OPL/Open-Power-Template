@@ -40,9 +40,9 @@ Assigning the data to the template variables is very easy:
 [php]
 $view = new Opt_View('my_template.tpl');
 $view->page = array(
-		'title' => 'Some title',
-		'content' => 'Some content'
-	);
+    'title' => 'Some title',
+    'content' => 'Some content'
+);
 ~~~~
 
 The `Opt_View` class provides several different methods to assign the data to a view. They allow for example to assign a variable by reference or to extract an assotiative array as a list of variables:
@@ -87,7 +87,7 @@ $view->variable = 'Foo';
 Opt_View::assignGlobal('variable', 'Bar');
 ~~~~
 
-Basically speaking, the names of the methods that affect global variables are ended with the word *Global* and all the local variable methods have their equivalents for global variables. 
+Basically speaking, the names of the methods that affect global variables are ended with the word *Global* and all the local variable methods have their equivalents for global variables.
 
 Managing the view data
 ======================
@@ -115,7 +115,7 @@ Now it's time for the practice. As we previously said, your website will be prob
 
 1. In the file `layout.tpl` we will keep the structure of our HTML code, with HEAD section, page header, footer, menus and a place for the content.
 2. Different modules of the website will have one or more templates that fill the place for the content with the code they want to show. For example, the news module will display the list of news, and the contact page - a contact form.
-3. The module views will be assigned as the template variables to the layout views and included with [syntax.instructions.include][] instruction.
+3. The module views will be assigned as the template variables to the layout views and included with [opt:include][syntax.instructions.include] instruction.
 
 This is the `layout.tpl` file:
 
@@ -126,23 +126,23 @@ This is the `layout.tpl` file:
 <opt:prolog />
 <opt:dtd template="xhtml10transitional" />
 <html>
-	<head>
-		<title>{$title}</title>
-		<!-- some meta tags, CSS styles etc. -->
-	</head>
-	<body>
-		<div id="header">
-			<h1>{$global.website.name}</h1>
-		</div>
-		<div id="content">
-			<opt:include view="$module">
-				<p>We are sorry, but we are unable to load the template.</p>
-			</opt:include>
-		</div>
-		<div id="footer">
-			<p>&copy; You {range('2009')}</p>
-		</div>
-	</body>
+<head>
+    <title>{$title}</title>
+    <!-- some meta tags, CSS styles etc. -->
+</head>
+<body>
+<div id="header">
+    <h1>{$global.website.name}</h1>
+</div>
+<div id="content">
+    <opt:include view="$module">
+        <p>We are sorry, but we are unable to load the template.</p>
+    </opt:include>
+</div>
+<div id="footer">
+    <p>&copy; You {range('2009')}</p>
+</div>
+</body>
 </html>
 </opt:root>
 ~~~~
@@ -151,14 +151,14 @@ And this is one of our modules (`news.tpl`):
 
 ~~~~
 [xml]
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <opt:root>
 	<h1>News</h1>
-	
+
 	<opt:section name="news">
 	<div class="news" parse:id="'e '~$news.id">
 		<h2>{$news.title}</h2>
-		
+
 		<p>{$news.body}</p>
 	</div>
 	</opt:section>
@@ -166,7 +166,7 @@ And this is one of our modules (`news.tpl`):
 ~~~~
 
 > [important]
-> OPT template syntax and XML standard compliance is very flexible. In this example, we assume that you are working with the default, and the most restrictive set of rules. They force you to keep only one root tag in the template and to add an XML prolog to them. Please note that OPT does not send those prologs to the browser. Instead, it uses [syntax.instructions.prolog][] instruction to generate it.
+> OPT template syntax and XML standard compliance is very flexible. In this example, we assume that you are working with the default, and the most restrictive set of rules. They force you to keep only one root tag in the template and to add an XML prolog to them. Please note that OPT does not send those prologs to the browser. Instead, it uses [opt:prolog][syntax.instructions.prolog] instruction to generate it.
 
 The following piece of code creates the suitable views and initializes them with the data:
 

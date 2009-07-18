@@ -1,16 +1,16 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
- *  ===========================================
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Generic.php 19 2008-11-20 16:09:45Z zyxist $
+ * $Id$
  */
 
 	/**
@@ -25,7 +25,13 @@
 
 		protected $_properties = array(
 			'section:useReference' => true,
-			'section:anyRequests' => 'ancestorNumbers'
+			'section:anyRequests' => 'ancestorNumbers',
+			'variable:assign' => true,
+			'variable:useReference' => true,
+			'item:assign' => true,
+			'item:useReference' => true,
+			'section:itemAssign' => false,
+			'section:variableAssign' => true
 		);
 
 		protected $_sectionItemVariables = false;
@@ -102,8 +108,25 @@
 					if($this->isDecorating())
 					{
 						return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]'.$this->_decorated->get('item:item');
-					}					
+					}
 					return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\']';
+				// Retrieving a variable from a section item.
+				case 'section:variableAssign':
+					$section = $this->_getVar('section');
+					if($this->_sectionItemVariables)
+					{
+						if($this->isDecorating())
+						{
+							return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:assign');
+						}
+						$section = $this->_getVar('section');
+						return '$_sect'.$section['name'].'_v[\''.$this->_getVar('item').'\']='.$this->_getVar('value');
+					}
+					if($this->isDecorating())
+					{
+						return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]'.$this->_decorated->get('item:assign');
+					}
+					return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\']='.$this->_getVar('value');
 				// Resetting the section to the first element.
 				case 'section:reset':
 					$section = $this->_getVar('section');
@@ -151,7 +174,6 @@
 					{
 						return 'sizeof($_sect'.$section['name'].'_v)';
 					}
-					$section = $this->_getVar('section');
 					return 'sizeof($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i])';
 				// Section iterator.
 				case 'section:iterator':
@@ -195,8 +217,21 @@
 					{
 						return 'self::$_global[\''.$item.'\']';
 					}
+				case 'variable:assign':
+					$this->_applyVars = false;
+					$item = $this->_getVar('item');
+					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
+					{
+						return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
+					}
+					else
+					{
+						return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
+					}
 				case 'item:item':
 					return '[\''.$this->_getVar('item').'\']';
+				case 'item:assign':
+					return '[\''.$this->_getVar('item').'\']='.$this->_getVar('value');
 				default:
 					return NULL;
 			}

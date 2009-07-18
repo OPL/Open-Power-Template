@@ -5,7 +5,7 @@ Status: extendable public
 
 ---
 
-Parses the OPT special container `$sys.processorName`. You should extend it to provide your own implementation for this variable. The method takes the array of the indices that create the variable call. For example, the `$sys.foo.bar` is processed by the *foo* processor and `processSystemVar()` receives an array of three values:
+Parses the OPT special container `$sys.processorName`. You should extend it to provide your own implementation for this variable. The method takes the array of the indexes that create the variable call. For example, the `$sys.foo.bar` is processed by the *foo* processor and `processSystemVar()` receives an array of three values:
 
 ~~~~
 0 => sys

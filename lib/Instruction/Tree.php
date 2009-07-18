@@ -1,38 +1,39 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Tree.php 19 2008-11-20 16:09:45Z zyxist $
+ * $Id$
  */
 
 	class Opt_Instruction_Tree extends Opt_Instruction_BaseSection
 	{
 		protected $_name = 'tree';
-		
+
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:tree', 'opt:treeelse'));
 		} // end configure();
-		
+
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$name = '_process'.ucfirst($node->getName());
 			$this->$name($node);
 		} // end processNode();
-		
+
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
 			$name = '_postprocess'.ucfirst($node->getName());
 			$this->$name($node);
 		} // end postprocessNode();
-	
+
 		private function _processTree(Opt_Xml_Node $node)
 		{
 			$section = $this->_sectionCreate($node);
@@ -67,7 +68,7 @@
 				$node->appendChild($stTreeElse[0]);
 				$stTreeElse[0]->set('hidden', false);
 			}
-	
+
 			$stListContent = $stList->getElementsByTagNameNS('opt', 'content');
 			$stNodeContent = $stNode->getElementsByTagNameNS('opt', 'content');
 			if(sizeof($stListContent) != 1)
@@ -82,13 +83,13 @@
 				'list' => $stListContent[0],
 				'node' => $stNodeContent[0]
 			);
-					
+
 			// Check the PHP buffers
 			$test = array(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE,
 				Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CONTENT);
 			foreach($content as $id => $tag)
 			{
-				$tag->set('hidden', false);	
+				$tag->set('hidden', false);
 				$tag = $tag->getParent();
 				while($tag->getName() != 'node' && $tag->getName() != 'list')
 				{
@@ -106,7 +107,7 @@
 					$tag = $tag->getParent();
 				}
 			}
-					
+
 			// Now, generate the source code.
 			/*
 			 * Recursion is a native mechanism to process trees, and in fact - the template syntax suggest we use it here. However, it
@@ -114,7 +115,7 @@
 			 * are split with the opt:content tag and this way we have four rendering commands: beginning of the list, its end, beginning of the node
 			 * and its end. The loop does not iterate through list items, but is a simple automata: if the rendering command queue is empty,
 			 * we move to the next list item, decide what it is (leaf, subnode, etc.) and create a command chain that is necessary to render it.
-			 * 
+			 *
 			 * If the chain is empty, we have to close the nodes that are still open and the main list itself. After processing this chain, we finish the job.
 			 */
 			$section['format']->action('section:forceItemVariables');
@@ -188,7 +189,7 @@ while(1)
 			}
 			$_'.$section['name'].'_depth = '.$section['format']->get('section:variable').';
 		}
-		
+
 	}
 	list($cmd, $_sect'.$section['name'].'_v) = $_'.$section['name'].'_cmd->dequeue();
 	switch($cmd)
@@ -201,7 +202,7 @@ while(1)
 			$content['node']->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'break; ');
 			$content['node']->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'case 3: ');
 			$stNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'break; } } unset($_'.$section['name'].'_stack); unset($_'.$section['name'].'_cmd); ');
-			
+
 			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
 
 			$node->set('postprocess', true);
@@ -209,7 +210,7 @@ while(1)
 			$this->_process($stList);
 			$this->_process($stNode);
 		} // end _processTree();
-		
+
 		private function _postprocessTree(Opt_Xml_Element $node)
 		{
 			$section = $this->getSection($node->get('sectionName'));
@@ -222,14 +223,14 @@ while(1)
 			}
 			$this->_sectionEnd($node);
 		} // end _postprocessTree();
-		
+
 		private function _processTreeelse(Opt_Xml_Element $node)
 		{
 			$parent = $node->getParent();
 			if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:tree')
 			{
 				$parent->set('sectionElse', true);
-				
+
 				$section = $this->getSection($parent->get('sectionName'));
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
 			//	$this->_deactivateSection($parent->get('sectionName'));

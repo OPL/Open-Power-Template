@@ -19,11 +19,11 @@ Suppose we want to display a list of comments on our blog. We must specify, how 
 	<opt:section>
 		<div class="comment">
 			<p class="author">Written by {$comments.author} on {$comments.date}</p>
-			
+
 			{$comments.body}
 		</div>
 	</opt:section>
-	
+
 	<!-- the alternative content, if there are no comments -->
 	<opt:showelse>Nobody has written a comment yet! Be first!</opt:showelse>
 </opt:show>
@@ -109,7 +109,7 @@ OPT provides a special section instruction to render hierarchical data structure
 [xml]
 <opt:tree name="tree">
 	<opt:list><ul><opt:content /></ul></opt:list>
-	<opt:node><li>{$tree.title} <opt:content /></li></opt:node>  
+	<opt:node><li>{$tree.title} <opt:content /></li></opt:node>
 </opt:tree>
 ~~~~
 
@@ -139,6 +139,8 @@ $view->tree = array(0 =>
 
 Now we get a tree with the items nested properly.
 
+The tree checks the validity of the `depth` element items. Firstly, it determines the initial depth, taken from the first element. In the case above, the initial depth is 0. You may choose the other initial depths, such as `1` or `533`, too. In the next elements, the depth must be greater or equal to the initial depth. If it becomes lower for some reason, the template would throw an exception.
+
 Using opt:selector
 ==================
 
@@ -152,7 +154,7 @@ Using opt:selector
 		<opt:active><li class="active"><a parse:href="$menu.address">{$menu.title}</a></li></opt:active>
 		<opt:horiz><li class="horiz">&nbsp;</li></opt:horiz>
 		<opt:default><li><a parse:href="$menu.address">{$menu.title}</a></li></opt:default>
-	</opt:selector>	
+	</opt:selector>
 	</ul>
 </div>
 ~~~~
@@ -177,7 +179,7 @@ Note that `$menu.item` does not have to be named `item`. You can control, what v
 Are arrays the only way to populate a section?
 ==============================================
 
-No at all. In this chapter we have shown the default way of populating sections that uses ordinary arrays, but the sections are much more flexible. In the next chapters, you will meet the concept of *data formats* that allow the sections to support anything you want. 
+No at all. In this chapter we have shown the default way of populating sections that uses ordinary arrays, but the sections are much more flexible. In the next chapters, you will meet the concept of *data formats* that allow the sections to support anything you want.
 
 Conclusion
 ==========

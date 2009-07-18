@@ -1,12 +1,13 @@
 <?php
 /*
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
+ *  OPEN POWER LIBS <http://www.invenzzia.org>
+ *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
  * $Id$
@@ -30,14 +31,14 @@
 		 * @return Container Processed container
 		 */
 		static public function processContainer($callback, $args)
-		{			
+		{
 			$result = array();
 			foreach($args[0] as $idx => $value)
 			{
 				$args[0] = $value;
 				$result[$idx] = call_user_func_array($callback, $args);
 			}
-			
+
 			return $result;
 		} // end processContainer();
 
@@ -74,6 +75,50 @@
 		} // end firstof();
 
 		/**
+		 * Returns true, if the container contains the specified value.
+		 *
+		 * @static
+		 * @param string $item The container
+		 * @param mixed $value The value
+		 * @return True, if the value exists in the container.
+		 */
+		static public function contains($item, $value)
+		{
+			if(is_array($item))
+			{
+				return in_array($value, $item);
+			}
+			elseif($item instanceof ArrayAccess && $item instanceof Traversable)
+			{
+				foreach($item as $r)
+				{
+					if($r === $value)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		} // end contains();
+
+		/**
+		 * Returns true, if the container contains the specified key.
+		 *
+		 * @static
+		 * @param string $item The container
+		 * @param mixed $key The key
+		 * @return True, if the key exists in the container.
+		 */
+		static public function containsKey($item, $key)
+		{
+			if(is_array($item) || $item instanceof ArrayAccess)
+			{
+				return isset($item[$key]);
+			}
+			return false;
+		} // end containsKey();
+
+		/**
 		 * Puts the specified string $delim between every two characters of $string.
 		 * By default, it puts spaces between the $string characters.
 		 *
@@ -88,7 +133,7 @@
 			{
 				return self::processContainer(array('Opt_Function', 'spacify'), array($string, $delim));
 			}
-		
+
 			$ns = '';
 			$len = strlen($string);
 			$tpl = Opl_Registry::get('opt');
@@ -123,7 +168,7 @@
 			{
 				return self::processContainer(array('Opt_Function', 'indent'), array($string, $num, $with));
 			}
-		
+
 			return preg_replace('/([\\r\\n]{1,2})/', '$1'.str_repeat($with, $num), $string);
 		} // end indent();
 
@@ -141,7 +186,7 @@
 				return self::processContainer(array('Opt_Function', 'strip'), array($string));
 			}
 
-			return preg_replace('/\s\s+/', ' ', $string);
+			return trim(preg_replace('/\s+/', ' ', $string));
 		} // end strip();
 
 		/**
@@ -180,7 +225,7 @@
 			}
 			return $string;
 		} // end truncate();
-	
+
 		static public function wordwrap($string, $width, $break = '<br />', $cut = null)
 		{
 			if(!is_null($break))
@@ -189,7 +234,7 @@
 			}
 			return wordwrap($string, $width, $break, $cut);
 		} // end wordwrap();
-	
+
 		static public function money($number, $format = null)
 		{
 			if(self::isContainer($number))
@@ -200,7 +245,7 @@
 			$format = (is_null($format) ? $opt->moneyFormat : $format);
 			return money_format($format, $number);
 		} // end money();
-	
+
 		static public function number($number, $d1 = null, $d2 = null, $d3 = null)
 		{
 			if(self::isContainer($number))
@@ -213,21 +258,21 @@
 			$d3 = (is_null($d3) ? $opt->numberThousandSep : $d3);
 			return number_format($number, $d1, $d2, $d3);
 		} // end number();
-		
+
 		static public function absolute($items)
 		{
 			if(self::isContainer($items))
 			{
 				return self::processContainer('abs', array($items));
 			}
-			
+
 			return abs($items);
 		} // end absolute();
-		
+
 		static public function sum($items)
 		{
 			if(self::isContainer($items))
-			{				
+			{
 				$sum = 0;
 				foreach($items as $item)
 				{
@@ -240,11 +285,11 @@
 			}
 			return null;
 		} // end sum();
-		
+
 		static public function average($items)
 		{
 			if(self::isContainer($items))
-			{				
+			{
 				$sum = 0;
 				$cnt = 0;
 				foreach($items as $item)
@@ -262,16 +307,16 @@
 			}
 			return null;
 		} // end average();
-		
+
 		static public function stddev($items)
 		{
 			$average = self::average($items);
-			
+
 			if(is_null($average))
 			{
 				return null;
 			}
-			
+
 			$sum = 0;
 			$cnt = 0;
 			foreach($items as $item)
@@ -298,7 +343,7 @@
 			{
 				return self::processContainer(array('Opt_Function', 'upper'), array($item));
 			}
-			
+
 			return strtoupper($item);
 		} // end upper();
 
@@ -315,7 +360,7 @@
 			{
 				return self::processContainer(array('Opt_Function', 'lower'), array($item));
 			}
-			
+
 			return strtolower($item);
 		} // end lower();
 
@@ -332,7 +377,7 @@
 			{
 				return self::processContainer(array('Opt_Function', 'capitalize'), array($item));
 			}
-			
+
 			return ucfirst($item);
 		} // end capitalize();
 
@@ -349,7 +394,7 @@
 			{
 				return self::processContainer(array('Opt_Function', 'nl2br'), array($item));
 			}
-			
+
 			return nl2br($item);
 		} // end nl2br();
 
@@ -367,7 +412,7 @@
 			{
 				return self::processContainer(array('Opt_Function', 'stripTags'), array($item, $what));
 			}
-			
+
 			return strip_tags($item, $what);
 		} // end stripTags();
 
@@ -393,7 +438,7 @@
 			{
 				return $number1;
 			}
-			return $number1.' - '.$number2;			
+			return $number1.' - '.$number2;
 		} // end range();
 
 		/**

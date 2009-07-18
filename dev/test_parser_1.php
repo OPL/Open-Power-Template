@@ -3,6 +3,7 @@
     
     try
     {
+		session_start();
     	$tpl = new Opt_Class;
     	$tpl->sourceDir = './templates/';
     	$tpl->compileDir = './templates_c/';
@@ -16,6 +17,9 @@
 
 		$x = $view->foo;
 		$y = $view->bar;
+
+		$view->name = 'aa';
+		$view->blur = 'bb';
     	
     	$httpOutput = new Opt_Output_Http;
     	$httpOutput->setContentType(Opt_Output_Http::HTML);
@@ -29,4 +33,3 @@
     {
     	Opl_Error_Handler($exception);
     }
-?>

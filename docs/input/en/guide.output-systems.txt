@@ -20,7 +20,7 @@ $output = new Opt_Output_Http;
 $output->render($layoutView);
 ~~~~
 
-With this simple code, we have executed all the templates and the results have been sent to the browser. Now other people can visit our website. Note that we do not render `$moduleView`. This is not a mistake. The module view is automatically executed by the [syntax.instructions.include][] instruction used in `layout.tpl` file and processed with exactly the same output system. It does not mean that `$moduleView` suddenly starts to see the local variables of `$layoutView` unless explicitly specified in `opt:include` instruction.
+With this simple code, we have executed all the templates and the results have been sent to the browser. Now other people can visit our website. Note that we do not render `$moduleView`. This is not a mistake. The module view is automatically executed by the [opt:include][syntax.instructions.include] instruction used in `layout.tpl` file and processed with exactly the same output system. It does not mean that `$moduleView` suddenly starts to see the local variables of `$layoutView` unless explicitly specified in `opt:include` instruction.
 
 > [important]
 > You must render the top-level view only.
@@ -30,8 +30,8 @@ Working with standard output systems
 
 Now we are going to show the features of the standard output systems provided by PHP.
 
-`Opt_Output_Http`
------------------
+Opt_Output_Http
+---------------
 
 This output sends the generated result to the user browser. It provides several extra features:
 
@@ -70,8 +70,8 @@ OPT provides a few predefined constants that define the most popular content-typ
 
 By default, OPT checks the XHTML document content type accessibility only. The full content negotiation is available, when Open Power Template cooperates with Open Power Classes package. Unfortunately, it is at the early development stage and you need to wait for a while before it will be accessible.
 
-`Opt_Output_Return`
--------------------
+Opt_Output_Return
+-----------------
 
 This output system returns the generated code as a result of `render()` method. You can save it to a variable and use somehow in your script:
 

@@ -11,7 +11,7 @@ Directory structure
 
 In the downloaded archive you can find a directory called `/lib` with all the necessary OPT and OPL source code. Create in your project directory tree a new directory and copy there the contents of `/lib`. If you already use other OPL libraries, copy OPT into the existing directory. Do not be afraid to overwrite the files if you are asked to do so. Unless they are modified, there is nothing to worry.
 
-In case of OPT, you must also create two directories for your templates. Let assume that the first one is called `/templates` and the second one - `/templates_c`. You can choose any other name, if you want. 
+In case of OPT, you must also create two directories for your templates. Let assume that the first one is called `/templates` and the second one - `/templates_c`. You can choose any other name, if you want.
 
 > [important]
 > Be sure that PHP has write access to `/templates_c` and read access to `/templates`.
@@ -24,11 +24,11 @@ In the beginning, you must load the OPL core, configure the path to the librarie
 ~~~~
 [php]
 <?php
-require('./libs/opl/base.php');		// 1
-Opl_Loader::setDirectory('./libs/');	// 2
-spl_autoload_register(array('Opl_Loader', 'autoload'));	// 3
+require('./libs/Opl/Base.php'); // 1
+Opl_Loader::setDirectory('./libs/'); // 2
+Opl_Loader::register(); // 3
 
-$tpl = new Opt_Class;	// 4
+$tpl = new Opt_Class; // 4
 // your script
 ~~~~
 
@@ -54,12 +54,12 @@ contentType
 charset
 :	Used output encoding.
 
-Before we definietly start, we must also call [Opt_Class::setup()[api.opt-class.setup]. Do not forget about it, because it plays a very important role:
+Before we definietly start, we must also call [Opt_Class::setup()][api.opt-class.setup]. Do not forget about it, because it plays a very important role:
 
 ~~~~
 [php]
 <?php
-require('./libs/opl/base.php');
+require('./libs/Opl/Base.php');
 Opl_Loader::setDirectory('./libs/');
 spl_autoload_register(array('Opl_Loader', 'autoload'));
 
@@ -68,7 +68,7 @@ try
 	$tpl = new Opt_Class;
 	$tpl->sourceDir = './templates/';
 	$tpl->compileDir = './templates_c/';
-	$tpl->contentType = Opt_Class::XHTML;
+	$tpl->contentType = Opt_Output_Http::XHTML;
 	$tpl->charset = 'utf-8';
 	$tpl->setup();
 
@@ -97,7 +97,7 @@ Note that different output systems may have some requirements. For example, the 
 The templates
 =============
 
-We save the templates in `./templates/` directory. To speed up the task, OPT compiles them to the PHP code every time they are changed. The compiled versions are stored in `./templates_c/` whose content is managed by OPT and you do not have to do there anything. You can delete the contents in this folder anytime you want. OPT will recompile all the templates then. 
+We save the templates in `./templates/` directory. To speed up the task, OPT compiles them to the PHP code every time they are changed. The compiled versions are stored in `./templates_c/` whose content is managed by OPT and you do not have to do there anything. You can delete the contents in this folder anytime you want. OPT will recompile all the templates then.
 
 This is an example template in `/templates/template.tpl`:
 
