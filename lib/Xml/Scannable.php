@@ -495,7 +495,7 @@
 		} // end getElementsExt();
 
 		/**
-		 * Sorts the children with the order specified in the assotiative
+		 * Sorts the children with the order specified in the associative
 		 * array. The array must contain the pairs 'tag name' => order. Moreover,
 		 * it must contain the '*' element representing the new location of
 		 * the rest of the nodes.

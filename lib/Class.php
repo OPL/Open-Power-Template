@@ -596,7 +596,7 @@
 
 		/**
 		 * Creates a group of local template variables
-		 * using an assotiative array, where the keys are
+		 * using an associative array, where the keys are
 		 * the variable names.
 		 *
 		 * @param array $vars A list of variables.
@@ -719,7 +719,7 @@
 
 		/**
 		 * Creates a group of global template variables
-		 * using an assotiative array, where the keys are
+		 * using an associative array, where the keys are
 		 * the variable names.
 		 *
 		 * @static
