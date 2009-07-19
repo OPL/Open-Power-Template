@@ -20,6 +20,7 @@
 		public function configure()
 		{
 			$this->_addInstructions('opt:tag');
+			$this->_addAttributes('opt:single');
 		} // end configure();
 	
 		public function processNode(Opt_Xml_Node $node)
@@ -35,6 +36,7 @@
 			$node->removeAttribute('name');
 			$node->removeAttribute('ns');
 			$node->removeAttribute('single');
+			$node->set('call:attribute-friendly', true);
 
 			if(is_null($params['ns']))
 			{
@@ -63,4 +65,37 @@
 			$node->setNamespace(null);
 			$node->setName('__default__');
 		} // end postprocessNode();
+
+		/**
+		 * Processes the opt:single instruction attribute.
+		 *
+		 * @param Opt_Xml_Node $node XML node.
+		 * @param Opt_Xml_Attribute $attr XML attribute.
+		 */
+		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		{
+			if($this->_compiler->isNamespace($node->getNamespace()))
+			{
+				throw new Opt_AttributeInvalidNamespace_Exception($node->getXmlName());
+			}
+			if($attr->getValue() == 'yes')
+			{
+				$attr->set('postprocess', true);
+			}
+		} // end processAttribute();
+
+		/**
+		 * Postprocesses the opt:single instruction attribute.
+		 *
+		 * @param Opt_Xml_Node $node XML node.
+		 * @param Opt_Xml_Attribute $attr XML attribute.
+		 */
+		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		{
+			if($attr->getValue() == 'yes')
+			{
+				$node->set('single', true);
+				$node->removeChildren();
+			}
+		} // end processAttribute();
 	} // end Opt_Instruction_Tag;

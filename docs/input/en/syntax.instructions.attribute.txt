@@ -10,6 +10,7 @@ SeeAlso:
 ----------------|---------------------|-----------|:-----------------------------------
  name           | Expression          | Yes       | New attribute name
  value          | Expression          | Yes       | New attribute value
+ ns             | Expression          | No        | Attribute namespace
 
 Below, you can find an example that allows to define a new attribute for `<div>` whose name is read from the variable:
 
@@ -46,3 +47,22 @@ Conditional attributes
 	Content
 </div>
 ~~~~
+
+Handling namespaces
+-------------------
+
+The optional attribute `ns` can be used to set the attribute namespace. The value may be loaded from a variable or specified manually, for example:
+
+~~~~
+[xml]
+<foo>
+  <opt:attribute str:ns="xml" name="$attrName" value="$attrValue" />
+</foo>
+
+<foo>
+  <opt:attribute ns="$ns" str:name="foo" value="$attrValue" />
+</foo>
+~~~~
+
+> [help]
+> The `ns` attribute accepts empty values. The namespace part is not generated then.

@@ -99,6 +99,9 @@
 				array('expressions_1.txt'),
 				array('expressions_2.txt'),
 				array('expressions_3.txt'),
+				array('namespaces_1.txt'),
+				array('namespaces_2.txt'),
+				array('namespaces_3.txt'),
 			);
 		} // end correctProvider();
 

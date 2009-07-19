@@ -498,4 +498,33 @@
 			}
 			return '&'.$name.';';
 		} // end entity();
+
+		/**
+		 * Builds XML attributes from an array. The function allows to specify the
+		 * ignore list in either text- or array format.
+		 *
+		 * @param Array $attributes The list of attributes.
+		 * @param Mixed $ignoreList The list of ignored items.
+		 * @param String $prepend The string prepended to the attribute list.
+		 */
+		static public function buildAttributes($attributes, $ignoreList = array(), $prepend = '')
+		{
+			if(is_string($ignoreList))
+			{
+				$ignoreList = explode(',', $ignoreList);
+				array_walk($ignoreList, 'trim');
+			}
+
+			foreach($attributes as $name => $value)
+			{
+				if(!in_array($name, $ignoreList))
+				{
+					if(preg_match('/^([a-zA-Z0-9\.\_\-]+\:)?([a-zA-Z0-9\.\_\-]+)$/', $name))
+					{
+						$prepend .= ''.$name.'="'.htmlspecialchars($value).'" ';
+					}
+				}
+			}
+			return rtrim($prepend);
+		} // end buildAttributes();
 	} // end Opt_Function;

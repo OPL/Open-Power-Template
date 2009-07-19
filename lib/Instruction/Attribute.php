@@ -31,7 +31,7 @@
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:attribute'));
-			$this->_addAttributes(array('opt:single'));
+			$this->_addAttributes(array('opt:attributes-build', 'opt:attributes-ignore'));
 		} // end configure();
 
 		/**
@@ -43,7 +43,8 @@
 		{			
 			$params = array(
 				'name' => array(0 => self::REQUIRED, self::EXPRESSION),
-				'value' => array(0 => self::REQUIRED, self::EXPRESSION)		
+				'value' => array(0 => self::REQUIRED, self::EXPRESSION),
+				'ns' => array(0 => self::OPTIONAL, self::EXPRESSION, null),
 			);
 			$this->_extractAttributes($node, $params);
 
@@ -53,18 +54,59 @@
 
 			if($returnStyle == self::ATTR_DISPLAY)
 			{
+				if(!$node->getParent() instanceof Opt_Xml_Element)
+				{
+					throw new Opt_InstructionInvalidParent_Exception('opt:attribute', 'printable tag');
+				}
+				$parentName = $node->getParent()->getXmlName();
+				if(($this->_compiler->isInstruction($parentName) || $this->_compiler->isComponent($parentName) || $this->_compiler->isBlock($parentName)) && $node->getParent()->get('call:attribute-friendly') === null)
+				{
+					throw new Opt_InstructionInvalidParent_Exception('opt:attribute', 'printable tag');
+				}
+
 				// This is a bit tricky optimization. If the name is constant, there is no need to process it as a variable name.
 				// If the name is constant, the result must contain only a string
+				if($params['ns'] !== null)
+				{
+					$trNamespace = trim($params['ns'], '\' ');
+					if(!(substr_count($params['ns'], '\'') == 2 && substr_count($trNamespace, '\'') == 0 && $this->_compiler->isIdentifier($trNamespace)))
+					{
+						unset($trNamespace);
+					}
+				}
+
+				// Using the same tricky optimization
 				$trName = trim($params['name'], '\' ');
-				if(substr_count($params['name'], '\'') == 2 && substr_count($trName, '\'') == 0 && $this->_compiler->isIdentifier($trName))
+				if(!(substr_count($params['name'], '\'') == 2 && substr_count($trName, '\'') == 0 && $this->_compiler->isIdentifier($trName)))
+				{
+					unset($trName);
+				}
+
+				if((isset($trName) && $params['ns'] === null) || (isset($trName) && isset($trNamespace)))
 				{
 					$attribute = new Opt_Xml_Attribute($trName, $params['value']);
 					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$params['value'].'; ');
+
+					if(isset($trNamespace))
+					{
+						$attribute->setNamespace($trNamespace);
+					}
 				}
 				else
 				{
 					$attribute = new Opt_Xml_Attribute('__xattr_'.self::$_cnt++, $params['value']);
-					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, 'echo '.$params['name'].'; ');
+					if(isset($trNamespace))
+					{
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, 'echo \''.$trNamespace.':\'.'.$params['name'].'; ');
+					}
+					elseif($params['ns'] !== null)
+					{
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, ' $_ns = '.$params['ns'].'; echo (!empty($_ns) ? $_ns.\':\' : \'\').'.$params['name'].'; ');
+					}
+					else
+					{
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, 'echo '.$params['name'].'; ');
+					}
 					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$params['value'].'; ');
 				}
 			}
@@ -75,6 +117,11 @@
 				$attribute = new Opt_Xml_Attribute('__xattr_'.self::$_cnt++, $params['value']);
 				$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, $params['name']);
 				$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, $params['value']);
+
+				if($params['ns'] !== null)
+				{
+					$attribute->set('priv:namespace', $params['ns']);
+				}
 			}
 			$node->set('priv:attr', $attribute);
 			$node->set('postprocess', true);
@@ -113,35 +160,27 @@
 		} // end postprocessNode();
 
 		/**
-		 * Processes the opt:single instruction attribute.
-		 *
-		 * @param Opt_Xml_Node $node XML node.
-		 * @param Opt_Xml_Attribute $attr XML attribute.
+		 * Processes the opt:attributes-build and opt:attributes-ignore attributes.
+		 * @param Opt_Xml_Element $node The node
+		 * @param Opt_Xml_Attribute $attr The attribute to process
 		 */
 		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
-			if($this->_compiler->isNamespace($node->getNamespace()))
+			if($attr->getName() == 'attributes-build')
 			{
-				throw new Opt_AttributeInvalidNamespace_Exception($node->getXmlName());
-			}
-			if($attr->getValue() == 'yes')
-			{
-				$attr->set('postprocess', true);
-			}
-		} // end processAttribute();
+				$ignoreList = $node->getAttribute('opt:attributes-ignore');
+				if($ignoreList instanceof Opt_Xml_Attribute)
+				{
+					$ignore = $this->_compiler->compileExpression($ignoreList->getValue(), false, Opt_Compiler_Class::ESCAPE_OFF);
+					$ignore = $ignore[0];
+				}
+				else
+				{
+					$ignore = 'array()';
+				}
+				$expression = $this->_compiler->compileExpression($attr->getValue(), false, Opt_Compiler_Class::ESCAPE_OFF);
 
-		/**
-		 * Postprocesses the opt:single instruction attribute.
-		 *
-		 * @param Opt_Xml_Node $node XML node.
-		 * @param Opt_Xml_Attribute $attr XML attribute.
-		 */
-		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
-		{
-			if($attr->getValue() == 'yes')
-			{
-				$node->set('single', true);
-				$node->removeChildren();
+				$node->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, 'echo Opt_Function::buildAttributes('.$expression[0].', '.$ignore.', \' \'); ');
 			}
 		} // end processAttribute();
 	} // end Opt_Instruction_Attribute;

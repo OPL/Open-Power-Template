@@ -131,6 +131,11 @@
 		protected $_message = 'XML Error: too many root elements in the template: %s.';
 	} // end Opt_XmlRootElement_Exception;
 
+	class Opt_InvalidNamespace_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'XML Error: invalid namespace format in element: %s.';
+	} // end Opt_InvalidNamespace_Exception;
+
 	class Opt_XmlInvalidCharacter_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'XML Error: the static text "%s" contains raw special XML characters.';

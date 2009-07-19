@@ -767,6 +767,12 @@
 					
 					$vret = false;
 					$name = $match[$i][0];
+
+					if(substr_count($name, ':') > 1)
+					{
+						throw new Opt_InvalidNamespace_Exception($name);
+					}
+
 					$value = null;
 					for($i++; ctype_space($match[$i][0]) && $i < $size; $i++){}
 					
@@ -1763,6 +1769,10 @@
 							}
 						}
 						// Recognize the tag type
+						if(substr_count($result[$j][4], ':') > 1)
+						{
+							throw new Opt_InvalidNamespace_Exception($result[$j][4]);
+						}
 						if($result[$j][3] != '/')
 						{
 							// Opening tag
