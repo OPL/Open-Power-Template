@@ -56,11 +56,11 @@ The optional attribute `ns` can be used to set the attribute namespace. The valu
 ~~~~
 [xml]
 <foo>
-  <opt:attribute str:ns="xml" name="$attrName" value="$attrValue" />
+    <opt:attribute str:ns="xml" name="$attrName" value="$attrValue" />
 </foo>
 
 <foo>
-  <opt:attribute ns="$ns" str:name="foo" value="$attrValue" />
+    <opt:attribute ns="$ns" str:name="foo" value="$attrValue" />
 </foo>
 ~~~~
 

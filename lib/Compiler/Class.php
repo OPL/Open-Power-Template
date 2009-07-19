@@ -404,7 +404,7 @@
 		 * Allows to export the list of variables and their data formats to
 		 * the template compiler.
 		 *
-		 * @param Array $list An assotiative array of pairs "variable => format description"
+		 * @param Array $list An associative array of pairs "variable => format description"
 		 */
 		public function setFormatList(Array $list)
 		{
@@ -460,7 +460,7 @@
 
 		/**
 		 * Registers the dynamic inheritance rules for the templates. The
-		 * array taken as a parameter must be an assotiative array of pairs
+		 * array taken as a parameter must be an associative array of pairs
 		 * 'extending' => 'extended' file names.
 		 *
 		 * @param Array $inheritance The list of inheritance rules.

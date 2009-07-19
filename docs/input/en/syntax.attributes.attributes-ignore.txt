@@ -10,7 +10,7 @@ The attribute is used to specify the list of ignored attributes for [opt:attribu
 ~~~~
 [xml]
 <div opt:attributes-build="$attributeList" opt:attributes-ignore="$ignoreList">
-	...
+    ...
 </div>
 ~~~~
 
@@ -25,12 +25,12 @@ The following script generating the data for the code above will produce the fol
 ~~~~
 [php]
 $view->attributeList = array(
-	'attr1' => 'value1',
-	'attr2' => 'value2',
-	'attr3' => 'value3'
+    'attr1' => 'value1',
+    'attr2' => 'value2',
+    'attr3' => 'value3'
 );
 $view->ignoreList = array(
-	'attr2'
+    'attr2'
 );
 ~~~~
 
@@ -39,6 +39,6 @@ Result:
 ~~~~
 [xml]
 <div attr1="value1" attr3="value3">
-	....
+    ....
 </div>
 ~~~~

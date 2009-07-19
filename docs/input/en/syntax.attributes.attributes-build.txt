@@ -11,15 +11,15 @@ Builds the tag attributes from a container:
 ~~~~
 [xml]
 <div opt:attributes-build="$attributeList">
-	...
+    ...
 </div>
 ~~~~
 
-The container element index is taken as an attribute name, and the element value - as the value. The attribute can be combined with [opt:attributes-ignore][syntax.attributes.attributes-ignore] to provide a list of ingored container elements:
+The container element index is taken as an attribute name, and the element value - as the value. The attribute can be combined with [opt:attributes-ignore][syntax.attributes.attributes-ignore] to provide a list of ignored container elements:
 
 ~~~~
 [xml]
 <div opt:attributes-build="$attributeList" opt:attributes-ignore="$ignoreList">
-	...
+    ...
 </div>
 ~~~~
