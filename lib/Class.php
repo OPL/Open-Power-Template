@@ -70,9 +70,10 @@
 		const ACCESS_LOCAL = 0;
 		const ACCESS_GLOBAL = 1;
 
-		const CHOOSE_MODE = 0;
-		const XML_MODE = 1;
-		const QUIRKS_MODE = 2;
+		const CHOOSE_MODE = 'Opt_Parser_Html';
+		const XML_MODE = 'Opt_Parser_Xml';
+		const QUIRKS_MODE = 'Opt_Parser_Quirks';
+		const HTML_MODE = 'Opt_Parser_Html';
 
 		const OPT_INSTRUCTION = 1;
 		const OPT_NAMESPACE = 2;
@@ -112,7 +113,8 @@
 		public $numberThousandSep;
 
 		// Compiler configuration
-		public $mode = self::XML_MODE;
+		public $parser = 'Opt_Parser_Xml';
+		public $mode = self::HTML_MODE;
 		public $unicodeNames = false;
 		public $htmlAttributes = false;
 		public $printComments = false;

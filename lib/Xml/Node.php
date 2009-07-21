@@ -95,4 +95,14 @@
 			$this->_buffers = null;
 			$this->_args = null;
 		} // end _dispose();
+
+		/**
+		 * Preprocesses the specified node type.
+		 */
+	//	abstract public function preprocess();
+
+		/**
+		 * Postprocesses the specified node type.
+		 */
+	//	abstract public function postprocess();
 	} // end Opt_Xml_Node;
