@@ -50,7 +50,6 @@
 
 	class interfaceTest extends PHPUnit_Framework_TestCase
 	{
-
 		private function stripWs($text)
 		{
 			return trim(str_replace(array("\r", "\n"),array('', ''), $text));
@@ -70,6 +69,7 @@
 
 		protected function tearDown()
 		{
+			Opl_Registry::register('opt', null);
 			unset($this->tpl);
 		} // end tearDown();
 
@@ -282,4 +282,28 @@
 
 			$this->assertEquals('TEST 1', $this->stripWs($output->render($view)));
 		} // end testCompileModePerformance();
+
+		/**
+		 * Testing the various compilation modes: CM_DEFAULT
+		 */
+		public function outputBufferingTest()
+		{
+			ob_start();
+			echo 'Foo';
+			ob_start();
+			echo 'Bar';
+
+			$view = new Opt_View('sample.tpl');
+
+			$output = new Opt_Output_Http;
+			$output->render($view);
+
+			Opl_Registry::register('opt', null);
+			unset($this->tpl);
+			
+			$this->assertEquals(2, ob_get_level());
+
+			ob_end_clean();
+			ob_end_clean();
+		} // end outputBufferingTest();
 	} // end interfaceTest;

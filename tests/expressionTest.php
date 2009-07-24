@@ -20,7 +20,7 @@
 	{
 		protected $tpl;
 		protected $cpl;
-		
+
 		protected function setUp()
 		{
 			$tpl = new Opt_Class;

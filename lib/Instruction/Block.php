@@ -45,6 +45,7 @@
 		
 			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
 			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+			$node->set('postprocess', true);
 		} // end processNode();
 		
 		public function postprocessNode(Opt_Xml_Node $node)

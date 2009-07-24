@@ -26,7 +26,7 @@
 	{
 		protected $tpl;
 		protected $dataGenerators = array();
-		
+
 		protected function setUp()
 		{
 			$tpl = new Opt_Class;

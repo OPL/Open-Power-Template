@@ -31,7 +31,7 @@
 	{
 		protected $tpl;
 		protected $dataGenerators = array();
-		
+
 		protected function setUp()
 		{
 			$tpl = new Opt_Class;
@@ -170,6 +170,11 @@
 				array('repeat_2.txt'),
 				array('repeat_3.txt'),
 				array('repeat_4.txt'),
+				array('root_1.txt'),
+				array('root_2.txt'),
+				array('root_3.txt'),
+				array('root_4.txt'),
+				array('root_5.txt'),
 				array('section_1.txt'),
 				array('section_2.txt'),
 				array('section_3.txt'),
@@ -189,6 +194,7 @@
 				array('selector_5.txt'),
 				array('selector_6.txt'),
 				array('selector_7.txt'),
+				array('selector_8.txt'),
 				array('show_1.txt'),
 				array('show_2.txt'),
 				array('show_3.txt'),

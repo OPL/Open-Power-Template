@@ -225,7 +225,16 @@
 			}
 			return $string;
 		} // end truncate();
-	
+
+		/**
+		 * Tries to break the string every specified number of characters.
+		 *
+		 * @param String $string The input string
+		 * @param Integer $width The width of a line
+		 * @param String $break The break string
+		 * @param Boolean $cut Whether to cut too long words
+		 * @return String
+		 */
 		static public function wordwrap($string, $width, $break = '<br />', $cut = null)
 		{
 			if(!is_null($break))
@@ -234,7 +243,15 @@
 			}
 			return wordwrap($string, $width, $break, $cut);
 		} // end wordwrap();
-	
+
+		/**
+		 * Formats the input number to be a valid money amount string. The function is not available on
+		 * systems without strfmon capabilities (i.e. Microsoft Windows).
+		 *
+		 * @param Number $number The input number
+		 * @param String $format The format (if not specified, using locale settings)
+		 * @return String
+		 */
 		static public function money($number, $format = null)
 		{
 			if(self::isContainer($number))
@@ -245,7 +262,17 @@
 			$format = (is_null($format) ? $opt->moneyFormat : $format);
 			return money_format($format, $number);
 		} // end money();
-	
+
+		/**
+		 * Formats the input number to look nice in the text. If the extra arguments
+		 * are not present, they are taken from OPT configuration.
+		 *
+		 * @param Number $number The input number
+		 * @param Integer $d1 The number of decimals
+		 * @param String $d2 The decimal separator
+		 * @param String $d3 The thousand separator
+		 * @return String
+		 */
 		static public function number($number, $d1 = null, $d2 = null, $d3 = null)
 		{
 			if(self::isContainer($number))
@@ -258,7 +285,13 @@
 			$d3 = (is_null($d3) ? $opt->numberThousandSep : $d3);
 			return number_format($number, $d1, $d2, $d3);
 		} // end number();
-		
+
+		/**
+		 * Returns the absolute value of a number.
+		 *
+		 * @param Number|Container $items The input number of container of numbers
+		 * @return Number|Container
+		 */
 		static public function absolute($items)
 		{
 			if(self::isContainer($items))
@@ -268,7 +301,13 @@
 			
 			return abs($items);
 		} // end absolute();
-		
+
+		/**
+		 * Sums all the numbers in the specified container.
+		 *
+		 * @param Container $items The container of numbers.
+		 * @return Number
+		 */
 		static public function sum($items)
 		{
 			if(self::isContainer($items))
@@ -285,7 +324,13 @@
 			}
 			return null;
 		} // end sum();
-		
+
+		/**
+		 * Returns the average value of the numbers in a container.
+		 *
+		 * @param Container $items The container of numbers
+		 * @return Number
+		 */
 		static public function average($items)
 		{
 			if(self::isContainer($items))
@@ -307,7 +352,13 @@
 			}
 			return null;
 		} // end average();
-		
+
+		/**
+		 * Returns the standard deviation of the numbers in a container.
+		 *
+		 * @param Container $items The container of numbers.
+		 * @return Number
+		 */
 		static public function stddev($items)
 		{
 			$average = self::average($items);
