@@ -58,7 +58,6 @@
 
 		// Help fields
 		private $_charset = null;
-		private $_translationConversion = null;
 		private $_initialMemory = null;
 		private $_comments = 0;
 		private $_standalone = false;
@@ -1657,27 +1656,24 @@
 			 * the expression for the "e:" and "u:" modifiers and redirect the task to
 			 * the escape() method.
 			 */
-			$result = $expression;
-			if($escape != self::ESCAPE_OFF && !$assign)
+			$expression[3] = $expression[0];
+			if($escape != self::ESCAPE_OFF && !$expression[1])
 			{
 				if($modifier != '')
 				{
-					$result = $this->escape($result, $modifier == 'e');
+					$expression[0] = $this->escape($expression[0], $modifier == 'e');
 				}
 				else
 				{
-					$result = $this->escape($result);
+					$expression[0] = $this->escape($expression[0]);
 				}
 			}
 			// Pack everything
 			if($escape != self::ESCAPE_BOTH)
 			{
-				return array(0 => $result, $assign, $variable, NULL);
+				$expression[3] = null;
 			}
-			else
-			{
-				return array(0 => $result, $assign, $variable, $expression);
-			}
+			return $expression;
 		} // end compileExpression();
 
 

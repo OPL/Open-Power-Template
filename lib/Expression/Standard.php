@@ -53,6 +53,10 @@
 		private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]*';
 		private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
 
+		// Help fields
+		private $_translationConversion = null;
+		private $_tf = null;
+
 		/**
 		 * The compiler instance.
 		 *
@@ -76,6 +80,8 @@
 		{
 			$this->_compiler = $compiler;
 			$this->_tpl = Opl_Registry::get('opt');
+
+			$this->_tf = $this->_tpl->getTranslationInterface();
 		} // end setCompiler();
 
 		/**
@@ -245,7 +251,7 @@
 				$prev = $token;
 			}
 
-			return $expression;
+			return array(0 => $expression, $assign, $variable);
 		} // end parse();
 
 		/**
@@ -876,7 +882,7 @@
 			if($name[0] == '@')
 			{
 				// The instruction may wish to handle this variable somehow differently.
-				if(($to = $this->convert('##var_'.$ns[0])) == '##var_'.$ns[0])
+				if(($to = $this->_compiler->convert('##var_'.$ns[0])) == '##var_'.$ns[0])
 				{
 					$result = 'self::$_vars';	// Standard handler
 				}
@@ -1058,11 +1064,11 @@
 						// The subitems are processed with the upper-item format
 						if($state['access'] == Opt_Class::ACCESS_GLOBAL)
 						{
-							$format = $this->getFormat('global.'.$previous, true);
+							$format = $this->_compiler->getFormat('global.'.$previous, true);
 						}
 						else
 						{
-							$format = $this->getFormat($previous, true);
+							$format = $this->_compiler->getFormat($previous, true);
 						}
 						if(!$format->supports('item'))
 						{
@@ -1135,9 +1141,9 @@
 				case 'const':
 					return 'constant(\''.$ns[2].'\')';
 				default:
-					if(!is_null($this->isProcessor($ns[1])))
+					if(!is_null($this->_compiler->isProcessor($ns[1])))
 					{
-						return $this->processor($ns[1])->processSystemVar($ns);
+						return $this->_compiler->processor($ns[1])->processSystemVar($ns);
 					}
 
 					throw new Opt_SysVariableUnknown_Exception('$'.implode('.', $ns));
@@ -1203,9 +1209,9 @@
 			if($previous == self::OP_OBJMAN)
 			{
 				// Class constructor call
-				if(isset($this->_classes[$token]) && $this->_tpl->basicOOP)
+				if(($compiled = $this->_compiler->isClass($token)) !== null && $this->_tpl->basicOOP)
 				{
-					$current['result'] = $this->_classes[$token];
+					$current['result'] = $compiled;
 					$current['token'] = self::OP_CLASS;
 					$state['next'] = self::OP_BRACKET | self::OP_NULL;
 					if($next == '(')
@@ -1228,9 +1234,9 @@
 					$state['next'] = self::OP_BRACKET;
 					$state['func'] = 1;
 				}
-				elseif(isset($this->_functions[$token]))
+				elseif(($compiled = $this->_compiler->isFunction($token)) !== null)
 				{
-					$name = $this->_functions[$token];
+					$name = $compiled;
 					if($name[0] == '#')
 					{
 						$pos = strpos($name, '#', 1);
@@ -1273,9 +1279,9 @@
 			elseif($next == '::')
 			{
 				// Static class call
-				if(isset($this->_classes[$token]))
+				if(($compiled = $this->_compiler->isClass($token)) !== null)
 				{
-					$current['result'] = $this->_classes[$token];
+					$current['result'] = $compiled;
 					$current['token'] = self::OP_CLASS;
 					$state['next'] = self::OP_CALL;
 				}
