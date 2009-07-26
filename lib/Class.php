@@ -132,7 +132,6 @@
 		protected $_tf = NULL;	// translation interface
 		
 		// Add-ons
-		protected $_outputs;
 		protected $_cache;
 
 		protected $_instructions = array('Section', 'Tree', 'Grid', 'Selector', 'Repeat',
@@ -157,6 +156,7 @@
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
 		protected $_formats = array(1 => 'Array', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
 		protected $_entities = array('lb' => '{', 'rb' => '}');
+		protected $_buffers = array();
 
 		// Status
 		protected $_init = false;
@@ -318,6 +318,51 @@
 			return $this->_cache;
 		} // end getCache();
 
+		/**
+		 * An implementation of advisory output buffering which allows us
+		 * to tell us, whether another part of the script opened the requested
+		 * buffer.
+		 *
+		 * @param String $buffer The buffer name
+		 * @param Boolean $state The new buffer state: true to open, false to close.
+		 */
+		public function setBufferState($buffer, $state)
+		{
+			if($state)
+			{
+				if(!isset($this->_buffers[$buffer]))
+				{
+					$this->_buffers[$buffer] = 1;
+				}
+				else
+				{
+					$this->_buffers[$buffer]++;
+				}
+			}
+			else
+			{
+				if(isset($this->_buffers[$buffer]) && $this->_buffers[$buffer] > 0)
+				{
+					$this->_buffers[$buffer]--;
+				}
+			}
+		} // end setBufferState();
+
+		/**
+		 * Returns the state of the specified output buffer.
+		 *
+		 * @param String $buffer Buffer name
+		 * @return Boolean
+		 */
+		public function getBufferState($buffer)
+		{
+			if(!isset($this->_buffers[$buffer]))
+			{
+				return false;
+			}
+			return ($this->_buffers[$buffer] > 0);
+		} // end getBufferState();
+
 		/*
 		 * Internal use
 		 */
@@ -471,6 +516,7 @@
 		private $_branch = null;
 		private $_cache = null;
 		private $_mode;
+		private $_outputBuffer = array();
 
 		static private $_vars = array();
 		static private $_capture = array();
@@ -863,6 +909,30 @@
 		{
 			return $this->_cache;
 		} // end getCache();
+
+		/**
+		 * A method for caching systems that tells, whether there is some
+		 * dynamic content available in the captured part.
+		 *
+		 * @return Boolean
+		 */
+		public function hasDynamicContent()
+		{
+			return sizeof($this->_outputBuffer) > 0;
+		} // end hasDynamicContent();
+
+		/**
+		 * Returns the static parts of the cached template, if the opt:dynamic
+		 * is used. Please note that the returned array does not contain the
+		 * last buffer, which must be closed and retrieved manually with
+		 * ob_get_flush().
+		 *
+		 * @return Array
+		 */
+		public function getOutputBuffers()
+		{
+			return $this->_outputBuffer;
+		} // end getBuffers();
 		
 		/*
 		 * Dynamic inheritance

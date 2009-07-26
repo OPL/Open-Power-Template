@@ -113,6 +113,7 @@
 		private $_initialMemory = null;
 		private $_comments = 0;
 		private $_standalone = false;
+		private $_dynamicBlocks = null;
 		
 		static private $_templates = array();
 
@@ -2020,6 +2021,7 @@
 			$queue->enqueue($node);
 			
 			// Reset the output
+			$realOutput = &$output;
 			$output = '';
 			$wasElement = false;
 
@@ -2053,6 +2055,14 @@
 							$output .= '<!--';
 						}
 					}
+					// If the block is dynamic, then replace the output with some other variable.
+					if($item->get('dynamic'))
+					{
+						$i = sizeof($this->_dynamicBlocks);
+						$this->_dynamicBlocks[$i] = '';
+						$output = &$this->_dynamicBlocks[$i];
+					}
+
 					/* Note that some of the node types must execute some code both before
 					 * processing their children and after them. This method processes only
 					 * the code executed BEFORE the children are parsed. The latter situation
@@ -2211,6 +2221,11 @@
 				catch(Opl_Goto_Exception $goto){}	// postprocess:
 				if($doPostlinking)
 				{
+					if($item->get('dynamic'))
+					{
+						$realOutput .= $output;
+						$output = &$realOutput;
+					}
 					$output .= $this->_doPostlinking($item);
 				}
 
@@ -2228,11 +2243,21 @@
 					 */
 					if(!$doPostlinking)
 					{
+						if(is_object($item) && $item->get('dynamic'))
+						{
+							$realOutput .= $output;
+							$output = &$realOutput;
+						}
 						$output .= $this->_doPostlinking($item);
 					}
 					
 					list($item, $queue, $pp) = $stack->pop();
-					
+
+					if($item->get('dynamic'))
+					{
+						$realOutput .= $output;
+						$output = &$realOutput;
+					}
 					$output .= $this->_doPostlinking($item);
 				}
 			}
