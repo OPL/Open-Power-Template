@@ -14,14 +14,14 @@ SeeAlso:
 
  Name           | Type                | Required? | Description
 ----------------|---------------------|-----------|:-----------------------------------
- columns        | Expression          | Yes       | Column number
+ cols           | Expression          | Yes       | Column number
  
 A sample use:
  
 ~~~~
 [xml]
 <table>
-<opt:grid name="gallery" columns="3">
+<opt:grid name="gallery" cols="3">
 	<tr>
 		<opt:item>
 			<td><img parse:src="$gallery.picture"/></td>
@@ -47,7 +47,7 @@ We may define the optional content to be displayed if the list is empty with the
 ~~~~
 [xml]
 <table>
-<opt:grid name="gallery" columns="3">
+<opt:grid name="gallery" cols="3">
 	<tr>
 		<opt:item>
 			<td><img parse:src="$gallery.picture"/></td>
@@ -67,7 +67,7 @@ Note that you must not use `opt:gridelse`, if our selector works together with `
 
 ~~~~
 [xml]
-<opt:show name="gallery" columns="3">
+<opt:show name="gallery" cols="3">
 <p>My pictures:</p> 
 <table>
 <opt:grid>

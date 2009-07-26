@@ -42,7 +42,7 @@ class myCache implements Opt_Caching_Interface
 		}
 		echo file_get_contents('./cache.txt');
 		return true;
-	} // end templateCacheStop();
+	} // end templateCacheStart();
 
 	public function templateCacheStop(Opt_View $view)
 	{
