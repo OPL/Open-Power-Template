@@ -95,6 +95,9 @@
 				array(0 => 'Opt_Class', 'getCache', 'api.opt-class.get-cache', M_PUBLIC),
 				array(0 => 'Opt_Class', '_getList', null, M_PUBLIC),
 
+				array(0 => 'Opt_View', 'getBufferState', 'api.opt-class.get-buffer-state', M_PUBLIC),
+				array(0 => 'Opt_View', 'setBufferState', 'api.opt-class.set-buffer-state', M_PUBLIC),
+
 				// Opt_View methods
 				array(0 => 'Opt_View', '__construct', 'api.opt-view.__construct', M_PUBLIC),
 				array(0 => 'Opt_View', '__set', 'api.opt-view.__set', M_PUBLIC),
@@ -125,6 +128,9 @@
 				array(0 => 'Opt_View', 'setTemplate', 'api.opt-view.set-template', M_PUBLIC),
 				array(0 => 'Opt_View', 'setCache', 'api.opt-view.get-cache', M_PUBLIC),
 				array(0 => 'Opt_View', 'getCache', 'api.opt-view.set-cache', M_PUBLIC),
+
+				array(0 => 'Opt_View', 'hasDynamicContent', 'api.opt-view.has-dynamic-content', M_PUBLIC),
+				array(0 => 'Opt_View', 'getOutputBuffers', 'api.opt-view.get-output-buffers', M_PUBLIC),
 
 				// Opt_Compiler_Class methods
 				array(0 => 'Opt_Compiler_Class', '__construct', 'api.opt-compiler-class.__construct', M_PUBLIC),

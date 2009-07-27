@@ -884,10 +884,18 @@
 		 * @static
 		 * @param string $item The item name
 		 * @param string $format The format to be used for the specified item.
+		 * @param boolean $global Does it register the item in the "global." group?
 		 */
-		static public function setFormatGlobal($item, $format)
+		static public function setFormatGlobal($item, $format, $global = true)
 		{
-			self::$_globalFormatInfo['global.'.$item] = $format;
+			if($global)
+			{
+				self::$_globalFormatInfo['global.'.$item] = $format;
+			}
+			else
+			{
+				self::$_globalFormatInfo[$item] = $format;
+			}
 		} // end setFormatGlobal();
 
 		/**
@@ -985,8 +993,13 @@
 			if(!is_null($this->_cache))
 			{
 				$result = $this->_cache->templateCacheStart($this);
-				if($result == true)
+				if($result !== false)
 				{
+					// For dynamic cache...
+					if(is_string($result))
+					{
+						include($result);
+					}
 					return true;
 				}
 				$cached = true;
