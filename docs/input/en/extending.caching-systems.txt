@@ -74,6 +74,7 @@ When using `opt:dynamic`, the caching system must combine the cache file from th
 The concatenation must be done in `templateCacheStop()` and below, you can find a sample implementation:
 
 ~~~~
+[php]
 public function templateCacheStop(Opt_View $view)
 {
 	if($view->hasDynamicContent())
@@ -86,7 +87,7 @@ public function templateCacheStop(Opt_View $view)
 		for($i = 0; $i < $cnt; $i++)
 		{
 			$output .= $staticParts[$i];
-			$output .= '<'.'?php '.$dynamicParts[$i].' ?>';
+			$output .= '<'.'?php '.$dynamicParts[$i].' ?'.'>';
 		}
 		$output .= ob_get_flush();
 		// save the file...

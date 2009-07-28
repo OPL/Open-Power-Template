@@ -10,8 +10,8 @@ Returns the next value in the specified cycle. If the internal counter reaches t
 [xml]
 <opt:section name="items">
 <tr parse:class="cycle('brighter', 'darker')">
-  <td>{$item.name}</td>
-  <td>{$item.value}</td>
+    <td>{$item.name}</td>
+    <td>{$item.value}</td>
 </tr>
 </opt:section>
 ~~~~
