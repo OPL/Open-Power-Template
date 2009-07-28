@@ -49,4 +49,23 @@
 				throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Text', $node->getType());
 			}
 		} // end _testNode();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking.
+		 */
+		public function preLink(Opt_Compiler_Class $compiler)
+		{
+			$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE));
+			$compiler->setChildren($this);
+		} // end preLink();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking, after linking the child nodes.
+		 */
+		public function postLink(Opt_Compiler_Class $compiler)
+		{
+			$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_AFTER));
+		} // end postLink();
 	} // end Opt_Xml_Text;

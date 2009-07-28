@@ -69,4 +69,35 @@
 				throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Root', $node->getType());
 			}
 		} // end _testNode();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking.
+		 */
+		public function preLink(Opt_Compiler_Class $compiler)
+		{
+			$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE));
+
+			// Display the prolog and DTD, if it was set in the node.
+			// Such construct ensures us that they will appear in the
+			// valid place in the output document.
+			if($this->hasProlog())
+			{
+				$compiler->appendOutput(str_replace('<?xml', '<<?php echo \'?\'; ?>xml', $this->getProlog()->getProlog()))."\r\n";
+			}
+			if($this->hasDtd())
+			{
+				$compiler->appendOutput($this->getDtd()->getDoctype()."\r\n");
+			}
+			$compiler->setChildren($this);
+		} // end preLink();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking, after linking the child nodes.
+		 */
+		public function postLink(Opt_Compiler_Class $compiler)
+		{
+			$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_AFTER));
+		} // end postLink();
 	} // end Opt_Xml_Root;

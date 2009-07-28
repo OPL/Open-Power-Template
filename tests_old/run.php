@@ -68,6 +68,7 @@ class test
 				{
 					return true;
 				}
+				echo $result;
 				die('Invalid output: '.$o."\n");
 	   		}
 	   		catch(Opt_Exception $e)

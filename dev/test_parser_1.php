@@ -10,6 +10,7 @@
     	$tpl->charset = 'utf-8';
     	$tpl->compileMode = Opt_Class::CM_REBUILD;
     	$tpl->stripWhitespaces = false;
+		$tpl->mode = Opt_Class::HTML_MODE;
     	$tpl->setup();
     	
     	$view = new Opt_View('test_parser_1.tpl');

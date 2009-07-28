@@ -29,4 +29,22 @@
 			}
 			return true;
 		} // end _validate();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking.
+		 */
+		public function preLink(Opt_Compiler_Class $compiler)
+		{
+			$compiler->appendOutput((string)$this);
+		} // end preLink();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking, after linking the child nodes.
+		 */
+		public function postLink(Opt_Compiler_Class $compiler)
+		{
+
+		} // end postLink();
 	} // end Opt_Xml_Comment;

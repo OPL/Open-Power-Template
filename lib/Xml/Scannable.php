@@ -19,7 +19,7 @@
 	 *
 	 * @abstract
 	 */
-	class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
+	abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	{
 		protected $_subnodes;
 		protected $_i;

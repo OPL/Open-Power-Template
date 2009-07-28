@@ -52,7 +52,7 @@ function _debugPrintNodes($node)
 $xml = <<<XMLV
 <?xml version="1.0" ?>
 <opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
-	<p>Hi universe!</p>
+	<p>Hi universe! \{\$variable} xdfs &amp; ff</p>
 	<opt:section name="foo">
 		<p>Lol</p>
 	</opt:section>

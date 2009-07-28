@@ -97,12 +97,14 @@
 		} // end _dispose();
 
 		/**
-		 * Preprocesses the specified node type.
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking.
 		 */
-	//	abstract public function preprocess();
+		abstract public function preLink(Opt_Compiler_Class $compiler);
 
 		/**
-		 * Postprocesses the specified node type.
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking, after linking the child nodes.
 		 */
-	//	abstract public function postprocess();
+		abstract public function postLink(Opt_Compiler_Class $compiler);
 	} // end Opt_Xml_Node;

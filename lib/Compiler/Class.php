@@ -28,6 +28,9 @@
 		protected $_stack = NULL;
 		protected $_node = NULL;
 
+		protected $_output = NULL;
+		protected $_newQueue = NULL;
+
 		static protected $_recursionDetector = NULL;
 
 		// Compiler info
@@ -658,6 +661,40 @@
 		} // end importDependencies();
 
 		/*
+		 * Node management tools.
+		 */
+
+		public function appendOutput($text)
+		{
+			$this->_output .= $text;
+		} // end appendOutput();
+
+		public function setChildren($children)
+		{
+			if($children instanceof SplQueue)
+			{
+				if($children->count() > 0)
+				{
+					$this->_newQueue = $children;
+				}
+			}
+			else if($children instanceof Opt_Xml_Scannable)
+			{
+				if($children->hasChildren() > 0)
+				{
+					$this->_newQueue = new SplQueue;
+					foreach($children as $child)
+					{
+						$this->_newQueue->enqueue($child);
+					}
+				}
+			}
+		} // end setChildren();
+
+
+
+
+		/*
 		 * Internal tools and utilities
 		 */
 
@@ -855,29 +892,13 @@
 			switch($item->getType())
 			{
 				case 'Opt_Xml_Text':
-					$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
+					
 					break;
 				case 'Opt_Xml_Element':
-					if($this->isNamespace($item->getNamespace()))
-					{
-						if($item->get('single'))
-						{
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER);
-						}
-						else
-						{
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
-								Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
-						}
-					}
-					else
-					{
-						$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE).'</'.$item->get('_name').'>'.$item->buildCode(Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
-						$item->set('_name', NULL);
-					}
+
 					break;
 				case 'Opt_Xml_Root':
-					$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
+					
 					break;
 			}
 			$this->_closeComments($item, $output);
@@ -891,7 +912,7 @@
 		 * @param Opt_Xml_Node $item The commented item.
 		 * @param String &$output The reference to the output buffer.
 		 */
-		protected function _closeComments($item, &$output)
+		protected function _closeComments($item)
 		{
 			if($item->get('commented'))
 			{
@@ -899,66 +920,15 @@
 				if($this->_comments == 0)
 				{
 					// According to the XML grammar, the construct "--->" is not allowed.
-					if(strlen($output) > 0 && $output[strlen($output)-1] == '-')
+					if(strlen($this->_output) > 0 && $this->_output[strlen($this->_output)-1] == '-')
 					{
 						throw new Opt_XmlComment_Exception('--->');
 					}
 
-					$output .= '-->';
+					$this->_output .= '-->';
 				}
 			}
 		} // end _closeComments();
-
-		/**
-		 * Links the element attributes into a valid XML code and returns
-		 * the output code.
-		 *
-		 * @internal
-		 * @param Opt_Xml_Element $subitem The XML element.
-		 * @return String
-		 */
-		protected function _linkAttributes($subitem)
-		{
-			// Links the attributes into the PHP code
-			if($subitem->hasAttributes() || $subitem->bufferSize(Opt_Xml_Buffer::TAG_BEGINNING_ATTRIBUTES) > 0 || $subitem->bufferSize(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES) > 0)
-			{
-
-				$code = $subitem->buildCode(Opt_Xml_Buffer::TAG_ATTRIBUTES_BEFORE, Opt_Xml_Buffer::TAG_BEGINNING_ATTRIBUTES);
-				$attrList = $subitem->getAttributes();
-				// Link attributes into a string
-				foreach($attrList as $attribute)
-				{
-					$s = $attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_NAME);
-					switch($s)
-					{
-						case 0:
-							$code .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_BEGIN).' '.$attribute->getXmlName();
-							break;
-						case 1:
-							$code .= ($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_BEGIN) == 0 ? ' ' : '').$attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_BEGIN, ' ', Opt_Xml_Buffer::ATTRIBUTE_NAME);
-							break;
-						default:
-							throw new Opt_CompilerCodeBufferConflict_Exception(1, 'ATTRIBUTE_NAME', $subitem->getXmlName());
-					}
-
-					if($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_VALUE) == 0)
-					{
-						// Static value
-						if(!($this->_tpl->htmlAttributes && $attribute->getValue() == $attribute->getName()))
-						{
-							$code .= '="'.htmlspecialchars($attribute->getValue()).'"';
-						}
-					}
-					else
-					{
-						$code .= '="'.$attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_VALUE).'"';
-					}
-					$code .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_END);
-				}
-				return $code.$subitem->buildCode(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, Opt_Xml_Buffer::TAG_ATTRIBUTES_AFTER);
-			}
-			return '';
-		} // end _linkAttributes();
 
 		/*
 		 * Main compilation methods
@@ -1037,7 +1007,7 @@
 						$initial = memory_get_usage();
 						$tree = $parser->parse($extend, $code);
 						// Stage 2 - PHP tree processing
-						$this->_stack = array();
+						$this->_stack = null;
 						$this->_stage2($tree);
 						$this->set('escape', NULL);
 						unset($this->_stack);
@@ -1105,14 +1075,15 @@
 				// Stage 3 - linking the last tree
 				if(!is_null($compiledFilename))
 				{
-					$output = '';
+					$this->_output = '';
+					$this->_newQueue = null;
 					$this->_dynamicBlocks = array();
 
 					$this->_stage3($output, $tree);
 					$tree->dispose();
 					unset($tree);
 
-					$output = str_replace('?><'.'?php', '', $output);
+					$this->_output = str_replace('?><'.'?php', '', $this->_output);
 
 					// Build the directories, if needed.
 					if(($pos = strrpos($compiledFilename, '/')) !== false)
@@ -1129,7 +1100,9 @@
 					{
 						file_put_contents($this->_tpl->compileDir.$compiledFilename.'.dyn', serialize($this->_dynamicBlocks));
 					}
-					file_put_contents($this->_tpl->compileDir.$compiledFilename, $output);
+					file_put_contents($this->_tpl->compileDir.$compiledFilename, $this->_output);
+					$this->_output = '';
+					$this->_dynamicBlocks = null;
 				}
 				else
 				{
@@ -1179,21 +1152,6 @@
 				throw $e;
 			}
 		} // end compile();
-
-		/**
-		 * Compilation - stage 1 - parsing the input template and
-		 * building an XML tree.
-		 *
-		 * @internal
-		 * @param String &$code The code to be parsed
-		 * @param String $filename Currently unused.
-		 * @param Int $mode The compilation mode.
-		 * @return Opt_Xml_Root The root node of the new tree.
-		 */
-		protected function _stage1(&$code, $filename, $mode)
-		{
-
-		} // end _stage1();
 
 		/**
 		 * Compilation - stage 2. Traversing through the tree and doing something
@@ -1372,35 +1330,15 @@
 		 */
 		protected function _stage3(&$output, Opt_Xml_Node $node)
 		{
-			// To avoid the recursion, we need a queue and a stack.
 			$queue = new SplQueue;
 			$stack = new SplStack;
+
 			$queue->enqueue($node);
-
-			// Reset the output
-			$output = '';
-			$wasElement = false;
-
-			// We will be processing the tags in a "infinite" loop
-			// In fact, the stop condition can be found within the loop.
 			while(true)
 			{
-				// Obtain the new item to process from the queue.
-				$item = NULL;
-				if($queue->count() > 0)
+				$item = $queue->dequeue();
+				if(!$item->get('hidden'))
 				{
-					$item = $queue->dequeue();
-				}
-
-				// Note that this code uses Opl_Goto_Exception to simulate
-				// "goto" instruction.
-				try
-				{
-					// Should we display this node?
-					if(is_null($item) || $item->get('hidden') !== false)
-					{
-						throw new Opl_Goto_Exception;	// Goto postprocess;
-					}
 					// If the tag has the "commented" flag, we comment it
 					// and its content.
 					if($item->get('commented'))
@@ -1408,190 +1346,40 @@
 						$this->_comments++;
 						if($this->_comments == 1)
 						{
-							$output .= '<!--';
+							$this->_output .= '<!--';
 						}
 					}
-					/* Note that some of the node types must execute some code both before
-					 * processing their children and after them. This method processes only
-					 * the code executed BEFORE the children are parsed. The latter situation
-					 * is implemented in the _doPostlinking() method.
-					 */
-					$doPostlinking = false;
-					switch($item->getType())
+
+					// Now link the node.
+					$item->preLink($this);
+				//	echo str_repeat('  ', $stack->count())."Start: ".$item."\n";
+					if($this->_newQueue !== null)
 					{
-						case 'Opt_Xml_Cdata':
-							if($item->get('cdata'))
-							{
-								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE).'<![CDATA['.$item.']]>'.$item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
-								break;
-							}
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
-
-							// We strip the white spaces at the linking level.
-							if($this->_tpl->stripWhitespaces)
-							{
-								// The CDATA composed of white characters only is reduced to a single space.
-								if(ctype_space((string)$item))
-								{
-									if($wasElement)
-									{
-										$output .= ' ';
-									}
-								}
-								else
-								{
-									// In the opposite case reduce all the groups of the white characters
-									// to single spaces in the text.
-									if($item->get('noEntitize') === true)
-									{
-										$output .= preg_replace('/\s\s+/', ' ', (string)$item);
-									}
-									else
-									{
-										$output .= $this->parseSpecialChars(preg_replace('/(\s){1,}/', ' ', (string)$item));
-									}
-								}
-							}
-							else
-							{
-								$output .= ($item->get('noEntitize') ? (string)$item : $this->parseSpecialChars($item));
-							}
-
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_AFTER);
-							$this->_closeComments($item, $output);
-							break;
-						case 'Opt_Xml_Text':
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
-							$queue = $this->_pushQueue($stack, $queue, $item, NULL);
-							// Next part in the post-process section
-							break;
-						case 'Opt_Xml_Element':
-							if($this->isNamespace($item->getNamespace()))
-							{
-								// This code handles the XML elements that represent the
-								// OPT instructions. They have shorter code, because
-								// we do not need to display their tags.
-								if(!$item->hasChildren() && $item->get('single'))
-								{
-									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE);
-									$doPostlinking = true;
-								}
-								elseif($item->hasChildren())
-								{
-									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
-										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
-
-									$queue = $this->_pushQueue($stack, $queue, $item, NULL);
-									// Next part in the post-process section
-								}
-								else
-								{
-									$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
-										Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
-									$doPostlinking = true;
-								}
-							}
-							else
-							{
-								$wasElement = true;
-								$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE);
-								if($item->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
-								{
-									$name = $item->getXmlName();
-								}
-								elseif($item->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 1)
-								{
-									$name = $item->buildCode(Opt_Xml_Buffer::TAG_NAME);
-								}
-								else
-								{
-									throw new Opt_CompilerCodeBufferConflict_Exception(1, 'TAG_NAME', $item->getXmlName());
-								}
-								if(!$item->hasChildren() && $item->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) == 0 && $item->get('single'))
-								{
-									$output .= '<'.$name.$this->_linkAttributes($item).' />'.$item->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER,Opt_Xml_Buffer::TAG_AFTER);
-									$item = null;
-								}
-								else
-								{
-									$output .= '<'.$name.$this->_linkAttributes($item).'>'.$item->buildCode(Opt_Xml_Buffer::TAG_OPENING_AFTER);
-									$item->set('_name', $name);
-									if($item->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) > 0)
-									{
-										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT, Opt_Xml_Buffer::TAG_CONTENT_AFTER);
-									}
-									elseif($item->hasChildren())
-									{
-										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE);
-										$queue = $this->_pushQueue($stack, $queue, $item, NULL);
-										// Next part in the post-process section
-										break;
-									}
-									else
-									{
-										// The postlinking is already done here, so skip this part
-										// in the linker
-										$item->set('_skip_postlinking', true);
-										$output .= $item->buildCode(Opt_Xml_Buffer::TAG_CLOSING_BEFORE).'</'.$name.'>'.$item->buildCode(Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER);
-									}
-								}
-							}
-							break;
-						case 'Opt_Xml_Expression':
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
-							$this->_closeComments($item, $output);
-							break;
-						case 'Opt_Xml_Root':
-							$output .= $item->buildCode(Opt_Xml_Buffer::TAG_BEFORE);
-
-							// Display the prolog and DTD, if it was set in the node.
-							// Such construct ensures us that they will appear in the
-							// valid place in the output document.
-							if($item->hasProlog())
-							{
-								$output .= str_replace('<?xml', '<<?php echo \'?\'; ?>xml', $item->getProlog()->getProlog())."\r\n";
-							}
-							if($item->hasDtd())
-							{
-								$output .= $item->getDtd()->getDoctype()."\r\n";
-							}
-
-							// And go to their children.
-							$queue = $this->_pushQueue($stack, $queue, $item, NULL);
-							break;
-						case 'Opt_Xml_Comment':
-							// The comment tags are added automatically.
-							$output .= (string)$item;
-							$this->_closeComments($item, $output);
-							break;
+					//	echo str_repeat('  ', $stack->count())."Sub: ".$item."\n";
+						// Starting next level.
+						$stack->push(array($item, $queue));
+						$queue = $this->_newQueue;
+						$this->_newQueue = null;
+					}
+					else
+					{
+					//	echo str_repeat('  ', $stack->count())."Nope: ".$item."\n";
+						$item->postLink($this);
+						$this->_closeComments($item);
 					}
 				}
-				catch(Opl_Goto_Exception $goto){}	// postprocess:
-				if($doPostlinking)
-				{
-					$output .= $this->_doPostlinking($item);
-				}
-
-				if($queue->count() == 0)
+				// Closing the current level.
+				while($queue->count() == 0)
 				{
 					if($stack->count() == 0)
 					{
-						break;
+						break 2;
 					}
-					/**
-					 * !!!!!!!!!!!!THIS IS WRONG!!!!!!!!!!!!!!!!
-					 *
-					 * Some items get this called only if they are
-					 * the last in the queue.
-					 */
-					if(!$doPostlinking)
-					{
-						$output .= $this->_doPostlinking($item);
-					}
-
-					list($item, $queue, $pp) = $stack->pop();
-
-					$output .= $this->_doPostlinking($item);
+					unset($queue);
+					list($item, $queue) = $stack->pop();
+				//	echo str_repeat('  ', $stack->count())."Pop: ".$item."\n";
+					$item->postLink($this);
+					$this->_closeComments($item);
 				}
 			}
 

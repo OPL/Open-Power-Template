@@ -134,7 +134,6 @@
 		protected $_tf = NULL;	// translation interface
 
 		// Add-ons
-		protected $_outputs;
 		protected $_cache;
 
 		protected $_instructions = array('Section', 'Tree', 'Grid', 'Selector', 'Repeat',
@@ -159,6 +158,7 @@
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
 		protected $_formats = array(1 => 'Array', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
 		protected $_entities = array('lb' => '{', 'rb' => '}');
+		protected $_buffers = array();
 
 		// Status
 		protected $_init = false;
@@ -223,12 +223,20 @@
 			{
 				$this->sourceDir = array('file' => $this->sourceDir);
 			}
-			foreach($this->sourceDir as &$path)
+			if(is_array($this->sourceDir))
 			{
-				$this->_securePath($path);
+				foreach($this->sourceDir as &$path)
+				{
+					$this->_securePath($path);
+				}
+			}
+			else
+			{
+				throw new Opt_InvalidOptionValue_Exception('sourceDir', 'not a path');
 			}
 			$this->_securePath($this->compileDir);
 			$this->_init = true;
+			return true;
 		} // end setup();
 
 		/**
@@ -319,6 +327,51 @@
 		{
 			return $this->_cache;
 		} // end getCache();
+
+		/**
+		 * An implementation of advisory output buffering which allows us
+		 * to tell us, whether another part of the script opened the requested
+		 * buffer.
+		 *
+		 * @param String $buffer The buffer name
+		 * @param Boolean $state The new buffer state: true to open, false to close.
+		 */
+		public function setBufferState($buffer, $state)
+		{
+			if($state)
+			{
+				if(!isset($this->_buffers[$buffer]))
+				{
+					$this->_buffers[$buffer] = 1;
+				}
+				else
+				{
+					$this->_buffers[$buffer]++;
+				}
+			}
+			else
+			{
+				if(isset($this->_buffers[$buffer]) && $this->_buffers[$buffer] > 0)
+				{
+					$this->_buffers[$buffer]--;
+				}
+			}
+		} // end setBufferState();
+
+		/**
+		 * Returns the state of the specified output buffer.
+		 *
+		 * @param String $buffer Buffer name
+		 * @return Boolean
+		 */
+		public function getBufferState($buffer)
+		{
+			if(!isset($this->_buffers[$buffer]))
+			{
+				return false;
+			}
+			return ($this->_buffers[$buffer] > 0);
+		} // end getBufferState();
 
 		/*
 		 * Internal use
@@ -917,8 +970,13 @@
 			if(!is_null($this->_cache))
 			{
 				$result = $this->_cache->templateCacheStart($this);
-				if($result == true)
+				if($result !== false)
 				{
+					// For dynamic cache...
+					if(is_string($result))
+					{
+						include($result);
+					}
 					return true;
 				}
 				$cached = true;

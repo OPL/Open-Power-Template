@@ -1,11 +1,7 @@
 <?php
 /*
-<<<<<<< .robocza
- *  OPEN POWER LIBS <http://libs.invenzzia.org>
-=======
  *  OPEN POWER LIBS <http://www.invenzzia.org>
  *  ==========================================
->>>>>>> .merge-prawo.w153
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -243,4 +239,146 @@
 				throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Element', $node->getType());
 			}
 		} // end _testNode();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking.
+		 */
+		public function preLink(Opt_Compiler_Class $compiler)
+		{
+			if($compiler->isNamespace($this->getNamespace()))
+			{
+				// This code handles the XML elements that represent the
+				// OPT instructions. They have shorter code, because
+				// we do not need to display their tags.
+				if(!$this->hasChildren() && $this->get('single'))
+				{
+					$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_SINGLE_BEFORE));
+				}
+				elseif($this->hasChildren())
+				{
+					$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
+						Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE));
+
+					$compiler->setChildren($this);
+				}
+				else
+				{
+					$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE,
+						Opt_Xml_Buffer::TAG_OPENING_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE));
+				}
+			}
+			else
+			{
+				$wasElement = true;
+				$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE));
+				if($this->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
+				{
+					$name = $this->getXmlName();
+				}
+				elseif($this->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 1)
+				{
+					$name = $this->buildCode(Opt_Xml_Buffer::TAG_NAME);
+				}
+				else
+				{
+					throw new Opt_CompilerCodeBufferConflict_Exception(1, 'TAG_NAME', $this->getXmlName());
+				}
+				if(!$this->hasChildren() && $this->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) == 0 && $this->get('single'))
+				{
+					$compiler->appendOutput('<'.$name.$this->_linkAttributes().' />'.$this->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER,Opt_Xml_Buffer::TAG_AFTER));
+				}
+				else
+				{
+					$compiler->appendOutput('<'.$name.$this->_linkAttributes().'>'.$this->buildCode(Opt_Xml_Buffer::TAG_OPENING_AFTER));
+					$this->set('_name', $name);
+					if($this->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) > 0)
+					{
+						$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, Opt_Xml_Buffer::TAG_CONTENT, Opt_Xml_Buffer::TAG_CONTENT_AFTER));
+					}
+					elseif($this->hasChildren())
+					{
+						$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_CONTENT_BEFORE));
+						$compiler->setChildren($this);
+					}
+				}
+			}
+		} // end preLink();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking, after linking the child nodes.
+		 */
+		public function postLink(Opt_Compiler_Class $compiler)
+		{
+			if($compiler->isNamespace($this->getNamespace()))
+			{
+				if($this->get('single'))
+				{
+					$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER, Opt_Xml_Buffer::TAG_AFTER));
+				}
+				else
+				{
+					$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE,
+						Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER));
+				}
+			}
+			elseif($this->hasChildren() || $this->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) != 0 || !$this->get('single'))
+			{
+				$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CLOSING_BEFORE).'</'.$this->get('_name').'>'.$this->buildCode(Opt_Xml_Buffer::TAG_CLOSING_AFTER, Opt_Xml_Buffer::TAG_AFTER));
+				$this->set('_name', NULL);
+			}
+		} // end postLink();
+
+		/**
+		 * Links the element attributes into a valid XML code and returns
+		 * the output code.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Element $subitem The XML element.
+		 * @return String
+		 */
+		protected function _linkAttributes()
+		{
+			// Links the attributes into the PHP code
+			if($this->hasAttributes() || $this->bufferSize(Opt_Xml_Buffer::TAG_BEGINNING_ATTRIBUTES) > 0 || $this->bufferSize(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES) > 0)
+			{
+
+				$code = $this->buildCode(Opt_Xml_Buffer::TAG_ATTRIBUTES_BEFORE, Opt_Xml_Buffer::TAG_BEGINNING_ATTRIBUTES);
+				$attrList = $this->getAttributes();
+				// Link attributes into a string
+				foreach($attrList as $attribute)
+				{
+					$s = $attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_NAME);
+					switch($s)
+					{
+						case 0:
+							$code .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_BEGIN).' '.$attribute->getXmlName();
+							break;
+						case 1:
+							$code .= ($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_BEGIN) == 0 ? ' ' : '').$attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_BEGIN, ' ', Opt_Xml_Buffer::ATTRIBUTE_NAME);
+							break;
+						default:
+							throw new Opt_CompilerCodeBufferConflict_Exception(1, 'ATTRIBUTE_NAME', $this->getXmlName());
+					}
+
+					if($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_VALUE) == 0)
+					{
+						// Static value
+						$tpl = Opl_Registry::get('opt');
+						if(!($tpl->htmlAttributes && $attribute->getValue() == $attribute->getName()))
+						{
+							$code .= '="'.htmlspecialchars($attribute->getValue()).'"';
+						}
+					}
+					else
+					{
+						$code .= '="'.$attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_VALUE).'"';
+					}
+					$code .= $attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_END);
+				}
+				return $code.$this->buildCode(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, Opt_Xml_Buffer::TAG_ATTRIBUTES_AFTER);
+			}
+			return '';
+		} // end _linkAttributes();
 	} // end Opt_Xml_Element;

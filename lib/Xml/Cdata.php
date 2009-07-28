@@ -78,4 +78,60 @@
 			}
 			return true;
 		} // end _validate();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking.
+		 */
+		public function preLink(Opt_Compiler_Class $compiler)
+		{
+			if($this->get('cdata'))
+			{
+				$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE).'<![CDATA['.$this.']]>'.$this->buildCode(Opt_Xml_Buffer::TAG_AFTER));
+				return;
+			}
+			$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE));
+			$tpl = Opl_Registry::get('opt');
+			// We strip the white spaces at the linking level.
+			if($tpl->stripWhitespaces)
+			{
+				// The CDATA composed of white characters only is reduced to a single space.
+				if(ctype_space((string)$this))
+				{
+					if($wasElement)
+					{
+						$output .= ' ';
+					}
+				}
+				else
+				{
+					// In the opposite case reduce all the groups of the white characters
+					// to single spaces in the text.
+					if($this->get('noEntitize') === true)
+					{
+						$compiler->appendOutput(preg_replace('/\s\s+/', ' ', (string)$this));
+					}
+					else
+					{
+						$compiler->appendOutput($compiler->parseSpecialChars(preg_replace('/(\s){1,}/', ' ', (string)$this)));
+					}
+				}
+			}
+			else
+			{
+				$compiler->appendOutput($this->get('noEntitize') ? (string)$this : $compiler->parseSpecialChars($this));
+			}
+
+			$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_AFTER));
+		//	$this->_closeComments($item, $output);
+		} // end preLink();
+
+		/**
+		 * This function is executed by the compiler during the third compilation stage,
+		 * linking, after linking the child nodes.
+		 */
+		public function postLink(Opt_Compiler_Class $compiler)
+		{
+
+		} // end postLink();
 	} // end Opt_Xml_Cdata;
