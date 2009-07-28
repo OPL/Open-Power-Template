@@ -1,4 +1,7 @@
 Title: opt:dynamic
+SeeAlso:
+ - syntax.attributes.dynamic
+ - extending.caching-systems
 
 ----
 

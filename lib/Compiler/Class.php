@@ -2221,12 +2221,12 @@
 				catch(Opl_Goto_Exception $goto){}	// postprocess:
 				if($doPostlinking)
 				{
+					$output .= $this->_doPostlinking($item);
 					if($item->get('dynamic'))
 					{
 						$realOutput .= $output;
 						$output = &$realOutput;
 					}
-					$output .= $this->_doPostlinking($item);
 				}
 
 				if($queue->count() == 0)
@@ -2243,22 +2243,21 @@
 					 */
 					if(!$doPostlinking)
 					{
+						$output .= $this->_doPostlinking($item);
 						if(is_object($item) && $item->get('dynamic'))
 						{
 							$realOutput .= $output;
 							$output = &$realOutput;
 						}
-						$output .= $this->_doPostlinking($item);
 					}
 					
 					list($item, $queue, $pp) = $stack->pop();
-
+					$output .= $this->_doPostlinking($item);
 					if($item->get('dynamic'))
 					{
 						$realOutput .= $output;
 						$output = &$realOutput;
 					}
-					$output .= $this->_doPostlinking($item);
 				}
 			}
 

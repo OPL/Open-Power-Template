@@ -52,7 +52,6 @@
 				$node->getParent()->replaceChild($turboNode, $node);
 				$node->set('dynamic', true);
 				$turboNode->appendChild($node);
-			//	$this->_process($node);
 			}
 		} // end processAttribute();
 	} // end Opt_Instruction_Dynamic;

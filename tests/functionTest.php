@@ -61,6 +61,8 @@
 				array('count_1.txt'),
 				array('count_chars_1.txt'),
 				array('count_words_1.txt'),
+				array('cycle_1.txt'),
+				array('cycle_2.txt'),
 				array('date_1.txt'),
 				array('entity_1.txt'),
 				array('entity_2.txt'),

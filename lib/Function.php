@@ -19,6 +19,8 @@
 	 */
 	class Opt_Function
 	{
+		static private $_cycleIterator = 0;
+
 		/**
 		 * The method allows to create aggregate functions that operate
 		 * on container. It calls the specified function for all the
@@ -532,6 +534,22 @@
 			}
 			return false;
 		} // end isImage();
+
+		/**
+		 * Returns the next element of the specified list of items.
+		 *
+		 * @return Mixed
+		 */
+		static public function cycle()
+		{
+			$items = func_get_args();
+			if(is_array($items[0]))
+			{
+				$items = $items[0];
+			}
+
+			return ($items[(self::$_cycleIterator++) % sizeof($items) ]);
+		} // end cycle();
 
 		/**
 		 * Creates an entity for the specified string. If used with the 'u:' modifier,

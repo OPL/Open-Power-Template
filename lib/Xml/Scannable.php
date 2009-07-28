@@ -229,9 +229,10 @@
 		 *
 		 * @param Opt_Xml_Node $newnode The new node.
 		 * @param Integer|Opt_Xml_Node $refnode The old node.
+		 * @param Boolean $dispose Dispose the old node?
 		 * @return Boolean
 		 */
-		public function replaceChild(Opt_Xml_Node $newnode, $refnode)
+		public function replaceChild(Opt_Xml_Node $newnode, $refnode, $dispose = false)
 		{
 			$this->_testNode($newnode);
 			if(!is_array($this->_subnodes))
@@ -250,7 +251,7 @@
 						// SEE: note about comparing" in bringToEnd()
 						if($refnode === $this->_subnodes[$i])
 						{
-							$this->_subnodes[$i]->dispose();
+							$dispose and $this->_subnodes[$i]->dispose();
 							$this->_subnodes[$i] = $newnode;
 							return true;
 						}
@@ -260,7 +261,7 @@
 			}
 			elseif(is_integer($refnode) && isset($this->_subnodes[$refnode]))
 			{
-				$this->_subnodes[$refnode]->dispose();
+				$dispose and $this->_subnodes[$refnode]->dispose();
 				$this->_subnodes[$refnode] = $newnode;
 				return true;
 			}
