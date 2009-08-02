@@ -97,6 +97,18 @@
 		} // end _dispose();
 
 		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing.
+		 */
+		abstract public function preProcess(Opt_Compiler_Class $compiler);
+
+		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing, after processing the child nodes.
+		 */
+		abstract public function postProcess(Opt_Compiler_Class $compiler);
+
+		/**
 		 * This function is executed by the compiler during the third compilation stage,
 		 * linking.
 		 */

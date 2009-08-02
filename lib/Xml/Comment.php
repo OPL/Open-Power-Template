@@ -31,6 +31,28 @@
 		} // end _validate();
 
 		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing.
+		 */
+		public function preProcess(Opt_Compiler_Class $compiler)
+		{
+			$tpl = Opl_Registry::get('opt');
+			if($tpl->printComments)
+			{
+				$item->set('hidden', false);
+			}
+		} // end preProcess();
+
+		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing, after processing the child nodes.
+		 */
+		public function postProcess(Opt_Compiler_Class $compiler)
+		{
+
+		} // end postProcess();
+
+		/**
 		 * This function is executed by the compiler during the third compilation stage,
 		 * linking.
 		 */

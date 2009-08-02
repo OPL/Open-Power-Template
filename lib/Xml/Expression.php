@@ -43,6 +43,38 @@
 		} // end __toString();
 
 		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing.
+		 */
+		public function preProcess(Opt_Compiler_Class $compiler)
+		{
+			$this->set('hidden', false);
+			// Empty expressions will be caught by the try... catch.
+			try
+			{
+				$result = $compiler->compileExpression((string)$this, true);
+				if(!$result[1])
+				{
+					$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result[0].'; ');
+				}
+				else
+				{
+					$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result[0].';');
+				}
+			}
+			catch(Opt_EmptyExpression_Exception $e){}
+		} // end preProcess();
+
+		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing, after processing the child nodes.
+		 */
+		public function postProcess(Opt_Compiler_Class $compiler)
+		{
+
+		} // end postProcess();
+
+		/**
 		 * This function is executed by the compiler during the third compilation stage,
 		 * linking.
 		 */

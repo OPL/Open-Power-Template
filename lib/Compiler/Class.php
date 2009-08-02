@@ -719,193 +719,6 @@
 		} // end _addDependencies();
 
 		/**
-		 * Looks for special OPT attributes in the element attribute list and
-		 * processes them. Returns the list of nodes that need to be postprocessed.
-		 *
-		 * @internal
-		 * @param Opt_Xml_Element $node The scanned element.
-		 * @param Boolean $specialNs Do we recognize "parse" and "str" namespaces?
-		 * @return Array
-		 */
-		protected function _processXml(Opt_Xml_Element $node, $specialNs = true)
-		{
-			if(!$node->hasAttributes())
-			{
-				return array();
-			}
-			$attributes = $node->getAttributes();
-			$pp = array();
-
-			// Look for special OPT attributes
-			foreach($attributes as $attr)
-			{
-				if($this->isNamespace($attr->getNamespace()))
-				{
-					$xml = $attr->getXmlName();
-					// Check the namespace we found
-					switch($attr->getNamespace())
-					{
-						case 'parse':
-							if($specialNs)
-							{
-								$result = $this->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_BOTH);
-								$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo '.$result[0].'; ');
-								$attr->setNamespace(null);
-							}
-							break;
-						case 'str':
-							if($specialNs)
-							{
-								$attr->setNamespace(null);
-							}
-							break;
-						default:
-							if(isset($this->_attributes[$xml]))
-							{
-								$this->_attributes[$xml]->processAttribute($node, $attr);
-								if($attr->get('postprocess'))
-								{
-									$pp[] = array($this->_attributes[$xml], $attr);
-								}
-							}
-							$node->removeAttribute($xml);
-					}
-				}
-			}
-			return $pp;
-		} // end _processXml();
-
-		/**
-		 * Runs the postprocessors for the specified attributes.
-		 *
-		 * @internal
-		 * @param Opt_Xml_Node $node The scanned node.
-		 * @param Array $list The list of XML attribute processors that need to be postprocessed.
-		 */
-		protected function _postprocessXml(Opt_Xml_Node $node, Array $list)
-		{
-			$cnt = sizeof($list);
-			for($i = 0; $i < $cnt; $i++)
-			{
-				$list[$i][0]->postprocessAttribute($node, $list[$i][1]);
-			}
-		} // end _postprocessXml();
-
-		/**
-		 * An utility method for the stage 2 and 3 of the compilation. It is
-		 * used to create a non-recursive depth-first search algorithm. The
-		 * current queue is sent to a stack, and the new queue if initialized,
-		 * if $item contains children.
-		 *
-		 * @internal
-		 * @param SplStack $stack The processing stack.
-		 * @param SplQueue $queue The processing queue.
-		 * @param Opt_Xml_Scannable $item The item, where to import the nodes from.
-		 * @param Boolean $pp The postprocess flag.
-		 * @return SplQueue The new queue (or the old one, if none has been created).
-		 */
-		protected function _pushQueue($stack, $queue, $item, $pp)
-		{
-			if($item->hasChildren())
-			{
-				$stack->push(array($item, $queue, $pp));
-				$pp = NULL;
-				$queue = new SplQueue;
-				foreach($item as $child)
-				{
-					$queue->enqueue($child);
-				}
-			}
-
-			return $queue;
-		} // end _pushQueue();
-
-		/**
-		 * Does the postprocessing in the second stage of compilation.
-		 *
-		 * @internal
-		 * @param Opt_Xml_Node|Null $item The postprocessed node.
-		 * @param Array $pp The list of postprocessed attributes.
-		 */
-		protected function _doPostprocess($item, $pp)
-		{
-			// Postprocess code for the compilation stage 2
-			// Packed into a method, because it is used twice.
-			if(is_null($item))
-			{
-				return;
-			}
-			if(sizeof($pp) > 0)
-			{
-				$this->_postprocessXml($item, $pp);
-			}
-			if($item->get('postprocess'))
-			{
-				if(!is_null($processor = $this->isInstruction($item->getXmlName())))
-				{
-					$processor->postprocessNode($item);
-				}
-				elseif($this->isComponent($item->getXmlName()))
-				{
-					$processor = $this->processor('component');
-					$processor->postprocessComponent($item);
-				}
-				elseif($this->isBlock($item->getXmlName()))
-				{
-					$processor = $this->processor('block');
-					$processor->postprocessBlock($item);
-				}
-				else
-				{
-					throw new Opt_UnknownProcessor_Exception($item->getXmlName());
-				}
-			}
-		} // end _doPostprocess();
-
-		/**
-		 * Does the post-linking for the third stage of the compilation and returns
-		 * the linked code.
-		 *
-		 * @internal
-		 * @param Opt_Xml_Node $item The linked item.
-		 * @return String
-		 */
-		protected function _doPostlinking($item)
-		{
-			// Post code
-			if(is_null($item))
-			{
-				return '';
-			}
-
-			// This prevents from displaying </> if the HTML node was hidden.
-			if($item->get('hidden') !== false)
-			{
-				return '';
-			}
-			if($item->get('_skip_postlinking') == true)
-			{
-				return '';
-			}
-
-			$output = '';
-			switch($item->getType())
-			{
-				case 'Opt_Xml_Text':
-					
-					break;
-				case 'Opt_Xml_Element':
-
-					break;
-				case 'Opt_Xml_Root':
-					
-					break;
-			}
-			$this->_closeComments($item, $output);
-			return $output;
-		} // end _doPostlinking();
-
-		/**
 		 * Closes the XML comment for the commented item.
 		 *
 		 * @internal
@@ -1164,158 +977,37 @@
 		{
 			$queue = new SplQueue;
 			$stack = new SplStack;
-			$queue->enqueue($node);
 
+			$queue->enqueue($node);
 			while(true)
 			{
-				$item = NULL;
-				if($queue->count() > 0)
+				$item = $queue->dequeue();
+				if(!$item->get('hidden'))
 				{
-					$item = $queue->dequeue();
+					// Now process the node.
+					$item->preProcess($this);
+					if($this->_newQueue !== null)
+					{
+						// Starting next level.
+						$stack->push(array($item, $queue));
+						$queue = $this->_newQueue;
+						$this->_newQueue = null;
+					}
+					else
+					{
+						$item->postProcess($this);
+					}
 				}
-				$pp = array();
-
-				// We set the "hidden" state unless it is set.
-
-				try
+				// Closing the current level.
+				while($queue->count() == 0)
 				{
-					if(is_null($item))
-					{
-						throw new Opl_Goto_Exception;
-					}
-
-					$stateSet = false;
-					if(is_null($item->get('hidden')))
-					{
-						$item->set('hidden', true);
-						$stateSet = true;
-					}
-
-					// Proper processing
-					switch($item->getType())
-					{
-						case 'Opt_Xml_Cdata':
-							$stateSet and $item->set('hidden', false);
-							break;
-						case 'Opt_Xml_Text':
-							$stateSet and $item->set('hidden', false);
-							if($item->hasChildren())
-							{
-								$stack->push(array($item, $queue, $pp));
-								$pp = NULL;
-								$queue = new SplQueue;
-								foreach($item as $child)
-								{
-									$queue->enqueue($child);
-								}
-								continue 2;
-							}
-							break;
-						case 'Opt_Xml_Element':
-							if($this->isNamespace($item->getNamespace()))
-							{
-								$name = $item->getXmlName();
-								$pp = $this->_processXml($item, false);
-
-								// Look for the processor
-								if(!is_null($processor = $this->isInstruction($name)))
-								{
-									$processor->processNode($item);
-								}
-								elseif($this->isComponent($name))
-								{
-									$processor = $this->processor('component');
-									$processor->processComponent($item);
-								}
-								elseif($this->isBlock($name))
-								{
-									$processor = $this->processor('block');
-									$processor->processBlock($item);
-								}
-
-								if(is_object($processor))
-								{
-									$stateSet and $item->set('hidden', false);
-									$result = $processor->getQueue();
-									if(!is_null($result))
-									{
-										$stack->push(array($item, $queue, $pp));
-										$queue = $result;
-										continue 2;
-									}
-								}
-								elseif($item->get('processAll'))
-								{
-									$stateSet and $item->set('hidden', false);
-									$stack->push(array($item, $queue, $pp));
-									$pp = NULL;
-									$queue = new SplQueue;
-									foreach($item as $child)
-									{
-										$queue->enqueue($child);
-									}
-									continue 2;
-								}
-								unset($processor);
-							}
-							else
-							{
-								$pp = $this->_processXml($item, true);
-								$stateSet and $item->set('hidden', false);
-								if($item->hasChildren())
-								{
-									$stack->push(array($item, $queue, $pp));
-									$pp = NULL;
-									$queue = new SplQueue;
-									foreach($item as $child)
-									{
-										$queue->enqueue($child);
-									}
-									continue 2;
-								}
-							}
-							break;
-						case 'Opt_Xml_Expression':
-							$stateSet and $item->set('hidden', false);
-							// Empty expressions will be caught by the try... catch.
-							try
-							{
-								$result = $this->compileExpression((string)$item, true);
-								if(!$result[1])
-								{
-									$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result[0].'; ');
-								}
-								else
-								{
-									$item->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result[0].';');
-								}
-							}
-							catch(Opt_EmptyExpression_Exception $e){}
-							break;
-						case 'Opt_Xml_Root':
-							$stateSet and $item->set('hidden', false);
-							$queue = $this->_pushQueue($stack, $queue, $item, array());
-							break;
-						case 'Opt_Xml_Comment':
-							if($this->_tpl->printComments)
-							{
-								$stateSet and $item->set('hidden', false);
-							}
-							break;
-					}
-
-				}
-				catch(Opl_Goto_Exception $e){}
-				$this->_doPostprocess($item, $pp);
-				if($queue->count() == 0)
-				{
-					unset($queue);
 					if($stack->count() == 0)
 					{
-						break;
+						break 2;
 					}
-					list($item, $queue, $pp) = $stack->pop();
-					$this->_doPostprocess($item, $pp);
+					unset($queue);
+					list($item, $queue) = $stack->pop();
+					$item->postProcess($this);
 				}
 			}
 		} // end _stage2();
@@ -1352,10 +1044,8 @@
 
 					// Now link the node.
 					$item->preLink($this);
-				//	echo str_repeat('  ', $stack->count())."Start: ".$item."\n";
 					if($this->_newQueue !== null)
 					{
-					//	echo str_repeat('  ', $stack->count())."Sub: ".$item."\n";
 						// Starting next level.
 						$stack->push(array($item, $queue));
 						$queue = $this->_newQueue;
@@ -1363,7 +1053,6 @@
 					}
 					else
 					{
-					//	echo str_repeat('  ', $stack->count())."Nope: ".$item."\n";
 						$item->postLink($this);
 						$this->_closeComments($item);
 					}
@@ -1377,7 +1066,6 @@
 					}
 					unset($queue);
 					list($item, $queue) = $stack->pop();
-				//	echo str_repeat('  ', $stack->count())."Pop: ".$item."\n";
 					$item->postLink($this);
 					$this->_closeComments($item);
 				}

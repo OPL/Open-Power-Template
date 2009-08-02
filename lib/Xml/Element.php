@@ -22,6 +22,8 @@
 		protected $_namespace;
 		protected $_attributes;
 
+		protected $_postprocess = null;
+
 		/**
 		 * Creates a new XML tag with the specified name. The accepted
 		 * name format is 'name' or 'namespace:name'.
@@ -241,6 +243,90 @@
 		} // end _testNode();
 
 		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing.
+		 */
+		public function preProcess(Opt_Compiler_Class $compiler)
+		{
+			if($compiler->isNamespace($this->getNamespace()))
+			{
+				$name = $this->getXmlName();
+				$this->_processXml($compiler, false);
+
+				// Look for the processor
+				if(!is_null($processor = $compiler->isInstruction($name)))
+				{
+					$processor->processNode($this);
+				}
+				elseif($compiler->isComponent($name))
+				{
+					$processor = $compiler->processor('component');
+					$processor->processComponent($this);
+				}
+				elseif($compiler->isBlock($name))
+				{
+					$processor = $compiler->processor('block');
+					$processor->processBlock($this);
+				}
+
+				if(is_object($processor))
+				{
+					$this->set('hidden', false);
+					$compiler->setChildren($processor->getQueue());
+				}
+				elseif($item->get('processAll'))
+				{
+					$this->set('hidden', false);
+					$compiler->setChildren($this);
+				}
+			}
+			else
+			{
+				$this->_processXml($compiler, true);
+				$this->set('hidden', false);
+				if($this->hasChildren())
+				{
+					$compiler->setChildren($this);
+				}
+			}
+		} // end preProcess();
+
+		/**
+		 * This function is executed by the compiler during the second compilation stage,
+		 * processing, after processing the child nodes.
+		 */
+		public function postProcess(Opt_Compiler_Class $compiler)
+		{
+			if(sizeof($this->_postprocess) > 0)
+			{
+				$this->_postprocessXml($compiler);
+			}
+			$this->_postprocess = null;
+
+			if($this->get('postprocess'))
+			{
+				if(!is_null($processor = $compiler->isInstruction($this->getXmlName())))
+				{
+					$processor->postprocessNode($this);
+				}
+				elseif($compiler->isComponent($this->getXmlName()))
+				{
+					$processor = $this->processor('component');
+					$processor->postprocessComponent($this);
+				}
+				elseif($compiler->isBlock($this->getXmlName()))
+				{
+					$processor = $this->processor('block');
+					$processor->postprocessBlock($this);
+				}
+				else
+				{
+					throw new Opt_UnknownProcessor_Exception($this->getXmlName());
+				}
+			}
+		} // end postProcess();
+
+		/**
 		 * This function is executed by the compiler during the third compilation stage,
 		 * linking.
 		 */
@@ -329,6 +415,76 @@
 				$this->set('_name', NULL);
 			}
 		} // end postLink();
+
+		/**
+		 * Looks for special OPT attributes in the element attribute list and
+		 * processes them. Returns the list of nodes that need to be postprocessed.
+		 *
+		 * @internal
+		 * @param Opt_Compiler_Class $compiler The compiler.
+		 * @param Boolean $specialNs Do we recognize special namespaces?
+		 */
+		protected function _processXml(Opt_Compiler_Class $compiler, $specialNs = true)
+		{
+			if(!$this->hasAttributes())
+			{
+				return array();
+			}
+			$attributes = $this->getAttributes();
+			$this->_postprocess = array();
+
+			// Look for special OPT attributes
+			foreach($attributes as $attr)
+			{
+				if($compiler->isNamespace($attr->getNamespace()))
+				{
+					$xml = $attr->getXmlName();
+					// Check the namespace we found
+					switch($attr->getNamespace())
+					{
+						case 'parse':
+							if($specialNs)
+							{
+								$result = $compiler->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_BOTH);
+								$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo '.$result[0].'; ');
+								$attr->setNamespace(null);
+							}
+							break;
+						case 'str':
+							if($specialNs)
+							{
+								$attr->setNamespace(null);
+							}
+							break;
+						default:
+							if(isset($this->_attributes[$xml]))
+							{
+								$this->_attributes[$xml]->processAttribute($this, $attr);
+								if($attr->get('postprocess'))
+								{
+									$this->_postprocess[] = array($this->_attributes[$xml], $attr);
+								}
+							}
+							$node->removeAttribute($xml);
+					}
+				}
+			}
+		} // end _processXml();
+
+		/**
+		 * Runs the postprocessors for the specified attributes.
+		 *
+		 * @internal
+		 * @param Opt_Compiler_Class $compiler The compiler.
+		 */
+		protected function _postprocessXml(Opt_Compiler_Class $compiler)
+		{
+			$cnt = sizeof($this->_postprocess);
+			for($i = 0; $i < $cnt; $i++)
+			{
+				$this->_postprocess[$i][0]->postprocessAttribute($this, $this->_postprocess[$i][1]);
+			}
+		} // end _postprocessXml();
 
 		/**
 		 * Links the element attributes into a valid XML code and returns

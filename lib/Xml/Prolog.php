@@ -19,6 +19,10 @@
 		private $_attributes;
 		private $_dynamic = array('version' => false, 'standalone' => false, 'encoding' => false);
 
+		/**
+		 * Constructs a new prolog object with the specified attributes.
+		 * @param Array $attributes The list of prolog attributes.
+		 */
 		public function __construct($attributes = null)
 		{
 			if(is_null($attributes))
@@ -37,6 +41,14 @@
 			}
 		} // end __construct();
 
+		/**
+		 * Sets the prolog attribute. Note that the prolog-specific attributes
+		 * can be set.
+		 *
+		 * @param String $name The attribute name.
+		 * @param String $value The attribute value.
+		 * @param Boolean $dynamic Is the value dynamic?
+		 */
 		public function setAttribute($name, $value, $dynamic = false)
 		{
 			if($name == 'version' || $name == 'standalone' || $name == 'encoding')
@@ -46,6 +58,11 @@
 			}
 		} // end setAttribute();
 
+		/**
+		 * Returns the value of the specified attribute.
+		 * @param String $name The attribute name.
+		 * @return String
+		 */
 		public function getAttribute($name)
 		{
 			if(!isset($this->_attributes[$name]))
@@ -55,6 +72,12 @@
 			return $this->_attributes[$name];
 		} // end getAttribute();
 
+		/**
+		 * Sets the dynamic flag to the attribute.
+		 *
+		 * @param String $name The attribute name.
+		 * @param Boolean $state The new state.
+		 */
 		public function setDynamic($name, $state)
 		{
 			if($name == 'version' || $name == 'standalone' || $name == 'encoding')
@@ -63,6 +86,12 @@
 			}
 		} // end setDynamic();
 
+		/**
+		 * Returns true, if the content of the specified attribute is dynamic.
+		 *
+		 * @param String $name The attribute name.
+		 * @return Boolean
+		 */
 		public function isDynamic($name)
 		{
 			if(!isset($this->_dynamic[$name]))
@@ -72,11 +101,19 @@
 			return $this->_dynamic[$name];
 		} // end isDynamic();
 
+		/**
+		 * Returns the list of attributes.
+		 * @return Array
+		 */
 		public function getAttributes()
 		{
 			return $this->_attributes;
 		} // end getAttributes();
 
+		/**
+		 * Builds an XML prolog.
+		 * @return String
+		 */
 		public function getProlog()
 		{
 			$code = '<?xml ';
