@@ -45,7 +45,7 @@
 		const ATTRIBUTE_VALUE = 16;
 		
 		protected $_buffers;
-		protected $_hidden = NULL;
+		protected $_hidden = true;
 		protected $_args = null;
 
 		/**

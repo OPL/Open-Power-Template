@@ -14,7 +14,7 @@
  */
 
 	/**
-	 * This class uses DOM XML to generate the XML tree which is
+	 * This class uses XMLReader to generate the XML tree which is
 	 * later converted to OPT nodes.
 	 */
 	class Opt_Parser_Xml implements Opt_Parser_Interface
@@ -37,6 +37,10 @@
 		 */
 		public function setCompiler(Opt_Compiler_Class $compiler)
 		{
+			if(!extension_loaded('XMLReader'))
+			{
+				throw new Opt_NotSupported_Exception('XML parser', 'XMLReader extension is not loaded');
+			}
 			$this->_compiler = $compiler;
 		} // end setCompiler();
 
@@ -49,65 +53,79 @@
 		 */
 		public function parse($filename, &$code)
 		{
-			$dom = new DOMDocument;
-			$dom->strictErrorChecking = false;
-			$dom->loadXml($code);
+			$reader = new XMLReader;
+		//	$reader->setParserProperty(XMLReader::LOADDTD, false);
+			$reader->xml($code);
 
-			// Create the OPT XML root node
 			$root = $current = new Opt_Xml_Root;
-
-			if(!$dom->hasChildNodes())
+			$firstElementMatched = false;
+			$depth = 0;
+			while($reader->read())
 			{
-				return $root;
-			}
-
-			$queue = new SplQueue;
-			$queue->enqueue(array($root, $dom->childNodes->item(0)));
-
-			while($queue->count() > 0)
-			{
-				list($parent, $element) = $queue->dequeue();
-
-				// Parse the element
-				if($element instanceof DOMElement)
+				if($reader->depth < $depth)
 				{
-					$optNode = new Opt_Xml_Element($element->tagName);
-					if(strlen($element->prefix) > 0)
-					{
-						$optNode->setNamespace($element->prefix);
-					}
-					if($element->hasAttributes())
-					{
-						foreach($element->attributes as $attribute)
+					$current = $current->getParent();
+				}
+				elseif($reader->depth > $depth)
+				{
+					$current = $optNode;
+				}
+				switch($reader->nodeType)
+				{
+					// XML elements
+					case XMLReader::ELEMENT:
+						$optNode = new Opt_Xml_Element($reader->name);
+						// Parse element attributes, if you manage to get there
+						if($reader->moveToFirstAttribute())
 						{
-							$optAttribute = new Opt_Xml_Attribute($attribute->name, $attribute->value);
-							if(strlen($attribute->prefix) > 0)
+							do
 							{
-								$optAttribute->setNamespace($attribute->prefix);
-							}
-							$optNode->addAttribute($optAttribute);
-						}
-					}
-					$parent->appendChild($optNode);
-				}
-				elseif($element instanceof DOMText)
-				{
-					$this->_treeTextCompile($parent, $element->data);
-				}
-				elseif($element instanceof DOMComment)
-				{
-					$optNode = new Opt_Xml_Comment($element->data);
-					$parent->appendChild($optNode);
-				}
+								// "xmlns" special namespace must be handler somehow differently.
+								if($reader->prefix == 'xmlns')
+								{
+									$ns = str_replace('xmlns:', '', $reader->name);
+									$root->addNamespace($ns, $reader->value);
 
-				// Add its children
-				if($element->hasChildNodes())
-				{
-					foreach($element->childNodes as $node)
-					{
-						$queue->enqueue(array(0 => $optNode, $node));
-					}
+									// Let this attribute to appear, if it does not represent an OPT special
+									// namespace
+									if(!$this->_compiler->isNamespace($ns))
+									{
+										$optAttribute = new Opt_Xml_Attribute($reader->name, $reader->value);
+										$optNode->addAttribute($optAttribute);
+									}
+								}
+								else
+								{
+									$optAttribute = new Opt_Xml_Attribute($reader->name, $reader->value);
+									$optNode->addAttribute($optAttribute);
+								}
+							}
+							while($reader->moveToNextAttribute());
+							$reader->moveToElement();
+						}
+						// Set "rootNode" flag
+						if(!$firstElementMatched)
+						{
+							$optNode->set('rootNode', true);
+							$firstElementMatched = true;
+						}
+						// Set "single" flag
+						if($reader->isEmptyElement)
+						{
+							$optNode->set('single', true);
+						}
+						$current->appendChild($optNode);
+						
+						break;
+					case XMLReader::TEXT:
+						$this->_treeTextCompile($current, $reader->value);
+						break;
+					case XMLReader::COMMENT:
+						$optNode = new Opt_Xml_Comment($reader->value);
+						$current->appendChild($optNode);
+						break;
 				}
+				$depth = $reader->depth;
 			}
 			return $root;
 		} // end parse();

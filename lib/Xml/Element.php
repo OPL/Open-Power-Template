@@ -274,10 +274,14 @@
 					$this->set('hidden', false);
 					$compiler->setChildren($processor->getQueue());
 				}
-				elseif($item->get('processAll'))
+				elseif($this->get('processAll'))
 				{
 					$this->set('hidden', false);
 					$compiler->setChildren($this);
+				}
+				else
+				{
+					$this->set('hidden', true);
 				}
 			}
 			else
@@ -311,12 +315,12 @@
 				}
 				elseif($compiler->isComponent($this->getXmlName()))
 				{
-					$processor = $this->processor('component');
+					$processor = $compiler->processor('component');
 					$processor->postprocessComponent($this);
 				}
 				elseif($compiler->isBlock($this->getXmlName()))
 				{
-					$processor = $this->processor('block');
+					$processor = $compiler->processor('block');
 					$processor->postprocessBlock($this);
 				}
 				else
@@ -356,7 +360,24 @@
 			}
 			else
 			{
-				$wasElement = true;
+				// This code is executed for normal tags that must be rendered.
+				// The first thing is to check if we are a root node, because we must add the "xmlns"
+				// attributes there.
+			/*	if($this->get('rootNode') === true)
+				{
+					if(!$this->getParent() instanceof Opt_Xml_Root)
+					{
+						throw new Opt_APIInvalidParent_Exception($this->getType(), $this->getParent()->getType(), 'Opt_Xml_Root');
+					}
+					foreach($this->getParent()->getNamespaces() as $prefix => $uri)
+					{
+						$newAttr = new Opt_Xml_Attribute($prefix, $uri);
+						$newAttr->setNamespace('xmlns');
+						$this->addAttribute($newAttr);
+					}
+				} */
+
+				// Now construct the output code...
 				$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE));
 				if($this->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
 				{
@@ -457,15 +478,15 @@
 							}
 							break;
 						default:
-							if(isset($this->_attributes[$xml]))
+							if(($processor = $compiler->isOptAttribute($xml)) !== null)
 							{
-								$this->_attributes[$xml]->processAttribute($this, $attr);
+								$processor->processAttribute($this, $attr);
 								if($attr->get('postprocess'))
 								{
-									$this->_postprocess[] = array($this->_attributes[$xml], $attr);
+									$this->_postprocess[] = array($processor, $attr);
 								}
 							}
-							$node->removeAttribute($xml);
+							$this->removeAttribute($xml);
 					}
 				}
 			}

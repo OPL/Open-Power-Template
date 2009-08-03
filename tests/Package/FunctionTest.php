@@ -17,6 +17,15 @@ class Package_FunctionTest extends Extra_TestFSBase
 {
 
 	/**
+	 * Configuration method.
+	 * @param Opt_Class $tpl
+	 */
+	public function configure(Opt_Class $tpl)
+	{
+		$tpl->parser = 'Opt_Parser_Html';
+	} // end configure();
+
+	/**
 	 * Provides the list of test cases.
 	 * @return Array
 	 */

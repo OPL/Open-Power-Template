@@ -277,6 +277,11 @@
 		protected $_message = 'Compiler API: No wildcard provided in the prototype list for the sorting function.';
 	} // end Opt_APINoWildcard_Exception;
 
+	class Opt_APIInvalidParent_Exception extends Opt_Compiler_Exception
+	{
+		protected $_message = 'Compiler API: Invalid parent for %s node type: %s (%s expected)';
+	} // end Opt_APIInvalidParent_Exception;
+
 	class Opt_APIInvalidBorders_Exception extends Opt_Compiler_Exception
 	{
 		protected $_message = 'Compiler API: Invalid insertion borders.';

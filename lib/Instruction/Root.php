@@ -35,7 +35,8 @@
 				'dynamic' => array(0 => self::OPTIONAL, self::BOOL, false),
 			);
 			$this->_extractAttributes($node, $params);
-			
+
+			// Compile-time inclusion support
 			if(!is_null($params['include']))
 			{
 				$file = $params['include'];
@@ -51,11 +52,12 @@
 				$compiler->compile($this->_tpl->_getSource($file), $file, NULL, $this->_compiler->get('mode'));
 				$this->_compiler->importDependencies($compiler);
 			}
-			
+			// Escaping control support
 			if(!is_null($params['escaping']))
 			{
 				$this->_compiler->set('escaping', $params['escaping']);
 			}
+
 			$this->_process($node);
 		} // end processNode();
 	} // end Opt_Instruction_Root;

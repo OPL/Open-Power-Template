@@ -476,7 +476,7 @@
 		 * Returns true, if the argument is the name of an OPT attribute.
 		 *
 		 * @param String $tag The attribute name
-		 * @return Boolean
+		 * @return Opt_Compiler_Processor
 		 */
 		public function isOptAttribute($tag)
 		{
@@ -664,11 +664,20 @@
 		 * Node management tools.
 		 */
 
+		 /**
+		  * Appends the text to the output.
+		  * @param String $text The text to append.
+		  */
 		public function appendOutput($text)
 		{
 			$this->_output .= $text;
 		} // end appendOutput();
 
+		/**
+		 * Sets the new node children queue used in stages 2 and 3 of the compilation.
+		 *
+		 * @param SplQueue|Opt_Xml_Scannable $children The children list.
+		 */
 		public function setChildren($children)
 		{
 			if($children instanceof SplQueue)
@@ -690,9 +699,6 @@
 				}
 			}
 		} // end setChildren();
-
-
-
 
 		/*
 		 * Internal tools and utilities
@@ -982,22 +988,20 @@
 			while(true)
 			{
 				$item = $queue->dequeue();
-				if(!$item->get('hidden'))
+				// Now process the node.
+				$item->preProcess($this);
+				if($this->_newQueue !== null)
 				{
-					// Now process the node.
-					$item->preProcess($this);
-					if($this->_newQueue !== null)
-					{
-						// Starting next level.
-						$stack->push(array($item, $queue));
-						$queue = $this->_newQueue;
-						$this->_newQueue = null;
-					}
-					else
-					{
-						$item->postProcess($this);
-					}
+					// Starting next level.
+					$stack->push(array($item, $queue));
+					$queue = $this->_newQueue;
+					$this->_newQueue = null;
 				}
+				else
+				{
+					$item->postProcess($this);
+				}
+
 				// Closing the current level.
 				while($queue->count() == 0)
 				{
@@ -1041,7 +1045,6 @@
 							$this->_output .= '<!--';
 						}
 					}
-
 					// Now link the node.
 					$item->preLink($this);
 					if($this->_newQueue !== null)

@@ -21,6 +21,7 @@
 	{
 		private $_prolog = NULL;
 		private $_dtd = NULL;
+		private $_namespaces = array();
 
 		/**
 		 * Constructs the root node.
@@ -93,6 +94,60 @@
 		{
 			return $this->_dtd;
 		} // end getDtd();
+
+		/**
+		 * Adds a new namespace to the list.
+		 *
+		 * @param String $prefix The namespace prefix
+		 * @param String $uri The namespace URI
+		 */
+		public function addNamespace($prefix, $uri)
+		{
+			if(isset($this->_namespaces[$prefix]))
+			{
+				// TODO: Exception here!
+				return false;
+			}
+			$this->_namespaces[$prefix] = $uri;
+		} // end addNamespace();
+
+		/**
+		 * Returns the list of namespaces.
+		 * @return Array
+		 */
+		public function getNamespaces()
+		{
+			return $this->_namespaces;
+		} // end getNamespaces();
+
+		/**
+		 * Returns the URI of the specified namespace prefix.
+		 * @param String $prefix The namespace prefix
+		 * @return String
+		 */
+		public function lookupNamespaceURI($prefix)
+		{
+
+		} // end lookupNamespaceURI();
+
+		/**
+		 * Returns the prefix for the specified namespace URI.
+		 * @param String $uri The namespace URI
+		 * @return String
+		 */
+		public function lookupPrefix($uri)
+		{
+
+		} // end lookupPrefix();
+
+		/**
+		 * Imports the namespaces from another root node.
+		 * @param Opt_Xml_Root $root The other root node.
+		 */
+		public function importNamespaces(Opt_Xml_Root $root)
+		{
+			$this->_namespaces = array_merge($this->_namespaces, $root->_namespaces);
+		} // end importNamespaces();
 
 		/**
 		 * Tests, if the specified node can be a child of root.

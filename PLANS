@@ -1,0 +1,110 @@
+1. "OPT" NAMESPACE ELEMENTS
+
+- opt:attribute
+- opt:block
+- opt:capture
+- opt:component
+  + opt:attribute-control
+  * opt:display
+  * opt:set
+  * opt:on-event  (alias opt:onEvent)
+- opt:dynamic
+- opt:extend
+- opt:for
+- opt:foreach
+  * opt:foreachelse
+- opt:grid
+  * opt:item
+  * opt:empty-item  (alias opt:emptyItem)
+  * opt:else (alias opt:gridelse)
+- opt:if
+- opt:include
+- opt:insert
+- opt:literal
+- opt:prolog
+- opt:put
+- opt:repeat
+- opt:root
+- opt:section
+  * opt:sectionelse
+- opt:selector
+  * opt:selectorelse
+- opt:separator
+- opt:show
+  * opt:showelse
+- opt:snippet
+- opt:tag
+- opt:tree
+  * opt:content
+  * opt:list
+  * opt:node
+  * opt:treeelse
+
+- opt:attributes-build
+- opt:attributes-ignore
+- opt:capture
+- opt:content
+  + opt:content-prepend (?)
+  + opt:content-append (?)
+- opt:dynamic
+- opt:if
+- opt:omit-tag (alias: opt:on)
+- opt:section
+- opt:selector
+- opt:single
+- opt:use
+
+2. TESTS
+
+<opt:section name="foo">
+	<opt:body>
+		<ol>
+			<opt:item>
+			<li>Dodood</li>
+			</opt:item>
+		</ol>
+	</opt:body>
+	<opt:else>
+		<p>Hi universe!</p>
+	</opt:else>
+</opt:section>
+
+<opt:selector name="foo">
+	<ol>
+		<opt:item>
+			<opt:select item="fff">ssdf</opt:select>
+			<opt:select item="ssddf">ssdf</opt:select>
+			<opt:select item="abc">ssdf</opt:select>
+		</opt:item>
+	</ol>
+	<opt:else>
+		<p>Else!</p>
+	</opt:else>
+</opt:selector>
+
+<opt:grid name="foo" cols="4">
+	<table>
+		<opt:row>
+		<tr>
+			<opt:cell><td>fkfkf</td></opt:cell>
+			<opt:empty-cell><td>fkfkf</td></opt:empty-cell>
+		</tr>
+		</opt:row>
+	</table>
+</opt:grid>
+
+<opt:tree name="foo">
+	<div>
+		<opt:item>
+			<opt:list><ol><opt:content /></ol></opt:list>
+			<opt:node><li> Foo <opt:content /></li></opt:node>
+		</opt:item>
+	</div>
+</opt:tree>
+
+<opt:if>
+	<opt:condition test="$foo">sdfsdf</opt:condition>
+	<opt:condition test="$foo">sdfsdf</opt:condition>
+	<opt:condition test="$foo">sdfsdf</opt:condition>
+	<opt:else>dfsdf</opt:else>
+</opt:if>

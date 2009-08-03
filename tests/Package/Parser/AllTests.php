@@ -1,15 +1,16 @@
 <?php
 /**
- * The test suite file that configures the execution of the test cases for instructions.
+ * The test suite file that configures the execution of the test cases for parsers.
  *
  * @author Tomasz "Zyx" Jędrzejewski
  * @copyright Copyright (c) 2009 Invenzzia Group
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 
-require_once('InstructionTest.php');
+require_once('XmlTest.php');
+require_once('HtmlTest.php');
 
-class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
+class Package_Parser_AllTests extends PHPUnit_Framework_TestSuite
 {
 
 	/**
@@ -19,8 +20,10 @@ class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
 	 */
 	public static function suite()
 	{
-		$suite = new Package_Instruction_AllTests('Package_Instruction');
-		$suite->addTestSuite('Package_Instruction_InstructionTest');
+		$suite = new Package_Parser_AllTests('Package_Parser');
+		$suite->addTestSuite('Package_Parser_XmlTest');
+		$suite->addTestSuite('Package_Parser_HtmlTest');
+	//	$suite->addTestSuite('Package_Parser_QuirksTest');
 
 		return $suite;
 	} // end suite();

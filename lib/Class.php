@@ -114,6 +114,9 @@
 
 		// Compiler configuration
 		public $parser = 'Opt_Parser_Xml';
+		public $useExpressionNamespaces = false;
+
+
 		public $mode = self::HTML_MODE;
 		public $unicodeNames = false;
 		public $htmlAttributes = false;
@@ -525,7 +528,7 @@
 		private $_processingTime = null;
 		private $_branch = null;
 		private $_cache = null;
-		private $_mode;
+		private $_parser;
 
 		static private $_vars = array();
 		static private $_capture = array();
@@ -545,7 +548,7 @@
 		{
 			$this->_tpl = Opl_Registry::get('opt');
 			$this->_template = $template;
-			$this->_mode = $this->_tpl->mode;
+			$this->_parser = $this->_tpl->parser;
 			$this->_cache = $this->_tpl->getCache();
 		} // end __construct();
 
@@ -572,22 +575,44 @@
 		/**
 		 * Sets the template mode (XML, Quirks, etc...)
 		 *
+		 * @deprecated
 		 * @param Int $mode The new mode
 		 */
 		public function setMode($mode)
 		{
-			$this->_mode = $mode;
+			$this->_parser = $mode;
 		} // end setMode();
+
+		/**
+		 * Gets the current template mode.
+		 *
+		 * @deprecated
+		 * @return Int
+		 */
+		public function getMode()
+		{
+			return $this->_parser;
+		} // end getMode();
+
+		/**
+		 * Sets the template mode (XML, Quirks, etc...)
+		 *
+		 * @param Int $mode The new mode
+		 */
+		public function setParser($mode)
+		{
+			$this->_parser = $mode;
+		} // end setParser();
 
 		/**
 		 * Gets the current template mode.
 		 *
 		 * @return Int
 		 */
-		public function getMode()
+		public function getParser()
 		{
-			return $this->_mode;
-		} // end getMode();
+			return $this->_parser;
+		} // end getParser();
 
 		/**
 		 * Sets a template inheritance branch that will be used
@@ -1076,7 +1101,7 @@
 			$compiler->setInheritance($this->_cplInheritance);
 			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 			$compiler->set('branch', $this->_branch);
-			$compiler->compile($result, $this->_template, $compiled, $this->_mode);
+			$compiler->compile($result, $this->_template, $compiled, $this->_parser);
 			return array($compiled, $compileTime);
 		} // end _preprocess();
 

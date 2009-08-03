@@ -39,7 +39,7 @@
 			$tpl = Opl_Registry::get('opt');
 			if($tpl->printComments)
 			{
-				$item->set('hidden', false);
+				$this->set('hidden', false);
 			}
 		} // end preProcess();
 
