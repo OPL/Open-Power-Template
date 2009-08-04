@@ -306,4 +306,30 @@
 			ob_end_clean();
 			ob_end_clean();
 		} // end outputBufferingTest();
+
+		/**
+		 * Tests if the relative path switch works.
+		 * @expectedException Opt_NotSupported_Exception
+		 */
+		public function testRelativePathsDisabled()
+		{
+			$this->tpl->allowRelativePaths = false;
+
+			$view = new Opt_View('../template.tpl');
+			$output = new Opt_Output_Return;
+			$output->render($view);
+		} // end testRelativePathsDisabled();
+
+		/**
+		 * Tests if the relative path switch works.
+		 * @expectedException Opt_TemplateNotFound_Exception
+		 */
+		public function testRelativePathsEnabled()
+		{
+			$this->tpl->allowRelativePaths = true;
+
+			$view = new Opt_View('../template.tpl');
+			$output = new Opt_Output_Return;
+			$output->render($view);
+		} // end testRelativePathsEnabled();
 	} // end interfaceTest;

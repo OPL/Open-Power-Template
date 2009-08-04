@@ -91,7 +91,12 @@
 		protected $_buffers;
 		protected $_hidden = NULL;
 		protected $_args = null;
-		
+
+		/**
+		 * Adds a new PHP code snippet at the end of the buffer.
+		 * @param Integer $buffer The code buffer
+		 * @param String $code The PHP code snippet
+		 */
 		public function addAfter($buffer, $code)
 		{
 			if(!is_array($this->_buffers))
@@ -105,7 +110,12 @@
 			
 			$this->_buffers[$buffer][] = $code;
 		} // end addAfter();
-		
+
+		/**
+		 * Adds a new PHP code snippet at the beginning of the buffer.
+		 * @param Integer $buffer The code buffer
+		 * @param String $code The PHP code snippet
+		 */
 		public function addBefore($buffer, $code)
 		{
 			if(!is_array($this->_buffers))
@@ -120,22 +130,33 @@
 			array_unshift($this->_buffers[$buffer], $code);
 		} // end addBefore();
 		
-		public function copyBuffer(Opt_Xml_Buffer $from, $fromTag, $toTag)
+		/**
+		 * Copies an existing buffer from other node.
+		 * @param Opt_Xml_Buffer $from The external node that the buffer should be copied from.
+		 * @param Integer $fromBuffer The source buffer
+		 * @param Integer $toBuffer The destination buffer
+		 */
+		public function copyBuffer(Opt_Xml_Buffer $from, $fromBuffer, $toBuffer)
 		{
 			if(!is_array($this->_buffers))
 			{
 				$this->_buffers = array();
 			}
-			if(!isset($this->_buffers[$toTag]))
+			if(!isset($this->_buffers[$toBuffer]))
 			{
-				$this->_buffers[$toTag] = $from->getBuffer($fromTag);
+				$this->_buffers[$toBuffer] = $from->getBuffer($fromBuffer);
 			}
 			else
-			{		
-				$this->_buffers[$toTag] = array_merge($from->getBuffer($fromTag), $this->_buffers[$toTag]);
+			{
+				$this->_buffers[$toBuffer] = array_merge($from->getBuffer($fromBuffer), $this->_buffers[$toBuffer]);
 			}
 		} // end copyBuffer();
-		
+
+		/**
+		 * Returns the contents of the specified buffer.
+		 * @param Integer $buffer The buffer
+		 * @return Array
+		 */
 		public function getBuffer($buffer)
 		{
 			if(!is_array($this->_buffers))
@@ -148,7 +169,12 @@
 			}
 			return $this->_buffers[$buffer];
 		} // end getBuffer();
-		
+
+		/**
+		 * Returns the number of snippets in the specified buffer.
+		 * @param Integer $buffer The buffer
+		 * @return Integer
+		 */
 		public function bufferSize($buffer)
 		{
 			if(!is_array($this->_buffers))
@@ -161,7 +187,15 @@
 			}
 			return sizeof($this->_buffers[$buffer]);
 		} // end bufferSize();
-		
+
+		/**
+		 * Builds a valid PHP code from the specified buffers and their contents.
+		 * The buffers are specified as a list of arguments. The method also allows
+		 * to pass strings in the argument list, which are simply concatenated to
+		 * the output in the specified place.
+		 * @param Integer|String ... The buffers or hard-coded snippets between them.
+		 * @return String
+		 */
 		public function buildCode()
 		{
 			if(!is_array($this->_buffers))
@@ -204,7 +238,11 @@
 			}
 			return '';
 		} // end buildCode();
-		
+
+		/**
+		 * Clears the buffers or the specified buffer.
+		 * @param Integer $buffer The buffer to clear.
+		 */
 		public function clear($buffer = NULL)
 		{
 			if(is_null($buffer))
@@ -216,7 +254,12 @@
 				unset($this->_buffers[$buffer]);
 			}
 		} // end clear();
-		
+
+		/**
+		 * Sets the node variable.
+		 * @param String $name The node variable name.
+		 * @param Mixed $value The variable value
+		 */
 		public function set($name, $value)
 		{
 			if($name == 'hidden')
@@ -233,7 +276,12 @@
 				$this->_args[$name] = $value;
 			}
 		} // end set();
-		
+
+		/**
+		 * Returns the node variable value.
+		 * @param String $name The node variable name.
+		 * @return Mixed
+		 */
 		public function get($name)
 		{
 			if($name == 'hidden')
@@ -247,6 +295,9 @@
 			return $this->_args[$name];
 		} // end get();
 
+		/**
+		 * Destroys the object.
+		 */
 		public function __destruct()
 		{
 			$this->_args = null;

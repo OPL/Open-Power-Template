@@ -17,16 +17,28 @@
 	{
 		private $_doctype;
 
+		/**
+		 * Creates a new DTD.
+		 * @param String $dtd The DTD content.
+		 */
 		public function __construct($dtd)
 		{
 			$this->setDoctype($dtd);
 		} // end __construct();
 
+		/**
+		 * Sets a new doctype content.
+		 * @param String $doctype The new content.
+		 */
 		public function setDoctype($doctype)
 		{
 			$this->_doctype = $doctype;
 		} // end setDoctype();
 
+		/**
+		 * Returns the doctype.
+		 * @return String.
+		 */
 		public function getDoctype()
 		{
 			return $this->_doctype;

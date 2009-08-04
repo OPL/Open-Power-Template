@@ -53,6 +53,10 @@ Front-end options
 `debugConsole`
 :	**True** to enable the debug console for OPT. Remember to disable this option in your production environment! Default value: **false**
 
+`allowRelativePaths`
+:	Controls whether the relative paths are available as template names. This is disabled by default.
+:	Available since OPT 2.0.1.
+
 Compiler options
 ================
 

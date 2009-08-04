@@ -19,6 +19,12 @@
 		private $_attributes;
 		private $_dynamic = array('version' => false, 'standalone' => false, 'encoding' => false);
 
+		/**
+		 * Constructs the prolog from the specified attribute list. The unknown prolog
+		 * attributes are ignored.
+		 *
+		 * @param Array $attributes The attribute list.
+		 */
 		public function __construct($attributes = null)
 		{
 			if(is_null($attributes))
@@ -37,6 +43,13 @@
 			}
 		} // end __construct();
 
+		/**
+		 * Sets the prolog attribute value.
+		 *
+		 * @param String $name The attribute name
+		 * @param String $value The attribute value
+		 * @param Boolean $dynamic Is the attribute value dynamic?
+		 */
 		public function setAttribute($name, $value, $dynamic = false)
 		{
 			if($name == 'version' || $name == 'standalone' || $name == 'encoding')
@@ -46,6 +59,12 @@
 			}
 		} // end setAttribute();
 
+		/**
+		 * Returns the attribute value.
+		 *
+		 * @param String $name The attribute name.
+		 * @return String
+		 */
 		public function getAttribute($name)
 		{
 			if(!isset($this->_attributes[$name]))
@@ -55,6 +74,11 @@
 			return $this->_attributes[$name];
 		} // end getAttribute();
 
+		/**
+		 * Sets the dynamic flag state to the attribute.
+		 * @param String $name The attribute name
+		 * @param Boolean $state The new state
+		 */
 		public function setDynamic($name, $state)
 		{
 			if($name == 'version' || $name == 'standalone' || $name == 'encoding')
@@ -63,6 +87,11 @@
 			}
 		} // end setDynamic();
 
+		/**
+		 * Returns true, if the attribute value is dynamic.
+		 * @param String $name The attribute name.
+		 * @return Boolean
+		 */
 		public function isDynamic($name)
 		{
 			if(!isset($this->_dynamic[$name]))
@@ -72,11 +101,19 @@
 			return $this->_dynamic[$name];
 		} // end isDynamic();
 
+		/**
+		 * Returns the attribute list.
+		 * @return Array
+		 */
 		public function getAttributes()
 		{
 			return $this->_attributes;
 		} // end getAttributes();
 
+		/**
+		 * Constructs an XML prolog from the attributes.
+		 * @return String
+		 */
 		public function getProlog()
 		{
 			$code = '<?xml ';

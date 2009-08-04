@@ -104,6 +104,7 @@
 		public $errorReporting = self::ERR_STANDARD;
 		public $stdStream = 'file';
 		public $debugConsole = false;
+		public $allowRelativePaths = false;
 
 		// Function configuration
 		public $moneyFormat;
@@ -135,7 +136,7 @@
 		protected $_cache;
 
 		protected $_instructions = array('Section', 'Tree', 'Grid', 'Selector', 'Repeat',
-			'Snippet', 'Extend', 'Cycle', 'For', 'Foreach', 'If', 'Put', 'Capture',
+			'Snippet', 'Extend', 'For', 'Foreach', 'If', 'Put', 'Capture',
 			'Attribute', 'Tag', 'Root', 'Prolog', 'Dtd', 'Literal', 'Include',
 			'Dynamic', 'Component', 'Block');
 		protected $_functions = array(
@@ -431,12 +432,20 @@
 				{
 					throw new Opt_ObjectNotExists_Exception('resource', $data[0]);
 				}
+				if(!$this->allowRelativePaths && strpos($data[1], '../') !== false)
+				{
+					throw new Opt_NotSupported_Exception('relative paths', $data[1]);
+				}
 				return $this->sourceDir[$data[0]].$data[1];
 			}
 			// Here, the standard stream is used.
 			if(!isset($this->sourceDir[$this->stdStream]))
 			{
 				throw new Opt_ObjectNotExists_Exception('resource', $this->stdStream);
+			}
+			if(!$this->allowRelativePaths && strpos($name, '../') !== false)
+			{
+				throw new Opt_NotSupported_Exception('relative paths', $name);
 			}
 			return $this->sourceDir[$this->stdStream].$name;
 		} // end _stream();
