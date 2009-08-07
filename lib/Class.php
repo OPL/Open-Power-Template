@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://www.invenzzia.org>
- *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -135,10 +134,14 @@
 		// Add-ons
 		protected $_cache;
 
-		protected $_instructions = array('Section', 'Tree', 'Grid', 'Selector', 'Repeat',
-			'Snippet', 'Extend', 'For', 'Foreach', 'If', 'Put', 'Capture',
-			'Attribute', 'Tag', 'Root', 'Prolog', 'Dtd', 'Literal', 'Include',
-			'Dynamic', 'Component', 'Block');
+		protected $_instructions = array('Opt_Instruction_Section', 'Opt_Instruction_Tree',
+			'Opt_Instruction_Grid', 'Opt_Instruction_Selector', 'Opt_Instruction_Repeat',
+			'Opt_Instruction_Snippet', 'Opt_Instruction_Extend', 'Opt_Instruction_Cycle',
+			'Opt_Instruction_For', 'Opt_Instruction_Foreach', 'Opt_Instruction_If',
+			'Opt_Instruction_Put', 'Opt_Instruction_Capture', 'Opt_Instruction_Attribute',
+			'Opt_Instruction_Tag', 'Opt_Instruction_Root', 'Opt_Instruction_Prolog',
+			'Opt_Instruction_Dtd', 'Opt_Instruction_Literal', 'Opt_Instruction_Include',
+			'Opt_Instruction_Dynamic', 'Opt_Instruction_Component', 'Opt_Instruction_Block');
 		protected $_functions = array(
 			'money' => 'Opt_Function::money', 'number' => 'Opt_Function::number', 'spacify' => 'Opt_Function::spacify',
 			'firstof' => 'Opt_Function::firstof', 'indent' => 'Opt_Function::indent', 'strip' => 'Opt_Function::strip',

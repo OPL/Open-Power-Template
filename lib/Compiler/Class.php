@@ -145,8 +145,7 @@
 				$cnt = sizeof($instructions);
 				for($i = 0; $i < $cnt; $i++)
 				{
-					$name = 'Opt_Instruction_'.$instructions[$i];
-					$obj = new $name($this, $tpl);
+					$obj = new $instructions[$i]($this, $tpl);
 					$this->_processors[$obj->getName()] = $obj;
 					
 					// Add the tags and attributes registered by this processor.
@@ -233,8 +232,7 @@
 			$cnt = sizeof($instructions);
 			for($i = 0; $i < $cnt; $i++)
 			{
-				$name = 'Opt_Instruction_'.$instructions[$i];
-				$obj = new $name($this, $tpl);	
+				$obj = new $instructions[$i]($this, $tpl);	
 				$this->_processors[$obj->getName()] = $obj;
 			}
 		} // end __clone();
