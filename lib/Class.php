@@ -136,7 +136,7 @@
 
 		protected $_instructions = array('Opt_Instruction_Section', 'Opt_Instruction_Tree',
 			'Opt_Instruction_Grid', 'Opt_Instruction_Selector', 'Opt_Instruction_Repeat',
-			'Opt_Instruction_Snippet', 'Opt_Instruction_Extend', 'Opt_Instruction_Cycle',
+			'Opt_Instruction_Snippet', 'Opt_Instruction_Extend',
 			'Opt_Instruction_For', 'Opt_Instruction_Foreach', 'Opt_Instruction_If',
 			'Opt_Instruction_Put', 'Opt_Instruction_Capture', 'Opt_Instruction_Attribute',
 			'Opt_Instruction_Tag', 'Opt_Instruction_Root', 'Opt_Instruction_Prolog',
@@ -159,7 +159,12 @@
 		protected $_components = array();
 		protected $_blocks = array();
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
-		protected $_formats = array(1 => 'Array', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
+		protected $_formats = array(
+			'Array' => 'Opt_Format_Array',
+			'SingleArray' => 'Opt_Format_SingleArray',
+			'StaticGenerator' => 'Opt_Format_StaticGenerator',
+			'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
+			'Objective' => 'Opt_Format_Objective');
 		protected $_entities = array('lb' => '{', 'rb' => '}');
 		protected $_buffers = array();
 
@@ -256,20 +261,41 @@
 			
 			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities');
 			$whereto = $map[$type];
+			// Massive registration
 			if(is_array($item))
 			{
 				$this->$whereto = array_merge($this->$whereto, $item);
 				return;
 			}
-			elseif($type >= self::OPT_COMPONENT)
+			switch($type)
 			{
-				$a = &$this->$whereto;
-				$a[$item] = $addon;
-			}
-			else
-			{
-				$a = &$this->$whereto;
-				$a[] = $item;
+				case self::OPT_FORMAT:
+					if($addon === null)
+					{
+						$addon = 'Opt_Format_'.$item;
+					}
+					$a = &$this->$whereto;
+					$a[$item] = $addon;
+					break;
+				case self::OPT_INSTRUCTION:
+					if($addon === null)
+					{
+						$addon = 'Opt_Instruction_'.$item;
+					}
+					$a = &$this->$whereto;
+					$a[$item] = $addon;
+					break;
+				case self::OPT_NAMESPACE:
+					$a = &$this->$whereto;
+					$a[] = $item;
+					break;
+				default:
+					if($addon === null)
+					{
+						throw new BadMethodCallException('Missing argument 3 for Opt_Class::register()');
+					}
+					$a = &$this->$whereto;
+					$a[$item] = $addon;
 			}
 		} // end register();
 

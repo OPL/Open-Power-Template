@@ -58,7 +58,7 @@
 	{
 		protected $_message = 'Unknown content type: %s.';
 	} // end Opt_ContentType_Exception;
-	
+
 	class Opt_ObjectNotExists_Exception extends Opt_API_Exception
 	{
 		protected $_message = 'The %s "%s" is not defined in OPT.';
