@@ -588,6 +588,12 @@
 			{
 				if(!in_array($name, $ignoreList))
 				{
+					// Do not accept null values.
+					if($value === null)
+					{
+						continue;
+					}
+					// If the name is correct...
 					if(preg_match('/^([a-zA-Z0-9\.\_\-]+\:)?([a-zA-Z0-9\.\_\-]+)$/', $name))
 					{
 						$prepend .= ''.$name.'="'.htmlspecialchars($value).'" ';

@@ -2219,7 +2219,7 @@
 				if($doPostlinking)
 				{
 					$output .= $this->_doPostlinking($item);
-					if($item->get('dynamic'))
+					if(is_object($item) && $item->get('dynamic'))
 					{
 						$realOutput .= $output;
 						$output = &$realOutput;
