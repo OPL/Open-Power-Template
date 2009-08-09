@@ -42,8 +42,6 @@
 		const OP_TU = 8388608;
 		const OP_CURLY_BRACKET = 16777216;
 		
-		const DEFAULT_FORMAT_CLASS = 'Array';
-		
 		const ESCAPE_ON = true;
 		const ESCAPE_OFF = false;
 		const ESCAPE_BOTH = 2;
@@ -348,7 +346,7 @@
 		 */
 		public function getFormat($variable, $restore = false)
 		{
-			$hc = self::DEFAULT_FORMAT_CLASS;			
+			$hc = $this->_tpl->defaultFormat;
 			if(isset($this->_formatInfo[$variable]))
 			{
 				$hc = $this->_formatInfo[$variable];

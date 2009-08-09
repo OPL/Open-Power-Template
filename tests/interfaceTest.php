@@ -332,4 +332,22 @@
 			$output = new Opt_Output_Return;
 			$output->render($view);
 		} // end testRelativePathsEnabled();
+
+		/**
+		 * Testing the various compilation modes: CM_DEFAULT
+		 */
+		public function testTemplateInheritanceRecompileWithDataFormat()
+		{
+			$this->tpl->compileMode = Opt_Class::CM_DEFAULT;
+			file_put_contents('./interface/base.tpl', "<opt:root>\n<opt:insert snippet=\"foo\" />\n</opt:root>");
+
+			$view = new Opt_View('inherits.tpl');
+			$item = new stdClass;
+			$item->bar = 'bar';
+			$view->item = $item;
+			$view->setFormat('item', 'Objective');
+
+			$output = new Opt_Output_Return;
+			$this->assertEquals('bar', $this->stripWs($output->render($view)));
+		} // end testTemplateInheritanceRecompileWithDataFormat();
 	} // end interfaceTest;

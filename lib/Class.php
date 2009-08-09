@@ -127,6 +127,7 @@
 		public $htmlEntities = true;
 		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
+		public $defaultFormat = 'Array';
 
 		// Data
 		protected $_tf = NULL;	// translation interface
@@ -1219,6 +1220,8 @@
 		{
 			$compiled = $this->_convert($filename);
 			$compiler = $this->_tpl->getCompiler();
+			$compiler->setInheritance($this->_cplInheritance);
+			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 			$compiler->set('branch', $this->_branch);
 			$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
 			return time();

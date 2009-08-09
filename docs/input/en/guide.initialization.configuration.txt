@@ -103,6 +103,9 @@ Compiler options
 :	`Opt_Class::ACCESS_LOCAL` - the template variables are local. The access to global variables is possible via `$global`. This is the default setting.
 :	`Opt_Class::ACCESS_GLOBAL` - the template variables are global by default. The access to local variables is possible via `$this`.
 
+`defaultFormat`
+:	The default data format used by OPT.
+
 Misc. options
 =============
 
