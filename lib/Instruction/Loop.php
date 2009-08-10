@@ -21,7 +21,17 @@
 	 */
 	abstract class Opt_Instruction_Loop extends Opt_Compiler_Processor
 	{
-		
+
+		/**
+		 * Adds the "separator" tag and attribute support to the loop instructions.
+		 * It finds the necessary items in the XML tree and compiles them properly.
+		 * Note that the algorithm used by "separator", does not require any special
+		 * information and stuff from the instruction.
+		 *
+		 * @param String $varname The variable name used by the separator PHP code to detect the first element
+		 * @param String $arg If this argument is not NULL, it should contain the value from the "separator" attribute in the instruction tag.
+		 * @param Opt_Xml_Scannable $node The loop node.
+		 */
 		public function processSeparator($varname, $arg, Opt_Xml_Scannable $node)
 		{
 			$items = $node->getElementsByTagNameNS('opt', 'separator', false);
@@ -52,6 +62,10 @@
 			}
 		} // end processSeparator();
 
+		/**
+		 * Returns the "separator" attribute configuration for _extractAttributes()
+		 * @return Array
+		 */
 		public function getSeparatorConfig()
 		{
 			return array(self::OPTIONAL, self::EXPRESSION, NULL);

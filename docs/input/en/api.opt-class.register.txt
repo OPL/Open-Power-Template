@@ -19,7 +19,7 @@ This method supports also mass registering of items by specifying an array as `$
 ~~~~
 [php]
 $tpl->register(Opt_Class::OPT_INSTRUCTION, array(
-	'My_Instruction_1', 'My_Instruction_2', 'My_Instruction_3'
+	'Instruction1' => 'My_Instruction_1', 'Instruction2' => 'My_Instruction_2', 'Instruction3' => 'My_Instruction_3'
 ));
 ~~~~
 
@@ -33,6 +33,9 @@ $tpl->register(Opt_Class::OPT_COMPONENT, array(
 	'my:radio' => 'My_Radio_Component'
 ));
 ~~~~
+
+> [error]
+> This method must be used before [Opt_Class::setup()][api.opt-class.setup] method.
 
 Registering PHP functions and classes
 =====================================
@@ -67,3 +70,17 @@ $tpl->register(Opt_Class::PHP_FUNCTION, 'foo', '#3,1,2:null#foo');
 ~~~~
 
 In this case, the third argument in templates is optional, but in PHP it is required. We must specify the default value (**null** in this case) for the compiler then by adding `:null` to the position number.
+
+Registering instructions and formats
+====================================
+
+For instructions and processors we register their class names and the identifiers they will appear in the parser. If we specify the identifier only, OPT will construct a class name for them, accordingly `Opt_Instruction_Identifier` and `Opt_Format_Identifier`. Sometimes we may want to give the classes different names, for example due to the autoloading purposes. In this case, we specify the class as the third argument.
+
+~~~~
+[php]
+$tpl->register(Opt_Class::OPT_FORMAT, 'Foo');	// Registers "Foo" from "Opt_Format_Foo" class
+$tpl->register(Opt_Class::OPT_FORMAT, 'Foo', 'Some_Class'); // Registers "Foo" from "Some_Class"
+~~~~
+
+> [warning]
+> When registering a group of instructions or formats with a single call of `register()`, you are obliged to provide assotiative arrays, where the keys are identifiers, and the values - the class names. OPT does not expand the identifiers to the class names in this case.

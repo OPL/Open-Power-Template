@@ -13,16 +13,35 @@
  * $Id$
  */
 
+	/**
+	 * This processor implements the opt:for instruction.
+	 */
 	class Opt_Instruction_For extends Opt_Instruction_Loop
 	{
+		/**
+		 * The processor name
+		 * @var String
+		 */
 		protected $_name = 'for';
+
+		/**
+		 * The current nesting level of "opt:for"
+		 * @var Integer
+		 */
 		protected $_nesting = 0;
-		
+
+		/**
+		 * Configures the processor.
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:for'));
 		} // end configure();
-	
+
+		/**
+		 * Processes the "opt:for" node.
+		 * @param Opt_Xml_Node $node The node found by the compiler
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -42,7 +61,11 @@
 			$node->set('postprocess', true);
 			$this->_process($node);
 		} // end processNode();
-		
+
+		/**
+		 * In the postprocessing, we decrement the nesting level.
+		 * @param Opt_Xml_Node $node The node found by the compiler.
+		 */
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
 			$this->_nesting--;

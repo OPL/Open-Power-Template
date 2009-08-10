@@ -13,16 +13,35 @@
  * $Id$
  */
 
+	/**
+	 * This processor implements the opt:foreach instruction.
+	 */
 	class Opt_Instruction_Foreach extends Opt_Instruction_Loop
 	{
+		/**
+		 * The processor name
+		 * @var String
+		 */
 		protected $_name = 'foreach';
+
+		/**
+		 * The current nesting level of "opt:for"
+		 * @var Integer
+		 */
 		protected $_nesting = 0;
-		
+
+		/**
+		 * Configures the processor.
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:foreach', 'opt:foreachelse'));
 		} // end configure();
-	
+
+		/**
+		 * Processes the "opt:foreach" node.
+		 * @param Opt_Xml_Node $node The node found by the compiler
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			switch($node->getName())
@@ -40,7 +59,8 @@
 					
 					$node->sort(array('*' => 0, 'opt:foreachelse' => 1));
 					$list = $node->getElementsByTagNameNS('opt', 'foreachelse', false);
-					
+
+					// Determine, if we are using opt:foreachelse, because it requires a bit different code from us.
 					$codeBegin = ' foreach('.$params['array'].' as '.(!is_null($params['index']) ? '$__fe'.$this->_nesting.'_idx => ' : '').'$__fe'.$this->_nesting.'_val){ ';
 					switch(sizeof($list))
 					{
@@ -52,7 +72,8 @@
 						default:
 							throw new Opt_InstructionTooManyItems_Exception('opt:foreachelse', $node->getXmlName());
 					}					
-					
+
+					// Register everything in the buffer.
 					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $codeBegin);
 					$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 					$this->_compiler->setConversion('##var_'.$params['value'], '$__fe'.$this->_nesting.'_val');
@@ -60,6 +81,7 @@
 					{
 						$this->_compiler->setConversion('##var_'.$params['index'], '$__fe'.$this->_nesting.'_idx');
 					}
+					// This instruction supports separators.
 					$this->processSeparator('$__foreach_'.$this->_nesting, $params['separator'], $node);
 					
 					$node->set('postprocess', true);
@@ -77,7 +99,13 @@
 					break;
 			}
 		} // end processNode();
-		
+
+		/**
+		 * In the postprocessing, we decrement the nesting level and unregister
+		 * the conversions set in the processing stage.
+		 *
+		 * @param Opt_Xml_Node $node The node found by the compiler.
+		 */
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
 			$params = $node->get('params');

@@ -44,6 +44,10 @@ extending.components
 extending.output-systems
 extending.caching-systems
 extending.data-formats
+extending.data-formats.variables
+extending.data-formats.items
+extending.data-formats.sections
+extending.data-formats.plugins
 extending.instructions
 extending.instructions.processor-overview
 extending.instructions.generating-php
@@ -53,6 +57,7 @@ extending.instructions.system
 extending.instructions.data-formats
 extending.instructions.node-variables
 extending.instructions.tips
+extending.instructions.plugins
 migration
 api
 api.opt-class

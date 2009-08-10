@@ -154,6 +154,20 @@ $view->setFormat('products', 'Objective');
 > [information]
 > The top section data are always taken from the variable buffer. Nested section data are treaded as one of the parent section elements, so the data for `products` will be retrieved using `SingleArray` format.
 
+Hiding the fact that a variable or section is actually global
+=============================================================
+
+Normally, we use the `$global` container to access the global variables. However, sometimes we would like to hide this fact, especially when it comes to sections. Since OPT 2.0.1, we can use `Opt_View::setFormatGlobal()` here:
+
+~~~~
+[php]
+// Sets a format for '$global.foo' in all the templates
+Opt_View::setFormatGlobal('foo', 'Format');
+
+// Sets a format for '$foo' in all the templates
+Opt_View::setFormatGlobal('foo', 'Format', false);
+~~~~
+
 Supported feature issue
 =======================
 

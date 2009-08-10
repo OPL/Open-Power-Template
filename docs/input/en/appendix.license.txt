@@ -7,6 +7,7 @@ Open Power Template 2 was designed and created by the **Invenzzia programming gr
 
 + Tomasz "Zyx" Jędrzejewski - the idea, project, programming, documentation, tests.
 + Jacek "eXtreme" Jędrzejewski - tests, support, ideas, documentation.
++ Amadeusz "megawebmaster" Starzykiewicz - additional programming
 
 We would like to thank all the users of both OPT 1 and OPT 2. We create them for you.
 

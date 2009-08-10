@@ -350,4 +350,150 @@
 			$output = new Opt_Output_Return;
 			$this->assertEquals('bar', $this->stripWs($output->render($view)));
 		} // end testTemplateInheritanceRecompileWithDataFormat();
+
+		/**
+		 * @covers Opt_Class::register
+		 */
+		public function testRegisterFromArray()
+		{
+			$tpl = new Opt_Class;
+			$tpl->register(Opt_Class::PHP_CLASS, array(
+				'foo' => 'bar',
+				'joe' => 'goo'
+			));
+
+			$out = $tpl->_getList('_classes');
+			if(!isset($out['foo']) || $out['foo'] != 'bar')
+			{
+				$this->fail('foo key not set');
+			}
+			if(!isset($out['joe']) || $out['joe'] != 'goo')
+			{
+				$this->fail('joe key not set');
+			}
+			return true;
+		} // end testRegisterFromArray();
+
+		/**
+		 * @covers Opt_Class::register
+		 */
+		public function testRegisterShortForm()
+		{
+			$tpl = new Opt_Class;
+			$tpl->register(Opt_Class::OPT_NAMESPACE, 'Foo');
+
+			$out = $tpl->_getList('_namespaces');
+			$this->assertContains('Foo', $out);
+			return true;
+		} // end testRegisterShortForm();
+
+		/**
+		 * @covers Opt_Class::register
+		 */
+		public function testRegisterLongForm()
+		{
+			$tpl = new Opt_Class;
+			$tpl->register(Opt_Class::OPT_COMPONENT, 'Foo', 'Bar');
+
+			$out = $tpl->_getList('_components');
+			$this->assertArrayHasKey('Foo', $out);
+			$this->assertContains('Bar', $out);
+			return true;
+		} // end testRegisterLongForm();
+
+		/**
+		 * @covers Opt_Class::register
+		 */
+		public function testRegisterFormat()
+		{
+			$tpl = new Opt_Class;
+			$tpl->register(Opt_Class::OPT_FORMAT, 'Foo');
+			$tpl->register(Opt_Class::OPT_FORMAT, 'Bar', 'Bar_Joe');
+
+			$out = $tpl->_getList('_formats');
+			$this->assertArrayHasKey('Foo', $out);
+			$this->assertContains('Opt_Format_Foo', $out);
+
+			$this->assertArrayHasKey('Bar', $out);
+			$this->assertContains('Bar_Joe', $out);
+			return true;
+		} // end testRegisterFormat();
+
+		/**
+		 * @covers Opt_Class::register
+		 */
+		public function testRegisterInstruction()
+		{
+			$tpl = new Opt_Class;
+			$tpl->register(Opt_Class::OPT_INSTRUCTION, 'Foo');
+			$tpl->register(Opt_Class::OPT_INSTRUCTION, 'Bar', 'Bar_Joe');
+
+			$out = $tpl->_getList('_instructions');
+			$this->assertArrayHasKey('Foo', $out);
+			$this->assertContains('Opt_Instruction_Foo', $out);
+
+			$this->assertArrayHasKey('Bar', $out);
+			$this->assertContains('Bar_Joe', $out);
+			return true;
+		} // end testRegisterInstruction();
+
+		/**
+		 * @covers Opt_Class::register
+		 * @expectedException Opt_Initialization_Exception
+		 */
+		public function testRegisterLockedAfterSetup()
+		{
+			$tpl = new Opt_Class;
+			$tpl->sourceDir = './foo/';
+			$tpl->compileDir = './foo/';
+			$tpl->setup();
+			$tpl->register(Opt_Class::OPT_FORMAT, 'Foo');
+			return true;
+		} // end testRegisterLockedAfterSetup();
+
+		/**
+		 * @covers Opt_Class::setBufferState
+		 * @covers Opt_Class::getBufferState
+		 */
+		public function testBufferCounter1()
+		{
+			$this->assertFalse($this->tpl->getBufferState('test1'));
+			$this->tpl->setBufferState('test1', false);
+			$this->assertFalse($this->tpl->getBufferState('test1'));
+			$this->tpl->setBufferState('test1', true);
+			$this->assertTrue($this->tpl->getBufferState('test1'));
+			return true;
+		} // end testBufferCounter1();
+
+		/**
+		 * @covers Opt_Class::setBufferState
+		 * @covers Opt_Class::getBufferState
+		 */
+		public function testBufferCounter2()
+		{
+			$this->assertFalse($this->tpl->getBufferState('test2'));
+			$this->tpl->setBufferState('test2', true);
+			$this->assertTrue($this->tpl->getBufferState('test2'));
+			$this->tpl->setBufferState('test2', true);
+			$this->assertTrue($this->tpl->getBufferState('test2'));
+			return true;
+		} // end testBufferCounter2();
+
+		/**
+		 * @covers Opt_Class::setBufferState
+		 * @covers Opt_Class::getBufferState
+		 */
+		public function testBufferCounter3()
+		{
+			$this->assertFalse($this->tpl->getBufferState('test3'));
+			$this->tpl->setBufferState('test3', true);
+			$this->assertTrue($this->tpl->getBufferState('test3'));
+			$this->tpl->setBufferState('test3', true);
+			$this->assertTrue($this->tpl->getBufferState('test3'));
+			$this->tpl->setBufferState('test3', false);
+			$this->assertTrue($this->tpl->getBufferState('test3'));
+			$this->tpl->setBufferState('test3', false);
+			$this->assertFalse($this->tpl->getBufferState('test3'));
+			return true;
+		} // end testBufferCounter3();
 	} // end interfaceTest;

@@ -19,24 +19,45 @@
 
 	class Opt_Xml_Expression extends Opt_Xml_Node
 	{
+		/**
+		 * The expression stored in the node.
+		 * @var String
+		 */
 		private $_expression;
-		
+
+		/**
+		 * Initializes the expression node. The argument determines the
+		 * expression that it represents.
+		 * @param String $expression The expression represented by the node.
+		 */
 		public function __construct($expression)
 		{
 			parent::__construct();
 			$this->_expression = $expression;
 		} // end __construct();
-		
+
+		/**
+		 * Returns the expression stored in the node.
+		 * @return String
+		 */
 		public function getExpression()
 		{
 			return $this->_expression;
 		} // end getExpression();
-		
+
+		/**
+		 * Sets a new expression for the node.
+		 * @param String $expression The new expression.
+		 */
 		public function setExpression($expression)
 		{
 			$this->_expression = $expression;
 		} // end setExpression();
-		
+
+		/**
+		 * Returns the expression stored in the node.
+		 * @return String
+		 */
 		public function __toString()
 		{
 			return $this->_expression;

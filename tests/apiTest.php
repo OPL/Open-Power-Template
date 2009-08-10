@@ -95,8 +95,8 @@
 				array(0 => 'Opt_Class', 'getCache', 'api.opt-class.get-cache', M_PUBLIC),
 				array(0 => 'Opt_Class', '_getList', null, M_PUBLIC),
 
-				array(0 => 'Opt_View', 'getBufferState', 'api.opt-class.get-buffer-state', M_PUBLIC),
-				array(0 => 'Opt_View', 'setBufferState', 'api.opt-class.set-buffer-state', M_PUBLIC),
+				array(0 => 'Opt_Class', 'getBufferState', 'api.opt-class.get-buffer-state', M_PUBLIC),
+				array(0 => 'Opt_Class', 'setBufferState', 'api.opt-class.set-buffer-state', M_PUBLIC),
 
 				// Opt_View methods
 				array(0 => 'Opt_View', '__construct', 'api.opt-view.__construct', M_PUBLIC),
