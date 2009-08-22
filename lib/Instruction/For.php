@@ -36,7 +36,7 @@
 			
 			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' for('.$params['begin'].'; '.$params['while'].'; '.$params['iterate'].'){ ');
 			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
-			
+
 			$this->processSeparator('$__for'.$this->_nesting, $params['separator'], $node);
 			
 			$node->set('postprocess', true);

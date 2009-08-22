@@ -41,39 +41,6 @@ class Package_ClassTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @covers Opt_Class::setup
 	 */
-	public function testSetupPreparesStringPaths()
-	{
-		$this->_tpl->sourceDir = './string_path/';
-		$this->_tpl->setup();
-		if(!is_array($this->_tpl->sourceDir))
-		{
-			$this->fail('sourceDir is not array.');
-			return false;
-		}
-		if(!isset($this->_tpl->sourceDir['file']))
-		{
-			$this->fail('file key not registered.');
-			return false;
-		}
-		$this->assertEquals('./string_path/', $this->_tpl->sourceDir['file']);
-	} // end testSetupPreparesStringPaths();
-
-	/**
-	 * @covers Opt_Class::setup
-	 */
-	public function testSetupFixesPaths()
-	{
-		$this->_tpl->sourceDir = './string_path';
-		$this->_tpl->compileDir = './string_path';
-		$this->_tpl->setup();
-
-		$this->assertEquals('./string_path/', $this->_tpl->sourceDir['file']);
-		$this->assertEquals('./string_path/', $this->_tpl->compileDir);
-	} // end testSetupFixesPaths();
-
-	/**
-	 * @covers Opt_Class::setup
-	 */
 	public function testSetupRegistersTranslationInterface()
 	{
 		$this->_tpl->sourceDir = 'php://memory';
@@ -112,30 +79,32 @@ class Package_ClassTest extends PHPUnit_Framework_TestCase
 		$this->_tpl->pluginDataDir = 'php://memory';
 		$this->_tpl->sourceDir = 'fake';
 		$this->_tpl->setup(array(
-			'sourceDir' => 'php://memory',
-			'compileDir' => 'php://memory'
+			'stripWhitespaces' => false
 		));
 
-		$this->assertEquals('php://memory/', $this->_tpl->sourceDir['file']);
-		$this->assertEquals('php://memory/', $this->_tpl->compileDir);
-		$this->assertEquals('php://memory', $this->_tpl->pluginDataDir);
+		$this->assertFalse($this->_tpl->stripWhitespaces);
 	} // end testSetupLoadsExternalConfiguration();
 
 	/**
 	 * @covers Opt_Class::setup
+	 * @covers Opt_Class::getInflector
 	 */
-	public function testSetupSourceDirMissing()
+	public function testSetupCreatesInflector()
 	{
-		try
-		{
-			$this->_tpl->setup();
-		}
-		catch(Opt_InvalidOptionValue_Exception $exception)
-		{
-			return true;
-		}
-		$this->fail('Exception Opt_InvalidOptionValue_Exception not returned');
-	} // end testSetupSourceDirMissing();
+		$this->_tpl->setup();
+		$this->assertTrue($this->_tpl->getInflector() instanceof Opt_Inflector_Standard);
+	} // end testSetupCreatesInflector();
+
+	/**
+	 * @covers Opt_Class::setup
+	 * @covers Opt_Class::setInflector
+	 */
+	public function testSetupCDoesNotCreateInitializedInflector()
+	{
+		$this->_tpl->setInflector($obj = $this->getMock('Opt_Inflector_Interface'));
+		$this->_tpl->setup();
+		$this->assertSame($obj, $this->_tpl->getInflector());
+	} // end testSetupCreatesInflector();
 
 	/**
 	 * @covers Opt_Class::register
@@ -184,9 +153,9 @@ class Package_ClassTest extends PHPUnit_Framework_TestCase
 	 */
 	public function testRegisterShortForm()
 	{
-		$this->_tpl->register(Opt_Class::OPT_INSTRUCTION, 'Foo');
+		$this->_tpl->register(Opt_Class::OPT_NAMESPACE, 'Foo');
 
-		$out = $this->_tpl->_getList('_instructions');
+		$out = $this->_tpl->_getList('_namespaces');
 		$this->assertContains('Foo', $out);
 		return true;
 	} // end testRegisterShortForm();
@@ -203,6 +172,40 @@ class Package_ClassTest extends PHPUnit_Framework_TestCase
 		$this->assertContains('Bar', $out);
 		return true;
 	} // end testRegisterLongForm();
+
+	/**
+	 * @covers Opt_Class::register
+	 */
+	public function testRegisterFormat()
+	{
+		$this->_tpl->register(Opt_Class::OPT_FORMAT, 'Foo');
+		$this->_tpl->register(Opt_Class::OPT_FORMAT, 'Bar', 'Bar_Joe');
+
+		$out = $this->_tpl->_getList('_formats');
+		$this->assertArrayHasKey('Foo', $out);
+		$this->assertContains('Opt_Format_Foo', $out);
+
+		$this->assertArrayHasKey('Bar', $out);
+		$this->assertContains('Bar_Joe', $out);
+		return true;
+	} // end testRegisterFormat();
+
+	/**
+	 * @covers Opt_Class::register
+	 */
+	public function testRegisterInstruction()
+	{
+		$this->_tpl->register(Opt_Class::OPT_INSTRUCTION, 'Foo');
+		$this->_tpl->register(Opt_Class::OPT_INSTRUCTION, 'Bar', 'Bar_Joe');
+
+		$out = $this->_tpl->_getList('_instructions');
+		$this->assertArrayHasKey('Foo', $out);
+		$this->assertContains('Opt_Instruction_Foo', $out);
+
+		$this->assertArrayHasKey('Bar', $out);
+		$this->assertContains('Bar_Joe', $out);
+		return true;
+	} // end testRegisterInstruction();
 
 	/**
 	 * @covers Opt_Class::setBufferState

@@ -208,13 +208,13 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 				array('tag_3.txt'),
 				array('tag_4.txt'),
 				array('tag_5.txt'),
-			/*	array('tree_1.txt'),
+				array('tree_1.txt'),
 				array('tree_2.txt'),
 				array('tree_3.txt'),
 				array('tree_4.txt'),
 				array('tree_5.txt'),
 				array('tree_6.txt'),
-				array('tree_7.txt'),*/
+				array('tree_7.txt'),
 		);
 	} // end dataProvider();
 

@@ -64,6 +64,11 @@
 		protected $_message = 'The %s "%s" is not defined in OPT.';
 	} // end Opt_ObjectNotExists_Exception;
 
+	class Opt_ObjectExists_Exception extends Opt_API_Exception
+	{
+		protected $_message = 'The %s "%s" already exists in OPT.';
+	} // end Opt_ObjectExists_Exception;
+
 	class Opt_TemplateNotFound_Exception extends Opt_API_Exception
 	{
 		protected $_message = '"%s" has not been found in the source template directory.';

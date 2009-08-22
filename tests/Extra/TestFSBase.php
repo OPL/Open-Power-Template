@@ -46,6 +46,7 @@ class Extra_TestFSBase extends PHPUnit_Framework_TestCase
 	protected function tearDown()
 	{
 		Opl_Registry::register('opt', null);
+		Opt_View::clear();
 		unset($this->tpl);
 	} // end tearDown();
 

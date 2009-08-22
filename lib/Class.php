@@ -56,6 +56,12 @@
 		public function generate($what);
 	} // end Opt_Generator_Interface;
 
+	interface Opt_Inflector_Interface
+	{
+		public function getSourcePath($file);
+		public function getCompiledPath($file, array $inheritance);
+	} // end Opt_Inflector_Interface;
+
 	/*
 	 * Class definitions
 	 */
@@ -105,6 +111,7 @@
 		public $errorReporting = self::ERR_STANDARD;
 		public $stdStream = 'file';
 		public $debugConsole = false;
+		public $allowRelativePaths = false;
 
 		// Function configuration
 		public $moneyFormat;
@@ -133,16 +140,45 @@
 		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
 
-		// Data
-		protected $_tf = NULL;	// translation interface
+		/**
+		 * The compiler object
+		 * @var Opt_Compiler_Class
+		 */
+		protected $_compiler;
+		/**
+		 * The inflector object
+		 * @var Opt_Inflector_Interface
+		 */
+		protected $_inflector;
+		/**
+		 * The translation interface
+		 * @var Opl_Translation_Interface
+		 */
+		protected $_tf = NULL;
 
-		// Add-ons
+		/**
+		 * The cache object
+		 * @var Opt_Caching_Interface
+		 */
 		protected $_cache;
 
-		protected $_instructions = array('Section', 'Tree', 'Grid', 'Selector', 'Repeat',
-			'Snippet', 'Extend', 'Cycle', 'For', 'Foreach', 'If', 'Put', 'Capture',
-			'Attribute', 'Tag', 'Root', 'Prolog', 'Dtd', 'Literal', 'Include',
-			'Dynamic', 'Component', 'Block');
+		/**
+		 * The list of registered instruction processors.
+		 * @var array
+		 */
+		protected $_instructions = array('Opt_Instruction_Section', 'Opt_Instruction_Tree',
+			'Opt_Instruction_Grid', 'Opt_Instruction_Selector', 'Opt_Instruction_Repeat',
+			'Opt_Instruction_Snippet', 'Opt_Instruction_Extend',
+			'Opt_Instruction_For', 'Opt_Instruction_Foreach', 'Opt_Instruction_If',
+			'Opt_Instruction_Put', 'Opt_Instruction_Capture', 'Opt_Instruction_Attribute',
+			'Opt_Instruction_Tag', 'Opt_Instruction_Root', 'Opt_Instruction_Prolog',
+			'Opt_Instruction_Dtd', 'Opt_Instruction_Literal', 'Opt_Instruction_Include',
+			'Opt_Instruction_Dynamic', 'Opt_Instruction_Component', 'Opt_Instruction_Block');
+		/**
+		 * The list of registered functions: assotiative parray of pairs:
+		 * template function name => php function name
+		 * @var array
+		 */
 		protected $_functions = array(
 			'money' => 'Opt_Function::money', 'number' => 'Opt_Function::number', 'spacify' => 'Opt_Function::spacify',
 			'firstof' => 'Opt_Function::firstof', 'indent' => 'Opt_Function::indent', 'strip' => 'Opt_Function::strip',
@@ -155,19 +191,56 @@
 			'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
 			'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey'
 		);
+		/**
+		 * The list of registered classes: assotiative array of pairs:
+		 * template class name => php class name
+		 * @var array
+		 */
 		protected $_classes = array();
+		/**
+		 * The list of registered components: assotiative array of
+		 * pairs: XML tag => component class
+		 * @var array
+		 */
 		protected $_components = array();
+		/**
+		 * The list of registered blocks: assotiative array of
+		 * pairs: XML tag => component class
+		 * @var array
+		 */
 		protected $_blocks = array();
+		/**
+		 * The list of recognized OPT namespaces
+		 * @var array
+		 */
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
-		protected $_formats = array(1 => 'Array', 'SingleArray', 'StaticGenerator', 'RuntimeGenerator', 'Objective');
+		/**
+		 * The list of data formats: assotiative array of pairs:
+		 * format name => format class
+		 * @var array
+		 */
+		protected $_formats = array(
+			'Array' => 'Opt_Format_Array',
+			'SingleArray' => 'Opt_Format_SingleArray',
+			'StaticGenerator' => 'Opt_Format_StaticGenerator',
+			'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
+			'Objective' => 'Opt_Format_Objective');
+		/**
+		 * The extra entities replaced by OPT
+		 * @var array
+		 */
 		protected $_entities = array('lb' => '{', 'rb' => '}');
+		/**
+		 * The output buffers for advisory output buffering information.
+		 * @var array
+		 */
 		protected $_buffers = array();
 
-		// Status
+		/**
+		 * Was the library initialized?
+		 * @var boolean
+		 */
 		protected $_init = false;
-
-		// Other
-		protected $_compiler;
 
 		/*
 		 * Template parsing
@@ -221,21 +294,10 @@
 				Opt_Support::initDebugConsole($this);
 			}
 
-			// Check paths etc.
-			if(is_string($this->sourceDir))
+			// Register a default inflector, if the programmer didn't set any.
+			if(!$this->_inflector instanceof Opt_Inflector_Interface)
 			{
-				$this->sourceDir = array('file' => $this->sourceDir);
-			}
-			if(is_array($this->sourceDir))
-			{
-				foreach($this->sourceDir as &$path)
-				{
-					$this->_securePath($path);
-				}
-			}
-			else
-			{
-				throw new Opt_InvalidOptionValue_Exception('sourceDir', 'not a path');
+				$this->_inflector = new Opt_Inflector_Standard($this);
 			}
 			$this->_securePath($this->compileDir);
 			$this->_init = true;
@@ -264,20 +326,41 @@
 
 			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities');
 			$whereto = $map[$type];
+			// Massive registration
 			if(is_array($item))
 			{
 				$this->$whereto = array_merge($this->$whereto, $item);
 				return;
 			}
-			elseif($type >= self::OPT_COMPONENT)
+			switch($type)
 			{
-				$a = &$this->$whereto;
-				$a[$item] = $addon;
-			}
-			else
-			{
-				$a = &$this->$whereto;
-				$a[] = $item;
+				case self::OPT_FORMAT:
+					if($addon === null)
+					{
+						$addon = 'Opt_Format_'.$item;
+					}
+					$a = &$this->$whereto;
+					$a[$item] = $addon;
+					break;
+				case self::OPT_INSTRUCTION:
+					if($addon === null)
+					{
+						$addon = 'Opt_Instruction_'.$item;
+					}
+					$a = &$this->$whereto;
+					$a[$item] = $addon;
+					break;
+				case self::OPT_NAMESPACE:
+					$a = &$this->$whereto;
+					$a[] = $item;
+					break;
+				default:
+					if($addon === null)
+					{
+						throw new BadMethodCallException('Missing argument 3 for Opt_Class::register()');
+					}
+					$a = &$this->$whereto;
+					$a[$item] = $addon;
 			}
 		} // end register();
 
@@ -310,6 +393,25 @@
 		{
 			return $this->_tf;
 		} // end getTranslationInterface();
+
+		/**
+		 * Sets a new inflector for the OPT.
+		 * @param Opt_Inflector_Interface $inflector The new inflector.
+		 */
+		public function setInflector(Opt_Inflector_Interface $inflector)
+		{
+			$this->_inflector = $inflector;
+		} // end setInflector();
+
+		/**
+		 * Returns the current inflector. Note that before calling setup()
+		 * this method may return NULL.
+		 * @return Opt_Inflector_Interface
+		 */
+		public function getInflector()
+		{
+			return $this->_inflector;
+		} // end getInflector();
 
 		/**
 		 * Sets the global caching system to use in all the views.
@@ -464,7 +566,7 @@
 		 */
 		public function _getSource($filename, $exception = true)
 		{
-			$item = $this->_stream($filename);
+			$item = $this->_inflector->getSourcePath($filename);
 			if(!file_exists($item))
 			{
 				if(!$exception)
@@ -1056,8 +1158,9 @@
 		 */
 		protected function _preprocess($exception = true)
 		{
-			$item = $this->_tpl->_stream($this->_template);
-			$compiled = $this->_convert($this->_template);
+			$inflector = $this->_tpl->getInflector();
+			$item = $inflector->getSourcePath($this->_template);
+			$compiled = $inflector->getCompiledPath($this->_template, $this->_inheritance);
 			$compileTime = @filemtime($this->_tpl->compileDir.$compiled);
 			$result = NULL;
 
@@ -1126,12 +1229,10 @@
 					return false;	// We return false even here, because the compilation has already been done in _parse()
 				case Opt_Class::CM_DEFAULT:
 					$cnt = sizeof($templates);
-				//	$templates = array();
-
-					// TODO: Check whether the object as array key works :P
+					$inflector = $this->_tpl->getInflector();
 					for($i = 0; $i < $cnt; $i++)
 					{
-						$templates[$i] = $this->_tpl->_stream($templates[$i]);
+						$templates[$i] = $inflector->getSourcePath($templates[$i]);
 						$time = @filemtime($templates[$i]);
 						if(is_null($time))
 						{
@@ -1156,18 +1257,7 @@
 		 */
 		public function _convert($filename)
 		{
-			$list = array();
-			if(sizeof($this->_inheritance) > 0)
-			{
-				$list = $this->_inheritance;
-				sort($list);
-			}
-			$list[] = str_replace(array('/', ':', '\\'), '__', $filename);
-			if(!is_null($this->_tpl->compileId))
-			{
-				return $this->_tpl->compileId.'_'.implode('/', $list).'.php';
-			}
-			return implode('/', $list).'.php';
+			return $this->_tpl->getInflector()->getCompiledPath($filename, $this->_inheritance);
 		} // end _convert();
 
 		/**
@@ -1180,8 +1270,10 @@
 		 */
 		public function _compile($filename)
 		{
-			$compiled = $this->_convert($filename);
+			$compiled = $this->_tpl->getInflector()->getCompiledPath($filename, $this->_inheritance);
 			$compiler = $this->_tpl->getCompiler();
+			$compiler->setInheritance($this->_cplInheritance);
+			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 			$compiler->set('branch', $this->_branch);
 			$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
 			return time();

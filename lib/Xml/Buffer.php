@@ -169,7 +169,7 @@
 				{
 					if($used)
 					{
-						$out .= ' echo \''.$item.'\'; ';
+						$out .= ($this->get('nophp') ? $item : ' echo \''.$item.'\'; ');
 					}
 					$used = false;
 					continue;

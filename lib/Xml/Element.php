@@ -281,7 +281,9 @@
 				}
 				else
 				{
-					$this->set('hidden', true);
+					// Remember to set the hidden state IF AND ONLY IF
+					// it is not set.
+					$this->get('hidden') === null and $this->set('hidden', true);
 				}
 			}
 			else

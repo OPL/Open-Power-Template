@@ -2,11 +2,13 @@ This test checks the basic block functionality.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root>
 FOO
 <opt:block from="$block">
 BAR
 </opt:block>
 FOO
+</opt:root>
 
 >>>>data.php
 

@@ -92,11 +92,9 @@
 
 				// Create the processors and call their configuration method in the constructors.
 				$instructions = $tpl->_getList('_instructions');
-				$cnt = sizeof($instructions);
-				for($i = 0; $i < $cnt; $i++)
+				foreach($instructions as $instructionClass)
 				{
-					$name = 'Opt_Instruction_'.$instructions[$i];
-					$obj = new $name($this, $tpl);
+					$obj = new $instructionClass($this, $tpl);
 					$this->_processors[$obj->getName()] = $obj;
 
 					// Add the tags and attributes registered by this processor.
@@ -318,11 +316,11 @@
 			$obj = null;
 			foreach($expanded as $class)
 			{
-				if(!in_array($class, $this->_formats))
+				if(!isset($this->_formats[$class]))
 				{
 					throw new Opt_FormatNotFound_Exception($variable, $class);
 				}
-				$hcName = 'Opt_Format_'.$class;
+				$hcName = $this->_formats[$class];
 				if(!is_null($obj))
 				{
 					$obj->decorate($obj2 = new $hcName($this->_tpl, $this));
@@ -453,7 +451,7 @@
 		 */
 		public function isIdentifier($id)
 		{
-			return preg_match($this->_rEncodingName, $id);
+			return preg_match('/[A-Za-z]([A-Za-z0-9.\_]|\-)*/si', $id);
 		} // end isIdentifier();
 
 		/**

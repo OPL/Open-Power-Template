@@ -7,7 +7,7 @@
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 
-class Extra_Mock_Block
+class Extra_Mock_Block implements Opt_Block_Interface
 {
 
 	public function setView(Opt_View $view)
