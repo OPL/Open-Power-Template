@@ -154,6 +154,8 @@ $view->setFormat('products', 'Objective');
 > [information]
 > The top section data are always taken from the variable buffer. Nested section data are treaded as one of the parent section elements, so the data for `products` will be retrieved using `SingleArray` format.
 
+Note that sections do not put any assumptions on the element indexes, data structure type or element order resolving. It is a data format issue and depends on the chosen one. For example, for `Array` and `SingleArray` the section elements require element indexes to start with 0 and grow continuously. On the other hand, `Objective` accepts any kind of element indexes. The details can be found in the data format descriptions. Your templates should never assume that a particular index type is available. For any special uses, consider writing your own data format, which is descriped later.
+
 Hiding the fact that a variable or section is actually global
 =============================================================
 

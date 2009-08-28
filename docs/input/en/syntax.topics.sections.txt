@@ -83,6 +83,8 @@ Of course, if the section operates on some real data, they must have a format. U
 > [important]
 > The format independence is one of the most important section features. As a template designer, you only mark, how should *some elements* containing *some kind of data* look like. The exact implementation is chosen during the compilation according to the information provided by the PHP script.
 
+Note that sections have nothing to do with the actual iteration process over the data structure. They do not put any constraints on the data structure type, element indexation or order resolving which are treated as an internal issue of the used data format. In the templates, you should never make assumptions about the sections that rely on such technical details.
+
 Nested sections
 ===============
 

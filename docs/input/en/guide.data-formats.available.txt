@@ -80,6 +80,9 @@ $view->s2 = array(0 =>
 
 And so on for the deeper relationships.
 
+> [error]
+> This data format requires the section element indexes to start from 0 and be continuous, i.e. 0, 1, 2, 3, etc. Any holes in the index enumeration are not supported.
+
 SingleArray
 ===========
 
@@ -113,7 +116,7 @@ $view->setFormat('s2', 'SingleArray');
 
 In other words, the data for the nested sections must be stored under the upper-level section item variable whose name corresponds to the nested section name. In the example the nested section is called `s2`, so the item with its data in `s1` must also be called `s2`.
 
-The other aspects of `Array` format are not changed and work in the same way.
+The other aspects of `Array` format are not changed and work in the same way, including the index enumeration issue.
 
 Objective
 =========
@@ -126,6 +129,9 @@ This data format evaluates the containers as the object calls:
 ~~~~
 
 It can be also applied to sections, allowing to iterate through objects that implement both `Countable` and `Traversable` interfaces (i.e. `Iterator` or `IteratorAggregate`). The nested section data are taken from the appropriate upper-level section item field, like in `SingleArray`. The data format also supports the section item variables that are evaluated as object field calls.
+
+> [information]
+> This data format does not put any special requirements on section element indexes.
 
 StaticGenerator
 ===============

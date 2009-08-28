@@ -24,4 +24,6 @@ So far, we have discussed the static template elements, that are rewritten to th
 
 The details concerning OPT instructions will be explained later.
 
+If you are familiar with PHP expression system, you should have no problems with understanding the OPT one. We did not reinvent the wheel, but simply used the existing conventions and patterns in order to make it more readable. Most of the rules and techniques that applied in PHP, are also available in OPT and all you have to do is to pay attention on the operator symbols which may differ.
+
 Open Power Template provides a built-in expression lexer that parses the expressions and reports the errors. If the expression is invalid, the compiler will generate an exception during the compilation which looks like this: `Unexpected token OPCODE_XXX (xxx) in expression (expression)`. It informs that the compiler came across the specified token (we see the type: `OPCODE_XXX` and the exact value), but it must not be used in that place. Moreover, it shows the full expression so that you could locate it in the template.
