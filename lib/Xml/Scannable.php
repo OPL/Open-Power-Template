@@ -628,6 +628,11 @@
 			}
 			else
 			{
+				if(!is_array($this->_subnodes))
+				{
+					$this->_subnodes = NULL;
+					return;
+				}
 				// The main instance of cloning, it makes copies of all the subnodes.
 				$queue = new SplQueue;
 				foreach($this->_subnodes as $subitem)
