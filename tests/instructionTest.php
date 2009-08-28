@@ -213,6 +213,7 @@
 				array('snippet_3.txt'),
 				array('snippet_4.txt'),
 				array('snippet_5.txt'),
+				array('snippet_6.txt'),
 				array('tag_1.txt'),
 				array('tag_2.txt'),
 				array('tag_3.txt'),
