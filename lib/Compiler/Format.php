@@ -171,7 +171,7 @@
 		 */
 		final public function get($hookName)
 		{
-			$result = $this->_build($hookName);
+		//	$result = $this->_build($hookName);
 			
 			$obj = $this;
 			do

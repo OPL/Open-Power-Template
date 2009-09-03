@@ -3269,22 +3269,47 @@
 							throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
 						}
 
-						if($final == $id && $saveContext !== null)
+						$format->assign('access', $state['access']);
+						if($format->property('variable:captureAll'))
 						{
-							if(!$format->property('variable:assign'))
+							// With this property, the data format may capture
+							// the whole namespace and process it in a more complex
+							// way
+							$format->assign('items', $ns);
+							if($saveContext !== null)
 							{
-								throw new Opt_AssignNotSupported_Exception($name);
+								if(!$format->property('variable:assign'))
+								{
+									throw new Opt_AssignNotSupported_Exception($name);
+								}
+								$format->assign('value', $saveContext);
+								$code = $format->get('variable:captureAssign');
 							}
-							$format->assign('access', $state['access']);
-							$format->assign('item', $item);
-							$format->assign('value', $saveContext);
-							$code = $format->get('variable:assign');
+							else
+							{								
+								$code = $format->get('variable:capture');
+							}
+							break;
 						}
 						else
 						{
-							$format->assign('access', $state['access']);
+							// An ordinary call - the format captures only
+							// the first item, the others are processed
+							// by different "item" formats.
 							$format->assign('item', $item);
-							$code = $format->get('variable:main');
+							if($final == $id && $saveContext !== null)
+							{
+								if(!$format->property('variable:assign'))
+								{
+									throw new Opt_AssignNotSupported_Exception($name);
+								}								
+								$format->assign('value', $saveContext);
+								$code = $format->get('variable:assign');
+							}
+							else
+							{
+								$code = $format->get('variable:main');
+							}
 						}
 					}
 					else
@@ -3322,7 +3347,7 @@
 				if($saveContext !== null)
 				{
 					$out = explode($saveContext, $code);
-					if(sizeof($out) == 0)
+					if(sizeof($out) != 2)
 					{
 						return $code;
 					}

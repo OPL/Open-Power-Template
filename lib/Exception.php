@@ -377,7 +377,12 @@
 	{
 		protected $_message = 'Cannot apply opt:single attribute to an OPT tag: %s';
 	} // end Opt_AttributeInvalidNamespace_Exception;
-	
+
+	class Opt_CannotBeNested_Exception extends Opt_Instruction_Exception
+	{
+		protected $_message = '%s instruction cannot be nested: %s';
+	} // end Opt_CannotBeNested_Exception;
+
 	/*
 	 * Other exceptions.
 	 */
