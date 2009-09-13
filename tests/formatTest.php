@@ -64,6 +64,7 @@
 				array('objective_5.txt'),
 				array('objective_6.txt'),
 				array('objective_7.txt'),
+				array('objective_8.txt'),
 				array('runtimegen_1.txt'),
 				array('singlearray_1.txt'),
 				array('singlearray_2.txt'),

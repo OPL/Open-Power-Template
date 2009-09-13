@@ -28,13 +28,14 @@
 			$section = $this->_sectionCreate($node);
 			$this->_sectionStart($section);
 
+			$code = $section['format']->get('section:loopBefore');
 			if($section['order'] == 'asc')
 			{
-				$code = $section['format']->get('section:startAscLoop');
+				$code .= $section['format']->get('section:startAscLoop');
 			}
 			else
 			{
-				$code = $section['format']->get('section:startDescLoop');
+				$code .= $section['format']->get('section:startDescLoop');
 			}
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
 			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
@@ -97,7 +98,7 @@
 		{
 			$section = $this->_sectionCreate($node, $attr);
 			$this->_sectionStart($section);
-			$code = '';
+			$code = $section['format']->get('section:loopBefore');
 			if($section['order'] == 'asc')
 			{
 				$code .= $section['format']->get('section:startAscLoop');

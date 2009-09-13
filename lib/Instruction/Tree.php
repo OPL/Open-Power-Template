@@ -128,7 +128,7 @@
 			 */
 			$section['format']->action('section:forceItemVariables');
 			$section['format']->assign('item', 'depth');
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:loopBefore').'
 			'.$section['format']->get('section:reset').'
 $_'.$section['name'].'_depth = -1;
 $_'.$section['name'].'_initDepth = null;

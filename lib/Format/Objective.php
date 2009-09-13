@@ -32,6 +32,8 @@
 			'item:useReference' => true,
 		);
 
+		protected $_vals;
+
 		/**
 		 * Build a PHP code for the specified hook name.
 		 *
@@ -83,7 +85,12 @@
 					$section = $this->_getVar('section');
 					if($section['order'] == 'desc')
 					{
-						return ' $tmp = array(); foreach($_sect'.$section['name'].'_vals as $i => $v){ $tmp[$i] = $v; } $_sect'.$section['name'].'_vals = &$tmp; ';
+						$this->_vals = '$_sect'.$section['name'].'_tmp';
+						return ' $_sect'.$section['name'].'_tmp = array(); foreach($_sect'.$section['name'].'_vals as $i => $v){ $_sect'.$section['name'].'_tmp[$i] = $v; } ';
+					}
+					else
+					{
+						$this->_vals = '$_sect'.$section['name'].'_vals';
 					}
 					return '';
 				// The default loop for the ascending order.
@@ -93,7 +100,7 @@
 				// The default loop for the descending order.
 				case 'section:startDescLoop':
 					$section = $this->_getVar('section');
-					return 'foreach($_sect'.$section['name'].'_vals as $_sect'.$section['name'].'_i => $_sect'.$section['name'].'_v){ ';
+					return 'for($_sect'.$section['nesting'].'_i = $_sect'.$section['name'].'_cnt-1; $_sect'.$section['nesting'].'_i >= 0; $_sect'.$section['nesting'].'_i--){ $_sect'.$section['name'].'_v = '.$this->_vals.'[$_sect'.$section['nesting'].'_i]; ';
 				// Retrieving the whole section item.
 				case 'section:item':
 					$section = $this->_getVar('section');
@@ -118,11 +125,11 @@
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['name'].'_vals->rewind();';
+						return $this->_vals.'->rewind();';
 					}
 					else
 					{
-						return 'end($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals); ';
+						return 'end('.$this->_vals.'); $_sect'.$section['name'].'_v = current('.$this->_vals.'); $_sect'.$section['name'].'_i = key('.$this->_vals.'); ';
 					}
 					break;
 				// Moving to the next element.
@@ -130,11 +137,11 @@
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['name'].'_vals->next();';
+						return $this->_vals.'->next();';
 					}
 					else
 					{
-						return 'prev($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
+						return 'prev('.$this->_vals.'); $_sect'.$section['name'].'_i = key('.$this->_vals.');';
 					}
 					break;
 				// Checking whether the iterator is valid.
@@ -142,22 +149,22 @@
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['name'].'_vals->valid()';
+						return $this->_vals.'->valid()';
 					}
 					else
 					{
-						return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['name'].'_i])';
+						return 'isset('.$this->_vals.'[$_sect'.$section['name'].'_i])';
 					}
 				// Populate the current element
 				case 'section:populate':
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['name'].'_v = $_sect'.$section['name'].'_vals->current(); $_sect'.$section['name'].'_i = $_sect'.$section['name'].'_vals->key();';
+						return '$_sect'.$section['name'].'_v = '.$this->_vals.'->current(); $_sect'.$section['name'].'_i = '.$this->_vals.'->key();';
 					}
 					else
 					{
-						return '$_sect'.$section['name'].'_v = current($_sect'.$section['name'].'_vals); $_sect'.$section['name'].'_i = key($_sect'.$section['name'].'_vals);';
+						return '$_sect'.$section['name'].'_v = current('.$this->_vals.'); $_sect'.$section['name'].'_i = key('.$this->_vals.');';
 					}
 				// The code that returns the number of items in the section;
 				case 'section:count':
