@@ -29,3 +29,5 @@ Note that you can also register the instruction manually:
 $tpl->register(Opt_Class::OPT_INSTRUCTION, 'Foo');	// Registers "Opt_Instruction_Foo"
 $tpl->register(Opt_Class::OPT_INSTRUCTION, 'Foo', 'Some_Class'); // Registers "Foo" in the "Some_Class" class
 ~~~~
+
+In this case, the class name does not have to begin with `Opt_Instruction`. The second line shows, how to register such classes in OPT.

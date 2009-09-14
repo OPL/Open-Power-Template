@@ -13,16 +13,29 @@
  * $Id$
  */
 
+/**
+ * The instruction processor for opt:tag and opt:single elements.
+ */
 	class Opt_Instruction_Tag extends Opt_Compiler_Processor
 	{
 		protected $_name = 'tag';
-		
+
+		/**
+		 * Configures the instruction processor.
+		 *
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions('opt:tag');
 			$this->_addAttributes('opt:single');
 		} // end configure();
-	
+
+		/**
+		 * Processes the opt:tag element.
+		 * @internal
+		 * @param Opt_Xml_Node $node The found node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -56,6 +69,11 @@
 			$this->_process($node);
 		} // end processNode();
 
+		/**
+		 * Postprocessing routine for opt:tag element.
+		 * @internal
+		 * @param Opt_Xml_Node $node The found node.
+		 */
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
 			if($node->get('single'))
@@ -69,8 +87,10 @@
 		/**
 		 * Processes the opt:single instruction attribute.
 		 *
+		 * @internal
 		 * @param Opt_Xml_Node $node XML node.
 		 * @param Opt_Xml_Attribute $attr XML attribute.
+		 * @throws Opt_AttributeInvalidNamespace_Exception
 		 */
 		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
@@ -87,6 +107,7 @@
 		/**
 		 * Postprocesses the opt:single instruction attribute.
 		 *
+		 * @internal
 		 * @param Opt_Xml_Node $node XML node.
 		 * @param Opt_Xml_Attribute $attr XML attribute.
 		 */

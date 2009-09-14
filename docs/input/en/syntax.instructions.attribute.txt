@@ -35,6 +35,8 @@ The instruction cooperates with OPT instruction attributes. If we wish to read t
 > [error]
 > `opt:attribute` cannot add attributes to other OPT instructions, except for `opt:tag`.
 
+If the attribute already exists in the tag or has been defined with the previous instance of `opt:attribute`, the instruction throws an exception.
+
 Conditional attributes
 ----------------------
 
@@ -66,3 +68,48 @@ The optional attribute `ns` can be used to set the attribute namespace. The valu
 
 > [help]
 > The `ns` attribute accepts empty values. The namespace part is not generated then.
+
+Conditional attribute values
+----------------------------
+
+Since OPT 2.0.2 it is possible to create elegant conditional value selector:
+
+~~~~
+[xml]
+<opt:attribute str:name="foo">
+	<opt:value test="$condition1">Value 1</opt:value>
+	<opt:value test="$condition2">Value 2</opt:value>
+	<opt:value test="$condition3">Value 3</opt:value>
+	<opt:value>Default value</opt:value>
+</opt:attribute>
+~~~~
+
+OPT will check, which condition is passed and select the appropriate value for the attribute. If we do not specify the `test` attribute in `opt:value`, it becomes the default attribute value. The default attribute value can be also defined with `value` attribute in the main tag:
+
+~~~~
+[xml]
+<opt:attribute str:name="foo" str:value="Default value">
+	<opt:value test="$condition1">Value 1</opt:value>
+	<opt:value test="$condition2">Value 2</opt:value>
+	<opt:value test="$condition3">Value 3</opt:value>
+</opt:attribute>
+~~~~
+
+> [error]
+> There must not be either two `opt:value` tags without the `test` attribute or a `opt:value` without `test` attribute and `value attribute in the instruction at the same time.
+
+As you can see, the value is defined as a tag value, not as an attribute. Contrary to other instruction, OPT forces here some limitations. `opt:value` must not contain any other tag, including the instruction. The following construct is forbidden:
+
+~~~~
+[xml]
+<opt:value test="$condition">Text <foo> ... </foo> text</opt:value>
+~~~~
+
+Note that you can still use ordinary OPT expressions:
+
+~~~~
+[xml]
+<opt:value test="$condition">Text {$expression} text</opt:value>
+~~~~
+
+The value list can be loaded from a [snippet][syntax.instructions.snippet] with [opt:use][syntax.attributes.use] attribute.

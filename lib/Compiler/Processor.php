@@ -402,7 +402,20 @@
 						}
 						$name = substr($name, 6, strlen($name) - 6);
 					}
-					$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
+					// Omit the special OPT namespaces...
+					$nameItems = explode(':', $name);
+					if(sizeof($nameItems) > 1)
+					{
+						if(!$this->_compiler->isNamespace($nameItems[0]))
+						{
+							$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
+						}
+					}
+					else
+					{
+						$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
+					}
+					
 				}
 			}
 			return $return;

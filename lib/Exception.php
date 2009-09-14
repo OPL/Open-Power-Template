@@ -111,6 +111,11 @@
 		protected $_message = 'XML Error: incorrect attribute format in tag: %s.';
 	} // end Opt_XmlInvalidAttribute_Exception;
 
+	class Opt_XmlDuplicatedAttribute_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'XML Error: duplicated attribute %s in %s.';
+	} // end Opt_XmlDuplicatedAttribute_Exception;
+
 	class Opt_XmlInvalidProlog_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'Error while parsing XML prolog: %s.';
@@ -377,6 +382,11 @@
 	{
 		protected $_message = 'Cannot apply opt:single attribute to an OPT tag: %s';
 	} // end Opt_AttributeInvalidNamespace_Exception;
+
+	class Opt_InvalidValue_Exception extends Opt_Instruction_Exception
+	{
+		protected $_message = 'Invalid value of %s';
+	} // end Opt_InvalidValue_Exception;
 
 	class Opt_CannotBeNested_Exception extends Opt_Instruction_Exception
 	{

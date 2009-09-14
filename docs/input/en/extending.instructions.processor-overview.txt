@@ -44,6 +44,9 @@ The most important method of the processor is `configure()`. Using `_addInstruct
 
 The rest of method processes everything possible. The processor operates on a template XML tree represented by various types of nodes and inserts the PHP code snippets to them. They will appear in the output compiled template after the linking. Basically, we may handle all the instructions or attributes in one method: `processNode()` or `processAttribute()`. However, we may also use the default implementations which redirect the execution to different protected methods, using the tag/attribute name. For example, `opt:example` tag will be redirected to `_processExample()`. It is up to you what way you are going to choose.
 
+> [information]
+> The instruction processor class name does not have to begin with `Opt_Instruction` since OPT 2.0.1.
+
 Processing the node children
 ============================
 

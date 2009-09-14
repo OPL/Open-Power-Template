@@ -36,36 +36,36 @@ Below, we present a sample HTML form that asks the user for its name, surname an
 <opt:root>
 	<form method="post" action="script.php">
 		<form:input name="name">
-			<com:div>
+			<div opt:component-attributes="default">
 				<label parse:for="$system.component.name">Name:</label>
 				<opt:display />
 
 				<opt:onEvent name="error">
 					<p class="error">Error: {$system.component.error}</p>
 				</opt:onEvent>
-			</com:div>
+			</div>
 		</form:input>
 
 		<form:input name="surname">
-			<com:div>
+			<div opt:component-attributes="default">
 				<label parse:for="$system.component.name">Surname:</label>
 				<opt:display />
 
 				<opt:onEvent name="error">
 					<p class="error">Error: {$system.component.error}</p>
 				</opt:onEvent>
-			</com:div>
+			</div>
 		</form:input>
 
 		<form:select name="age" datasource="$availableAges">
-			<com:div>
+			<div opt:component-attributes="default">
 				<label parse:for="$system.component.name">Your age:</label>
 				<opt:display />
 
 				<opt:onEvent name="error">
 					<p class="error">Error: {$system.component.error}</p>
 				</opt:onEvent>
-			</com:div>
+			</div>
 		</form:select>
 	</form>
 </opt:root>
@@ -111,13 +111,13 @@ However, we see that the template is quite long and these are just three form fi
 <?xml version="1.0" ?>
 <opt:root>
 	<opt:snippet name="formField">
-		<com:div>
+		<div opt:component-attributes="default">
 			<label parse:for="$system.component.name">{$system.component.title}: </label>
 			<opt:display />
 			<opt:onEvent name="error">
 				<p class="error">Error: {$system.component.error}</p>
 			</opt:onEvent>
-		</com:div>
+		</div>
 	</opt:snippet>
 </opt:root>
 ~~~~
@@ -192,7 +192,7 @@ If we have a field that needs a custom treatment, we may still define it manuall
 		</opt:section>
 		
 		<form:textarea name="content">
-			<com:div class="content">
+			<div class="content" opt:component-attributes="default">
 				<div class="wysiwyg">
 					<!-- some WYSIWYG buttons here -->
 				</div>
@@ -204,7 +204,7 @@ If we have a field that needs a custom treatment, we may still define it manuall
 				<opt:onEvent name="anotherEvent">
 					<!-- some code here -->
 				</opt:onEvent>
-			</com:div>
+			</div>
 		</form:textarea>
 		
 		<opt:section name="container2">

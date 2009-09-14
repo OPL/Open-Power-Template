@@ -13,12 +13,18 @@
  * $Id$
  */
 
- /*
-  * A container for Opt_Xml_Cdata and Opt_Xml_Expression objects.
-  */
-
+/**
+ * This is a container for Opt_Xml_Cdata and Opt_Xml_Expression objects.
+ */
 	class Opt_Xml_Text extends Opt_Xml_Scannable
 	{
+		/**
+		 * Constructs a new text object. If the argument is a
+		 * string, it automatically creates the initial Opt_Xml_Cdata
+		 * node and initializes it with the argument value.
+		 *
+		 * @param string $cdata The optional text for CDATA node.
+		 */
 		public function __construct($cdata = null)
 		{
 			parent::__construct();
@@ -27,7 +33,14 @@
 				$this->appendData($cdata);
 			}
 		} // end __construct();
-		
+
+		/**
+		 * Appends the text to the last character data node. If the last
+		 * node of Opt_Xml_Text is not Opt_Xml_Cdata, it automatically
+		 * creates the new node and initializes it with the argument value.
+		 *
+		 * @param string $cdata The string to append.
+		 */
 		public function appendData($cdata)
 		{
 			$node = $this->getLastChild();
@@ -41,7 +54,15 @@
 				$node->appendData($cdata);
 			}
 		} // end appendData();
-		
+
+		/**
+		 * Tests, if the node we want to add is either Opt_Xml_Expression or Opt_Xml_Cdata.
+		 * The error is signalized with an exception.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The node to test.
+		 * @throws Opt_APIInvalidNodeType_Exception
+		 */
 		protected function _testNode(Opt_Xml_Node $node)
 		{
 			if($node->getType() != 'Opt_Xml_Expression' && $node->getType() != 'Opt_Xml_Cdata')

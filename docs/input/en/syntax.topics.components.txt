@@ -35,20 +35,20 @@ Let's begin with a component port. Like blocks, you can register component class
 ~~~~
 [xml]
 <opt:myInput datasource="$fieldData">
-    <com:div>
+    <div opt:component-attributes="main">
         <p>{$sys.component.title} <span opt:if="$sys.component.description">{$sys.component.description}</span></p>
         <opt:display />
 
         <opt:onEvent name="error">
             <p class="error">{$sys.component.errorMessage}</p>
         </opt:onEvent>
-    </com:div>
+    </div>
 </opt:myInput>
 ~~~~
 
 The component is active within the `opt:myInput` tags that define its neighborhood. In our case, we specify here the detailed layout of a form field, including the error reporting, field description and layout manipulations.
 
-1. Notice that the `<div>` tag is moved to the `com` namespace. Thus, it allows the component to add dynamically extra attributes. In our case, the component is going to set the proper CSS class, depending on the field state (valid, invalid, etc.).
+1. Notice that the `<div>` tag is equipped with the `opt:component-attributes` attribute. Thus, it allows the component to add dynamically extra attributes. In our case, the component is going to set the proper CSS class, depending on the field state (valid, invalid, etc.).
 2. Using the `$sys.component` we can read various component attributes. Here, we use them to specify the field title, description and ID, assuming that the script provides them in the `$fieldData` container declared as a data source.
 3. The tag `<opt:display>` defines a place, where the exact field should appear. We are allowed to add here some extra attributes. They will be passed to the component.
 4. `<opt:onEvent>` tag captures various component events. In our case, the component generates only one event: *error*. It tells the template engine that the error message should appear under the field.
@@ -130,7 +130,7 @@ The `set()` and `get()` methods are used to manage single parameters, whereas `s
 [php]
     public function manageAttributes($nodeName, $attributeList)
     {
-        if($nodeName == 'div' && !$this->valid)
+        if($nodeName == 'div#default' && !$this->valid)
         {
             $attributeList['class'] = 'error';
         }
@@ -138,7 +138,7 @@ The `set()` and `get()` methods are used to manage single parameters, whereas `s
     } // end manageAttributes();
 ~~~~
 
-Using the `manageAttributes()` method, the component can manipulate the attribute lists of all the tags in the `com` namespace. Here, we want to add/modify the `class` attribute in case of error.
+Using the `manageAttributes()` method, the component can manipulate the attribute lists of all the tags equipped with `opt:component-attributes` attribute. The value of this attribute is added to the tag name and concatenated with `#` symbol. Here, we want to add/modify the `class` attribute in case of error.
 
 The code that displays the component must be placed in the `display()` methods, where the template can also pass some attributes:
 
@@ -242,7 +242,7 @@ The content of the port represents the component layout. In case of HTML forms, 
 ~~~~
 [xml]
 <opt:snippet name="componentLayout">
-    <com:div>
+    <div opt:component-attributes="default">
         <p><label parse:for="$system.component.id">{$system.component.title}</label></p>
 
         <opt:display />
@@ -250,7 +250,7 @@ The content of the port represents the component layout. In case of HTML forms, 
         <opt:onEvent name="error">
             <p>An error occurred: {$errorMessage}</p>
         </opt:onEvent>
-    </com:div>
+    </div>
 </opt:snippet>
 
 <!-- now we can build a nice HTML form: -->
@@ -321,7 +321,7 @@ The port represents the overall component layout, but the component itself must 
 ~~~~
 [xml]
 <forms:input>
-    <com:div>
+    <div opt:component-attributes="default">
         <p><label parse:for="$system.component.id">{$system.component.title}</label></p>
 
         <!-- show the INPUT field here -->
@@ -330,7 +330,7 @@ The port represents the overall component layout, but the component itself must 
         <opt:onEvent name="error">
             <p>An error occurred: {$errorMessage}</p>
         </opt:onEvent>
-    </com:div>
+    </div>
 </forms:input>
 ~~~~
 
@@ -358,21 +358,21 @@ The name specifies the name of the event we want to capture. Note that you can c
 Attribute management
 --------------------
 
-The components can also manipulate the attributes of various HTML tags. In order to allow such manipulations for the specified tag, you have to move it to the `com` namespace. A common use is to configure the CSS class of the field container, like `<div>`:
+The components can also manipulate the attributes of various HTML tags. In order to allow such manipulations for the specified tag, you have to add the `opt:component-attributes` to it and define an identifier. A common use is to configure the CSS class of the field container, like `<div>`:
 
 ~~~~
 [xml]
 <forms:input>
-	<com:div class="defaultCSSClass">
+	<div class="defaultCSSClass" opt:component-attributes="default">
 		...
-	</com:div>
+	</div>
 </forms:input>
 ~~~~
 
 Now the component can easily change the CSS class associated to `<div>`. Please note that you may set the `com` namespace to more than one tag within one port.
 
-> [warning]
-> The components distinguish the tags on their name. If you create two different `<com:div>` tags, the component will apply exactly the same transformations to each of them, because they share the same tag name.
+> [information]
+> Open Power Template 2.0 provides also the second system of attribute management. The same effect can be achieved, if we move the `<div>` tag to the special `com` namespace, for example `com:div`. However, in this case we are not able to give the tag an unique identifier, so the `manageAttributes()` method cannot distinguish two `<div>`-s within the same component. The `opt:component-attributes` attribute has been introduced in OPT 2.0.2 and we recommend to use it since then.
 
 Conclusion
 ==========

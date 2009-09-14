@@ -72,6 +72,7 @@
 				array('attributes_1.txt'),
 				array('attributes_2.txt'),
 				array('attributes_3.txt'),
+				array('attributes_4.txt'),
 				array('prolog_1.txt'),
 				array('prolog_2.txt'),
 				array('prolog_3.txt'),

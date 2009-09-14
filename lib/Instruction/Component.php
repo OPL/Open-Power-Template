@@ -210,12 +210,22 @@
 			{
 				$code .= $cn.'->set(\''.$name.'\', '.$value.'); ';
 			}
-			// com:*
+			// com:* and opt:component-attributes
 			foreach($everything[1] as $wtf)
 			{
-				$wtf->setNamespace(NULL);
+				$id = null;
+				if($wtf->getNamespace() == 'com')
+				{
+					$wtf->setNamespace(NULL);
+					$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'\', array(';
+				}
+				else
+				{
+					$id = $wtf->getAttribute('opt:component-attributes')->getValue();
+					$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'#'.$id.'\', array(';
+				}
 
-				$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'\', array(';
+				
 				foreach($wtf->getAttributes() as $attribute)
 				{
 					$params = array(
@@ -271,10 +281,10 @@
 					{
 						$result[$map[$current->getXmlName()]][] = $current;
 					}
-					elseif($current->getNamespace() == 'com')
+					elseif($current->getNamespace() == 'com' || $current->getAttribute('opt:component-attributes') !== null)
 					{
 						$result[1][] = $current;
-					}					
+					}
 				}
 				foreach($current as $subnode)
 				{

@@ -731,9 +731,10 @@
 		 *
 		 * @internal
 		 * @param String $attrList The attribute list string
+		 * @param string $tagName The tag name for debug purposes
 		 * @return Array The list of attributes with the values.
 		 */
-		protected function _compileAttributes($attrList)
+		protected function _compileAttributes($attrList, $tagName = '')
 		{
 			// Tokenize the list
 			preg_match_all($this->_rAttributeTokens, $attrList, $match, PREG_SET_ORDER);
@@ -814,6 +815,10 @@
 					}
 					// We return the decoded attribute values, because they are
 					// stored without the entities.
+					if(isset($result[$name]))
+					{
+						throw new Opt_XmlDuplicatedAttribute_Exception($name, $tagName);
+					}
 					$result[$name] = htmlspecialchars_decode($value);
 				}
 			}
@@ -1758,7 +1763,7 @@
 							{
 								$result[$j][$endingSlashCell] = '/';
 							}
-							$attributes = $this->_compileAttributes($result[$j][$attributeCell]);
+							$attributes = $this->_compileAttributes($result[$j][$attributeCell], $result[$j][4]);
 							if(!is_array($attributes))
 							{
 								throw new Opt_XmlInvalidAttribute_Exception($result[$j][0]);
