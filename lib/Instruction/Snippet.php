@@ -12,18 +12,48 @@
  * $Id$
  */
 
+/**
+ * The snippet instruction processor.
+ */
 	class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 	{
+		/**
+		 * The processor name required by the parent.
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'snippet';
-		protected $_snippets = array();	// Snippet database
-		protected $_current = array();	// Currently processed snippets (infinite recursion detection)
-		
+		/**
+		 * The list of available snippets.
+		 * @internal
+		 * @var array
+		 */
+		protected $_snippets = array();
+
+		/**
+		 * The currently inserted snippet stack used for detecting the infinite recursion.
+		 * @internal
+		 * @var array
+		 */
+		protected $_current = array();
+
+		/**
+		 * Configures the instruction processor.
+		 *
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:snippet', 'opt:insert', 'opt:parent'));
 			$this->_addAttributes(array('opt:use'));
 		} // end configure();
-		
+
+		/**
+		 * Resets the processor after the finished compilation and frees the
+		 * memory taken by the snippets.
+		 *
+		 * @internal
+		 */
 		public function reset()
 		{
 			foreach($this->_snippets as &$snippetList)
@@ -36,7 +66,7 @@
 			$this->_snippets = array();
 			$this->_current = array();
 		} // end reset();
-	
+	/*
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$name = '_process'.ucfirst($node->getName());
@@ -48,7 +78,14 @@
 			$name = '_postprocess'.ucfirst($node->getName());
 			$this->$name($node);
 		} // end postprocessNode();
-		
+	*/
+		/**
+		 * Processes the opt:use attribute.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The node the attribute is added to
+		 * @param Opt_Xml_Attribute $attr The found attribute.
+		 */
 		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
 			if(isset($this->_snippets[$attr->getValue()]))
@@ -82,7 +119,13 @@
 				$attr->set('postprocess', true);				
 			}
 		} // end processAttribute();
-		
+
+		/**
+		 * A postprocessing routine for opt:use
+		 * @internal
+		 * @param Opt_Xml_Node $node
+		 * @param Opt_Xml_Attribute $attr
+		 */
 		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
 			if(!is_null($attr->get('size')))
@@ -95,6 +138,11 @@
 			array_pop($this->_current);
 		} // end postprocessAttribute();
 
+		/**
+		 * Processes the opt:snippet element.
+		 * @internal
+		 * @param Opt_Xml_Element $node The found snippet.
+		 */
 		public function _processSnippet(Opt_Xml_Element $node)
 		{
 			$params = array(
@@ -132,6 +180,11 @@
 			}
 		} // end _processSnippet();
 
+		/**
+		 * Processes the opt:parent element.
+		 * @internal
+		 * @param Opt_Xml_Element $node The found element.
+		 */
 		public function _processParent(Opt_Xml_Element $node)
 		{
 			$n = $node->get('snippetName');
@@ -150,12 +203,22 @@
 				$this->_process($node);
 			}
 		} // end _processParent();
-		
+
+		/**
+		 * A postprocessing routine for opt:parent
+		 * @internal
+		 * @param Opt_Xml_Element $node The found element
+		 */
 		public function _postprocessParent(Opt_Xml_Element $node)
 		{
 			$this->_compiler->set('escaping', $node->get('escaping'));
 		} // end _postprocessParent();
 
+		/**
+		 * Processes the opt:insert element.
+		 * @internal
+		 * @param Opt_Xml_Element $node The found element
+		 */
 		public function _processInsert(Opt_Xml_Element $node)
 		{
 			// A support for the dynamically chosen part captured by opt:capture
@@ -228,7 +291,12 @@
 				}
 			}
 		} // end _processInsert();
-		
+
+		/**
+		 * Postprocesses the opt:insert element.
+		 * @internal
+		 * @param Opt_Xml_Element $node The found element.
+		 */
 		public function _postprocessInsert(Opt_Xml_Element $node)
 		{
 			// Freeing the fake node, if necessary.
@@ -243,7 +311,12 @@
 			
 			array_pop($this->_current);
 		} // end _postprocessInsert();
-		
+
+		/**
+		 * Returns true, if the snippet with the given name is defined.
+		 * @param string $name The snippet name
+		 * @return boolean
+		 */
 		public function isSnippet($name)
 		{
 			return isset($this->_snippets[$name]);

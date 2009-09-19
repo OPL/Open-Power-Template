@@ -78,7 +78,7 @@
 				$this->_subnodes = array();
 			}
 			$newnode->setParent($this);
-			if(is_null($refnode))
+			if($refnode === null)
 			{
 				$this->_appendChild($newnode, $appendOnError);
 			}
@@ -95,7 +95,7 @@
 						{
 							$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $i);
 						//	Opt_Array_Push($this->_subnodes, $i, $cnt);
-							$this->_subnodes[$i] = $newnode;
+							$this->_subnodes[$i] = $newnode;						
 						}
 					}
 					$i++;
@@ -107,7 +107,6 @@
 				if($refnode <= key($this->_subnodes) && $refnode >= 0)
 				{
 					$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $refnode);
-				//	Opt_Array_Push($this->_subnodes, $refnode);
 					$this->_subnodes[$refnode] = $newnode;
 				}
 				else

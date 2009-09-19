@@ -30,7 +30,7 @@
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:attribute'));
-			$this->_addAttributes(array('opt:single'));
+			$this->_addAttributes(array('opt:attributes-build', 'opt:attributes-ignore'));
 		} // end configure();
 
 		/**
@@ -42,7 +42,8 @@
 		{			
 			$params = array(
 				'name' => array(0 => self::REQUIRED, self::EXPRESSION),
-				'value' => array(0 => self::REQUIRED, self::EXPRESSION)
+				'value' => array(0 => self::OPTIONAL, self::EXPRESSION, null),
+				'ns' => array(0 => self::OPTIONAL, self::EXPRESSION, null),
 			);
 			$this->_extractAttributes($node, $params);
 
@@ -52,18 +53,91 @@
 
 			if($returnStyle == self::ATTR_DISPLAY)
 			{
+				if(!$node->getParent() instanceof Opt_Xml_Element)
+				{
+					throw new Opt_InstructionInvalidParent_Exception('opt:attribute', 'printable tag');
+				}
+				$parentName = $node->getParent()->getXmlName();
+				if(($this->_compiler->isInstruction($parentName) || $this->_compiler->isComponent($parentName) || $this->_compiler->isBlock($parentName)) && $node->getParent()->get('call:attribute-friendly') === null)
+				{
+					throw new Opt_InstructionInvalidParent_Exception('opt:attribute', 'printable tag');
+				}
+
 				// This is a bit tricky optimization. If the name is constant, there is no need to process it as a variable name.
 				// If the name is constant, the result must contain only a string
+				if($params['ns'] !== null)
+				{
+					$trNamespace = trim($params['ns'], '\' ');
+					if(!(substr_count($params['ns'], '\'') == 2 && substr_count($trNamespace, '\'') == 0 && $this->_compiler->isIdentifier($trNamespace)))
+					{
+						unset($trNamespace);
+					}
+				}
+
+				// Using the same tricky optimization for names
 				$trName = trim($params['name'], '\' ');
-				if(substr_count($params['name'], '\'') == 2 && substr_count($trName, '\'') == 0 && $this->_compiler->isIdentifier($trName))
+				if(!(substr_count($params['name'], '\'') == 2 && substr_count($trName, '\'') == 0 && $this->_compiler->isIdentifier($trName)))
+				{
+					unset($trName);
+				}
+
+				if((isset($trName) && $params['ns'] === null) || (isset($trName) && isset($trNamespace)))
 				{
 					$attribute = new Opt_Xml_Attribute($trName, $params['value']);
-					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$params['value'].'; ');
+					if(isset($trNamespace))
+					{
+						$attribute->setNamespace($trNamespace);
+					}
 				}
 				else
 				{
 					$attribute = new Opt_Xml_Attribute('__xattr_'.self::$_cnt++, $params['value']);
-					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, 'echo '.$params['name'].'; ');
+					if(isset($trNamespace))
+					{
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, 'echo \''.$trNamespace.':\'.'.$params['name'].'; ');
+					}
+					elseif($params['ns'] !== null)
+					{
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, ' $_ns = '.$params['ns'].'; echo (!empty($_ns) ? $_ns.\':\' : \'\').'.$params['name'].'; ');
+					}
+					else
+					{
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, 'echo '.$params['name'].'; ');
+					}
+					
+				}
+				// Construct the value for the attribute.
+				if($node->hasChildren())
+				{
+					// The more complex statement with opt:value nodes...
+					list($pairs, $else) = $this->_getValuePairs($node, $params);
+
+					// Now, create the IF...ELSEIF statement
+					$code = '';
+					foreach($pairs as $pair)
+					{
+						if(strlen($code) == 0)
+						{
+							$code = 'if('.$pair[0].'){ echo '.$pair[1].'; }';
+						}
+						else
+						{
+							$code .= 'elseif('.$pair[0].'){ echo '.$pair[1].'; }';
+						}
+					}
+					if($else !== null)
+					{
+						$code .= 'else{ echo '.$else.'; } ';
+					}
+					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, $code);
+				}
+				else
+				{
+					// The ordinary behaviour
+					if($params['value'] === null)
+					{
+						throw new Opt_AttributeNotDefined_Exception('value', $node->getXmlName());
+					}
 					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$params['value'].'; ');
 				}
 			}
@@ -73,7 +147,23 @@
 				// later by another instruction processor.
 				$attribute = new Opt_Xml_Attribute('__xattr_'.self::$_cnt++, $params['value']);
 				$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, $params['name']);
-				$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, $params['value']);
+
+				// Construct the value for the attribute.
+				if($node->hasChildren())
+				{
+					// The more complex statement with opt:value nodes...
+					$attribute->set('call:values', $this->_getValuePairs($node, $params));
+					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, '');
+				}
+				else
+				{
+					// The ordinary behaviour
+					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, $params['value']);
+				}
+				if($params['ns'] !== null)
+				{
+					$attribute->set('priv:namespace', $params['ns']);
+				}
 			}
 			$node->set('priv:attr', $attribute);
 			$node->set('postprocess', true);
@@ -88,6 +178,12 @@
 			else
 			{
 				$parent->set('call:attribute', array(0 => $attribute));
+			}
+
+			// Check, if such attribute does not exist...
+			if($parent->getAttribute($attribute->getXmlName()) !== null)
+			{
+				throw new Opt_XmlDuplicatedAttribute_Exception($attribute->getXmlName(), $parent->getXmlName());
 			}
 
 			$parent->addAttribute($attribute);
@@ -112,35 +208,96 @@
 		} // end postprocessNode();
 
 		/**
-		 * Processes the opt:single instruction attribute.
-		 *
-		 * @param Opt_Xml_Node $node XML node.
-		 * @param Opt_Xml_Attribute $attr XML attribute.
+		 * Processes the opt:attributes-build and opt:attributes-ignore attributes.
+		 * @param Opt_Xml_Element $node The node
+		 * @param Opt_Xml_Attribute $attr The attribute to process
 		 */
 		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
-			if($this->_compiler->isNamespace($node->getNamespace()))
+			if($attr->getName() == 'attributes-build')
 			{
-				throw new Opt_AttributeInvalidNamespace_Exception($node->getXmlName());
-			}
-			if($attr->getValue() == 'yes')
-			{
-				$attr->set('postprocess', true);
+				$ignoreList = $node->getAttribute('opt:attributes-ignore');
+				if($ignoreList instanceof Opt_Xml_Attribute)
+				{
+					$ignore = $this->_compiler->compileExpression($ignoreList->getValue(), false, Opt_Compiler_Class::ESCAPE_OFF);
+					$ignore = $ignore[0];
+				}
+				else
+				{
+					$ignore = 'array()';
+				}
+				$expression = $this->_compiler->compileExpression($attr->getValue(), false, Opt_Compiler_Class::ESCAPE_OFF);
+
+				$node->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, 'echo Opt_Function::buildAttributes('.$expression[0].', '.$ignore.', \' \'); ');
 			}
 		} // end processAttribute();
 
 		/**
-		 * Postprocesses the opt:single instruction attribute.
+		 * Returns the concatenated elements of opt:value
 		 *
-		 * @param Opt_Xml_Node $node XML node.
-		 * @param Opt_Xml_Attribute $attr XML attribute.
+		 * @internal
+		 * @param Opt_Xml_Element $node The node to scan.
+		 * @param array $params The node parameters.
+		 * @return array
 		 */
-		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		private function _getValuePairs(Opt_Xml_Element $node, array $params)
 		{
-			if($attr->getValue() == 'yes')
+			// The more sophisticated behaviour.
+			$tags = $node->getElementsByTagNameNS('opt', 'value', false);
+			$pairs = new SplQueue;
+			$else = null;
+			if(isset($params['value']))
 			{
-				$node->set('single', true);
-				$node->removeChildren();
+				$else = $params['value'];
 			}
-		} // end processAttribute();
+			// Pack the tags into the PHP code.
+			foreach($tags as $tag)
+			{
+				if($tag->countChildren() > 1)
+				{
+					throw new Opt_InvalidValue_Exception('opt:value');
+				}
+				if(!($content = $tag->getLastChild()) instanceof Opt_Xml_Text)
+				{
+					throw new Opt_InvalidValue_Exception('opt:value');
+				}
+
+				// Concatenate the tag content into an expression
+				$code = array();
+				foreach($content as $items)
+				{
+					if($items instanceof Opt_Xml_Cdata)
+					{
+						$code[] = '\''.(string)$items.'\'';
+					}
+					elseif($items instanceof Opt_Xml_Expression)
+					{
+						$result = $this->_compiler->compileExpression($items->getExpression(), false, Opt_Compiler_Class::ESCAPE_OFF);
+						$code[] = $result[0];
+					}
+				}
+				$code = $this->_compiler->escape(implode('.', $code));
+
+				// Decide, what to do (final alternative or not...)
+				if(($condition = $tag->getAttribute('test')) === null)
+				{
+					if($else !== null)
+					{
+						throw new Opt_AttributeNotDefined_Exception('test', 'opt:value');
+					}
+					$else = $code;
+				}
+				else
+				{
+					$result = $this->_compiler->compileExpression($condition, true, Opt_Compiler_Class::ESCAPE_OFF);
+					$pairs->enqueue(
+						array(
+							$result[0],
+							$code
+						)
+					);
+				}
+			}
+			return array($pairs, $else);
+		} // end _getValuePairs();
 	} // end Opt_Instruction_Attribute;

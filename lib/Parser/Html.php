@@ -430,6 +430,10 @@
 					}
 					// We return the decoded attribute values, because they are
 					// stored without the entities.
+					if(isset($result[$name]))
+					{
+						throw new Opt_XmlDuplicatedAttribute_Exception($name, $tagName);
+					}
 					$result[$name] = htmlspecialchars_decode($value);
 				}
 			}

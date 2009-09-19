@@ -8,6 +8,7 @@
  */
 
 require_once('BufferTest.php');
+require_once('ScannableTest.php');
 
 class Package_Xml_AllTests extends PHPUnit_Framework_TestSuite
 {
@@ -21,6 +22,7 @@ class Package_Xml_AllTests extends PHPUnit_Framework_TestSuite
 	{
 		$suite = new Package_Xml_AllTests('Package_Xml');
 		$suite->addTestSuite('Package_Xml_BufferTest');
+		$suite->addTestSuite('Package_Xml_ScannableTest');
 
 		return $suite;
 	} // end suite();

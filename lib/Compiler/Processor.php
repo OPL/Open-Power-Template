@@ -52,14 +52,14 @@
 
 		/**
 		 * Creates a new instruction processor for the specified compiler.
-		 *
+		 * 
 		 * @param Opt_Compiler_Class $compiler The compiler object.
 		 */
 		public function __construct(Opt_Compiler_Class $compiler)
 		{
 			$this->_compiler = $compiler;
 			$this->_tpl = Opl_Registry::get('opt');
-
+			
 			$this->configure();
 		} // end __construct();
 
@@ -401,7 +401,20 @@
 						}
 						$name = substr($name, 6, strlen($name) - 6);
 					}
-					$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
+					// Omit the special OPT namespaces...
+					$nameItems = explode(':', $name);
+					if(sizeof($nameItems) > 1)
+					{
+						if(!$this->_compiler->isNamespace($nameItems[0]))
+						{
+							$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
+						}
+					}
+					else
+					{
+						$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
+					}
+					
 				}
 			}
 			return $return;

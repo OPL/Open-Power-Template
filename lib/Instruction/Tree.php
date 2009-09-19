@@ -12,29 +12,32 @@
  * $Id$
  */
 
+	/**
+	 * This processor implements the opt:tree instruction.
+	 */
 	class Opt_Instruction_Tree extends Opt_Instruction_BaseSection
 	{
+		/**
+		 * The processor name
+		 * @var String
+		 */
 		protected $_name = 'tree';
 
+		/**
+		 * Configures the processor.
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:tree', 'opt:treeelse'));
 		} // end configure();
 
-		public function processNode(Opt_Xml_Node $node)
+		/**
+		 * Processes the opt:tree node.
+		 * @param Opt_Xml_Node $node The instruction node found by the compiler.
+		 */
+		protected function _processTree(Opt_Xml_Node $node)
 		{
-			$name = '_process'.ucfirst($node->getName());
-			$this->$name($node);
-		} // end processNode();
-
-		public function postprocessNode(Opt_Xml_Node $node)
-		{
-			$name = '_postprocess'.ucfirst($node->getName());
-			$this->$name($node);
-		} // end postprocessNode();
-
-		private function _processTree(Opt_Xml_Node $node)
-		{
+			// First, do the section stuff.
 			$section = $this->_sectionCreate($node);
 			$this->_sectionStart($section);
 
@@ -54,11 +57,13 @@
 			{
 				throw new Opt_InstructionTooManyItems_Exception('opt:treeelse', 'opt:tree', 'Zero or one');
 			}
+			// Show "opt:list" and "opt:node" tags
 			$stList = $stList[0];
 			$stNode = $stNode[0];
 			$stList->set('hidden', false);
 			$stNode->set('hidden', false);
 
+			// Reorganize the XML tree structure.
 			$node->removeChildren();
 			$node->appendChild($stList);
 			$node->appendChild($stNode);
@@ -83,7 +88,10 @@
 				'node' => $stNodeContent[0]
 			);
 
-			// Check the PHP buffers
+			// Check the PHP buffers. Neither opt:list nor opt:node must have an instruction tag that
+			// Is wrapped around opt:content, because this would certainly produce an invalid PHP code.
+			// opt:content is used here as a separator in a big "switch" statement, so it must not be
+			// enclosed in any PHP curly bracket block.
 			$test = array(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_AFTER, Opt_Xml_Buffer::TAG_CONTENT_BEFORE,
 				Opt_Xml_Buffer::TAG_CONTENT_AFTER, Opt_Xml_Buffer::TAG_CONTENT);
 			foreach($content as $id => $tag)
@@ -119,7 +127,7 @@
 			 */
 			$section['format']->action('section:forceItemVariables');
 			$section['format']->assign('item', 'depth');
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:loopBefore').'
 			'.$section['format']->get('section:reset').'
 $_'.$section['name'].'_depth = -1;
 $_'.$section['name'].'_initDepth = null;
@@ -193,6 +201,7 @@ while(1)
 	list($cmd, $_sect'.$section['name'].'_v) = $_'.$section['name'].'_cmd->dequeue();
 	switch($cmd)
 	{');
+			// Add the four case code.
 			$stList->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'case 1: ');
 			$content['list']->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'break; ');
 			$content['list']->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'case 4: ');
@@ -201,7 +210,7 @@ while(1)
 			$content['node']->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'break; ');
 			$content['node']->addBefore(Opt_Xml_Buffer::TAG_AFTER, 'case 3: ');
 			$stNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, 'break; } } unset($_'.$section['name'].'_stack); unset($_'.$section['name'].'_cmd); ');
-
+			
 			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
 
 			$node->set('postprocess', true);
@@ -210,7 +219,11 @@ while(1)
 			$this->_process($stNode);
 		} // end _processTree();
 
-		private function _postprocessTree(Opt_Xml_Element $node)
+		/**
+		 * Postprocesses the opt:tree node.
+		 * @param Opt_Xml_Element $node The node found by the compiler.
+		 */
+		protected function _postprocessTree(Opt_Xml_Element $node)
 		{
 			$section = $this->getSection($node->get('sectionName'));
 			if($node->hasAttributes())
@@ -223,7 +236,11 @@ while(1)
 			$this->_sectionEnd($node);
 		} // end _postprocessTree();
 
-		private function _processTreeelse(Opt_Xml_Element $node)
+		/**
+		 * Processes opt:treeelse node.
+		 * @param Opt_Xml_Element $node The instruction node found by the compiler.
+		 */
+		protected function _processTreeelse(Opt_Xml_Element $node)
 		{
 			$parent = $node->getParent();
 			if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:tree')
@@ -232,7 +249,6 @@ while(1)
 
 				$section = $this->getSection($parent->get('sectionName'));
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
-			//	$this->_deactivateSection($parent->get('sectionName'));
 				$this->_process($node);
 			}
 		} // end _processTreeelse();

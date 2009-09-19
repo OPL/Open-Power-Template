@@ -120,6 +120,11 @@
 		protected $_message = 'XML Error: incorrect attribute format in tag: %s.';
 	} // end Opt_XmlInvalidAttribute_Exception;
 
+	class Opt_XmlDuplicatedAttribute_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'XML Error: duplicated attribute %s in %s.';
+	} // end Opt_XmlDuplicatedAttribute_Exception;
+
 	class Opt_XmlInvalidProlog_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'Error while parsing XML prolog: %s.';
@@ -140,6 +145,11 @@
 		protected $_message = 'XML Error: too many root elements in the template: %s.';
 	} // end Opt_XmlRootElement_Exception;
 
+	class Opt_InvalidNamespace_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'XML Error: invalid namespace format in element: %s.';
+	} // end Opt_InvalidNamespace_Exception;
+
 	class Opt_XmlInvalidCharacter_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'XML Error: the static text "%s" contains raw special XML characters.';
@@ -154,7 +164,7 @@
 	{
 		protected $_message = 'XML Error: the %s construct is not allowed within XML comments.';
 	} // end Opt_XmlComment_Exception;
-
+	
 	class Opt_InvalidExpressionModifier_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'Invalid expression modifier "%s" in %s.';
@@ -184,7 +194,7 @@
 	{
 		protected $_message = 'The format %s cannot be used without decoration.';
 	} // end Opt_FormatNotDecorated_Exception;
-
+	
 	class Opt_Expression_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'Unexpected token: %s (%s) in expression %s';
@@ -194,7 +204,7 @@
 	{
 		protected $_message = 'The specified exception is empty.';
 	} // end Opt_EmptyExpression_Exception;
-
+	
 	class Opt_FunctionArgument_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'Argument %d is not defined in %s()';
@@ -214,7 +224,7 @@
 	{
 		protected $_message = '%s %s is not allowed to be used in templates.';
 	} // end Opt_ItemNotAllowed_Exception;
-
+	
 	class Opt_SysVariableLength_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'OPT variable %s is too %s.';
@@ -224,12 +234,12 @@
 	{
 		protected $_message = 'Unknown action in OPT variable %s.';
 	} // end Opt_SysVariableUnknown_Exception;
-
+	
 	class Opt_SysVariableInvalidUse_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'OPT variable %s can be used in %s only.';
 	} // end Opt_SysVariableInvalidUse_Exception;
-
+	
 	class Opt_AttributeNotDefined_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'The required attribute "%s" has not been defined in "%s".';
@@ -239,7 +249,7 @@
 	{
 		protected $_message = 'The required attribute "%s" is empty in "%s".';
 	} // end Opt_AttributeEmpty_Exception;
-
+	
 	class Opt_InvalidCallback_Exception extends Opt_Template_Exception
 	{
 		protected $_message = 'The callback for %s is invalid.';
@@ -252,7 +262,7 @@
 
 	/*
 	 * Compiler code and API problems.
-	 */
+	 */	
 	class Opt_Compiler_Exception extends Opt_Exception
 	{
 	//	public function clean()
@@ -310,7 +320,7 @@
 	{
 		protected $_message = 'Compiler API: No data returned for %s while %s.';
 	} // end Opt_APINoDataReturned_Exception;
-
+	
 	/*
 	 * Instruction problems
 	 */
@@ -386,6 +396,16 @@
 	{
 		protected $_message = 'Cannot apply opt:single attribute to an OPT tag: %s';
 	} // end Opt_AttributeInvalidNamespace_Exception;
+
+	class Opt_InvalidValue_Exception extends Opt_Instruction_Exception
+	{
+		protected $_message = 'Invalid value of %s';
+	} // end Opt_InvalidValue_Exception;
+
+	class Opt_CannotBeNested_Exception extends Opt_Instruction_Exception
+	{
+		protected $_message = '%s instruction cannot be nested: %s';
+	} // end Opt_CannotBeNested_Exception;
 
 	/*
 	 * Other exceptions.

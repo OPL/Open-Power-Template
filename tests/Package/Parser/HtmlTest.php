@@ -48,6 +48,7 @@ class Package_Parser_HtmlTest extends Extra_TestFSBase
 			array('attributes_1.txt'),
 			array('attributes_2.txt'),
 			array('attributes_3.txt'),
+			array('attributes_4.txt'),
 			array('tags_2.txt'),
 			array('tags_3.txt'),
 			array('tags_4.txt'),

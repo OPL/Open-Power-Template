@@ -43,7 +43,7 @@
 					);
 					$vars = $this->_extractAttributes($node, $params);
 					$this->_stack->push($params['from']);
-
+					
 					$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Component_Interface){ '.$params['from'].'->setView($this); ';
 					if(!is_null($params['datasource']))
 					{
@@ -209,12 +209,22 @@
 			{
 				$code .= $cn.'->set(\''.$name.'\', '.$value.'); ';
 			}
-			// com:*
+			// com:* and opt:component-attributes
 			foreach($everything[1] as $wtf)
 			{
-				$wtf->setNamespace(NULL);
+				$id = null;
+				if($wtf->getNamespace() == 'com')
+				{
+					$wtf->setNamespace(NULL);
+					$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'\', array(';
+				}
+				else
+				{
+					$id = $wtf->getAttribute('opt:component-attributes')->getValue();
+					$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'#'.$id.'\', array(';
+				}
 
-				$subCode = ' $out = '.$cn.'->manageAttributes(\''.$wtf->getName().'\', array(';
+				
 				foreach($wtf->getAttributes() as $attribute)
 				{
 					$params = array(
@@ -229,8 +239,8 @@
 				$wtf->removeAttributes();
 				$wtf->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $subCode.')); ');
 				$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, ' if(is_array($out)){ foreach($out as $name=>$value){ echo \' \'.$name.\'="\'.$value.\'"\'; } } ');
-			}
-
+			}	
+			
 			$node->set('postprocess', true);
 			if(isset($attribute))
 			{
@@ -270,7 +280,7 @@
 					{
 						$result[$map[$current->getXmlName()]][] = $current;
 					}
-					elseif($current->getNamespace() == 'com')
+					elseif($current->getNamespace() == 'com' || $current->getAttribute('opt:component-attributes') !== null)
 					{
 						$result[1][] = $current;
 					}
