@@ -1,7 +1,6 @@
 <?php
 /*
  *  OPEN POWER LIBS <http://www.invenzzia.org>
- *  ==========================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
@@ -24,8 +23,6 @@
 
 		// A counter to create unique fake attribute names
 		static private $_cnt = 0;
-
-		// The list of
 
 		/**
 		 * Registers opt:attribute tag and opt:single attribute.
