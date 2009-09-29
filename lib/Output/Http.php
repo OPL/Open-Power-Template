@@ -69,12 +69,19 @@
 			{
 				header($name.': '.$value);
 			}
-			else
-			{
-				$this->_headers[$name] = $value;
-			}
+			$this->_headers[$name] = $value;
 			return true;
 		} // end setHeader();
+
+		/**
+		 * Returns the list of headers currently set in the output system.
+		 *
+		 * @return array
+		 */
+		public function getHeaders()
+		{
+			return $this->_headers;
+		} // end getHeaders();
 
 		/**
 		 * Sends the buffered HTTP headers to the browser.

@@ -1,6 +1,10 @@
 Title: setCache()
 ShortTitle: Opt_Class::setCache()
+Construct: method
 Reference: void setCache([Opt_Caching_Interface $cache = null])
+Visibility: public
+Arguments:
+ - Name: $cache | Type: api.opt-caching-interface | Desc: The new caching interface object to be used with the views.
 VersionSince: 2.0-RC1
 SeeAlso:
  - api.opt-class.get-cache

@@ -1,6 +1,11 @@
 Title: loadConfig()
 ShortTitle: Opt_Class::loadConfig()
+Construct: method
 Reference: bool loadConfig(mixed $config)
+Visibility: public
+Arguments:
+ - Name: $config | EType: mixed | Desc: The array of the configuration values or path to the INI file with the configuration.
+Returns: True on success.
 VersionSince: 2.0-dev7
 SeeAlso:
  - api.opt-class.setup

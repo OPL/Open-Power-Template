@@ -34,6 +34,9 @@
 		}
 	}
 
+	/**
+	 * @backupStaticAttributes disabled
+	 */
 	class xmlTest extends PHPUnit_Framework_TestCase
 	{
 		protected $tpl;

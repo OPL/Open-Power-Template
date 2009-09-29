@@ -1,7 +1,9 @@
 Title: getName()
 ShortTitle: Opt_Output_Interface::getName()
+Construct: abstract method
 Reference: string getName()
-Status: public
+Visibility: public
+Returns: The output system name
 
 ----
 

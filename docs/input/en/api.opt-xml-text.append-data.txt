@@ -1,7 +1,8 @@
 Title: appendData()
 ShortTitle: Opt_Xml_Text::appendData()
+Construct: method
 Reference: void appendData(string $text)
-Status: public
+Visibility: public
 
 ---
 

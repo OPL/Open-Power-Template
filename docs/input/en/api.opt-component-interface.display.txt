@@ -1,8 +1,10 @@
 Title: display()
 ShortTitle: Opt_Component_Interface::display()
-Status: public
+Construct: abstract method
+Visibility: public
 Reference: void display([array $attributes = array()])
-
+Arguments:
+ - Name: $attributes | EType: array | Desc: The list of attribute values set to the opt:display tag in the template.
 ----
 
 `display()` should display the component. It is launched by the view in the place of `opt:display` tag. OPT passes the associative array of `opt:display` tag attributes as the `$attributes` argument. To render the HTML code, simply use `echo` statements, for example:

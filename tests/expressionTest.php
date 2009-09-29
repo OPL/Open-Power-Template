@@ -16,6 +16,9 @@
 		public function assign($group, $id){ }
 	} // end tl;
 
+	/**
+	 * @backupStaticAttributes disabled
+	 */
 	class expressionTest extends PHPUnit_Framework_TestCase
 	{
 		protected $tpl;

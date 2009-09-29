@@ -1,7 +1,11 @@
 Title: processEvent()
 ShortTitle: Opt_Component_Interface::processEvent()
-Status: public
+Construct: abstract method
+Visibility: public
 Reference: boolean processEvent($event)
+Arguments:
+ - Name: $event | EType: $string | Desc: The event name
+Returns: The boolean value indicating if the specified event occured or not.
 
 ----
 

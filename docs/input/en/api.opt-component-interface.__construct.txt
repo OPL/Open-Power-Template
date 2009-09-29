@@ -1,7 +1,10 @@
 Title: __construct()
 ShortTitle: Opt_Component_Interface::__construct()
-Status: public
+Construct: constructor
+Visibility: public
 Reference: __construct([string $name = ''])
+Arguments:
+ - Name: $name | EType: string | Desc: The component name.
 
 ----
 

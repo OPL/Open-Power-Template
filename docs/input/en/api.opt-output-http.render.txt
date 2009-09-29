@@ -1,7 +1,10 @@
 Title: render()
 ShortTitle: Opt_Output_Http::render()
-Reference: mixed render(Opt_View $view [, Opt_Cache_Hook_Interface $cache = null])
-Status: public
+Construct: method
+Reference: mixed render(Opt_View $view)
+Visibility: public
+Arguments:
+ - Name: $view | Type: api.opt-view | Desc: The view to render
 
 ----
 

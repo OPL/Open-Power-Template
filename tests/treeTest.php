@@ -19,6 +19,9 @@
 		Opl_Loader::register();
 	}
 
+	/**
+	 * @backupStaticAttributes disabled
+	 */
 	class treeTest extends PHPUnit_Framework_TestCase
 	{
 		protected $tpl;

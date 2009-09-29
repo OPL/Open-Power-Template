@@ -1,7 +1,12 @@
 Title: manageAttributes()
 ShortTitle: Opt_Component_Interface::manageAttributes()
-Status: public
+Construct: abstract method
+Visibility: public
 Reference: array manageAttributes(string $name, array $attributes)
+Arguments:
+ - Name: $name | EType: string | Desc: The tag name.
+ - Name: $attributes | EType: array | Desc: The initial assotiative array of tag attribute values
+Returns: Modified list of tag attribute values
 
 ----
 

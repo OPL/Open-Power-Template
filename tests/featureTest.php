@@ -21,7 +21,10 @@
 
 		require('./includes/filesystemWrapper.php');
 	}
-	
+
+	/**
+	 * @backupStaticAttributes disabled
+	 */
 	class featureTest extends PHPUnit_Framework_TestCase
 	{
 		protected $tpl;

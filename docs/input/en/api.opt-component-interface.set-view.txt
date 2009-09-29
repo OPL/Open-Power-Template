@@ -1,7 +1,10 @@
 Title: setView()
 ShortTitle: Opt_Component_Interface::setView()
-Status: public
+Construct: abstract method
+Visibility: public
 Reference: void setView(Opt_View $view) 
+Arguments:
+ - Name: $view | Type: api.opt-view | Desc: The view the component is deployed in.
 
 ----
 

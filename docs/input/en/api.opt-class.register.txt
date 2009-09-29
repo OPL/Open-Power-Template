@@ -1,6 +1,14 @@
 Title: register()
 ShortTitle: Opt_Class::register()
+Construct: method
 Reference: void register(int $type, mixed $name [, string $value])
+Visibility: public
+Arguments:
+ - Name: $type | EType: int | Desc: The type of the registered item(s).
+ - Name: $name | EType: mixed | Desc: The item name or the list of registered items.
+ - Name: $value | EType: string | Desc: The extra item value used with some types.
+EThrows:
+ - BadMethodCallException
 
 ----
 

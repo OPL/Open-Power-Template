@@ -1,7 +1,11 @@
 Title: generate()
 ShortTitle: Opt_Generator_Interface::generate()
+Construct: abstract method
 Reference: mixed generate(string $what)
-Status: abstract public
+Visibility: public
+Arguments:
+ - Name: $what | EType: string | Desc: The section name that the generator was used in.
+Returns: The section data.
 
 ----
 

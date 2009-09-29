@@ -253,14 +253,14 @@ Below, we can find a sample statically deployed port:
 ~~~~
 [xml]
 <form:input name="name">
-	<com:div>
+	<div opt:component-attributes="default">
 		<label parse:for="$system.component.name">Name:</label>
 		<opt:display />
 		
 		<opt:onEvent name="error">
 			<p class="error">Error: {$system.component.error}</p>
 		</opt:onEvent>
-	</com:div>
+	</div>
 </form:input>
 ~~~~
 
@@ -268,7 +268,7 @@ The `form:input` tag can be assigned to the component class that produces a text
 
 + Event handling - the component objects may generate events that will cause to display some extra content around the field, for example the error messages, if the field was filled incorrectly.
 
-+ Tag attribute management. In the example above, we have the `<com:div>` tag. The `com:` namespace means, that the component object can modify the list of the tag attributes, for example to set a different CSS class for incorrectly filled fields.
++ Tag attribute management. In the example above, the `opt:component-attributes` attribute means that the component object can modify the list of the tag attributes, for example to set a different CSS class for incorrectly filled fields.
 
 + Displaying themselves: the `<opt:display/>` tag specifies, where the `<input>` tag will be displayed.
 
@@ -277,14 +277,14 @@ The dynamically deployed ports must load an existing object from a template vari
 ~~~~
 [xml]
 <opt:component from="$someField">
-	<com:div>
+	<div opt:component-attributes="default">
 		<label parse:for="$system.component.id">{$system.component.title}:</label>
 		<opt:display />
 		
 		<opt:onEvent name="error">
 			<p class="error">Error: {$system.component.error}</p>
 		</opt:onEvent>
-	</com:div>
+	</div>
 </opt:component>
 ~~~~
 
@@ -296,7 +296,7 @@ Such port can handle any field.
 Template modularization
 =======================
 
-Unsually, the application output is constructed of smaller templates. Smarty provides the `{include}` function:
+Usually, the application output is constructed of smaller templates. Smarty provides the `{include}` function:
 
 ~~~~
 [smarty]

@@ -26,7 +26,7 @@
 		require('./includes/testComponent.php');
 		require('./includes/testBlock.php');
 	}
-	
+
 	class instructionTest extends PHPUnit_Framework_TestCase
 	{
 		protected $tpl;

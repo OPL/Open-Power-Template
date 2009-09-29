@@ -1,6 +1,10 @@
 Title: setup()
 ShortTitle: Opt_Class::setup()
+Construct: method
 Reference: void setup([mixed $config])
+Visibility: public
+Arguments:
+ - Name: $config | EType: mixed | Desc: The library configuration to be loaded on setup
 VersionSince: 2.0-dev7
 SeeAlso:
  - api.opt-class.setup

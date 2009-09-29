@@ -1,7 +1,10 @@
 Title: setDatasource()
 ShortTitle: Opt_Component_Interface::setDatasource()
-Status: public
+Construct: abstract method
+Visibility: public
 Reference: void setDatasource(mixed $datasource)
+Arguments:
+ - Name: $datasource | EType: mixed | Desc: The data passed from the datasource to the component.
 
 ----
 

@@ -1,7 +1,8 @@
 Title: sendHeaders()
 ShortTitle: Opt_Output_Http::sendHeaders()
+Construct: method
 Reference: boolean sendHeaders()
-Status: public
+Visibility: public
 
 ----
 

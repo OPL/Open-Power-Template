@@ -22,6 +22,9 @@
 		require('./includes/testFormat.php');
 	}
 
+	/**
+	 * @backupStaticAttributes disabled
+	 */
 	class formatTest extends PHPUnit_Framework_TestCase
 	{
 		protected $tpl;

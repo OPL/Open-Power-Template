@@ -1,7 +1,11 @@
 Title: setHeader()
 ShortTitle: Opt_Output_Http::setHeader()
-Reference: boolean setHeader($name, $value)
-Status: public
+Construct: method
+Reference: boolean setHeader(string $name, string $value)
+Visibility: public
+Arguments:
+ - Name: $name | EType: string | Desc: Header name
+ - Name: $value | EType: string | Desc: Header value
 
 ----
 

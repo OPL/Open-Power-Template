@@ -496,4 +496,43 @@
 			$this->assertFalse($this->tpl->getBufferState('test3'));
 			return true;
 		} // end testBufferCounter3();
+
+		/**
+		 * @covers Opt_Output_Http
+		 */
+		public function testContentNegotiation1()
+		{
+			$_SERVER['HTTP_ACCEPT'] = 'text/html; q=0.9, application/xhtml+xml; q=0.5';
+			$visit = Opc_Visit::getInstance();
+			$visit->mimeTypes = null;
+
+
+			$tpl = new Opt_Class;
+			$tpl->headerBuffering = true;
+			$tpl->contentNegotiation = true;
+
+			$output = new Opt_Output_Http;
+			$output->setContentType(Opt_Output_Http::XHTML);
+			$headers = $output->getHeaders();
+			$this->assertEquals('text/html;charset=utf-8', $headers['Content-type']);
+		} // end testContentNegotiation1();
+
+		/**
+		 * @covers Opt_Output_Http
+		 */
+		public function testContentNegotiation2()
+		{
+			$_SERVER['HTTP_ACCEPT'] = 'text/html; q=0.4, application/xhtml+xml; q=0.8';
+			$visit = Opc_Visit::getInstance();
+			$visit->mimeTypes = null;
+
+			$tpl = new Opt_Class;
+			$tpl->headerBuffering = true;
+			$tpl->contentNegotiation = true;
+
+			$output = new Opt_Output_Http;
+			$output->setContentType(Opt_Output_Http::XHTML);
+			$headers = $output->getHeaders();
+			$this->assertEquals('application/xhtml+xml;charset=utf-8', $headers['Content-type']);
+		} // end testContentNegotiation2();
 	} // end interfaceTest;
