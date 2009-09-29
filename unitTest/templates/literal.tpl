@@ -1,0 +1,1 @@
+TEXT {literal}{$variable}{/literal} TEXT

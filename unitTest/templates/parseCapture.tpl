@@ -1,0 +1,1 @@
+{$opt.capture.basic}
