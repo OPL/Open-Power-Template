@@ -37,8 +37,9 @@
 		 * @param String $expression The expression source
 		 * @return Array
 		 */
-		public function parse($expression, $allowAssignment)
+		public function parse($expression)
 		{
-			return '\''.addslashes($expression).'\'';
+			$expression = '\''.addslashes($expression).'\'';
+			return array('bare' => $expression, 'escaped' => $expression, 'type' => Opt_Compiler_Class::SCALAR);
 		} // end parse();
 	} // end Opt_Expression_String;

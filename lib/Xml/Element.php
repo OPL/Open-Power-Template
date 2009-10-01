@@ -454,6 +454,7 @@
 			}
 			$attributes = $this->getAttributes();
 			$this->_postprocess = array();
+			$opt = Opl_Registry::get('opt');
 
 			// Look for special OPT attributes
 			foreach($attributes as $attr)
@@ -465,7 +466,7 @@
 					switch($attr->getNamespace())
 					{
 						case 'parse':
-							if($specialNs)
+							if($specialNs && $opt->backwardCompatibility)
 							{
 								$result = $compiler->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_BOTH);
 								$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo '.$result[0].'; ');
@@ -473,7 +474,7 @@
 							}
 							break;
 						case 'str':
-							if($specialNs)
+							if($specialNs && $this->_tpl->backwardCompatibility)
 							{
 								$attr->setNamespace(null);
 							}
@@ -489,6 +490,10 @@
 							}
 							$this->removeAttribute($xml);
 					}
+				}
+				elseif(!$opt->backwardCompatibility)
+				{
+					$compiler->compileAttribute($attr);
 				}
 			}
 		} // end _processXml();

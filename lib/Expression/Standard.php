@@ -89,7 +89,7 @@
 		 * @param String $expression The expression source
 		 * @return Array
 		 */
-		public function parse($expr, $allowAssignment)
+		public function parse($expr)
 		{
 			// cat $expr > /dev/oracle > $result > happy programmer :)
 			preg_match_all('/(?:'.
@@ -194,10 +194,9 @@
 			 */
 			foreach($tu as $id => &$tuItem)
 			{
-				$tuItem = $this->_compileExpression($expr, $allowAssignment, $tuItem, $id);
+				$tuItem = $this->_compileExpression($expr, $tuItem, $id);
 			}
-			$assign = $tu[0][1];
-			$variable = $tu[0][2];
+			$type = $tu[0]['type'];
 
 			/*
 			 * Finally, we have to link all the subexpressions into an output
@@ -206,7 +205,7 @@
 			 */
 			$tuid = 0;
 			$i = -1;
-			$cnt = sizeof($tu[0][0]);
+			$cnt = sizeof($tu[0]['bare']);
 			$stack = new SplStack;
 			$prev = null;
 			$expression = '';
@@ -214,7 +213,7 @@
 			while(true)
 			{
 				$i++;
-				$token = &$tu[$tuid][0][$i];
+				$token = &$tu[$tuid]['bare'][$i];
 
 				// If we've found a translation unit, we must stop for a while the current one
 				// and link the new.
@@ -224,7 +223,7 @@
 					$stack->push(Array($tuid, $i, $cnt));
 					$tuid = (int)ltrim($token, $chr);
 					$i = -1;
-					$cnt = sizeof($tu[$tuid][0]);
+					$cnt = sizeof($tu[$tuid]['bare']);
 					if($cnt == 0 && $wasAssignment)
 					{
 						throw new Opt_Expression_Exception('OP_NULL', '', $expr);
@@ -250,7 +249,7 @@
 				$prev = $token;
 			}
 
-			return array(0 => $expression, $assign, $variable);
+			return array('bare' => $expression, 'escaped' => $expression, 'type' => $type);
 		} // end parse();
 
 		/**
@@ -264,7 +263,7 @@
 		 * @return Array An array build of three items: the compiled expression, the assignment status
 		 *    and the variable status (whether the expression is in fact a single variable).
 		 */
-		protected function _compileExpression(&$expr, $allowAssignment, Array &$tokens, $tu)
+		protected function _compileExpression(&$expr, Array &$tokens, $tu)
 		{
 			/* The method processes a single translation unit (TU). For example, in the expression
 			 *		$a is ($b + $c) * $d
@@ -468,10 +467,6 @@
 							break;
 						}
 					case '=':
-						if(!$allowAssignment)
-						{
-							throw new Opt_ExpressionOptionDisabled_Exception('Assignments', 'compiler requirements');
-						}
 						// We have to assign the data to the variable or object field.
 						if(($previous['token'] == self::OP_VARIABLE || $previous['token'] == self::OP_FIELD) && !$state['oper'] && $previous['token'] != self::OP_LANGUAGE_VAR)
 						{
@@ -829,8 +824,18 @@
 			{
 				throw new Opt_Expression_Exception('OP_NULL', $token, $expr);
 			}
-			// TODO: For variable detection: check also class/object fields!
-			return array($result, $assign, $state['variable']);
+
+			// TODO: Improve the type detection
+			$final = array('bare' => $result, 'type' => Opt_Compiler_Class::COMPOUND);
+			if($state['variable'])
+			{
+				$final['type'] = Opt_Compiler_Class::SINGLE_VAR;
+			}
+			if($assign)
+			{
+				$final['type'] = Opt_Compiler_Class::ASSIGNMENT;
+			}
+			return $final;
 		} // end _compileExpression();
 
 		/**

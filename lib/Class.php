@@ -88,6 +88,8 @@
 		const PHP_FUNCTION = 6;
 		const PHP_CLASS = 7;
 		const XML_ENTITY = 8;
+		const EXPR_ENGINE = 9;	// TODO: Check name!
+		const MODIFIER = 10;
 
 		const VERSION = '2.1-dev';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
@@ -112,17 +114,23 @@
 		public $debugConsole = false;
 		public $allowRelativePaths = false;
 
+		// Escaping settings
+		public $escape = true;
+
 		// Function configuration
 		public $moneyFormat;
 		public $numberDecimals;
 		public $numberDecPoint;
 		public $numberThousandSep;
 
-		// Compiler configuration
+		// Template language configuration
 		public $parser = 'Opt_Parser_Xml';
-		public $useExpressionNamespaces = false;
+		public $expressionEngine = 'parse';
+		public $attributeModifier = 'a';
+		public $defaultModifier = 'e';
 
-
+		// Compiler configuration
+		public $backwardCompatibility = false;
 		public $mode = self::HTML_MODE;
 		public $unicodeNames = false;
 		public $htmlAttributes = false;
@@ -136,7 +144,6 @@
 		public $translate = null;
 		public $strictCallbacks = true;
 		public $htmlEntities = true;
-		public $escape = true;
 		public $variableAccess = self::ACCESS_LOCAL;
 
 		/**
@@ -213,6 +220,19 @@
 		 * @var array
 		 */
 		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
+		/**
+		 * The list of recognized expression engines.
+		 * @var array
+		 */
+		protected $_exprEngines = array(
+			'parse' => 'Opt_Expression_Standard',
+			'str' => 'Opt_Expression_String',
+		);
+		protected $_modifiers = array(
+			'a' => 'htmlspecialchars',
+			'e' => 'htmlspecialchars',
+			'u' => null
+		);
 		/**
 		 * The list of data formats: assotiative array of pairs:
 		 * format name => format class
@@ -323,7 +343,7 @@
 				throw new Opt_Initialization_Exception($this->_init, 'register an item');
 			}
 
-			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities');
+			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities', '_exprEngines', '_modifiers');
 			$whereto = $map[$type];
 			// Massive registration
 			if(is_array($item))
@@ -492,9 +512,9 @@
 		public function _getList($name)
 		{
 			static $list;
-			if(is_null($list))
+			if($list === null)
 			{
-				$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf', '_entities');
+				$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf', '_entities', '_exprEngines', '_modifiers');
 			}
 			if(in_array($name, $list))
 			{

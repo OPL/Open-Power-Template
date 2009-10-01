@@ -194,6 +194,11 @@
 	{
 		protected $_message = 'The format %s cannot be used without decoration.';
 	} // end Opt_FormatNotDecorated_Exception;
+
+	class Opt_EngineNotExists_Exception extends Opt_Template_Exception
+	{
+		protected $_message = 'The expression engine %s does not exist.';
+	} // end Opt_EngineNotExists_Exception;
 	
 	class Opt_Expression_Exception extends Opt_Template_Exception
 	{
@@ -202,7 +207,7 @@
 
 	class Opt_EmptyExpression_Exception extends Opt_Template_Exception
 	{
-		protected $_message = 'The specified exception is empty.';
+		protected $_message = 'The specified expression is empty.';
 	} // end Opt_EmptyExpression_Exception;
 	
 	class Opt_FunctionArgument_Exception extends Opt_Template_Exception

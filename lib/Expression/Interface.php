@@ -28,5 +28,5 @@
 		 * @param String $expression The expression source
 		 * @return Array
 		 */
-		public function parse($expression, $allowAssignment);
+		public function parse($expression);
 	} // end Opt_Expression_Interface;

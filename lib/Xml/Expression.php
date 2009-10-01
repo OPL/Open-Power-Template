@@ -72,14 +72,22 @@
 			// Empty expressions will be caught by the try... catch.
 			try
 			{
-				$result = $compiler->compileExpression((string)$this, true);
-				if(!$result[1])
+				$result = $compiler->parseExpression((string)$this);
+				switch($result['type'])
 				{
-					$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result[0].'; ');
-				}
-				else
-				{
-					$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result[0].';');
+					case Opt_Compiler_Class::ASSIGNMENT:
+						$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result['bare'].'; ');
+						break;
+					case Opt_Compiler_Class::SCALAR:
+						if($result['escaping'] == false)
+						{
+							$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result['bare']);
+							$this->set('nophp', true);
+							break;
+						}
+						// TODO: Add escaping for scalar values.
+					default:
+						$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, 'echo '.$result['escaped'].'; ');
 				}
 			}
 			catch(Opt_EmptyExpression_Exception $e){}

@@ -20,6 +20,11 @@
 		const ESCAPE_OFF = false;
 		const ESCAPE_BOTH = 2;
 
+		// The expression engine control values
+		const SINGLE_VAR = 0;
+		const ASSIGNMENT = 1;
+		const SCALAR = 2;
+		const COMPOUND = 3;
 
 		// Current compilation
 		protected $_template = NULL;
@@ -51,6 +56,8 @@
 		protected $_components;
 		protected $_tf;
 		protected $_entities;
+		protected $_exprEngines;
+		protected $_modifiers;
 		protected $_formnatInfo;
 		protected $_formats = array();
 		protected $_formatObj = array();
@@ -87,6 +94,8 @@
 				$this->_formats = $tpl->_getList('_formats');
 				$this->_tf = $tpl->_getList('_tf');
 				$this->_entities = $tpl->_getList('_entities');
+				$this->_exprEngines = $tpl->_getList('_exprEngines');
+				$this->_modifiers = $tpl->_getList('_modifiers');
 				$this->_charset = strtoupper($tpl->charset);
 
 				// Create the processors and call their configuration method in the constructors.
@@ -125,6 +134,8 @@
 				$this->_attributes = $tpl->_attributes;
 				$this->_charset = $tpl->_charset;
 				$this->_entities = $tpl->_entities;
+				$this->_exprEngines = $tpl->_exprEngines;
+				$this->_modifiers = $tpl->_modifiers;
 				$tpl = $this->_tpl;
 			}
 
@@ -237,11 +248,12 @@
 		 * 2. The current template settings.
 		 * 3. The OPT settings.
 		 *
-		 * @param String $expression The PHP expression to be escaped.
-		 * @param Boolean $status The status of escaping for this expression or NULL, if not set.
-		 * @return String The expression with the escaping formula added, if necessary.
+		 * @param char $modifier The modifier used to escape the expression.
+		 * @param string $expression The PHP expression to be escaped.
+		 * @param boolean $status The status of escaping for this expression or NULL, if not set.
+		 * @return string The expression with the escaping formula added, if necessary.
 		 */
-		public function escape($expression, $status = null)
+		public function escape($modifier, $expression, $status = null)
 		{
 			// OPT Configuration
 			$escape = $this->_tpl->escape;
@@ -253,23 +265,19 @@
 			}
 
 			// Expression settings
-			if(!is_null($status))
+			if($status !== null)
 			{
 				$escape = ($status == true ? true : false);
 			}
 
-			if($escape)
+			// Apply the escaping subroutine defined by the modifier.
+			if(!isset($this->_modifiers[$modifier]))
 			{
-				// The user may define a custom escaping function
-				if($this->isFunction('escape'))
-				{
-					if(strpos($this->_functions['escape'], '#', 0) !== false)
-					{
-						throw new Opt_InvalidArgumentFormat_Exception('escape', 'escape');
-					}
-					return $this->_functions['escape'].'('.$expression.')';
-				}
-				return 'htmlspecialchars('.$expression.')';
+				throw new Opt_InvalidExpressionModifier_Exception($modifier, $expression);
+			}
+			if($escape && !empty($this->_modifiers[$modifier]))
+			{
+				return $this->_modifiers[$modifier].'('.$expression.')';
 			}
 			return $expression;
 		} // end escape();
@@ -1077,42 +1085,76 @@
 			}
 		} // end _stage3();
 
-		/*
-		 * Expression compiler
+		/**
+		 * Compiles the XML attribute which may contain some dynamic data.
+		 * The method automatically recognizes the registered expression
+		 * engine and launches it.
+		 *
+		 * @param Opt_Xml_Attribute $attr The attribute to parse.
 		 */
+		public function compileAttribute(Opt_Xml_Attribute $attr)
+		{
+			$value = $attr->getValue();
+
+			if(preg_match('/^([a-zA-Z0-9\_]+)\:([^\:].*)$/', $value, $found))
+			{
+				if($found[1] === 'null')
+				{
+					$attr->setValue($found[2]);
+				}
+				else
+				{
+					$result = $this->parseExpression($found[2], $found[1], self::ESCAPE_ON, $this->_tpl->attributeModifier);
+					$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$result['escaped'].'; ');
+				}
+			}
+		} // end compileAttribute();
 
 		/**
-		 * Compiles the template expression to the PHP code and checks the syntax
-		 * errors. The method is recursion-free.
+		 * Executes the expression parsing and applies extra stuff, such as escaping on it.
+		 * Returns the array containing the information on the compiled expression. The array
+		 * fields are:
+		 *  - bare - the compiled expression
+		 *  - escaped - the escaped expression (no escaping - the same, as bare)
 		 *
-		 * @param String $expr The expression
-		 * @param Boolean $allowAssignment=false True, if the assignments are allowed.
-		 * @param Int $escape=self::ESCAPE_ON The HTML escaping policy for this expression.
-		 * @return Array An array consisting of four elements: the compiled expression,
-		 *   the assignment status and the variable status (if the expression is in fact
-		 *   a single variable). If the escaping is controlled by the template or the
-		 *   script, the fourth element contains also an unescaped PHP expression.
+		 * @param string $expr The expression to parse
+		 * @param string $ee The name of the expression engine
+		 * @param int $escape Whether to use escaping or not.
+		 * @param char $defaultModifier The default escaper for this expression.
+		 * @return array
 		 */
-		public function compileExpression($expr, $allowAssignment = false, $escape = self::ESCAPE_ON)
+		public function parseExpression($expr, $ee = null, $escape = self::ESCAPE_ON, $defaultModifier = false)
 		{
+			// Autodetection of the expression engine
+			if($ee === null)
+			{
+				if(preg_match('/^([a-zA-Z0-9\_]+)\:([^\:].*)$/', $expr, $found))
+				{
+					$expr = $found[2];
+					$ee = $found[1];
+				}
+				else
+				{
+					$ee = $this->_tpl->expressionEngine;
+				}
+			}
+
+			if(!isset($this->_exprEngines[$ee]))
+			{
+				throw new Opt_EngineNotExists_Exception($ee);
+			}
+
 			// The expression modifier must not be tokenized, so we
 			// capture it before doing anything with the expression.
-			$modifier = '';
+			$modifier = ($defaultModifier == false ? $this->_tpl->defaultModifier : $defaultModifier);
 			if(preg_match('/^([^\'])\:[^\:]/', $expr, $found))
 			{
 				$modifier = $found[1];
-
-				if($modifier != 'e' && $modifier != 'u')
-				{
-					throw new Opt_InvalidExpressionModifier_Exception($modifier, $expr);
-				}
-
 				$expr = substr($expr, 2, strlen($expr) - 2);
 			}
 
 			// First, we select a parser.
-			// TODO: Add parser recognition
-			$mode = 'Opt_Expression_Standard';
+			$mode = $this->_exprEngines[$ee];
 			if(!isset($this->_expressions[$mode]))
 			{
 				$this->_expressions[$mode] = new $mode;
@@ -1124,32 +1166,57 @@
 			$exprEngine = $this->_expressions[$mode];
 			$exprEngine->setCompiler($this);
 
-			$expression = $exprEngine->parse($expr, $allowAssignment);
-
+			$expression = $exprEngine->parse($expr, true);
 
 			/*
 			 * Now it's time to apply the escaping policy to this expression. We check
 			 * the expression for the "e:" and "u:" modifiers and redirect the task to
 			 * the escape() method.
 			 */
-			$expression[3] = $expression[0];
-			if($escape != self::ESCAPE_OFF && !$expression[1])
+			$expression['escaping'] = true;
+			if($escape != self::ESCAPE_OFF)
 			{
 				if($modifier != '')
 				{
-					$expression[0] = $this->escape($expression[0], $modifier == 'e');
+					$expression['escaped'] = $this->escape($modifier, $expression['bare'], !empty($this->_modifiers[$modifier]));
 				}
 				else
 				{
-					$expression[0] = $this->escape($expression[0]);
+					$expression['escaped'] = $this->escape($modifier, $expression['bare']);
 				}
 			}
-			// Pack everything
-			if($escape != self::ESCAPE_BOTH)
+			else
 			{
-				$expression[3] = null;
+				$expression['escaped'] = $expression['bare'];
+			}
+			if($expression['escaped'] == $expression['bare'])
+			{
+				$expression['escaping'] = false;
 			}
 			return $expression;
+		} // end parseExpression();
+
+		/**
+		 * An alias for parseExpression() left for backward compatibility with OPT 2.0.
+		 *
+		 * @param String $expr The expression
+		 * @param Boolean $allowAssignment=false True, if the assignments are allowed.
+		 * @param Int $escape=self::ESCAPE_ON The HTML escaping policy for this expression.
+		 * @return Array An array consisting of four elements: the compiled expression,
+		 *   the assignment status and the variable status (if the expression is in fact
+		 *   a single variable). If the escaping is controlled by the template or the
+		 *   script, the fourth element contains also an unescaped PHP expression.
+		 */
+		public function compileExpression($expr, $allowAssignment = false, $escape = self::ESCAPE_ON)
+		{
+			$expression = $this->parseExpression($expr, 'parse', $escape, 'e');
+
+			return array(0 =>
+				$expression['escaped'],
+				$expression['assign'],
+				$expression['type'] == Opt_Compiler_Class::SINGLE_VAR,
+				$expression['bare']
+			);
 		} // end compileExpression();
 
 
