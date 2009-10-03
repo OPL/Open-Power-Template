@@ -24,14 +24,14 @@
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
-				'file' => array(0 => self::OPTIONAL, self::STRING, null),
-				'view' => array(0 => self::OPTIONAL, self::EXPRESSION, NULL),
+				'file' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str'),
+				'view' => array(0 => self::OPTIONAL, self::EXPRESSION, NULL, 'parse'),
 				'from' => array(0 => self::OPTIONAL, self::ID, NULL),
 
-				'default' => array(0 => self::OPTIONAL, self::STRING, NULL),
+				'default' => array(0 => self::OPTIONAL, self::EXPRESSION, NULL, 'str'),
 				'import' => array(0 => self::OPTIONAL, self::BOOL, NULL),
-				'branch' => array(0 => self::OPTIONAL, self::STRING, NULL),
-				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::EXPRESSION)
+				'branch' => array(0 => self::OPTIONAL, self::EXPRESSION, NULL, 'str'),
+				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::EXPRESSION, 'parse')
 			);
 			$vars = $this->_extractAttributes($node, $params);
 

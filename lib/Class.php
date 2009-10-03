@@ -373,6 +373,10 @@
 					$a = &$this->$whereto;
 					$a[] = $item;
 					break;
+				case self::MODIFIER:
+					$a = &$this->$whereto;
+					$a[$item] = $addon;
+					break;
 				default:
 					if($addon === null)
 					{

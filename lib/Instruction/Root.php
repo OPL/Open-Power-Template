@@ -30,7 +30,7 @@
 			
 			$params = array(
 				'escaping' => array(0 => self::OPTIONAL, self::BOOL, NULL),
-				'include' => array(0 => self::OPTIONAL, self::HARD_STRING, NULL),
+				'include' => array(0 => self::OPTIONAL, self::STRING, NULL),
 				'dynamic' => array(0 => self::OPTIONAL, self::BOOL, false),
 			);
 			$this->_extractAttributes($node, $params);

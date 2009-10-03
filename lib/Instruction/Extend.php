@@ -34,10 +34,10 @@
 			}
 
 			$params = array(
-				'file' => array(0 => self::REQUIRED, self::HARD_STRING),
+				'file' => array(0 => self::REQUIRED, self::STRING),
 				'escaping' => array(0 => self::OPTIONAL, self::BOOL, NULL),
 				'dynamic' => array(0 => self::OPTIONAL, self::BOOL, false),
-				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::HARD_STRING, null),
+				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::STRING, null),
 			);
 
 			$branches = $this->_extractAttributes($node, $params);

@@ -259,7 +259,7 @@
 			$escape = $this->_tpl->escape;
 
 			// Template configuration
-			if(!is_null($this->get('escaping')))
+			if($this->get('escaping') !== null)
 			{
 				$escape = ($this->get('escaping') == true ? true : false);
 			}
@@ -271,7 +271,7 @@
 			}
 
 			// Apply the escaping subroutine defined by the modifier.
-			if(!isset($this->_modifiers[$modifier]))
+			if(!array_key_exists($modifier, $this->_modifiers))
 			{
 				throw new Opt_InvalidExpressionModifier_Exception($modifier, $expression);
 			}
@@ -465,6 +465,7 @@
 		 * Checks whether the specified tag name is registered as an instruction.
 		 * Returns its processor in case of success or NULL.
 		 *
+		 * @deprecated
 		 * @param String $tag The tag name (with the namespace)
 		 * @return Opt_Compiler_Processor|NULL The processor that registered this tag.
 		 */
@@ -480,6 +481,7 @@
 		/**
 		 * Returns true, if the argument is the name of an OPT attribute.
 		 *
+		 * @deprecated
 		 * @param String $tag The attribute name
 		 * @return Opt_Compiler_Processor
 		 */
@@ -495,6 +497,7 @@
 		/**
 		 * Returns true, if the argument is the OPT function name.
 		 *
+		 * @deprecated
 		 * @param String $name The function name
 		 * @return Boolean
 		 */
@@ -511,6 +514,7 @@
 		 * Returns true, if the argument is the name of the class
 		 * accepted by OPT.
 		 *
+		 * @deprecated
 		 * @param String $id The class name.
 		 * @return Boolean
 		 */
@@ -537,6 +541,8 @@
 
 		/**
 		 * Returns true, if the argument is the name of the component tag.
+		 *
+		 * @deprecated
 		 * @param String $component The component tag name
 		 * @return Boolean
 		 */
@@ -547,6 +553,8 @@
 
 		/**
 		 * Returns true, if the argument is the name of the block tag.
+		 *
+		 * @deprecated
 		 * @param String $block The block tag name.
 		 * @return Boolean
 		 */
@@ -558,6 +566,7 @@
 		/**
 		 * Returns true, if the argument is the processor name.
 		 *
+		 * @deprecated
 		 * @param String $name The instruction processor name
 		 * @return Boolean
 		 */
@@ -574,6 +583,7 @@
 		 * Returns the processor object with the specified name. If
 		 * the processor does not exist, it generates an exception.
 		 *
+		 * @deprecated
 		 * @param String $name The processor name
 		 * @return Opt_Compiler_Processor
 		 */
@@ -591,6 +601,7 @@
 		 * XML tag. If the component class is not registered, it throws
 		 * an exception.
 		 *
+		 * @deprecated
 		 * @param String $name The component XML tag name.
 		 * @return Opt_Component_Interface
 		 */
@@ -608,6 +619,7 @@
 		 * XML tag. If the block class is not registered, it throws
 		 * an exception.
 		 *
+		 * @deprecated
 		 * @param String $name The block XML tag name.
 		 * @return Opt_Block_Interface
 		 */
@@ -619,6 +631,275 @@
 			}
 			return $this->_blocks[$name];
 		} // end block();
+
+		/**
+		 * Returns the list of instruction attribute processors in format
+		 * instruction attribute XML name => processor object
+		 *
+		 * @return array
+		 */
+		public function getAttributes()
+		{
+			return $this->_attributes;
+		} // end getAttributes();
+
+		/**
+		 * Returns the processor that registered the specified
+		 * instruction attribute.
+		 *
+		 * @param string $name The instruction XML name
+		 * @return Opt_Compiler_Processor
+		 * @throws Opt_ObjectNotExists_Exception
+		 */
+		public function getAttribute($name)
+		{
+			if(!isset($this->_attributes[$name]))
+			{
+				throw new Opt_ObjectNotExists_Exception('instruction attribute', $name);
+			}
+			return $this->_attributes[$name];
+		} // end getAttribute();
+
+		/**
+		 * Returns true, if the specified instruction attribute exists.
+		 *
+		 * @param string $name The instruction XML name
+		 * @return boolean
+		 */
+		public function hasAttribute($name)
+		{
+			return isset($this->_attributes[$name]);
+		} // end hasAttribute();
+
+		/**
+		 * Returns the list of instruction processors in format
+		 * instruction XML name => processor object
+		 *
+		 * @return array
+		 */
+		public function getInstructions()
+		{
+			return $this->_instructions;
+		} // end getInstructions();
+
+		/**
+		 * Returns the processor that registered the specified
+		 * instruction.
+		 *
+		 * @param string $name The instruction XML name
+		 * @return Opt_Compiler_Processor
+		 * @throws Opt_ObjectNotExists_Exception
+		 */
+		public function getInstruction($name)
+		{
+			if(!isset($this->_instructions[$name]))
+			{
+				throw new Opt_ObjectNotExists_Exception('instruction', $name);
+			}
+			return $this->_instructions[$name];
+		} // end getInstruction();
+
+		/**
+		 * Returns true, if the specified instruction exists.
+		 *
+		 * @param string $name The instruction XML name
+		 * @return boolean
+		 */
+		public function hasInstruction($name)
+		{
+			return isset($this->_instructions[$name]);
+		} // end hasInstruction();
+
+		/**
+		 * Returns the list of processors in format
+		 * name => object
+		 *
+		 * @return array
+		 */
+		public function getProcessors()
+		{
+			return $this->_processors;
+		} // end getProcessors();
+
+		/**
+		 * Returns the processor object.
+		 *
+		 * @param string $name The processor name
+		 * @return Opt_Compiler_Processor
+		 * @throws Opt_ObjectNotExists_Exception
+		 */
+		public function getProcessor($name)
+		{
+			if(!isset($this->_processors[$name]))
+			{
+				throw new Opt_ObjectNotExists_Exception('processor', $name);
+			}
+			return $this->_processors[$name];
+		} // end getProcessor();
+
+		/**
+		 * Returns true, if the specified processor exists.
+		 *
+		 * @param string $name The processor name
+		 * @return boolean
+		 */
+		public function hasProcessor($name)
+		{
+			return isset($this->_processors[$name]);
+		} // end hasProcessor();
+
+		/**
+		 * Returns the list of blocks in format
+		 * XML name => class name
+		 *
+		 * @return array
+		 */
+		public function getBlocks()
+		{
+			return $this->_blocks;
+		} // end getBlocks();
+
+		/**
+		 * Returns the class name of the specified block.
+		 *
+		 * @param string $name The block XML name
+		 * @return string
+		 * @throws Opt_ObjectNotExists_Exception
+		 */
+		public function getBlock($name)
+		{
+			if(!isset($this->_blocks[$name]))
+			{
+				throw new Opt_ObjectNotExists_Exception('block', $name);
+			}
+			return $this->_blocks[$name];
+		} // end getBlock();
+
+		/**
+		 * Returns true, if the specified block exists.
+		 *
+		 * @param string $name The block XML name
+		 * @return boolean
+		 */
+		public function hasBlock($name)
+		{
+			return isset($this->_blocks[$name]);
+		} // end hasBlock();
+
+		/**
+		 * Returns the list of components in format
+		 * XML name => class name
+		 *
+		 * @return array
+		 */
+		public function getComponents()
+		{
+			return $this->_components;
+		} // end getComponents();
+
+		/**
+		 * Returns the class name of the specified component.
+		 *
+		 * @param string $name The component XML name
+		 * @return string
+		 * @throws Opt_ObjectNotExists_Exception
+		 */
+		public function getComponent($name)
+		{
+			if(!isset($this->_components[$name]))
+			{
+				throw new Opt_ObjectNotExists_Exception('component', $name);
+			}
+			return $this->_components[$name];
+		} // end getComponent();
+
+		/**
+		 * Returns true, if the specified component exists.
+		 *
+		 * @param string $name The component XML name
+		 * @return boolean
+		 */
+		public function hasComponent($name)
+		{
+			return isset($this->_components[$name]);
+		} // end hasComponent();
+
+		/**
+		 * Returns the list of expression engines in format
+		 * name => class name
+		 *
+		 * @return array
+		 */
+		public function getExpressionEngines()
+		{
+			return $this->_exprEngines;
+		} // end getExpressionEngines();
+
+		/**
+		 * Returns the class name of the specified expression engine.
+		 *
+		 * @param string $name The expression engine name
+		 * @return string
+		 * @throws Opt_ObjectNotExists_Exception
+		 */
+		public function getExpressionEngine($name)
+		{
+			if(!isset($this->_exprEngines[$name]))
+			{
+				throw new Opt_ObjectNotExists_Exception('expression enigne', $name);
+			}
+			return $this->_exprEngines[$name];
+		} // end getExpressionEngine();
+
+		/**
+		 * Returns true, if the specified expression engine exists.
+		 *
+		 * @param string $name The expression engine name
+		 * @return boolean
+		 */
+		public function hasExpressionEngine($name)
+		{
+			return isset($this->_exprEngines[$name]);
+		} // end hasExpressionEngine();
+
+		/**
+		 * Returns the list of expression modifiers in format
+		 * modifier => function
+		 *
+		 * @return array
+		 */
+		public function getModifiers()
+		{
+			return $this->_modifiers;
+		} // end getModifiers();
+
+		/**
+		 * Returns the specified modifier data. If the modifier
+		 * does not exist, it throws the exception.
+		 *
+		 * @param char $name The modifier name
+		 * @return string
+		 * @throws Opt_ObjectNotExists_Exception
+		 */
+		public function getModifier($name)
+		{
+			if(!isset($this->_modifiers[$name]))
+			{
+				throw new Opt_ObjectNotExists_Exception('modifier', $name);
+			}
+			return $this->_modifiers[$name];
+		} // end getModifier();
+
+		/**
+		 * Returns true, if the specified modifier exists.
+		 *
+		 * @param char $name The modifier name
+		 * @return boolean
+		 */
+		public function hasModifier($name)
+		{
+			return isset($this->_modifiers[$name]);
+		} // end hasModifier();
 
 		/**
 		 * Returns the template name that is inherited by the template '$name'
@@ -1123,12 +1404,12 @@
 		 * @param char $defaultModifier The default escaper for this expression.
 		 * @return array
 		 */
-		public function parseExpression($expr, $ee = null, $escape = self::ESCAPE_ON, $defaultModifier = false)
+		public function parseExpression($expr, $ee = null, $escape = self::ESCAPE_BOTH, $defaultModifier = false)
 		{
 			// Autodetection of the expression engine
 			if($ee === null)
 			{
-				if(preg_match('/^([a-zA-Z0-9\_]+)\:([^\:].*)$/', $expr, $found))
+				if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $expr, $found))
 				{
 					$expr = $found[2];
 					$ee = $found[1];
@@ -1147,8 +1428,10 @@
 			// The expression modifier must not be tokenized, so we
 			// capture it before doing anything with the expression.
 			$modifier = ($defaultModifier == false ? $this->_tpl->defaultModifier : $defaultModifier);
+			$modifierSelected = false;
 			if(preg_match('/^([^\'])\:[^\:]/', $expr, $found))
 			{
+				$modifierSelected = true;
 				$modifier = $found[1];
 				$expr = substr($expr, 2, strlen($expr) - 2);
 			}
@@ -1174,9 +1457,9 @@
 			 * the escape() method.
 			 */
 			$expression['escaping'] = true;
-			if($escape != self::ESCAPE_OFF)
+			if($escape !== self::ESCAPE_OFF)
 			{
-				if($modifier != '')
+				if($modifierSelected || $escape === self::ESCAPE_ON)
 				{
 					$expression['escaped'] = $this->escape($modifier, $expression['bare'], !empty($this->_modifiers[$modifier]));
 				}
@@ -1213,7 +1496,7 @@
 
 			return array(0 =>
 				$expression['escaped'],
-				$expression['assign'],
+				$expression['type'] == Opt_Compiler_Class::ASSIGNMENT,
 				$expression['type'] == Opt_Compiler_Class::SINGLE_VAR,
 				$expression['bare']
 			);

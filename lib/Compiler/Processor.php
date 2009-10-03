@@ -16,13 +16,12 @@
 	{
 		// Attribute types
 		const STRING = 1;
-		const HARD_STRING = 2;
-		const NUMBER = 3;
-		const EXPRESSION = 4;
-		const ASSIGN_EXPR = 5;
-		const ID = 6;
-		const BOOL = 7;
-		const ID_EMP = 8; // Same as "ID", but allows empty content.
+		const NUMBER = 2;
+		const ID = 3;
+		const ID_EMP = 4;
+		const BOOL = 5;
+		const EXPRESSION = 6;
+		const ASSIGN_EXPR = 7;
 
 		const REQUIRED = 1;
 		const OPTIONAL = 2;
@@ -300,6 +299,10 @@
 			// Decide, what is what.
 			foreach($config as $name => &$data)
 			{
+				if(!isset($data[3]))
+				{
+					$data[3] = null;
+				}
 				if($name == '__UNKNOWN__')
 				{
 					$unknown = &$data;
@@ -315,58 +318,64 @@
 			}
 			$config = array();
 			$return = array();
-
+			$exprEngines = $this->_compiler->getExpressionEngines();
 			// Parse required attributes
 			$attrList = $subitem->getAttributes(false);
 			foreach($required as $name => &$data)
 			{
+				$ok = false;
 				if(isset($attrList[$name]))
 				{
 					$aname = $name;
+					$ok = true;
 				}
-				elseif(isset($attrList['str:'.$name]) && ($data[1] == self::EXPRESSION || $data[1] == self::ASSIGN_EXPR || $data[1] == self::STRING))
+				elseif(($data[1] == self::EXPRESSION || $data[1] == self::ASSIGN_EXPR) && $this->_tpl->backwardCompatibility == true)
 				{
-					$data[1] = self::STRING;
-					$aname = 'str:'.$name;
-				}
-				elseif(isset($attrList['parse:'.$name]))
-				{
-					if($data[1] == self::STRING)
+					// DEPRECATED: Legacy code for compatibility with OPT 2.0
+					foreach($exprEngines as $eeName => $eeValue)
 					{
-						$data[1] = self::EXPRESSION;
+						if(isset($attrList[$eeName.':'.$name]))
+						{
+							$aname = $eeName.':'.$name;
+							$data[3] = $eeName;
+							$ok = true;
+							break;
+						}
 					}
-					$aname = 'parse:'.$name;
 				}
-				else
+				if(!$ok)
 				{
 					throw new Opt_AttributeNotDefined_Exception($name, $subitem->getXmlName());
 				}
 
-				$config[$name] = $this->_extractAttribute($subitem, $attrList[$aname], $data[1]);
+				$config[$name] = $this->_extractAttribute($subitem, $attrList[$aname], $data[1], $data[3]);
 				unset($attrList[$aname]);
 			}
 
 			// Parse optional attributes
 			foreach($optional as $name => &$data)
 			{
+				$ok = false;
 				if(isset($attrList[$name]))
 				{
 					$aname = $name;
+					$ok = true;
 				}
-				elseif(isset($attrList['str:'.$name]) && ($data[1] == self::EXPRESSION || $data[1] == self::ASSIGN_EXPR || $data[1] == self::STRING))
+				elseif(($data[1] == self::EXPRESSION || $data[1] == self::ASSIGN_EXPR) && $this->_tpl->backwardCompatibility == true)
 				{
-					$data[1] = self::STRING;
-					$aname = 'str:'.$name;
-				}
-				elseif(isset($attrList['parse:'.$name]) && ($data[1] == self::EXPRESSION || $data[1] == self::ASSIGN_EXPR || $data[1] == self::STRING))
-				{
-					if($data[1] == self::STRING)
+					// DEPRECATED: Legacy code for compatibility with OPT 2.0
+					foreach($exprEngines as $eeName => $eeValue)
 					{
-						$data[1] = self::EXPRESSION;
+						if(isset($attrList[$eeName.':'.$name]))
+						{
+							$aname = $eeName.':'.$name;
+							$data[3] = $eeName;
+							$ok = true;
+							break;
+						}
 					}
-					$aname = 'parse:'.$name;
 				}
-				else
+				if(!$ok)
 				{
 					// We can't use isset() because the default data might be "NULL"
 					if(!array_key_exists(2, $data))
@@ -377,44 +386,44 @@
 					continue;
 				}
 
-				$config[$name] = $this->_extractAttribute($subitem, $attrList[$aname], $data[1]);
+				$config[$name] = $this->_extractAttribute($subitem, $attrList[$aname], $data[1], $data[3]);
 				unset($attrList[$aname]);
 			}
 			// The remaining tags must be processed using $unknown rule, however it
 			// must be defined.
 			if(!is_null($unknown))
 			{
-				// TODO: Add here namespace check!
 				$type = $unknown[1];
 				foreach($attrList as $name => $attr)
 				{
-					if(strpos($name, 'str:') === 0 && ($type == self::STRING || $type == self::EXPRESSION || $type == self::ASSIGN_EXPR))
+					try
 					{
-						$type = self::STRING;
-						$name = substr($name, 4, strlen($name) - 4);
-					}
-					elseif(strpos($name, 'parse:') === 0 && ($type == self::EXPRESSION || $type == self::ASSIGN_EXPR || $type == self::STRING))
-					{
-						if($type == self::STRING)
+						if(($type == self::EXPRESSION || $type == self::ASSIGN_EXPR) && $this->_tpl->backwardCompatibility == true)
 						{
-							$type = self::EXPRESSION;
+							// DEPRECATED: Legacy code for compatibility with OPT 2.0
+							$exprType = $unknown[3];
+							foreach($exprEngines as $eeName => $eeValue)
+							{
+								if(isset($attrList[$eeName.':'.$name]))
+								{
+									$name = substr($name, strlen($eeName), strlen($name) - strlen($eeName));
+									$exprType = $eeName;
+
+									// Skip the tag, if this is a special OPT namespace.
+									if($this->_compiler->isNamespace($exprType))
+									{
+										throw new Exception();
+									}
+									break;
+								}
+							}
 						}
-						$name = substr($name, 6, strlen($name) - 6);
+						$return[$name] = $this->_extractAttribute($subitem, $attr, $type, $exprType);
 					}
-					// Omit the special OPT namespaces...
-					$nameItems = explode(':', $name);
-					if(sizeof($nameItems) > 1)
+					catch(Exception $e)
 					{
-						if(!$this->_compiler->isNamespace($nameItems[0]))
-						{
-							$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
-						}
+						/* null */
 					}
-					else
-					{
-						$return[$name] = $this->_extractAttribute($subitem, $attr, $type);
-					}
-					
 				}
 			}
 			return $return;
@@ -430,7 +439,7 @@
 		 * @param Int $type The requested value type.
 		 * @return Mixed The extracted attribute value
 		 */
-		final private function _extractAttribute(Opt_Xml_Element $item, Opt_Xml_Attribute $attr, $type)
+		final private function _extractAttribute(Opt_Xml_Element $item, Opt_Xml_Attribute $attr, $type, $exprType = null)
 		{
 			$value = (string)$attr;
 			switch($type)
@@ -464,54 +473,29 @@
 					return ($value == 'yes');
 				// A string packed into PHP expression. Can be switched to EXPRESSION.
 				case self::STRING:
-					if($attr->getNamespace() == 'parse')
-					{
-						$result = $this->_compiler->compileExpression($value, false, false);
-						return $result[0];
-					}
-					else
-					{
-						return '\''.$value.'\'';
-					}
-					break;
-				// An OPT expression. Can be switched to STRING.
-				case self::EXPRESSION:
-					if($attr->getNamespace() == 'str')
-					{
-						return '\''.$value.'\'';
-					}
-					else
-					{
-						// Do not allow the empty strings to be evaluated!
-						if(strlen(trim($value)) == 0)
-						{
-							throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
-						}
-						$result = $this->_compiler->compileExpression($value, false, false);
-						return $result[0];
-					}
-					break;
-				// An OPT expression with assignment operators allowed.
-				case self::ASSIGN_EXPR:
-					if($attr->getNamespace() == 'str')
-					{
-						return '\''.$value.'\'';
-					}
-					else
-					{
-						// Do not allow the empty strings to be evaluated!
-						if(strlen(trim($value)) == 0)
-						{
-							throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
-						}
-						$result = $this->_compiler->compileExpression($value, true, false);
-						return $result[0];
-					}
-					break;
-				// So-called "hard" string, simply return the tag value and do not bother, what it is.
-				case self::HARD_STRING:
 					return $value;
 					break;
+				// An OPT expression.
+				case self::EXPRESSION:
+				case self::ASSIGN_EXPR:
+					if(strlen(trim($value)) == 0)
+					{
+						throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
+					}
+					if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $value, $found))
+					{
+						$result = $this->_compiler->parseExpression($found[2], $found[1]);
+					}
+					else
+					{
+						$result = $this->_compiler->parseExpression($value, $exprType);
+					}
+					
+					if($result['type'] == Opt_Compiler_Class::ASSIGNMENT && $type != self::ASSIGN_EXPR)
+					{
+						Opt_ExpressionOptionDisabled_Exception('Assignments', 'compiler requirements');
+					}
+					return $result['escaped'];
 			}
 		} // end _extractAttribute();
 	} // end Opt_Compiler_Processor;

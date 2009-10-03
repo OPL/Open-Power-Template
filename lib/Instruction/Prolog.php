@@ -24,9 +24,9 @@
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
-				'version' => array(0 => self::OPTIONAL, self::STRING, null),
-				'encoding' => array(0 => self::OPTIONAL, self::STRING, null),
-				'standalone' => array(0 => self::OPTIONAL, self::STRING, null)
+				'version' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str'),
+				'encoding' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str'),
+				'standalone' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str')
 			);
 			$this->_extractAttributes($node, $params);
 			
