@@ -183,22 +183,22 @@
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['nesting'].'_i == 0';
+						return '($_sect'.$section['nesting'].'_i == 0)';
 					}
 					else
 					{
-						return '$_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1)';
+						return '($_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1))';
 					}
 				// Testing the last element.
 				case 'section:isLast':
 					$section = $this->_getVar('section');
 					if($section['order'] == 'asc')
 					{
-						return '$_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1)';
+						return '($_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1))';
 					}
 					else
 					{
-						return '$_sect'.$section['nesting'].'_i == 0';
+						return '($_sect'.$section['nesting'].'_i == 0)';
 					}
 				// Testing the extreme element.
 				case 'section:isExtreme':
