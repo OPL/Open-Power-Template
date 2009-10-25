@@ -96,6 +96,7 @@
 				array('component_9.txt'),
 				array('component_10.txt'),
 				array('component_11.txt'),
+				array('component_12.txt'),
 				array('content_1.txt'),
 				array('content_2.txt'),
 				array('dtd_1.txt'),

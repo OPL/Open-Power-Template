@@ -228,7 +228,7 @@
 				foreach($wtf->getAttributes() as $attribute)
 				{
 					$params = array(
-						'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
+						'__UNKNOWN__' => array(self::OPTIONAL, self::STRING, null)
 					);
 					$vars = $this->_extractAttributes($wtf, $params);
 					foreach($vars as $name => $value)
