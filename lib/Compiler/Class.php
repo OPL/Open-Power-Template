@@ -3550,7 +3550,7 @@
 			else
 			{
 				// An ending string.
-				if(!$state['next'] & self::OP_STRING)
+				if(!($state['next'] & self::OP_STRING))
 				{
 					throw new Opt_Expression_Exception('OP_STRING', $token, $expr);
 				}

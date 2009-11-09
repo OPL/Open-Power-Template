@@ -181,6 +181,7 @@
 				array(false, 'Text body {$variable}', '', $exceptionClass),
 				array(false, 'foo(\'text\'~$foo\')', '', $exceptionClass),
 				array(false, 'foo(\'text\'~$foo\")', '', $exceptionClass),
+				array(false, 'foo bar', '', $exceptionClass),
 				// Other issues
 				array(false, '_()', '_()', 0),
 				array(false, '_(\'foo\')', '_(\'foo\')', 0),

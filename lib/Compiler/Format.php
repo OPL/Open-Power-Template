@@ -44,7 +44,7 @@
 		/**
 		 * The used OPT Compiler
 		 *
-		 * @var Opt_Compiler Class
+		 * @var Opt_Compiler_Class
 		 */
 		protected $_compiler;
 
