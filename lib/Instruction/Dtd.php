@@ -12,15 +12,26 @@
  * $Id$
  */
 
+/**
+ * This processor is responsible for handling opt:dtd instruction.
+ */
 	class Opt_Instruction_Dtd extends Opt_Compiler_Processor
 	{
 		protected $_name = 'dtd';
-		
+
+		/**
+		 * Registers the recognized tags in the compiler.
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array(0 => 'opt:dtd'));
 		} // end configure();
-	
+
+		/**
+		 * Processes the opt:dtd node.
+		 *
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -51,23 +62,22 @@
 						break;
 					case 'xhtml10transitional':
 						$dtd = new Opt_Xml_Dtd('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">');
-
-					//	$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'.PHP_EOL);
 						break;
 					case 'xhtml10frameset':
 						$dtd = new Opt_Xml_Dtd('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">');
-
-					//	$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'.PHP_EOL);
 						break;
 					case 'xhtml11':
 						$dtd = new Opt_Xml_Dtd('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">');
-
-					//	$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'.PHP_EOL);
 						break;
 					case 'html40':
+					case 'html4':
 						$dtd = new Opt_Xml_Dtd('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">');
-
-					//	$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'.PHP_EOL);
+						break;
+					case 'html5':
+						$dtd = new Opt_Xml_Dtd('<!DOCTYPE html>');
+						break;
+					default:
+						throw new Opt_InvalidValue_Exception('opt:dtd template attribute: '.$params['template']);
 				}
 				if(isset($dtd))
 				{

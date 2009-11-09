@@ -106,6 +106,8 @@
 				array('dtd_5.txt'),
 				array('dtd_6.txt'),
 				array('dtd_7.txt'),
+				array('dtd_8.txt'),
+				array('dtd_9.txt'),
 				array('extend_1.txt'),
 				array('extend_2.txt'),
 				array('extend_3.txt'),
