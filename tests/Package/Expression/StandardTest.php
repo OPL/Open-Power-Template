@@ -193,6 +193,8 @@ class Package_Expression_StandardTest extends PHPUnit_Framework_TestCase
 			array(false, 'Text body {$variable}', '', $exceptionClass),
 			array(false, 'foo(\'text\'~$foo\')', '', $exceptionClass),
 			array(false, 'foo(\'text\'~$foo\")', '', $exceptionClass),
+			array(false, 'foo bar', '', $exceptionClass),
+
 			// Other issues
 			array(false, '_()', '_()', 0),
 			array(false, '_(\'foo\')', '_(\'foo\')', 0),
@@ -200,7 +202,7 @@ class Package_Expression_StandardTest extends PHPUnit_Framework_TestCase
 			// Expression modifiers
 			array(false, 'u:\'foo\'', '\'foo\'', 0),
 			array(false, 'e:\'foo\'', 'htmlspecialchars(\'foo\')', 0),
-			array(false, 'a:\'foo\'', '', 'Opt_InvalidExpressionModifier_Exception'),
+			array(false, 'a:\'foo\'', '', 'htmlspecialchars(\'foo\')'),
 			array(false, '\':\'', '\':\'', 0),
 			array(false, 'e::method()', 'e::method()', 0),
 			array(false, 'u::method()', 'u::method()', 0),
