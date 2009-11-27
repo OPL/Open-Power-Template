@@ -12,33 +12,36 @@
  * $Id$
  */
 
+/**
+ * The class represents the simplest output which returns the results
+ * of the executed template back to the script.
+ *
+ * @package Public
+ * @subpackage Output
+ */
+class Opt_Output_Return implements Opt_Output_Interface
+{
 	/**
-	 * The class represents the simplest output which returns the results
-	 * of the executed template back to the script.
+	 * Returns the output name.
+	 *
+	 * @return String
 	 */
-	class Opt_Output_Return implements Opt_Output_Interface
+	public function getName()
 	{
-		/**
-		 * Returns the output name.
-		 *
-		 * @return String
-		 */
-		public function getName()
-		{
-			return 'Return';
-		} // end getName();
+		return 'Return';
+	} // end getName();
 
-		/**
-		 * Executes the specified view and return the results back
-		 * to the script.
-		 *
-		 * @param Opt_View $view The rendered view
-		 * @return String
-		 */
-		public function render(Opt_View $view)
-		{
-			ob_start();			
-			$view->_parse($this, true);
-			return ob_get_clean();
-		} // end render();
-	} // end Opt_Output_Return;
+	/**
+	 * Executes the specified view and return the results back
+	 * to the script.
+	 *
+	 * @param Opt_View $view The rendered view
+	 * @return String
+	 */
+	public function render(Opt_View $view)
+	{
+		ob_start();
+		$view->_parse($this, true);
+		return ob_get_clean();
+	} // end render();
+} // end Opt_Output_Return;

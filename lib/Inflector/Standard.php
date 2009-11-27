@@ -16,7 +16,7 @@
  * The standard inflector for OPT that resolves the file paths
  * using the default rules.
  *
- * @author Tomasz "Zyx" Jędrzejewski
+ * @package Public
  */
 class Opt_Inflector_Standard implements Opt_Inflector_Interface
 {

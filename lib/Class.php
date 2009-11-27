@@ -12,1293 +12,1333 @@
  * $Id$
  */
 
-	/*
-	 * Interface definitions
+/**
+ * The interface for writing components.
+ *
+ * @package Interfaces
+ * @subpackage Public
+ */
+interface Opt_Component_Interface
+{
+	public function __construct($name = '');
+	public function setView(Opt_View $view);
+	public function setDatasource($data);
+
+	public function set($name, $value);
+	public function get($name);
+	public function defined($name);
+
+	public function display($attributes = array());
+	public function processEvent($name);
+	public function manageAttributes($tagName, Array $attributes);
+} // end Opt_Component_Interface;
+
+/**
+ * The interface for writing blocks.
+ *
+ * @package Interfaces
+ * @subpackage Public
+ */
+interface Opt_Block_Interface
+{
+	public function setView(Opt_View $view);
+	public function onOpen(Array $attributes);
+	public function onClose();
+	public function onSingle(Array $attributes);
+} // end Opt_Block_Interface;
+
+/**
+ * The interface for writing caching systems for OPT.
+ *
+ * @package Interfaces
+ * @subpackage Public
+ */
+interface Opt_Caching_Interface
+{
+	public function templateCacheStart(Opt_View $view);
+	public function templateCacheStop(Opt_View $view);
+} // end Opt_Caching_Interface;
+
+/**
+ * The interface for writing output systems
+ *
+ * @package Interfaces
+ * @subpackage Public
+ */
+interface Opt_Output_Interface
+{
+	public function getName();
+	public function render(Opt_View $view);
+} // end Opt_Output_Interface;
+
+/**
+ * The interface for writing data generators for
+ * StaticGenerator and RuntimeGenerator data formats.
+ *
+ * @package Interfaces
+ * @subpackage Public
+ */
+interface Opt_Generator_Interface
+{
+	public function generate($what);
+} // end Opt_Generator_Interface;
+
+/**
+ * The interface for writing inflectors.
+ *
+ * @package Interfaces
+ * @subpackage Public
+ */
+interface Opt_Inflector_Interface
+{
+	public function getSourcePath($file);
+	public function getCompiledPath($file, array $inheritance);
+} // end Opt_Inflector_Interface;
+
+/**
+ * The main OPT class. Usually, there should exist only
+ * one object of this class in the system.
+ *
+ * @package Public
+ */
+class Opt_Class extends Opl_Class
+{
+	// Constants
+	const CM_DEFAULT = 0;
+	const CM_REBUILD = 1;
+	const CM_PERFORMANCE = 2;
+
+	const ACCESS_LOCAL = 0;
+	const ACCESS_GLOBAL = 1;
+
+	const CHOOSE_MODE = 'Opt_Parser_Html';
+	const XML_MODE = 'Opt_Parser_Xml';
+	const QUIRKS_MODE = 'Opt_Parser_Quirks';
+	const HTML_MODE = 'Opt_Parser_Html';
+
+	const OPT_INSTRUCTION = 1;
+	const OPT_NAMESPACE = 2;
+	const OPT_FORMAT = 3;
+	const OPT_COMPONENT = 4;
+	const OPT_BLOCK = 5;
+	const PHP_FUNCTION = 6;
+	const PHP_CLASS = 7;
+	const XML_ENTITY = 8;
+	const EXPR_ENGINE = 9;	// TODO: Check name!
+	const MODIFIER = 10;
+
+	const VERSION = '2.1-dev';
+	const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
+
+	// Directory configuration
+	public $sourceDir = NULL;
+	public $compileDir = NULL;
+	public $cacheDir = NULL;
+
+	// Template configuration
+	public $compileId = NULL;
+
+	// Front-end configuration
+	public $compileMode = self::CM_DEFAULT;
+	public $charset = 'utf-8';
+	public $contentType = 0;
+	public $gzipCompression = true;
+	public $headerBuffering = false;
+	public $contentNegotiation = false;
+	public $errorReporting = self::ERR_STANDARD;
+	public $stdStream = 'file';
+	public $debugConsole = false;
+	public $allowRelativePaths = false;
+
+	// Escaping settings
+	public $escape = true;
+
+	// Function configuration
+	public $moneyFormat;
+	public $numberDecimals;
+	public $numberDecPoint;
+	public $numberThousandSep;
+
+	// Template language configuration
+	public $parser = 'Opt_Parser_Xml';
+	public $expressionEngine = 'parse';
+	public $attributeModifier = 'a';
+	public $defaultModifier = 'e';
+
+	// Compiler configuration
+	public $backwardCompatibility = false;
+	public $mode = self::HTML_MODE;
+	public $unicodeNames = false;
+	public $htmlAttributes = false;
+	public $printComments = false;
+	public $prologRequired = true;
+	public $stripWhitespaces = true;
+	public $singleRootNode = true;
+	public $basicOOP = true;
+	public $advancedOOP = true;
+	public $backticks = null;
+	public $translate = null;
+	public $strictCallbacks = true;
+	public $htmlEntities = true;
+	public $variableAccess = self::ACCESS_LOCAL;
+
+	/**
+	 * The compiler object
+	 * @var Opt_Compiler_Class
 	 */
-	interface Opt_Component_Interface
-	{
-		public function __construct($name = '');
-		public function setView(Opt_View $view);
-		public function setDatasource($data);
+	protected $_compiler;
+	/**
+	 * The inflector object
+	 * @var Opt_Inflector_Interface
+	 */
+	protected $_inflector;
+	/**
+	 * The translation interface
+	 * @var Opl_Translation_Interface
+	 */
+	protected $_tf = NULL;
 
-		public function set($name, $value);
-		public function get($name);
-		public function defined($name);
+	/**
+	 * The cache object
+	 * @var Opt_Caching_Interface
+	 */
+	protected $_cache;
 
-		public function display($attributes = array());
-		public function processEvent($name);
-		public function manageAttributes($tagName, Array $attributes);
-	} // end Opt_Component_Interface;
+	/**
+	 * The list of registered instruction processors.
+	 * @var array
+	 */
+	protected $_instructions = array('Opt_Instruction_Section', 'Opt_Instruction_Tree',
+		'Opt_Instruction_Grid', 'Opt_Instruction_Selector', 'Opt_Instruction_Repeat',
+		'Opt_Instruction_Snippet', 'Opt_Instruction_Extend',
+		'Opt_Instruction_For', 'Opt_Instruction_Foreach', 'Opt_Instruction_If',
+		'Opt_Instruction_Put', 'Opt_Instruction_Capture', 'Opt_Instruction_Attribute',
+		'Opt_Instruction_Tag', 'Opt_Instruction_Root', 'Opt_Instruction_Prolog',
+		'Opt_Instruction_Dtd', 'Opt_Instruction_Literal', 'Opt_Instruction_Include',
+		'Opt_Instruction_Dynamic', 'Opt_Instruction_Component', 'Opt_Instruction_Block',
+		'Opt_Instruction_Switch'
+	);
+	/**
+	 * The list of registered functions: assotiative parray of pairs:
+	 * template function name => php function name
+	 * @var array
+	 */
+	protected $_functions = array(
+		'money' => 'Opt_Function::money', 'number' => 'Opt_Function::number', 'spacify' => 'Opt_Function::spacify',
+		'firstof' => 'Opt_Function::firstof', 'indent' => 'Opt_Function::indent', 'strip' => 'Opt_Function::strip',
+		'stripTags' => 'Opt_Function::stripTags', 'upper' => 'Opt_Function::upper', 'lower' => 'Opt_Function::lower',
+		'capitalize' => 'Opt_Function::capitalize', 'countWords' => 'str_word_count', 'countChars' => 'strlen',
+		'replace' => '#3,1,2#str_replace', 'repeat' => 'str_repeat', 'nl2br' => 'Opt_Function::nl2br', 'date' => 'date',
+		'regexReplace' => '#3,1,2#preg_replace', 'truncate' => 'Opt_Function::truncate', 'wordWrap' => 'Opt_Function::wordwrap',
+		'contains' => 'Opt_Function::contains', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
+		'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
+		'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
+		'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey'
+	);
+	/**
+	 * The list of registered classes: assotiative array of pairs:
+	 * template class name => php class name
+	 * @var array
+	 */
+	protected $_classes = array();
+	/**
+	 * The list of registered components: assotiative array of
+	 * pairs: XML tag => component class
+	 * @var array
+	 */
+	protected $_components = array();
+	/**
+	 * The list of registered blocks: assotiative array of
+	 * pairs: XML tag => component class
+	 * @var array
+	 */
+	protected $_blocks = array();
+	/**
+	 * The list of recognized OPT namespaces
+	 * @var array
+	 */
+	protected $_namespaces = array(1 => 'opt', 'com', 'parse');
+	/**
+	 * The list of recognized expression engines.
+	 * @var array
+	 */
+	protected $_exprEngines = array(
+		'parse' => 'Opt_Expression_Standard',
+		'str' => 'Opt_Expression_String',
+	);
+	protected $_modifiers = array(
+		'a' => 'htmlspecialchars',
+		'e' => 'htmlspecialchars',
+		'u' => null
+	);
+	/**
+	 * The list of data formats: assotiative array of pairs:
+	 * format name => format class
+	 * @var array
+	 */
+	protected $_formats = array(
+		'Array' => 'Opt_Format_Array',
+		'SingleArray' => 'Opt_Format_SingleArray',
+		'StaticGenerator' => 'Opt_Format_StaticGenerator',
+		'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
+		'Objective' => 'Opt_Format_Objective');
+	/**
+	 * The extra entities replaced by OPT
+	 * @var array
+	 */
+	protected $_entities = array('lb' => '{', 'rb' => '}');
+	/**
+	 * The output buffers for advisory output buffering information.
+	 * @var array
+	 */
+	protected $_buffers = array();
 
-	interface Opt_Block_Interface
-	{
-		public function setView(Opt_View $view);
-		public function onOpen(Array $attributes);
-		public function onClose();
-		public function onSingle(Array $attributes);
-	} // end Opt_Block_Interface;
-
-	interface Opt_Caching_Interface
-	{
-		public function templateCacheStart(Opt_View $view);
-		public function templateCacheStop(Opt_View $view);
-	} // end Opt_Caching_Interface;
-
-	interface Opt_Output_Interface
-	{
-		public function getName();
-		public function render(Opt_View $view);
-	} // end Opt_Output_Interface;
-
-	interface Opt_Generator_Interface
-	{
-		public function generate($what);
-	} // end Opt_Generator_Interface;
-
-	interface Opt_Inflector_Interface
-	{
-		public function getSourcePath($file);
-		public function getCompiledPath($file, array $inheritance);
-	} // end Opt_Inflector_Interface;
+	/**
+	 * Was the library initialized?
+	 * @var boolean
+	 */
+	protected $_init = false;
 
 	/*
-	 * Class definitions
+	 * Template parsing
 	 */
 
-	class Opt_Class extends Opl_Class
+	/**
+	 * Returns the compiler object and optionally loads the necessary classes. Unless
+	 * you develop instructions or reimplement various core features you do not have
+	 * to use this method.
+	 *
+	 * @return Opt_Compiler_Class The compiler
+	 */
+	public function getCompiler()
 	{
-		// Constants
-		const CM_DEFAULT = 0;
-		const CM_REBUILD = 1;
-		const CM_PERFORMANCE = 2;
-
-		const ACCESS_LOCAL = 0;
-		const ACCESS_GLOBAL = 1;
-
-		const CHOOSE_MODE = 'Opt_Parser_Html';
-		const XML_MODE = 'Opt_Parser_Xml';
-		const QUIRKS_MODE = 'Opt_Parser_Quirks';
-		const HTML_MODE = 'Opt_Parser_Html';
-
-		const OPT_INSTRUCTION = 1;
-		const OPT_NAMESPACE = 2;
-		const OPT_FORMAT = 3;
-		const OPT_COMPONENT = 4;
-		const OPT_BLOCK = 5;
-		const PHP_FUNCTION = 6;
-		const PHP_CLASS = 7;
-		const XML_ENTITY = 8;
-		const EXPR_ENGINE = 9;	// TODO: Check name!
-		const MODIFIER = 10;
-
-		const VERSION = '2.1-dev';
-		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
-
-		// Directory configuration
-		public $sourceDir = NULL;
-		public $compileDir = NULL;
-		public $cacheDir = NULL;
-
-		// Template configuration
-		public $compileId = NULL;
-
-		// Front-end configuration
-		public $compileMode = self::CM_DEFAULT;
-		public $charset = 'utf-8';
-		public $contentType = 0;
-		public $gzipCompression = true;
-		public $headerBuffering = false;
-		public $contentNegotiation = false;
-		public $errorReporting = self::ERR_STANDARD;
-		public $stdStream = 'file';
-		public $debugConsole = false;
-		public $allowRelativePaths = false;
-
-		// Escaping settings
-		public $escape = true;
-
-		// Function configuration
-		public $moneyFormat;
-		public $numberDecimals;
-		public $numberDecPoint;
-		public $numberThousandSep;
-
-		// Template language configuration
-		public $parser = 'Opt_Parser_Xml';
-		public $expressionEngine = 'parse';
-		public $attributeModifier = 'a';
-		public $defaultModifier = 'e';
-
-		// Compiler configuration
-		public $backwardCompatibility = false;
-		public $mode = self::HTML_MODE;
-		public $unicodeNames = false;
-		public $htmlAttributes = false;
-		public $printComments = false;
-		public $prologRequired = true;
-		public $stripWhitespaces = true;
-		public $singleRootNode = true;
-		public $basicOOP = true;
-		public $advancedOOP = true;
-		public $backticks = null;
-		public $translate = null;
-		public $strictCallbacks = true;
-		public $htmlEntities = true;
-		public $variableAccess = self::ACCESS_LOCAL;
-
-		/**
-		 * The compiler object
-		 * @var Opt_Compiler_Class
-		 */
-		protected $_compiler;
-		/**
-		 * The inflector object
-		 * @var Opt_Inflector_Interface
-		 */
-		protected $_inflector;
-		/**
-		 * The translation interface
-		 * @var Opl_Translation_Interface
-		 */
-		protected $_tf = NULL;
-
-		/**
-		 * The cache object
-		 * @var Opt_Caching_Interface
-		 */
-		protected $_cache;
-
-		/**
-		 * The list of registered instruction processors.
-		 * @var array
-		 */
-		protected $_instructions = array('Opt_Instruction_Section', 'Opt_Instruction_Tree',
-			'Opt_Instruction_Grid', 'Opt_Instruction_Selector', 'Opt_Instruction_Repeat',
-			'Opt_Instruction_Snippet', 'Opt_Instruction_Extend',
-			'Opt_Instruction_For', 'Opt_Instruction_Foreach', 'Opt_Instruction_If',
-			'Opt_Instruction_Put', 'Opt_Instruction_Capture', 'Opt_Instruction_Attribute',
-			'Opt_Instruction_Tag', 'Opt_Instruction_Root', 'Opt_Instruction_Prolog',
-			'Opt_Instruction_Dtd', 'Opt_Instruction_Literal', 'Opt_Instruction_Include',
-			'Opt_Instruction_Dynamic', 'Opt_Instruction_Component', 'Opt_Instruction_Block');
-		/**
-		 * The list of registered functions: assotiative parray of pairs:
-		 * template function name => php function name
-		 * @var array
-		 */
-		protected $_functions = array(
-			'money' => 'Opt_Function::money', 'number' => 'Opt_Function::number', 'spacify' => 'Opt_Function::spacify',
-			'firstof' => 'Opt_Function::firstof', 'indent' => 'Opt_Function::indent', 'strip' => 'Opt_Function::strip',
-			'stripTags' => 'Opt_Function::stripTags', 'upper' => 'Opt_Function::upper', 'lower' => 'Opt_Function::lower',
-			'capitalize' => 'Opt_Function::capitalize', 'countWords' => 'str_word_count', 'countChars' => 'strlen',
-			'replace' => '#3,1,2#str_replace', 'repeat' => 'str_repeat', 'nl2br' => 'Opt_Function::nl2br', 'date' => 'date',
-			'regexReplace' => '#3,1,2#preg_replace', 'truncate' => 'Opt_Function::truncate', 'wordWrap' => 'Opt_Function::wordwrap',
-			'contains' => 'Opt_Function::contains', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
-			'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
-			'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
-			'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey'
-		);
-		/**
-		 * The list of registered classes: assotiative array of pairs:
-		 * template class name => php class name
-		 * @var array
-		 */
-		protected $_classes = array();
-		/**
-		 * The list of registered components: assotiative array of
-		 * pairs: XML tag => component class
-		 * @var array
-		 */
-		protected $_components = array();
-		/**
-		 * The list of registered blocks: assotiative array of
-		 * pairs: XML tag => component class
-		 * @var array
-		 */
-		protected $_blocks = array();
-		/**
-		 * The list of recognized OPT namespaces
-		 * @var array
-		 */
-		protected $_namespaces = array(1 => 'opt', 'com', 'parse');
-		/**
-		 * The list of recognized expression engines.
-		 * @var array
-		 */
-		protected $_exprEngines = array(
-			'parse' => 'Opt_Expression_Standard',
-			'str' => 'Opt_Expression_String',
-		);
-		protected $_modifiers = array(
-			'a' => 'htmlspecialchars',
-			'e' => 'htmlspecialchars',
-			'u' => null
-		);
-		/**
-		 * The list of data formats: assotiative array of pairs:
-		 * format name => format class
-		 * @var array
-		 */
-		protected $_formats = array(
-			'Array' => 'Opt_Format_Array',
-			'SingleArray' => 'Opt_Format_SingleArray',
-			'StaticGenerator' => 'Opt_Format_StaticGenerator',
-			'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
-			'Objective' => 'Opt_Format_Objective');
-		/**
-		 * The extra entities replaced by OPT
-		 * @var array
-		 */
-		protected $_entities = array('lb' => '{', 'rb' => '}');
-		/**
-		 * The output buffers for advisory output buffering information.
-		 * @var array
-		 */
-		protected $_buffers = array();
-
-		/**
-		 * Was the library initialized?
-		 * @var boolean
-		 */
-		protected $_init = false;
-
-		/*
-		 * Template parsing
-		 */
-
-		/**
-		 * Returns the compiler object and optionally loads the necessary classes. Unless
-		 * you develop instructions or reimplement various core features you do not have
-		 * to use this method.
-		 *
-		 * @return Opt_Compiler_Class The compiler
-		 */
-		public function getCompiler()
+		if(!is_object($this->_compiler))
 		{
-			if(!is_object($this->_compiler))
-			{
-				$this->_compiler = new Opt_Compiler_Class($this);
-			}
-			return $this->_compiler;
-		} // end getCompiler();
+			$this->_compiler = new Opt_Compiler_Class($this);
+		}
+		return $this->_compiler;
+	} // end getCompiler();
 
-		/*
-		 * Extensions and configuration
-		 */
+	/*
+	 * Extensions and configuration
+	 */
 
-		/**
-		 * Performs the main initialization of OPT. If the optional argument `$config` is
-		 * specified, it is transparently sent to Opt_Class::loadConfig(). Before using this
-		 * method, we are obligated to configure the library and load the necessary extensions.
-		 *
-		 * @param mixed $config = null The optional configuration to be loaded
-		 */
-		public function setup($config = null)
+	/**
+	 * Performs the main initialization of OPT. If the optional argument `$config` is
+	 * specified, it is transparently sent to Opt_Class::loadConfig(). Before using this
+	 * method, we are obligated to configure the library and load the necessary extensions.
+	 *
+	 * @param mixed $config = null The optional configuration to be loaded
+	 */
+	public function setup($config = null)
+	{
+		if(is_array($config))
 		{
-			if(is_array($config))
-			{
-				$this->loadConfig($config);
-			}
-			if(!is_null($this->pluginDir))
-			{
-				$this->loadPlugins();
-			}
-
-			if(Opl_Registry::exists('opl_translate'))
-			{
-				$this->setTranslationInterface(Opl_Registry::get('opl_translate'));
-			}
-			if(Opl_Registry::getState('opl_debug_console') || $this->debugConsole)
-			{
-				$this->debugConsole = true;
-				Opt_Support::initDebugConsole($this);
-			}
-
-			// Register a default inflector, if the programmer didn't set any.
-			if(!$this->_inflector instanceof Opt_Inflector_Interface)
-			{
-				$this->_inflector = new Opt_Inflector_Standard($this);
-			}
-			$this->_securePath($this->compileDir);
-			$this->_init = true;
-			return true;
-		} // end setup();
-
-		/**
-		 * Registers a new add-on in OPT identified by `$type`. The type is identified
-		 * by the appropriate Opt_Class constant. The semantics of the next arguments
-		 * depends on the registered add-on.
-		 *
-		 * Note that you may register several add-ons at the same time by passing an
-		 * array as the second argument.
-		 *
-		 * @param int $type The type of registered item(s).
-		 * @param mixed $item The item or a list of items to be registered
-		 * @param mixed $addon = null Used in several types of add-ons
-		 * @return void
-		 */
-		public function register($type, $item, $addon = null)
+			$this->loadConfig($config);
+		}
+		if(!is_null($this->pluginDir))
 		{
-			if($this->_init)
-			{
-				throw new Opt_Initialization_Exception($this->_init, 'register an item');
-			}
+			$this->loadPlugins();
+		}
 
-			$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities', '_exprEngines', '_modifiers');
-			$whereto = $map[$type];
-			// Massive registration
-			if(is_array($item))
-			{
-				$this->$whereto = array_merge($this->$whereto, $item);
-				return;
-			}
-			switch($type)
-			{
-				case self::OPT_FORMAT:
-					if($addon === null)
-					{
-						$addon = 'Opt_Format_'.$item;
-					}
-					$a = &$this->$whereto;
-					$a[$item] = $addon;
-					break;
-				case self::OPT_INSTRUCTION:
-					if($addon === null)
-					{
-						$addon = 'Opt_Instruction_'.$item;
-					}
-					$a = &$this->$whereto;
-					$a[$item] = $addon;
-					break;
-				case self::OPT_NAMESPACE:
-					$a = &$this->$whereto;
-					$a[] = $item;
-					break;
-				case self::MODIFIER:
-					$a = &$this->$whereto;
-					$a[$item] = $addon;
-					break;
-				default:
-					if($addon === null)
-					{
-						throw new BadMethodCallException('Missing argument 3 for Opt_Class::register()');
-					}
-					$a = &$this->$whereto;
-					$a[$item] = $addon;
-			}
-		} // end register();
-
-		/**
-		 * Registers a new translation interface to be used in templates. The translation
-		 * interface must implement Opl_Translation_Interface. If the specified parameter
-		 * is not a valid translation interface, the method unregisters the already set one
-		 * and returns false.
-		 *
-		 * @param Opl_Translation_Interface $tf  The translation interface or "null".
-		 * @return boolean True, if the translation interface was properly set.
-		 */
-		public function setTranslationInterface($tf)
+		if(Opl_Registry::exists('opl_translate'))
 		{
-			if(!$tf instanceof Opl_Translation_Interface)
-			{
-				$this->_tf = null;
-				return false;
-			}
-			$this->_tf = $tf;
-			return true;
-		} // end setTranslationInterface();
-
-		/**
-		 * Returns the current translation interface assigned to OPT.
-		 *
-		 * @return Opl_Translation_Interface The translation interface.
-		 */
-		public function getTranslationInterface()
+			$this->setTranslationInterface(Opl_Registry::get('opl_translate'));
+		}
+		if(Opl_Registry::getState('opl_debug_console') || $this->debugConsole)
 		{
-			return $this->_tf;
-		} // end getTranslationInterface();
+			$this->debugConsole = true;
+			Opt_Support::initDebugConsole($this);
+		}
 
-		/**
-		 * Sets a new inflector for the OPT.
-		 * @param Opt_Inflector_Interface $inflector The new inflector.
-		 */
-		public function setInflector(Opt_Inflector_Interface $inflector)
+		// Register a default inflector, if the programmer didn't set any.
+		if(!$this->_inflector instanceof Opt_Inflector_Interface)
 		{
-			$this->_inflector = $inflector;
-		} // end setInflector();
+			$this->_inflector = new Opt_Inflector_Standard($this);
+		}
+		$this->_securePath($this->compileDir);
+		$this->_init = true;
+		return true;
+	} // end setup();
 
-		/**
-		 * Returns the current inflector. Note that before calling setup()
-		 * this method may return NULL.
-		 * @return Opt_Inflector_Interface
-		 */
-		public function getInflector()
+	/**
+	 * Registers a new add-on in OPT identified by `$type`. The type is identified
+	 * by the appropriate Opt_Class constant. The semantics of the next arguments
+	 * depends on the registered add-on.
+	 *
+	 * Note that you may register several add-ons at the same time by passing an
+	 * array as the second argument.
+	 *
+	 * @param int $type The type of registered item(s).
+	 * @param mixed $item The item or a list of items to be registered
+	 * @param mixed $addon = null Used in several types of add-ons
+	 * @return void
+	 */
+	public function register($type, $item, $addon = null)
+	{
+		if($this->_init)
 		{
-			return $this->_inflector;
-		} // end getInflector();
+			throw new Opt_Initialization_Exception($this->_init, 'register an item');
+		}
 
-		/**
-		 * Sets the global caching system to use in all the views.
-		 *
-		 * @param Opt_Caching_Interface $cache=null The caching interface
-		 */
-		public function setCache(Opt_Caching_Interface $cache = null)
+		$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities', '_exprEngines', '_modifiers');
+		$whereto = $map[$type];
+		// Massive registration
+		if(is_array($item))
 		{
-			$this->_cache = $cache;
-		} // end setCache();
-
-		/**
-		 * Returns the current global caching system.
-		 *
-		 * @return Opt_Caching_Interface
-		 */
-		public function getCache()
+			$this->$whereto = array_merge($this->$whereto, $item);
+			return;
+		}
+		switch($type)
 		{
-			return $this->_cache;
-		} // end getCache();
-
-		/**
-		 * An implementation of advisory output buffering which allows us
-		 * to tell us, whether another part of the script opened the requested
-		 * buffer.
-		 *
-		 * @param String $buffer The buffer name
-		 * @param Boolean $state The new buffer state: true to open, false to close.
-		 */
-		public function setBufferState($buffer, $state)
-		{
-			if($state)
-			{
-				if(!isset($this->_buffers[$buffer]))
+			case self::OPT_FORMAT:
+				if($addon === null)
 				{
-					$this->_buffers[$buffer] = 1;
+					$addon = 'Opt_Format_'.$item;
 				}
-				else
+				$a = &$this->$whereto;
+				$a[$item] = $addon;
+				break;
+			case self::OPT_INSTRUCTION:
+				if($addon === null)
 				{
-					$this->_buffers[$buffer]++;
+					$addon = 'Opt_Instruction_'.$item;
 				}
-			}
-			else
-			{
-				if(isset($this->_buffers[$buffer]) && $this->_buffers[$buffer] > 0)
+				$a = &$this->$whereto;
+				$a[$item] = $addon;
+				break;
+			case self::OPT_NAMESPACE:
+				$a = &$this->$whereto;
+				$a[] = $item;
+				break;
+			case self::MODIFIER:
+				$a = &$this->$whereto;
+				$a[$item] = $addon;
+				break;
+			default:
+				if($addon === null)
 				{
-					$this->_buffers[$buffer]--;
+					throw new BadMethodCallException('Missing argument 3 for Opt_Class::register()');
 				}
-			}
-		} // end setBufferState();
+				$a = &$this->$whereto;
+				$a[$item] = $addon;
+		}
+	} // end register();
 
-		/**
-		 * Returns the state of the specified output buffer.
-		 *
-		 * @param String $buffer Buffer name
-		 * @return Boolean
-		 */
-		public function getBufferState($buffer)
+	/**
+	 * Registers a new translation interface to be used in templates. The translation
+	 * interface must implement Opl_Translation_Interface. If the specified parameter
+	 * is not a valid translation interface, the method unregisters the already set one
+	 * and returns false.
+	 *
+	 * @param Opl_Translation_Interface $tf  The translation interface or "null".
+	 * @return boolean True, if the translation interface was properly set.
+	 */
+	public function setTranslationInterface($tf)
+	{
+		if(!$tf instanceof Opl_Translation_Interface)
+		{
+			$this->_tf = null;
+			return false;
+		}
+		$this->_tf = $tf;
+		return true;
+	} // end setTranslationInterface();
+
+	/**
+	 * Returns the current translation interface assigned to OPT.
+	 *
+	 * @return Opl_Translation_Interface The translation interface.
+	 */
+	public function getTranslationInterface()
+	{
+		return $this->_tf;
+	} // end getTranslationInterface();
+
+	/**
+	 * Sets a new inflector for the OPT.
+	 * @param Opt_Inflector_Interface $inflector The new inflector.
+	 */
+	public function setInflector(Opt_Inflector_Interface $inflector)
+	{
+		$this->_inflector = $inflector;
+	} // end setInflector();
+
+	/**
+	 * Returns the current inflector. Note that before calling setup()
+	 * this method may return NULL.
+	 * @return Opt_Inflector_Interface
+	 */
+	public function getInflector()
+	{
+		return $this->_inflector;
+	} // end getInflector();
+
+	/**
+	 * Sets the global caching system to use in all the views.
+	 *
+	 * @param Opt_Caching_Interface $cache=null The caching interface
+	 */
+	public function setCache(Opt_Caching_Interface $cache = null)
+	{
+		$this->_cache = $cache;
+	} // end setCache();
+
+	/**
+	 * Returns the current global caching system.
+	 *
+	 * @return Opt_Caching_Interface
+	 */
+	public function getCache()
+	{
+		return $this->_cache;
+	} // end getCache();
+
+	/**
+	 * An implementation of advisory output buffering which allows us
+	 * to tell us, whether another part of the script opened the requested
+	 * buffer.
+	 *
+	 * @param String $buffer The buffer name
+	 * @param Boolean $state The new buffer state: true to open, false to close.
+	 */
+	public function setBufferState($buffer, $state)
+	{
+		if($state)
 		{
 			if(!isset($this->_buffers[$buffer]))
 			{
+				$this->_buffers[$buffer] = 1;
+			}
+			else
+			{
+				$this->_buffers[$buffer]++;
+			}
+		}
+		else
+		{
+			if(isset($this->_buffers[$buffer]) && $this->_buffers[$buffer] > 0)
+			{
+				$this->_buffers[$buffer]--;
+			}
+		}
+	} // end setBufferState();
+
+	/**
+	 * Returns the state of the specified output buffer.
+	 *
+	 * @param String $buffer Buffer name
+	 * @return Boolean
+	 */
+	public function getBufferState($buffer)
+	{
+		if(!isset($this->_buffers[$buffer]))
+		{
+			return false;
+		}
+		return ($this->_buffers[$buffer] > 0);
+	} // end getBufferState();
+
+	/*
+	 * Internal use
+	 */
+
+	/**
+	 * Allows the read access to some of the internal structures for the
+	 * template compiler.
+	 *
+	 * @internal
+	 * @param string $name The structure to be returned.
+	 * @return array The returned structure.
+	 */
+	public function _getList($name)
+	{
+		static $list;
+		if($list === null)
+		{
+			$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf', '_entities', '_exprEngines', '_modifiers');
+		}
+		if(in_array($name, $list))
+		{
+			return $this->$name;
+		}
+		return NULL;
+	} // end _getList();
+
+	/**
+	 * The helper function for the plugin subsystem. It returns the
+	 * PHP code that loads the specified plugin.
+	 *
+	 * @internal
+	 * @param String $directory The plugin directory
+	 * @param SplFileInfo $file The loaded file
+	 * @return String
+	 */
+	protected function _pluginLoader($directory, SplFileInfo $file)
+	{
+		$ns = explode('.', $file->getFilename());
+		switch($ns[0])
+		{
+			case 'instruction':
+				return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
+			case 'format':
+				return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
+			default:
+				return ' require(\''.$directory.$file->getFilename().'\'); ';
+		}
+	} // end _pluginLoader();
+
+	/**
+	 * Parses the stream in the template path name and returns
+	 * the real path.
+	 *
+	 * @internal
+	 * @param String $name Template filename
+	 * @return String
+	 */
+	public function _stream($name)
+	{
+		if(strpos($name, ':') !== FALSE)
+		{
+			// We get the stream ID from the given filename.
+			$data = explode(':', $name);
+			if(!isset($this->sourceDir[$data[0]]))
+			{
+				throw new Opt_ObjectNotExists_Exception('resource', $data[0]);
+			}
+			return $this->sourceDir[$data[0]].$data[1];
+		}
+		// Here, the standard stream is used.
+		if(!isset($this->sourceDir[$this->stdStream]))
+		{
+			throw new Opt_ObjectNotExists_Exception('resource', $this->stdStream);
+		}
+		return $this->sourceDir[$this->stdStream].$name;
+	} // end _stream();
+
+	/**
+	 * Loads the template source code. Returns the template body or
+	 * the array with two (false) values in case of problems.
+	 *
+	 * @internal
+	 * @param String $filename The template filename
+	 * @param Boolean $exception Do we inform about the problems with exception?
+	 * @return String|Array
+	 */
+	public function _getSource($filename, $exception = true)
+	{
+		$item = $this->_inflector->getSourcePath($filename);
+		if(!file_exists($item))
+		{
+			if(!$exception)
+			{
+				return array(false, false);
+			}
+			throw new Opt_TemplateNotFound_Exception($item);
+		}
+		return file_get_contents($item);
+	} // end _getSource();
+
+	/**
+	 * The class constructor - registers the main object in the
+	 * OPL registry.
+	 */
+	public function __construct()
+	{
+		Opl_Registry::register('opt', $this);
+	} // end __construct();
+
+	/**
+	 * The destructor. Clears the output buffers and optionally
+	 * displays the debug console.
+	 */
+	public function __destruct()
+	{
+		if(ob_get_level() > 0)
+		{
+			while(@ob_end_flush());
+		}
+		if($this->debugConsole)
+		{
+			try
+			{
+				Opt_Support::updateTimers();
+				Opl_Debug_Console::display();
+			}
+			catch(Opl_Exception $e)
+			{
+				die('<div style="background: #f77777;">Opt_Class destructor exception: '.$e->getMessage().'</div>');
+			}
+		}
+	} // end __destruct();
+} // end Opt_Class;
+
+/**
+ * The main view class.
+ *
+ * @package Public
+ */
+class Opt_View
+{
+	const VAR_LOCAL = false;
+	const VAR_GLOBAL = true;
+
+	private $_tpl;
+	private $_template;
+	private $_formatInfo = array();
+	private $_inheritance = array();
+	private $_cplInheritance = array();
+	private $_data = array();
+	private $_tf;
+	private $_processingTime = null;
+	private $_branch = null;
+	private $_cache = null;
+	private $_parser;
+
+	static private $_vars = array();
+	static private $_capture = array();
+	static private $_global = array();
+	static private $_globalFormatInfo = array();
+
+	/**
+	 * Creates a new view object. The optional argument, $template
+	 * may specify the template to be associated with this view.
+	 * Please note that if you do not specify the template here,
+	 * you have to do this manually later using Opt_View::setTemplate()
+	 * method.
+	 *
+	 * @param string $template The template file.
+	 */
+	public function __construct($template = '')
+	{
+		$this->_tpl = Opl_Registry::get('opt');
+		$this->_template = $template;
+		$this->_parser = $this->_tpl->parser;
+		$this->_cache = $this->_tpl->getCache();
+	} // end __construct();
+
+	/**
+	 * Associates a template file to the view.
+	 *
+	 * @param string $file The template file.
+	 */
+	public function setTemplate($file)
+	{
+		$this->_template = $file;
+	} // end setTemplate();
+
+	/**
+	 * Returns a template associated with this view.
+	 *
+	 * @return string The template filename.
+	 */
+	public function getTemplate()
+	{
+		return $this->_template;
+	} // end getTemplate();
+
+	/**
+	 * Sets the template mode (XML, Quirks, etc...)
+	 *
+	 * @deprecated
+	 * @param Int $mode The new mode
+	 */
+	public function setMode($mode)
+	{
+		$this->_parser = $mode;
+	} // end setMode();
+
+	/**
+	 * Gets the current template mode.
+	 *
+	 * @deprecated
+	 * @return Int
+	 */
+	public function getMode()
+	{
+		return $this->_parser;
+	} // end getMode();
+
+	/**
+	 * Sets the template mode (XML, Quirks, etc...)
+	 *
+	 * @param Int $mode The new mode
+	 */
+	public function setParser($mode)
+	{
+		$this->_parser = $mode;
+	} // end setParser();
+
+	/**
+	 * Gets the current template mode.
+	 *
+	 * @return Int
+	 */
+	public function getParser()
+	{
+		return $this->_parser;
+	} // end getParser();
+
+	/**
+	 * Sets a template inheritance branch that will be used
+	 * in this view. If you want to disable branching, set
+	 * the argument to NULL.
+	 *
+	 * @param string $branch The branch name.
+	 */
+	public function setBranch($branch)
+	{
+		$this->_branch = $branch;
+	} // end setBranch();
+
+	/**
+	 * Returns a branch used in the template inheritance.
+	 *
+	 * @return string The branch name.
+	 */
+	public function getBranch()
+	{
+		return $this->_branch;
+	} // end getBranch();
+
+	/**
+	 * Returns the view processing time for the debug purposes.
+	 * The processing time is calculated only if the debug mode
+	 * is enabled.
+	 *
+	 * @return float The processing time.
+	 */
+	public function getTime()
+	{
+		return $this->_processingTime;
+	} // end getTime();
+
+	/*
+	 * Data management
+	 */
+
+	/**
+	 * Creates a new local template variable.
+	 *
+	 * @param string $name The variable name.
+	 * @param mixed $value The variable value.
+	 */
+	public function __set($name, $value)
+	{
+		$this->_data[$name] = $value;
+	} // end __set();
+
+	/**
+	 * Creates a new local template variable.
+	 *
+	 * @param string $name The variable name.
+	 * @param mixed $value The variable value.
+	 */
+	public function assign($name, $value)
+	{
+		$this->_data[$name] = $value;
+	} // end assign();
+
+	/**
+	 * Creates a group of local template variables
+	 * using an associative array, where the keys are
+	 * the variable names.
+	 *
+	 * @param array $vars A list of variables.
+	 */
+	public function assignGroup($values)
+	{
+		$this->_data = array_merge($this->_data, $values);
+	} // end assignGroup();
+
+	/**
+	 * Creates a new local template variable with
+	 * the value assigned by reference.
+	 *
+	 * @param string $name The variable name.
+	 * @param mixed &$value The variable value.
+	 */
+	public function assignRef($name, &$value)
+	{
+		$this->_data[$name] = &$value;
+	} // end assignRef();
+
+	/**
+	 * Returns the value of a template variable or
+	 * null, if the variable does not exist.
+	 *
+	 * @param string $name The variable name.
+	 * @return mixed The variable value or NULL.
+	 */
+	public function get($name)
+	{
+		if(!isset($this->_data[$name]))
+		{
+			return null;
+		}
+		return $this->_data[$name];
+	} // end read();
+
+	/**
+	 * Returns the value of a local template variable or
+	 * null, if the variable does not exist.
+	 *
+	 * @param string $name The variable name.
+	 * @return mixed The variable value or NULL.
+	 */
+	public function __get($name)
+	{
+		if(!isset($this->_data[$name]))
+		{
+			return null;
+		}
+		return $this->_data[$name];
+	} // end __get();
+
+	/**
+	 * Returns TRUE, if the local template variable with the
+	 * specified name is defined.
+	 *
+	 * @param string $name The variable name.
+	 * @return boolean True, if the variable is defined.
+	 */
+	public function defined($name)
+	{
+		return isset($this->_data[$name]);
+	} // end defined();
+
+	/**
+	 * Returns TRUE, if the local template variable with the
+	 * specified name is defined.
+	 *
+	 * @param string $name The variable name.
+	 * @return boolean True, if the variable is defined.
+	 */
+	public function __isset($name)
+	{
+		return isset($this->_data[$name]);
+	} // end __isset();
+
+	/**
+	 * Removes a local template variable with the specified name.
+	 *
+	 * @param string $name The variable name.
+	 * @return boolean True, if the variable has been removed.
+	 */
+	public function remove($name)
+	{
+		if(isset($this->_data[$name]))
+		{
+			unset($this->_data[$name]);
+			if(isset($this->_formatInfo[$name]))
+			{
+				unset($this->_formatInfo[$name]);
+			}
+			return true;
+		}
+		return false;
+	} // end remove();
+
+	/**
+	 * Removes a local template variable with the specified name.
+	 *
+	 * @param string $name The variable name.
+	 * @return boolean True, if the variable has been removed.
+	 */
+	public function __unset($name)
+	{
+		return $this->remove($name);
+	} // end __unset();
+
+	/**
+	 * Creates a new global template variable.
+	 *
+	 * @static
+	 * @param string $name The variable name.
+	 * @param mixed $value The variable value.
+	 */
+	static public function assignGlobal($name, $value)
+	{
+		self::$_global[$name] = $value;
+	} // end assignGlobal();
+
+	/**
+	 * Creates a group of global template variables
+	 * using an associative array, where the keys are
+	 * the variable names.
+	 *
+	 * @static
+	 * @param array $vars A list of variables.
+	 */
+	static public function assignGroupGlobal($values)
+	{
+		self::$_global = array_merge(self::$_global, $values);
+	} // end assignGroupGlobal();
+
+	/**
+	 * Creates a new global template variable with
+	 * the value assigned by reference.
+	 *
+	 * @static
+	 * @param string $name The variable name.
+	 * @param mixed &$value The variable value.
+	 */
+	static public function assignRefGlobal($name, &$value)
+	{
+		self::$_global[$name] = &$value;
+	} // end assignRefGlobal();
+
+	/**
+	 * Returns TRUE, if the global template variable with the
+	 * specified name is defined.
+	 *
+	 * @static
+	 * @param string $name The variable name.
+	 * @return boolean True, if the variable is defined.
+	 */
+	static public function definedGlobal($name)
+	{
+		return isset(self::$_global[$name]);
+	} // end definedGlobal();
+
+	/**
+	 * Returns the value of a global template variable or
+	 * null, if the variable does not exist.
+	 *
+	 * @static
+	 * @param string $name The variable name.
+	 * @return mixed The variable value or NULL.
+	 */
+	static public function getGlobal($name)
+	{
+		if(!isset(self::$_global[$name]))
+		{
+			return null;
+		}
+		return self::$_global[$name];
+	} // end getGlobal();
+
+	/**
+	 * Removes a global template variable with the specified name.
+	 *
+	 * @static
+	 * @param string $name The variable name.
+	 * @return boolean True, if the variable has been removed.
+	 */
+	static public function removeGlobal($name)
+	{
+		if(isset(self::$_global[$name]))
+		{
+			unset(self::$_global[$name]);
+			return true;
+		}
+		return false;
+	} // end removeGlobal();
+
+	/**
+	 * Clears all the possible static private buffers.
+	 */
+	static public function clear()
+	{
+		self::$_vars = array();
+		self::$_capture = array();
+		self::$_global = array();
+		self::$_globalFormatInfo = array();
+	} // end clear();
+
+	/**
+	 * Returns the value of the internal template variable or
+	 * NULL if it does not exist.
+	 *
+	 * @param string $name The internal variable name.
+	 * @return mixed The variable value or NULL.
+	 */
+	public function getTemplateVar($name)
+	{
+		if(!isset(self::$_vars[$name]))
+		{
+			return null;
+		}
+		return self::$_vars[$name];
+	} // end getTemplateVar();
+
+	/**
+	 * Sets the specified data format for the identifier that may
+	 * identify a template variable or some other things. The details
+	 * are explained in the OPT user manual.
+	 *
+	 * @param string $item The item name
+	 * @param string $format The format to be used for the specified item.
+	 */
+	public function setFormat($item, $format)
+	{
+		$this->_formatInfo[$item] = $format;
+	} // end setFormat();
+
+	/**
+	 * Sets the specified data format for the identifier that may
+	 * identify a global template variable or some other things. The details
+	 * are explained in the OPT user manual.
+	 *
+	 * @static
+	 * @param string $item The item name
+	 * @param string $format The format to be used for the specified item.
+	 */
+	static public function setFormatGlobal($item, $format)
+	{
+		self::$_globalFormatInfo['global.'.$item] = $format;
+	} // end setFormatGlobal();
+
+	/**
+	 * Sets the caching interface that should be used with this view.
+	 *
+	 * @param Opt_Caching_Interface $iface The caching interface
+	 */
+	public function setCache(Opt_Caching_Interface $iface = null)
+	{
+		$this->_cache = $iface;
+	} // end setCache();
+
+	/**
+	 * Returns the caching interface used with this view
+	 *
+	 * @return Opt_Caching_Interface
+	 */
+	public function getCache()
+	{
+		return $this->_cache;
+	} // end getCache();
+
+	/*
+	 * Dynamic inheritance
+	 */
+
+	/**
+	 * Creates a dynamic template inheritance between the templates in the view.
+	 * There are two possible uses of the method. If you specify only the one
+	 * argument, the method will extend the main view template with the specified
+	 * template.
+	 *
+	 * The two arguments can be used to extend other templates in the inheritance
+	 * chain. In this case the first argument specifies the template that is going
+	 * to extend something, and the second one - the extended template.
+	 *
+	 * @param string $source The extending template or the extended template in case of one-argument call.
+	 * @param string $destination The extended template.
+	 */
+	public function inherit($source, $destination = null)
+	{
+		if(is_null($destination))
+		{
+			$this->_inheritance[$this->_template] = str_replace(array('/', ':', '\\'), '__', $source);
+			$this->_cplInheritance[$this->_template] = $source;
+			return;
+		}
+		$this->_inheritance[$source] = str_replace(array('/', ':', '\\'), '__',$destination);
+		$this->_cplInheritance[$source] = $destination;
+	} // end inherit();
+
+	/*
+	 * Internal use
+	 */
+
+	/**
+	 * Executes, and optionally compiles the template represented by the view.
+	 * Returns true, if the template was found and successfully executed.
+	 *
+	 * @param Opt_Output_Interface $output The output interface.
+	 * @param Boolean $exception Should the exceptions be thrown if the template does not exist?
+	 * @return Boolean
+	 */
+	public function _parse(Opt_Output_Interface $output, $exception = true)
+	{
+		if($this->_tpl->debugConsole)
+		{
+			$time = microtime(true);
+		}
+		$cached = false;
+		if(!is_null($this->_cache))
+		{
+			$result = $this->_cache->templateCacheStart($this);
+			if($result !== false)
+			{
+				// For dynamic cache...
+				if(is_string($result))
+				{
+					include($result);
+				}
+				return true;
+			}
+			$cached = true;
+		}
+		$this->_tf = $this->_tpl->getTranslationInterface();
+		if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
+		{
+			list($compileName, $compileTime) = $this->_preprocess($exception);
+			if(is_null($compileName))
+			{
 				return false;
 			}
-			return ($this->_buffers[$buffer] > 0);
-		} // end getBufferState();
-
-		/*
-		 * Internal use
-		 */
-
-		/**
-		 * Allows the read access to some of the internal structures for the
-		 * template compiler.
-		 *
-		 * @internal
-		 * @param string $name The structure to be returned.
-		 * @return array The returned structure.
-		 */
-		public function _getList($name)
+		}
+		else
 		{
-			static $list;
-			if($list === null)
+			$compileName = $this->_convert($this->_template);
+			$compileTime = null;
+			if(!$exception && !file_exists($compileName))
 			{
-				$list = array('_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_tf', '_entities', '_exprEngines', '_modifiers');
+				return false;
 			}
-			if(in_array($name, $list))
-			{
-				return $this->$name;
-			}
-			return NULL;
-		} // end _getList();
+		}
 
-		/**
-		 * The helper function for the plugin subsystem. It returns the
-		 * PHP code that loads the specified plugin.
-		 *
-		 * @internal
-		 * @param String $directory The plugin directory
-		 * @param SplFileInfo $file The loaded file
-		 * @return String
-		 */
-		protected function _pluginLoader($directory, SplFileInfo $file)
-		{
-			$ns = explode('.', $file->getFilename());
-			switch($ns[0])
-			{
-				case 'instruction':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
-				case 'format':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
-				default:
-					return ' require(\''.$directory.$file->getFilename().'\'); ';
-			}
-		} // end _pluginLoader();
+		$old = error_reporting($this->_tpl->errorReporting);
+		require($this->_tpl->compileDir.$compileName);
+		error_reporting($old);
 
-		/**
-		 * Parses the stream in the template path name and returns
-		 * the real path.
-		 *
-		 * @internal
-		 * @param String $name Template filename
-		 * @return String
-		 */
-		public function _stream($name)
+		// The counter stops, if the time counting has been enabled for the debug console purposes
+		if(!is_null($this->_cache))
 		{
-			if(strpos($name, ':') !== FALSE)
-			{
-				// We get the stream ID from the given filename.
-				$data = explode(':', $name);
-				if(!isset($this->sourceDir[$data[0]]))
-				{
-					throw new Opt_ObjectNotExists_Exception('resource', $data[0]);
-				}
-				return $this->sourceDir[$data[0]].$data[1];
-			}
-			// Here, the standard stream is used.
-			if(!isset($this->sourceDir[$this->stdStream]))
-			{
-				throw new Opt_ObjectNotExists_Exception('resource', $this->stdStream);
-			}
-			return $this->sourceDir[$this->stdStream].$name;
-		} // end _stream();
+			$this->_cache->templateCacheStop($this);
+		}
+		if(isset($time))
+		{
+			Opt_Support::addView($this->_template, $output->getName(), $this->_processingTime = microtime(true) - $time, $cached);
+		}
+		return true;
+	} // end _parse();
 
-		/**
-		 * Loads the template source code. Returns the template body or
-		 * the array with two (false) values in case of problems.
-		 *
-		 * @internal
-		 * @param String $filename The template filename
-		 * @param Boolean $exception Do we inform about the problems with exception?
-		 * @return String|Array
-		 */
-		public function _getSource($filename, $exception = true)
+	/**
+	 * The method checks whether the template exists and if it was modified by
+	 * the template designer. In the second case, it loads and runs the template
+	 * compiler to produce a new version. Returns an array with the template data:
+	 *  - Compiled template name
+	 *  - Compilation time
+	 * They are needed by the template execution system or template inheritance. In
+	 * case of problems, the array contains two NULL values.
+	 *
+	 * @internal
+	 * @param Boolean $exception Do we inform about unexisting template with exceptions?
+	 * @return Array
+	 */
+	protected function _preprocess($exception = true)
+	{
+		$inflector = $this->_tpl->getInflector();
+		$item = $inflector->getSourcePath($this->_template);
+		$compiled = $inflector->getCompiledPath($this->_template, $this->_inheritance);
+		$compileTime = @filemtime($this->_tpl->compileDir.$compiled);
+		$result = NULL;
+
+		// Here the "rebuild" compilation mode is processed
+		if($this->_tpl->compileMode == Opt_Class::CM_REBUILD)
 		{
-			$item = $this->_inflector->getSourcePath($filename);
 			if(!file_exists($item))
 			{
 				if(!$exception)
 				{
-					return array(false, false);
+					return array(NULL, NULL);
 				}
 				throw new Opt_TemplateNotFound_Exception($item);
 			}
-			return file_get_contents($item);
-		} // end _getSource();
-
-		/**
-		 * The class constructor - registers the main object in the
-		 * OPL registry.
-		 */
-		public function __construct()
+			$result = file_get_contents($item);
+		}
+		else
 		{
-			Opl_Registry::register('opt', $this);
-		} // end __construct();
-
-		/**
-		 * The destructor. Clears the output buffers and optionally
-		 * displays the debug console.
-		 */
-		public function __destruct()
-		{
-			if(ob_get_level() > 0)
+			// Otherwise, we perform a modification test.
+			$rootTime = @filemtime($item);
+			if($rootTime === false)
 			{
-				while(@ob_end_flush());
-			}
-			if($this->debugConsole)
-			{
-				try
+				if(!$exception)
 				{
-					Opt_Support::updateTimers();
-					Opl_Debug_Console::display();
+					return array(NULL, NULL);
 				}
-				catch(Opl_Exception $e)
-				{
-					die('<div style="background: #f77777;">Opt_Class destructor exception: '.$e->getMessage().'</div>');
-				}
+				throw new Opt_TemplateNotFound_Exception($item);
 			}
-		} // end __destruct();
-	} // end Opt_Class;
-
-	/**
-	 * The main view class.
-	 */
-	class Opt_View
-	{
-		const VAR_LOCAL = false;
-		const VAR_GLOBAL = true;
-
-		private $_tpl;
-		private $_template;
-		private $_formatInfo = array();
-		private $_inheritance = array();
-		private $_cplInheritance = array();
-		private $_data = array();
-		private $_tf;
-		private $_processingTime = null;
-		private $_branch = null;
-		private $_cache = null;
-		private $_parser;
-
-		static private $_vars = array();
-		static private $_capture = array();
-		static private $_global = array();
-		static private $_globalFormatInfo = array();
-
-		/**
-		 * Creates a new view object. The optional argument, $template
-		 * may specify the template to be associated with this view.
-		 * Please note that if you do not specify the template here,
-		 * you have to do this manually later using Opt_View::setTemplate()
-		 * method.
-		 *
-		 * @param string $template The template file.
-		 */
-		public function __construct($template = '')
-		{
-			$this->_tpl = Opl_Registry::get('opt');
-			$this->_template = $template;
-			$this->_parser = $this->_tpl->parser;
-			$this->_cache = $this->_tpl->getCache();
-		} // end __construct();
-
-		/**
-		 * Associates a template file to the view.
-		 *
-		 * @param string $file The template file.
-		 */
-		public function setTemplate($file)
-		{
-			$this->_template = $file;
-		} // end setTemplate();
-
-		/**
-		 * Returns a template associated with this view.
-		 *
-		 * @return string The template filename.
-		 */
-		public function getTemplate()
-		{
-			return $this->_template;
-		} // end getTemplate();
-
-		/**
-		 * Sets the template mode (XML, Quirks, etc...)
-		 *
-		 * @deprecated
-		 * @param Int $mode The new mode
-		 */
-		public function setMode($mode)
-		{
-			$this->_parser = $mode;
-		} // end setMode();
-
-		/**
-		 * Gets the current template mode.
-		 *
-		 * @deprecated
-		 * @return Int
-		 */
-		public function getMode()
-		{
-			return $this->_parser;
-		} // end getMode();
-
-		/**
-		 * Sets the template mode (XML, Quirks, etc...)
-		 *
-		 * @param Int $mode The new mode
-		 */
-		public function setParser($mode)
-		{
-			$this->_parser = $mode;
-		} // end setParser();
-
-		/**
-		 * Gets the current template mode.
-		 *
-		 * @return Int
-		 */
-		public function getParser()
-		{
-			return $this->_parser;
-		} // end getParser();
-
-		/**
-		 * Sets a template inheritance branch that will be used
-		 * in this view. If you want to disable branching, set
-		 * the argument to NULL.
-		 *
-		 * @param string $branch The branch name.
-		 */
-		public function setBranch($branch)
-		{
-			$this->_branch = $branch;
-		} // end setBranch();
-
-		/**
-		 * Returns a branch used in the template inheritance.
-		 *
-		 * @return string The branch name.
-		 */
-		public function getBranch()
-		{
-			return $this->_branch;
-		} // end getBranch();
-
-		/**
-		 * Returns the view processing time for the debug purposes.
-		 * The processing time is calculated only if the debug mode
-		 * is enabled.
-		 *
-		 * @return float The processing time.
-		 */
-		public function getTime()
-		{
-			return $this->_processingTime;
-		} // end getTime();
-
-		/*
-		 * Data management
-		 */
-
-		/**
-		 * Creates a new local template variable.
-		 *
-		 * @param string $name The variable name.
-		 * @param mixed $value The variable value.
-		 */
-		public function __set($name, $value)
-		{
-			$this->_data[$name] = $value;
-		} // end __set();
-
-		/**
-		 * Creates a new local template variable.
-		 *
-		 * @param string $name The variable name.
-		 * @param mixed $value The variable value.
-		 */
-		public function assign($name, $value)
-		{
-			$this->_data[$name] = $value;
-		} // end assign();
-
-		/**
-		 * Creates a group of local template variables
-		 * using an associative array, where the keys are
-		 * the variable names.
-		 *
-		 * @param array $vars A list of variables.
-		 */
-		public function assignGroup($values)
-		{
-			$this->_data = array_merge($this->_data, $values);
-		} // end assignGroup();
-
-		/**
-		 * Creates a new local template variable with
-		 * the value assigned by reference.
-		 *
-		 * @param string $name The variable name.
-		 * @param mixed &$value The variable value.
-		 */
-		public function assignRef($name, &$value)
-		{
-			$this->_data[$name] = &$value;
-		} // end assignRef();
-
-		/**
-		 * Returns the value of a template variable or
-		 * null, if the variable does not exist.
-		 *
-		 * @param string $name The variable name.
-		 * @return mixed The variable value or NULL.
-		 */
-		public function get($name)
-		{
-			if(!isset($this->_data[$name]))
+			if($compileTime === false || $compileTime < $rootTime)
 			{
-				return null;
-			}
-			return $this->_data[$name];
-		} // end read();
-
-		/**
-		 * Returns the value of a local template variable or
-		 * null, if the variable does not exist.
-		 *
-		 * @param string $name The variable name.
-		 * @return mixed The variable value or NULL.
-		 */
-		public function __get($name)
-		{
-			if(!isset($this->_data[$name]))
-			{
-				return null;
-			}
-			return $this->_data[$name];
-		} // end __get();
-
-		/**
-		 * Returns TRUE, if the local template variable with the
-		 * specified name is defined.
-		 *
-		 * @param string $name The variable name.
-		 * @return boolean True, if the variable is defined.
-		 */
-		public function defined($name)
-		{
-			return isset($this->_data[$name]);
-		} // end defined();
-
-		/**
-		 * Returns TRUE, if the local template variable with the
-		 * specified name is defined.
-		 *
-		 * @param string $name The variable name.
-		 * @return boolean True, if the variable is defined.
-		 */
-		public function __isset($name)
-		{
-			return isset($this->_data[$name]);
-		} // end __isset();
-
-		/**
-		 * Removes a local template variable with the specified name.
-		 *
-		 * @param string $name The variable name.
-		 * @return boolean True, if the variable has been removed.
-		 */
-		public function remove($name)
-		{
-			if(isset($this->_data[$name]))
-			{
-				unset($this->_data[$name]);
-				if(isset($this->_formatInfo[$name]))
-				{
-					unset($this->_formatInfo[$name]);
-				}
-				return true;
-			}
-			return false;
-		} // end remove();
-
-		/**
-		 * Removes a local template variable with the specified name.
-		 *
-		 * @param string $name The variable name.
-		 * @return boolean True, if the variable has been removed.
-		 */
-		public function __unset($name)
-		{
-			return $this->remove($name);
-		} // end __unset();
-
-		/**
-		 * Creates a new global template variable.
-		 *
-		 * @static
-		 * @param string $name The variable name.
-		 * @param mixed $value The variable value.
-		 */
-		static public function assignGlobal($name, $value)
-		{
-			self::$_global[$name] = $value;
-		} // end assignGlobal();
-
-		/**
-		 * Creates a group of global template variables
-		 * using an associative array, where the keys are
-		 * the variable names.
-		 *
-		 * @static
-		 * @param array $vars A list of variables.
-		 */
-		static public function assignGroupGlobal($values)
-		{
-			self::$_global = array_merge(self::$_global, $values);
-		} // end assignGroupGlobal();
-
-		/**
-		 * Creates a new global template variable with
-		 * the value assigned by reference.
-		 *
-		 * @static
-		 * @param string $name The variable name.
-		 * @param mixed &$value The variable value.
-		 */
-		static public function assignRefGlobal($name, &$value)
-		{
-			self::$_global[$name] = &$value;
-		} // end assignRefGlobal();
-
-		/**
-		 * Returns TRUE, if the global template variable with the
-		 * specified name is defined.
-		 *
-		 * @static
-		 * @param string $name The variable name.
-		 * @return boolean True, if the variable is defined.
-		 */
-		static public function definedGlobal($name)
-		{
-			return isset(self::$_global[$name]);
-		} // end definedGlobal();
-
-		/**
-		 * Returns the value of a global template variable or
-		 * null, if the variable does not exist.
-		 *
-		 * @static
-		 * @param string $name The variable name.
-		 * @return mixed The variable value or NULL.
-		 */
-		static public function getGlobal($name)
-		{
-			if(!isset(self::$_global[$name]))
-			{
-				return null;
-			}
-			return self::$_global[$name];
-		} // end getGlobal();
-
-		/**
-		 * Removes a global template variable with the specified name.
-		 *
-		 * @static
-		 * @param string $name The variable name.
-		 * @return boolean True, if the variable has been removed.
-		 */
-		static public function removeGlobal($name)
-		{
-			if(isset(self::$_global[$name]))
-			{
-				unset(self::$_global[$name]);
-				return true;
-			}
-			return false;
-		} // end removeGlobal();
-
-		/**
-		 * Clears all the possible static private buffers.
-		 */
-		static public function clear()
-		{
-			self::$_vars = array();
-			self::$_capture = array();
-			self::$_global = array();
-			self::$_globalFormatInfo = array();
-		} // end clear();
-
-		/**
-		 * Returns the value of the internal template variable or
-		 * NULL if it does not exist.
-		 *
-		 * @param string $name The internal variable name.
-		 * @return mixed The variable value or NULL.
-		 */
-		public function getTemplateVar($name)
-		{
-			if(!isset(self::$_vars[$name]))
-			{
-				return null;
-			}
-			return self::$_vars[$name];
-		} // end getTemplateVar();
-
-		/**
-		 * Sets the specified data format for the identifier that may
-		 * identify a template variable or some other things. The details
-		 * are explained in the OPT user manual.
-		 *
-		 * @param string $item The item name
-		 * @param string $format The format to be used for the specified item.
-		 */
-		public function setFormat($item, $format)
-		{
-			$this->_formatInfo[$item] = $format;
-		} // end setFormat();
-
-		/**
-		 * Sets the specified data format for the identifier that may
-		 * identify a global template variable or some other things. The details
-		 * are explained in the OPT user manual.
-		 *
-		 * @static
-		 * @param string $item The item name
-		 * @param string $format The format to be used for the specified item.
-		 */
-		static public function setFormatGlobal($item, $format)
-		{
-			self::$_globalFormatInfo['global.'.$item] = $format;
-		} // end setFormatGlobal();
-
-		/**
-		 * Sets the caching interface that should be used with this view.
-		 *
-		 * @param Opt_Caching_Interface $iface The caching interface
-		 */
-		public function setCache(Opt_Caching_Interface $iface = null)
-		{
-			$this->_cache = $iface;
-		} // end setCache();
-
-		/**
-		 * Returns the caching interface used with this view
-		 *
-		 * @return Opt_Caching_Interface
-		 */
-		public function getCache()
-		{
-			return $this->_cache;
-		} // end getCache();
-
-		/*
-		 * Dynamic inheritance
-		 */
-
-		/**
-		 * Creates a dynamic template inheritance between the templates in the view.
-		 * There are two possible uses of the method. If you specify only the one
-		 * argument, the method will extend the main view template with the specified
-		 * template.
-		 *
-		 * The two arguments can be used to extend other templates in the inheritance
-		 * chain. In this case the first argument specifies the template that is going
-		 * to extend something, and the second one - the extended template.
-		 *
-		 * @param string $source The extending template or the extended template in case of one-argument call.
-		 * @param string $destination The extended template.
-		 */
-		public function inherit($source, $destination = null)
-		{
-			if(is_null($destination))
-			{
-				$this->_inheritance[$this->_template] = str_replace(array('/', ':', '\\'), '__', $source);
-				$this->_cplInheritance[$this->_template] = $source;
-				return;
-			}
-			$this->_inheritance[$source] = str_replace(array('/', ':', '\\'), '__',$destination);
-			$this->_cplInheritance[$source] = $destination;
-		} // end inherit();
-
-		/*
-		 * Internal use
-		 */
-
-		/**
-		 * Executes, and optionally compiles the template represented by the view.
-		 * Returns true, if the template was found and successfully executed.
-		 *
-		 * @param Opt_Output_Interface $output The output interface.
-		 * @param Boolean $exception Should the exceptions be thrown if the template does not exist?
-		 * @return Boolean
-		 */
-		public function _parse(Opt_Output_Interface $output, $exception = true)
-		{
-			if($this->_tpl->debugConsole)
-			{
-				$time = microtime(true);
-			}
-			$cached = false;
-			if(!is_null($this->_cache))
-			{
-				$result = $this->_cache->templateCacheStart($this);
-				if($result !== false)
-				{
-					// For dynamic cache...
-					if(is_string($result))
-					{
-						include($result);
-					}
-					return true;
-				}
-				$cached = true;
-			}
-			$this->_tf = $this->_tpl->getTranslationInterface();
-			if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
-			{
-				list($compileName, $compileTime) = $this->_preprocess($exception);
-				if(is_null($compileName))
-				{
-					return false;
-				}
-			}
-			else
-			{
-				$compileName = $this->_convert($this->_template);
-				$compileTime = null;
-				if(!$exception && !file_exists($compileName))
-				{
-					return false;
-				}
-			}
-
-			$old = error_reporting($this->_tpl->errorReporting);
-			require($this->_tpl->compileDir.$compileName);
-			error_reporting($old);
-
-			// The counter stops, if the time counting has been enabled for the debug console purposes
-			if(!is_null($this->_cache))
-			{
-				$this->_cache->templateCacheStop($this);
-			}
-			if(isset($time))
-			{
-				Opt_Support::addView($this->_template, $output->getName(), $this->_processingTime = microtime(true) - $time, $cached);
-			}
-			return true;
-		} // end _parse();
-
-		/**
-		 * The method checks whether the template exists and if it was modified by
-		 * the template designer. In the second case, it loads and runs the template
-		 * compiler to produce a new version. Returns an array with the template data:
-		 *  - Compiled template name
-		 *  - Compilation time
-		 * They are needed by the template execution system or template inheritance. In
-		 * case of problems, the array contains two NULL values.
-		 *
-		 * @internal
-		 * @param Boolean $exception Do we inform about unexisting template with exceptions?
-		 * @return Array
-		 */
-		protected function _preprocess($exception = true)
-		{
-			$inflector = $this->_tpl->getInflector();
-			$item = $inflector->getSourcePath($this->_template);
-			$compiled = $inflector->getCompiledPath($this->_template, $this->_inheritance);
-			$compileTime = @filemtime($this->_tpl->compileDir.$compiled);
-			$result = NULL;
-
-			// Here the "rebuild" compilation mode is processed
-			if($this->_tpl->compileMode == Opt_Class::CM_REBUILD)
-			{
-				if(!file_exists($item))
-				{
-					if(!$exception)
-					{
-						return array(NULL, NULL);
-					}
-					throw new Opt_TemplateNotFound_Exception($item);
-				}
 				$result = file_get_contents($item);
 			}
-			else
-			{
-				// Otherwise, we perform a modification test.
-				$rootTime = @filemtime($item);
-				if($rootTime === false)
-				{
-					if(!$exception)
-					{
-						return array(NULL, NULL);
-					}
-					throw new Opt_TemplateNotFound_Exception($item);
-				}
-				if($compileTime === false || $compileTime < $rootTime)
-				{
-					$result = file_get_contents($item);
-				}
-			}
+		}
 
-			if(is_null($result))
-			{
-				return array($compiled, $compileTime);
-			}
-
-			$compiler = $this->_tpl->getCompiler();
-			$compiler->setInheritance($this->_cplInheritance);
-			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
-			$compiler->set('branch', $this->_branch);
-			$compiler->compile($result, $this->_template, $compiled, $this->_parser);
+		if(is_null($result))
+		{
 			return array($compiled, $compileTime);
-		} // end _preprocess();
+		}
 
-		/**
-		 * This method is used by the template with the template inheritance. It
-		 * allows to check, whether one of the templates on the dependency list
-		 * has been modified. The method takes the compilation time of the compiled
-		 * template and the list of the source template names that it depends on.
-		 *
-		 * Returns true, if one if the templates is newer than the compilation time.
-		 *
-		 * @param Int $compileTime Compiled template creation time.
-		 * @param Array $templates The list of dependencies
-		 * @return Boolean
-		 */
-		protected function _massPreprocess($compileTime, $templates)
+		$compiler = $this->_tpl->getCompiler();
+		$compiler->setInheritance($this->_cplInheritance);
+		$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
+		$compiler->set('branch', $this->_branch);
+		$compiler->compile($result, $this->_template, $compiled, $this->_parser);
+		return array($compiled, $compileTime);
+	} // end _preprocess();
+
+	/**
+	 * This method is used by the template with the template inheritance. It
+	 * allows to check, whether one of the templates on the dependency list
+	 * has been modified. The method takes the compilation time of the compiled
+	 * template and the list of the source template names that it depends on.
+	 *
+	 * Returns true, if one if the templates is newer than the compilation time.
+	 *
+	 * @param Int $compileTime Compiled template creation time.
+	 * @param Array $templates The list of dependencies
+	 * @return Boolean
+	 */
+	protected function _massPreprocess($compileTime, $templates)
+	{
+		switch($this->_tpl->compileMode)
 		{
-			switch($this->_tpl->compileMode)
-			{
-				case Opt_Class::CM_PERFORMANCE:
-				case Opt_Class::CM_REBUILD:
-					return false;	// We return false even here, because the compilation has already been done in _parse()
-				case Opt_Class::CM_DEFAULT:
-					$cnt = sizeof($templates);
-					$inflector = $this->_tpl->getInflector();
-					for($i = 0; $i < $cnt; $i++)
+			case Opt_Class::CM_PERFORMANCE:
+			case Opt_Class::CM_REBUILD:
+				return false;	// We return false even here, because the compilation has already been done in _parse()
+			case Opt_Class::CM_DEFAULT:
+				$cnt = sizeof($templates);
+				$inflector = $this->_tpl->getInflector();
+				for($i = 0; $i < $cnt; $i++)
+				{
+					$templates[$i] = $inflector->getSourcePath($templates[$i]);
+					$time = @filemtime($templates[$i]);
+					if(is_null($time))
 					{
-						$templates[$i] = $inflector->getSourcePath($templates[$i]);
-						$time = @filemtime($templates[$i]);
-						if(is_null($time))
-						{
-							throw new Opt_TemplateNotFound_Exception($templates[$i]);
-						}
-						if($time >= $compileTime)
-						{
-							return true;
-						}
+						throw new Opt_TemplateNotFound_Exception($templates[$i]);
 					}
-					return false;
-			}
-		} // end _massPreprocess();
+					if($time >= $compileTime)
+					{
+						return true;
+					}
+				}
+				return false;
+		}
+	} // end _massPreprocess();
 
-		/**
-		 * Converts the source template file name to the compiled
-		 * template file name.
-		 *
-		 * @internal
-		 * @param String $filename The source file name
-		 * @return String
-		 */
-		public function _convert($filename)
-		{
-			return $this->_tpl->getInflector()->getCompiledPath($filename, $this->_inheritance);
-		} // end _convert();
+	/**
+	 * Converts the source template file name to the compiled
+	 * template file name.
+	 *
+	 * @internal
+	 * @param String $filename The source file name
+	 * @return String
+	 */
+	public function _convert($filename)
+	{
+		return $this->_tpl->getInflector()->getCompiledPath($filename, $this->_inheritance);
+	} // end _convert();
 
-		/**
-		 * Compiles the specified template and returns the current
-		 * time.
-		 *
-		 * @internal
-		 * @param String $filename The file name.
-		 * @return Integer
-		 */
-		public function _compile($filename)
-		{
-			$compiled = $this->_tpl->getInflector()->getCompiledPath($filename, $this->_inheritance);
-			$compiler = $this->_tpl->getCompiler();
-			$compiler->setInheritance($this->_cplInheritance);
-			$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
-			$compiler->set('branch', $this->_branch);
-			$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
-			return time();
-		} // end _compile();
-	} // end Opt_View;
+	/**
+	 * Compiles the specified template and returns the current
+	 * time.
+	 *
+	 * @internal
+	 * @param String $filename The file name.
+	 * @return Integer
+	 */
+	public function _compile($filename)
+	{
+		$compiled = $this->_tpl->getInflector()->getCompiledPath($filename, $this->_inheritance);
+		$compiler = $this->_tpl->getCompiler();
+		$compiler->setInheritance($this->_cplInheritance);
+		$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
+		$compiler->set('branch', $this->_branch);
+		$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
+		return time();
+	} // end _compile();
+} // end Opt_View;

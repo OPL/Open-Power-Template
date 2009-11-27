@@ -12,115 +12,184 @@
  * $Id$
  */
 
-	class Opt_Instruction_Block extends Opt_Compiler_Processor
+/**
+ * The processor for opt:block instruction. Note that compiler
+ * DEPENDS on this processor, using its API in order to provide the
+ * support for the statically deployed blocks.
+ *
+ * @package Instructions
+ * @subpackage Components
+ */
+class Opt_Instruction_Block extends Opt_Compiler_Processor
+{
+	/**
+	 * The instruction processor name - required by the instruction API.
+	 * @internal
+	 * @var string
+	 */
+	protected $_name = 'block';
+	/**
+	 * The opt:block counter used to generate unique variable names.
+	 * @internal
+	 * @var integer
+	 */
+	protected $_unique = 0;
+
+	/**
+	 * The component call stack used by processSystemVar() to determine which
+	 * component the call refers to.
+	 * @internal
+	 * @var SplStack
+	 */
+	protected $_stack;
+
+	/**
+	 * Configures the instruction processor, registering the tags and
+	 * attributes.
+	 * @internal
+	 */
+	public function configure()
 	{
-		protected $_name = 'block';
-		// The counter used to generate unique variable names for defined blocks
-		protected $_unique = 0;
+		$this->_addInstructions('opt:block');
+		$this->_stack = new SplStack;
+	} // end configure();
 
-		// The stack is required by the processSystemVar() method to determine, which component
-		// the call refers to.
-		protected $_stack;
-		
-		public function configure()
+	/**
+	 * Processes the opt:block node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function processNode(Opt_Xml_Node $node)
+	{
+		$node->set('block', true);
+		// Undefined block processing
+		$params = array(
+			'from' => array(self::REQUIRED, self::EXPRESSION, null),
+			'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
+		);
+		$vars = $this->_extractAttributes($node, $params);
+		$this->_stack->push($params['from']);
+
+		$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Block_Interface){ '.$params['from'].'->setView($this); ';
+		$mainCode .= $this->_commonProcessing($node, $params['from'], $vars);
+
+		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
+		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+	} // end processNode();
+
+	/**
+	 * Finishes the processing of the opt:block node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function postprocessNode(Opt_Xml_Node $node)
+	{
+		$this->_stack->pop();
+	} // end postprocessNode();
+
+	/**
+	 * This method implements the publicly available code that generates
+	 * a block support within an XML tag. By default, it is used by
+	 * the compiler to support statically deployed blocks.
+	 *
+	 * @param Opt_Xml_Element $node The component tag
+	 */
+	public function processBlock(Opt_Xml_Element $node)
+	{
+		$params = array(
+			'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
+		);
+
+		$vars = $this->_extractAttributes($node, $params);
+		// Get the real class name
+		$cn = '$_block_'.($this->_unique++);
+
+		$this->_stack->push($cn);
+
+		$class = $this->_compiler->block($node->getXmlName());
+		// Check, if there are any conversions that may take control over initializing
+		// the component object. We are allowed to capture only particular component
+		// creation or all of them.
+		if((($to = $this->_compiler->convert('##block_'.$class)) != '##block_'.$class))
 		{
-			$this->_addInstructions('opt:block');
-			$this->_stack = new SplStack;
-		} // end configure();
-	
-		public function processNode(Opt_Xml_Node $node)
+			$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+		}
+		elseif((($to = $this->_compiler->convert('##block')) != '##block'))
 		{
-			$node->set('block', true);
-			// Undefined block processing
-			$params = array(
-				'from' => array(self::REQUIRED, self::EXPRESSION, null),
-				'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
-			);
-			$vars = $this->_extractAttributes($node, $params);
-			$this->_stack->push($params['from']);
-					
-			$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Block_Interface){ '.$params['from'].'->setView($this); ';
-			$mainCode .= $this->_commonProcessing($node, $params['from'], $vars);
-		
-			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
-			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
-		} // end processNode();
-		
-		public function postprocessNode(Opt_Xml_Node $node)
+			$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
+		}
+		else
 		{
-			$this->_stack->pop();
-		} // end postprocessNode();
+			$ccode = 'new '.$class;
+		}
 
-		public function processBlock(Opt_Xml_Element $node)
+		$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
+
+		$this->_commonProcessing($node, $cn, $vars);
+		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
+	} // end processBlock();
+
+	/**
+	 * Finishes the public processing of the block.
+	 *
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function postprocessBlock(Opt_Xml_Node $node)
+	{
+		$this->_stack->pop();
+	} // end postprocessBlock();
+
+	/**
+	 * The common processing part of the dynamically and statically
+	 * deployed components. Returns the compiled PHP code ready to
+	 * be appended to the XML tag. The caller must generate a component
+	 * variable name that will be used in the generated code to refer
+	 * to the component object. Furthermore, he must pass the returned results
+	 * of _extractAttributes() method.
+	 *
+	 * @internal
+	 * @param Opt_Xml_Element $node The node with the component data.
+	 * @param string $blockVariable The PHP block variable name.
+	 * @param array $args The array of custom block attributes.
+	 * @return string
+	 */
+	private function _commonProcessing(Opt_Xml_Element $node, $blockVariable, array $args)
+	{
+		// Common part of the component processing
+		$argList = 'array( ';
+		foreach($args as $name=>$value)
 		{
-			// Defined block processing
-			$params = array(
-				'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
-			);
+			$argList .= '\''.$name.'\' => '.$value.', ';
+		}
+		$argList .= ')';
 
-			$vars = $this->_extractAttributes($node, $params);
-			// Get the real class name
-			$cn = '$_block_'.($this->_unique++);
-
-			$this->_stack->push($cn);
-			
-			$class = $this->_compiler->block($node->getXmlName());
-			// Check, if there are any conversions that may take control over initializing
-			// the component object. We are allowed to capture only particular component
-			// creation or all of them.
-			if((($to = $this->_compiler->convert('##block_'.$class)) != '##block_'.$class))
-			{
-				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
-			}
-			elseif((($to = $this->_compiler->convert('##block')) != '##block'))
-			{
-				$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
-			}
-			else
-			{
-				$ccode = 'new '.$class;
-			}
-
-			$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
-
-			$this->_commonProcessing($node, $cn, $vars);
-			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
-		} // end processBlock();
-		
-		public function postprocessBlock(Opt_Xml_Node $node)
+		if($node->get('single'))
 		{
-			$this->_stack->pop();
-		} // end postprocessBlock();
-
-		private function _commonProcessing($node, $cn, $args)
+			$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, $blockVariable.'->onSingle('.$argList.'); ');
+		}
+		else
 		{
-			// Common part of the component processing
-			$argList = 'array( ';
-			foreach($args as $name=>$value)
-			{
-				$argList .= '\''.$name.'\' => '.$value.', ';	
-			}
-			$argList .= ')';		
-		
-			if($node->get('single'))
-			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, $cn.'->onSingle('.$argList.'); ');
-			}
-			else
-			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if('.$cn.'->onOpen('.$argList.')){ ');
-				$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } '.$cn.'->onClose(); ');
-			}
-		
-			$this->_process($node);
-		} // end _commonProcessing();
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if('.$blockVariable.'->onOpen('.$argList.')){ ');
+			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } '.$blockVariable.'->onClose(); ');
+		}
 
-		public function processSystemVar($opt)
+		$this->_process($node);
+	} // end _commonProcessing();
+
+	/**
+	 * A hook to the $system special variable. Returns the
+	 * compiled PHP code for the call.
+	 *
+	 * @internal
+	 * @param array $namespace The namespace to parse
+	 * @return string
+	 */
+	public function processSystemVar($opt)
+	{
+		if($this->_stack->count() == 0)
 		{
-			if($this->_stack->count() == 0)
-			{
-				throw new Opt_SysVariableInvalidUse_Exception('$'.implode('.',$opt), 'blocks');
-			}
-			return $this->_stack->top().'->get(\''.$opt[2].'\')';
-		} // end processSystemVar();
-	} // end Opt_Instruction_Component;
+			throw new Opt_SysVariableInvalidUse_Exception('$'.implode('.',$opt), 'blocks');
+		}
+		return $this->_stack->top().'->get(\''.$opt[2].'\')';
+	} // end processSystemVar();
+} // end Opt_Instruction_Block;

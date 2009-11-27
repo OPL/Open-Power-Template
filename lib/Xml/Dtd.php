@@ -12,34 +12,39 @@
  * $Id$
  */
 
-	class Opt_Xml_Dtd
+/**
+ * An implementation of DTD node.
+ *
+ * @package XML
+ */
+class Opt_Xml_Dtd
+{
+	private $_doctype;
+
+	/**
+	 * Creates a new DTD.
+	 * @param String $dtd The DTD content.
+	 */
+	public function __construct($dtd)
 	{
-		private $_doctype;
+		$this->setDoctype($dtd);
+	} // end __construct();
 
-		/**
-		 * Creates a new DTD.
-		 * @param String $dtd The DTD content.
-		 */
-		public function __construct($dtd)
-		{
-			$this->setDoctype($dtd);
-		} // end __construct();
+	/**
+	 * Sets a new doctype content.
+	 * @param String $doctype The new content.
+	 */
+	public function setDoctype($doctype)
+	{
+		$this->_doctype = $doctype;
+	} // end setDoctype();
 
-		/**
-		 * Sets a new doctype content.
-		 * @param String $doctype The new content.
-		 */
-		public function setDoctype($doctype)
-		{
-			$this->_doctype = $doctype;
-		} // end setDoctype();
-
-		/**
-		 * Returns the doctype.
-		 * @return String.
-		 */
-		public function getDoctype()
-		{
-			return $this->_doctype;
-		} // end getDoctype();
-	} // end Opt_Xml_Dtd;
+	/**
+	 * Returns the doctype.
+	 * @return String.
+	 */
+	public function getDoctype()
+	{
+		return $this->_doctype;
+	} // end getDoctype();
+} // end Opt_Xml_Dtd;

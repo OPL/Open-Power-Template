@@ -11,24 +11,29 @@
  *
  * $Id: Class.php 155 2009-07-18 07:25:11Z zyxist $
  */
+/**
+ * The interface for writing parsers.
+ *
+ * @package Interfaces
+ * @subpackage Compiler
+ */
+interface Opt_Parser_Interface
+{
 
-	interface Opt_Parser_Interface
-	{
+	/**
+	 * The compiler uses this method to send itself to the parser.
+	 *
+	 * @param Opt_Compiler_Class $compiler The compiler object
+	 */
+	public function setCompiler(Opt_Compiler_Class $compiler);
 
-		/**
-		 * The compiler uses this method to send itself to the parser.
-		 *
-		 * @param Opt_Compiler_Class $compiler The compiler object
-		 */
-		public function setCompiler(Opt_Compiler_Class $compiler);
-
-		/**
-		 * The role of this method is to parse the specified code and
-		 * return the XML tree to the compiler.
-		 *
-		 * @param String $filename The file name (for debug purposes)
-		 * @param String &$code The code to parse
-		 * @return Opt_Xml_Root
-		 */
-		public function parse($filename, &$code);
-	} // end Opt_Parser_Interface;
+	/**
+	 * The role of this method is to parse the specified code and
+	 * return the XML tree to the compiler.
+	 *
+	 * @param String $filename The file name (for debug purposes)
+	 * @param String &$code The code to parse
+	 * @return Opt_Xml_Root
+	 */
+	public function parse($filename, &$code);
+} // end Opt_Parser_Interface;

@@ -12,10 +12,14 @@
  * $Id: Class.php 155 2009-07-18 07:25:11Z zyxist $
  */
 
-	/**
-	 * The quirks-mode parser.
-	 */
-	class Opt_Parser_Quirks extends Opt_Parser_Html
-	{
-		protected $_mode = 1;
-	} // end Opt_Parser_Quirks;
+/**
+ * The quirks-mode parser. Actually, all the functionality
+ * is implemented in the HTML parser, we just need to change
+ * one flag to 1.
+ *
+ * @package Parsers
+ */
+class Opt_Parser_Quirks extends Opt_Parser_Html
+{
+	protected $_mode = 1;
+} // end Opt_Parser_Quirks;

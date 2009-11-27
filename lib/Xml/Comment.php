@@ -12,60 +12,65 @@
  * $Id$
  */
 
-	class Opt_Xml_Comment extends Opt_Xml_Cdata
+/**
+ * Implementation of XML comments.
+ *
+ * @package XML
+ */
+class Opt_Xml_Comment extends Opt_Xml_Cdata
+{
+	public function __construct($cdata = '')
 	{
-		public function __construct($cdata = '')
+		parent::__construct($cdata);
+		$this->set('commented', true);
+	} // end __construct();
+
+	protected function _validate(&$text)
+	{
+		if(strpos($text, '--') !== false)
 		{
-			parent::__construct($cdata);
-			$this->set('commented', true);
-		} // end __construct();
+			throw new Opt_XmlComment_Exception('--');
+		}
+		return true;
+	} // end _validate();
 
-		protected function _validate(&$text)
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing.
+	 */
+	public function preProcess(Opt_Compiler_Class $compiler)
+	{
+		$tpl = Opl_Registry::get('opt');
+		if($tpl->printComments)
 		{
-			if(strpos($text, '--') !== false)
-			{
-				throw new Opt_XmlComment_Exception('--');
-			}
-			return true;
-		} // end _validate();
+			$this->set('hidden', false);
+		}
+	} // end preProcess();
 
-		/**
-		 * This function is executed by the compiler during the second compilation stage,
-		 * processing.
-		 */
-		public function preProcess(Opt_Compiler_Class $compiler)
-		{
-			$tpl = Opl_Registry::get('opt');
-			if($tpl->printComments)
-			{
-				$this->set('hidden', false);
-			}
-		} // end preProcess();
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing, after processing the child nodes.
+	 */
+	public function postProcess(Opt_Compiler_Class $compiler)
+	{
 
-		/**
-		 * This function is executed by the compiler during the second compilation stage,
-		 * processing, after processing the child nodes.
-		 */
-		public function postProcess(Opt_Compiler_Class $compiler)
-		{
+	} // end postProcess();
 
-		} // end postProcess();
+	/**
+	 * This function is executed by the compiler during the third compilation stage,
+	 * linking.
+	 */
+	public function preLink(Opt_Compiler_Class $compiler)
+	{
+		$compiler->appendOutput((string)$this);
+	} // end preLink();
 
-		/**
-		 * This function is executed by the compiler during the third compilation stage,
-		 * linking.
-		 */
-		public function preLink(Opt_Compiler_Class $compiler)
-		{
-			$compiler->appendOutput((string)$this);
-		} // end preLink();
+	/**
+	 * This function is executed by the compiler during the third compilation stage,
+	 * linking, after linking the child nodes.
+	 */
+	public function postLink(Opt_Compiler_Class $compiler)
+	{
 
-		/**
-		 * This function is executed by the compiler during the third compilation stage,
-		 * linking, after linking the child nodes.
-		 */
-		public function postLink(Opt_Compiler_Class $compiler)
-		{
-
-		} // end postLink();
-	} // end Opt_Xml_Comment;
+	} // end postLink();
+} // end Opt_Xml_Comment;

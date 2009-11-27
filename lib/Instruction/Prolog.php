@@ -12,46 +12,66 @@
  * $Id$
  */
 
-	class Opt_Instruction_Prolog extends Opt_Compiler_Processor
+/**
+ * The XML prolog generator.
+ * @package Instructions
+ * @subpackage XML
+ */
+class Opt_Instruction_Prolog extends Opt_Compiler_Processor
+{
+	/**
+	 * The instruction processor name - required by the instruction API.
+	 * @internal
+	 * @var string
+	 */
+	protected $_name = 'prolog';
+
+	/**
+	 * Configures the instruction processor, registering the tags and
+	 * attributes.
+	 * @internal
+	 */
+	public function configure()
 	{
-		protected $_name = 'prolog';
-		
-		public function configure()
-		{
-			$this->_addInstructions(array('opt:prolog'));
-		} // end configure();
-	
-		public function processNode(Opt_Xml_Node $node)
-		{
-			$params = array(
-				'version' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str'),
-				'encoding' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str'),
-				'standalone' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str')
-			);
-			$this->_extractAttributes($node, $params);
-			
-			$root = $node;
-			while(is_object($tmp = $root->getParent()))
-			{
-				$root = $tmp;
-			}
+		$this->_addInstructions(array('opt:prolog'));
+	} // end configure();
 
-			if(is_null($params['version']))
-			{
-				$params['version'] = '\'1.0\'';
-			}
-			if(is_null($params['standalone']))
-			{
-				$params['standalone'] = '\'yes\'';
-			}
-			if(is_null($params['encoding']))
-			{
-				unset($params['encoding']);
-			}
+	/**
+	 * Processes the opt:prolog node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function processNode(Opt_Xml_Node $node)
+	{
+		$params = array(
+			'version' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str'),
+			'encoding' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str'),
+			'standalone' => array(0 => self::OPTIONAL, self::EXPRESSION, null, 'str')
+		);
+		$this->_extractAttributes($node, $params);
 
-			$root->setProlog($prolog = new Opt_Xml_Prolog($params));
-			$prolog->setDynamic('version', true);
-			$prolog->setDynamic('standalone', true);
-			$prolog->setDynamic('encoding', true);
-		} // end processNode();
-	} // end Opt_Instruction_Prolog;
+		$root = $node;
+		while(is_object($tmp = $root->getParent()))
+		{
+			$root = $tmp;
+		}
+
+		if(is_null($params['version']))
+		{
+			$params['version'] = '\'1.0\'';
+		}
+		if(is_null($params['standalone']))
+		{
+			$params['standalone'] = '\'yes\'';
+		}
+		if(is_null($params['encoding']))
+		{
+			unset($params['encoding']);
+		}
+
+		$root->setProlog($prolog = new Opt_Xml_Prolog($params));
+		$prolog->setDynamic('version', true);
+		$prolog->setDynamic('standalone', true);
+		$prolog->setDynamic('encoding', true);
+	} // end processNode();
+} // end Opt_Instruction_Prolog;

@@ -12,110 +12,111 @@
  * $Id$
  */
 
+/**
+ * The abstract XML node class - the base of all the node types.
+ *
+ * @abstract
+ * @package XML
+ */
+abstract class Opt_Xml_Node extends Opt_Xml_Buffer
+{
+	protected $_type;
 	/**
-	 * The abstract XML node class - the base of all the node types.
-	 *
-	 * @abstract
+	 * The parent of the current node.
+	 * @var Opt_Xml_Node
 	 */
-	abstract class Opt_Xml_Node extends Opt_Xml_Buffer
+	protected $_parent = null;
+
+	/**
+	 * Constructs the new node object.
+	 */
+	public function __construct()
 	{
-		protected $_type;
-		/**
-		 * The parent of the current node.
-		 * @var Opt_Xml_Node
-		 */
-		protected $_parent = null;
+		/* null */
+	} // end __construct();
 
-		/**
-		 * Constructs the new node object.
-		 */
-		public function __construct()
-		{
-			/* null */
-		} // end __construct();
+	/**
+	 * Sets the parent of the current node. USE WITH CAUTION!
+	 *
+	 * @param Opt_Xml_Node $parent The new parent or NULL.
+	 */
+	public function setParent($parent)
+	{
+		$this->_parent = $parent;
+	} // end setParent();
 
-		/**
-		 * Sets the parent of the current node. USE WITH CAUTION!
-		 *
-		 * @param Opt_Xml_Node $parent The new parent or NULL.
-		 */
-		public function setParent($parent)
-		{
-			$this->_parent = $parent;
-		} // end setParent();
+	/**
+	 * Returns the type of the current node (taken from the class name).
+	 * @return String
+	 */
+	public function getType()
+	{
+		return get_class($this);
+	} // end getType();
 
-		/**
-		 * Returns the type of the current node (taken from the class name).
-		 * @return String
-		 */
-		public function getType()
-		{
-			return get_class($this);
-		} // end getType();
+	/**
+	 * Returns the node parent.
+	 * @return Opt_Xml_Node
+	 */
+	public function getParent()
+	{
+		return $this->_parent;
+	} // end getParent();
 
-		/**
-		 * Returns the node parent.
-		 * @return Opt_Xml_Node
-		 */
-		public function getParent()
-		{
-			return $this->_parent;
-		} // end getParent();
+	/**
+	 * Prints the node type.
+	 * @return String
+	 */
+	public function __toString()
+	{
+		return get_class($this);
+	} // end __toString();
 
-		/**
-		 * Prints the node type.
-		 * @return String
-		 */
-		public function __toString()
-		{
-			return get_class($this);
-		} // end __toString();
+	/**
+	 * Prepares the node to be collected by the
+	 * garbage collector. You must use this method before
+	 * removing the last reference to the node to avoid the
+	 * memory leak.
+	 */
+	public function dispose()
+	{
+		$this->_dispose();
+	} // end dispose();
 
-		/**
-		 * Prepares the node to be collected by the
-		 * garbage collector. You must use this method before
-		 * removing the last reference to the node to avoid the
-		 * memory leak.
-		 */
-		public function dispose()
-		{
-			$this->_dispose();
-		} // end dispose();
+	/**
+	 * This method allows to define some custom code that needs to
+	 * be executed to dispose the node.
+	 *
+	 * @internal
+	 */
+	protected function _dispose()
+	{
+		$this->_parent = null;
+		$this->_buffers = null;
+		$this->_args = null;
+	} // end _dispose();
 
-		/**
-		 * This method allows to define some custom code that needs to
-		 * be executed to dispose the node.
-		 *
-		 * @internal
-		 */
-		protected function _dispose()
-		{
-			$this->_parent = null;
-			$this->_buffers = null;
-			$this->_args = null;
-		} // end _dispose();
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing.
+	 */
+	abstract public function preProcess(Opt_Compiler_Class $compiler);
 
-		/**
-		 * This function is executed by the compiler during the second compilation stage,
-		 * processing.
-		 */
-		abstract public function preProcess(Opt_Compiler_Class $compiler);
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing, after processing the child nodes.
+	 */
+	abstract public function postProcess(Opt_Compiler_Class $compiler);
 
-		/**
-		 * This function is executed by the compiler during the second compilation stage,
-		 * processing, after processing the child nodes.
-		 */
-		abstract public function postProcess(Opt_Compiler_Class $compiler);
+	/**
+	 * This function is executed by the compiler during the third compilation stage,
+	 * linking.
+	 */
+	abstract public function preLink(Opt_Compiler_Class $compiler);
 
-		/**
-		 * This function is executed by the compiler during the third compilation stage,
-		 * linking.
-		 */
-		abstract public function preLink(Opt_Compiler_Class $compiler);
-
-		/**
-		 * This function is executed by the compiler during the third compilation stage,
-		 * linking, after linking the child nodes.
-		 */
-		abstract public function postLink(Opt_Compiler_Class $compiler);
-	} // end Opt_Xml_Node;
+	/**
+	 * This function is executed by the compiler during the third compilation stage,
+	 * linking, after linking the child nodes.
+	 */
+	abstract public function postLink(Opt_Compiler_Class $compiler);
+} // end Opt_Xml_Node;
