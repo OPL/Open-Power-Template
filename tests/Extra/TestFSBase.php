@@ -7,7 +7,7 @@
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 
-class Extra_TestFSBase extends PHPUnit_Framework_TestCase
+class Extra_TestFSBase extends Extra_Testcase
 {
 	/**
 	 * The main OPT object.
@@ -74,6 +74,8 @@ class Extra_TestFSBase extends PHPUnit_Framework_TestCase
 		$view = new Opt_View('test.tpl');
 		if(file_exists('test://data.php'))
 		{
+		//	$code = ;
+		//	echo $code;
 			eval(file_get_contents('test://data.php'));
 		}
 

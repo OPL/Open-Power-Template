@@ -10,7 +10,7 @@
 /**
  * @covers Opt_View
  */
-class Package_ViewTest extends PHPUnit_Framework_TestCase
+class Package_ViewTest extends Extra_Testcase
 {
 	/**
 	 * The OPT class object

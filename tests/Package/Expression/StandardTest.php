@@ -12,7 +12,7 @@
  * @covers Opt_Expression_Standard
  *
  */
-class Package_Expression_StandardTest extends PHPUnit_Framework_TestCase
+class Package_Expression_StandardTest extends Extra_Testcase
 {
 	/**
 	 * The main OPT object

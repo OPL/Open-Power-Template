@@ -10,7 +10,7 @@
 /**
  * @covers Opt_Inflector_Standard
  */
-class Package_Inflector_StandardTest extends PHPUnit_Framework_TestCase
+class Package_Inflector_StandardTest extends Extra_Testcase
 {
 	/**
 	 * @covers Opt_Inflector_Standard::__construct

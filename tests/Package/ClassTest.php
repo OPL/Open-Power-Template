@@ -11,7 +11,7 @@
 /**
  * @covers Opt_Class
  */
-class Package_ClassTest extends PHPUnit_Framework_TestCase
+class Package_ClassTest extends Extra_Testcase
 {
 	/**
 	 * The OPT class object

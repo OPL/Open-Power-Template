@@ -10,7 +10,7 @@
 /**
  * @covers Opt_Xml_Scannable
  */
-class Package_Xml_ScannableTest extends PHPUnit_Framework_TestCase
+class Package_Xml_ScannableTest extends Extra_Testcase
 {
 	/**
 	 * The tested object.

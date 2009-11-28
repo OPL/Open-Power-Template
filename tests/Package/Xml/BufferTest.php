@@ -10,7 +10,7 @@
 /**
  * @covers Opt_Xml_Buffer
  */
-class Package_Xml_BufferTest extends PHPUnit_Framework_TestCase
+class Package_Xml_BufferTest extends Extra_Testcase
 {
 	/**
 	 * The tested object.
