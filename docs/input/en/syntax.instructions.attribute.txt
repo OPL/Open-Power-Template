@@ -113,3 +113,6 @@ Note that you can still use ordinary OPT expressions:
 ~~~~
 
 The value list can be loaded from a [snippet][syntax.instructions.snippet] with [opt:use][syntax.attributes.use] attribute.
+
+> [information]
+> If there is no default value and the instruction cannot select any other value (none of the conditions is true), the entire attribute is not displayed.

@@ -47,6 +47,8 @@
 			);
 			$this->_extractAttributes($node, $params);
 
+			self::$_cnt++;
+
 			$parent = $node->getParent();
 			$returnStyle = $node->get('attributeValueStyle');
 			$returnStyle = (is_null($returnStyle) ? self::ATTR_DISPLAY : $returnStyle);
@@ -91,7 +93,7 @@
 				}
 				else
 				{
-					$attribute = new Opt_Xml_Attribute('__xattr_'.self::$_cnt++, $params['value']);
+					$attribute = new Opt_Xml_Attribute('__xattr_'.self::$_cnt, $params['value']);
 					if(isset($trNamespace))
 					{
 						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_NAME, 'echo \''.$trNamespace.':\'.'.$params['name'].'; ');
@@ -113,23 +115,43 @@
 					list($pairs, $else) = $this->_getValuePairs($node, $params);
 
 					// Now, create the IF...ELSEIF statement
-					$code = '';
+					// We perform here a small optimization. If the "ELSE" statement is set
+					// the value will always appear, so we can put this code directly in ATTRIBUTE_VALUE
+					// and do not bother with temporary variables.
+					if($else !== null)
+					{
+						$destination = 'echo';
+						$code = '';
+					}
+					else
+					{
+						$destination = '$_attr'.self::$_cnt.'_val = ';
+						$code = '$_attr'.self::$_cnt.'_val = null; ';
+					}
+					$start = true;
 					foreach($pairs as $pair)
 					{
-						if(strlen($code) == 0)
+						if($start)
 						{
-							$code = 'if('.$pair[0].'){ echo '.$pair[1].'; }';
+							$code = ' if('.$pair[0].'){ '.$destination.' '.$pair[1].'; }';
+							$start = false;
 						}
 						else
 						{
-							$code .= 'elseif('.$pair[0].'){ echo '.$pair[1].'; }';
+							$code .= 'elseif('.$pair[0].'){ '.$destination.' '.$pair[1].'; }';
 						}
 					}
 					if($else !== null)
 					{
-						$code .= 'else{ echo '.$else.'; } ';
+						$code .= 'else{ '.$destination.' '.$else.'; } ';
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, $code);
 					}
-					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, $code);
+					else
+					{
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_BEGIN, $code.' if($_attr'.self::$_cnt.'_val !== null){ ');
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo $_attr'.self::$_cnt.'_val; ');
+						$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_END, ' } ');
+					}
 				}
 				else
 				{

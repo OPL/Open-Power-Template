@@ -72,6 +72,7 @@
 				array('attribute_14.txt'),
 				array('attribute_15.txt'),
 				array('attribute_16.txt'),
+				array('attribute_17.txt'),
 				array('attributes_build_1.txt'),
 				array('attributes_build_2.txt'),
 				array('attributes_build_3.txt'),
