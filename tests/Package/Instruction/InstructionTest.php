@@ -48,7 +48,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 	 */
 	public function configure(Opt_Class $tpl)
 	{
-		$tpl->parser = 'Opt_Parser_Html';
+		$tpl->parser = 'Opt_Parser_Xml';
 		$tpl->register(Opt_Class::OPT_COMPONENT, 'opt:myComponent', 'Extra_Mock_Component');
 		$tpl->register(Opt_Class::OPT_BLOCK, 'opt:myBlock', 'Extra_Mock_Block');
 	} // end configure();

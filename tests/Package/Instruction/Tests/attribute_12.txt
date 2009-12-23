@@ -2,7 +2,7 @@ Test, if the conditional attribute value works with snippets.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <opt:snippet name="values1">
 	<opt:value test="$val1 == 'foo'">a</opt:value>
 	<opt:value test="$val1 == 'bar'">b</opt:value>
@@ -12,10 +12,10 @@ Test, if the conditional attribute value works with snippets.
 	<opt:value test="$val2 == 'bar'">b</opt:value>
 </opt:snippet>
 <foo>
-<opt:attribute name="class" str:value="c" opt:use="values1" />
+<opt:attribute name="class" value="str:c" opt:use="values1" />
 </foo>
 <foo>
-<opt:attribute name="class" str:value="c" opt:use="values2" />
+<opt:attribute name="class" value="str:c" opt:use="values2" />
 </foo>
 </opt:root>
 

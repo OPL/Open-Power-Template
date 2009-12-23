@@ -2,12 +2,12 @@ The same, as test selector_2, but together with OPT:SHOW
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <opt:show name="sect" test="ajtem">
 START
 <opt:selector>
-<opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
-<opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
+<opt:select name="foo">FOO: {$sect.val1},{$sect.val2}</opt:select>
+<opt:select name="bar">BAR: {$sect.val1},{$sect.val2}</opt:select>
 </opt:selector>
 END
 </opt:show>

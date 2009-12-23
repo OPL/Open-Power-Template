@@ -2,7 +2,7 @@ Testing section special variable
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <opt:section name="sect">
 TESTING: {$sect.val1}
 {$system.section.sect.count},{$system.section.sect.size}

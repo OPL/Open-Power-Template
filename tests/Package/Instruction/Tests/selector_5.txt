@@ -2,11 +2,11 @@ Test, whether the instruction works with separators given as tags.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <opt:selector name="sect">
 <opt:separator>,</opt:separator>
-<opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
-<opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
+<opt:select name="foo">FOO: {$sect.val1},{$sect.val2}</opt:select>
+<opt:select name="bar">BAR: {$sect.val1},{$sect.val2}</opt:select>
 </opt:selector>
 </opt:root>
 

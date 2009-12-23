@@ -2,7 +2,7 @@ Test the "datasource" attribute.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <opt:section name="sect" datasource="$variable">
 {$sect.val1},{$sect.val2}
 </opt:section>

@@ -1,0 +1,227 @@
+<?php
+
+class Opt_Expression_Standard_Lexer
+{
+	private $_data;
+	private $_counter;
+	private $_line;
+
+	public $token;
+	public $value;
+
+	public function __construct($expression)
+	{
+		$this->_data = $expression;
+		$this->_line = 1;
+		$this->_counter = 0;
+	} // end __construct();
+
+
+/*!lex2php
+%input $this->_data
+%counter $this->_counter
+%token $this->token
+%value $this->value
+%line $this->_line
+whitespace	= /\s+/
+add		= /\+|add/
+minus	= /\-/
+sub		= /sub/
+mul		= /\*|mul/
+div		= /\/|div/
+mod		= /\%|mod/
+exp		= /\^|exp/
+and		= /and/
+or		= /or/
+xor		= /xor/
+not		= /\!|not/
+eq		= /\=\=|eq/
+eqt		= /\=\=\=|eqt/
+neq		= /\!\=|neq/
+neqt	= /\!\=|neqt/
+lt		= /lt/
+lte		= /lte/
+gt		= /gt/
+gte		= /gte/
+concat	= /\~/
+contains	= /contains/
+between		= /between/
+lbracket	= /\(/
+rbracket	= /\)/
+increment	= /\+\+/
+decrement	= /\-\-/
+assign		= /\=|is/
+exists		= /exists/
+clone		= /clone/
+new			= /new/
+null		= /null/
+true		= /true/
+false		= /false/
+dollar		= /\$/
+at			= /\@/
+dlsq_bracket	= /\</
+drsq_bracket	= /\>/
+lsq_bracket	= /\[/
+rsq_bracket	= /\]/
+object_op	= /\:\:/
+comma		= /\,/
+colon		= /\:/
+identifier	= /[a-zA-Z\_][a-zA-Z0-9\_]*/
+string		= /'[^'\\]*(?:\\.[^'\\]*)*'/
+backticks	= /`[^`\\]*(?:\\.[^`\\]*)*`/
+number		= /[0-9]+\.?[0-9]*/
+hexadecimal	= /0[xX][0-9a-fA-F]+/
+other		= /./
+*/
+/*!lex2php
+%statename CODE
+whitespace {
+	$this->token = 'w';
+}
+add {
+	$this->token = Opt_Expression_Standard_Parser::T_ADD;
+}
+minus {
+	$this->token = Opt_Expression_Standard_Parser::T_MINUS;
+}
+sub {
+	$this->token = Opt_Expression_Standard_Parser::T_SUB;
+}
+mul {
+	$this->token = Opt_Expression_Standard_Parser::T_MUL;
+}
+div {
+	$this->token = Opt_Expression_Standard_Parser::T_DIV;
+}
+mod {
+	$this->token = Opt_Expression_Standard_Parser::T_MOD;
+}
+exp {
+	$this->token = Opt_Expression_Standard_Parser::T_EXP;
+}
+and {
+	$this->token = Opt_Expression_Standard_Parser::T_AND;
+}
+or {
+	$this->token = Opt_Expression_Standard_Parser::T_OR;
+}
+not {
+	$this->token = Opt_Expression_Standard_Parser::T_NOT;
+}
+xor {
+	$this->token = Opt_Expression_Standard_Parser::T_XOR;
+}
+eq {
+	$this->token = Opt_Expression_Standard_Parser::T_EQUALS;
+}
+eqt {
+	$this->token = Opt_Expression_Standard_Parser::T_EQUALS_T;
+}
+neq {
+	$this->token = Opt_Expression_Standard_Parser::T_NEQUALS;
+}
+neqt {
+	$this->token = Opt_Expression_Standard_Parser::T_NEQUALS_T;
+}
+gt {
+	$this->token = Opt_Expression_Standard_Parser::T_GT;
+}
+lt {
+	$this->token = Opt_Expression_Standard_Parser::T_LT;
+}
+gte {
+	$this->token = Opt_Expression_Standard_Parser::T_GTE;
+}
+lte {
+	$this->token = Opt_Expression_Standard_Parser::T_LTE;
+}
+concat {
+	$this->token = Opt_Expression_Standard_Parser::T_CONCAT;
+}
+contains {
+	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS;
+}
+between {
+	$this->token = Opt_Expression_Standard_Parser::T_BETWEEN;
+}
+new {
+	$this->token = Opt_Expression_Standard_Parser::T_NEW;
+}
+clone {
+	$this->token = Opt_Expression_Standard_Parser::T_CLONE;
+}
+exists {
+	$this->token = Opt_Expression_Standard_Parser::T_EXISTS;
+}
+null {
+	$this->token = Opt_Expression_Standard_Parser::T_NULL;
+}
+true {
+	$this->token = Opt_Expression_Standard_Parser::T_TRUE;
+}
+false {
+	$this->token = Opt_Expression_Standard_Parser::T_FALSE;
+}
+dollar {
+	$this->token = Opt_Expression_Standard_Parser::T_DOLLAR;
+}
+at {
+	$this->token = Opt_Expression_Standard_Parser::T_AT;
+}
+assign {
+	$this->token = Opt_Expression_Standard_Parser::T_ASSIGN;
+}
+increment {
+	$this->token = Opt_Expression_Standard_Parser::T_INCREMENT;
+}
+decrement {
+	$this->token = Opt_Expression_Standard_Parser::T_DECREMENT;
+}
+lbracket {
+	$this->token = Opt_Expression_Standard_Parser::T_L_BRACKET;
+}
+rbracket {
+	$this->token = Opt_Expression_Standard_Parser::T_R_BRACKET;
+}
+dlsq_bracket {
+	$this->token = Opt_Expression_Standard_Parser::T_DLSQ_BRACKET;
+}
+drsq_bracket {
+	$this->token = Opt_Expression_Standard_Parser::T_DRSQ_BRACKET;
+}
+lsq_bracket {
+	$this->token = Opt_Expression_Standard_Parser::T_LSQ_BRACKET;
+}
+rsq_bracket {
+	$this->token = Opt_Expression_Standard_Parser::T_RSQ_BRACKET;
+}
+object_op {
+	$this->token = Opt_Expression_Standard_Parser::T_OBJECT_OPERATOR;
+}
+comma {
+	$this->token = Opt_Expression_Standard_Parser::T_COMMA;
+}
+colon {
+	$this->token = Opt_Expression_Standard_Parser::T_COLON;
+}
+add {
+	$this->token = Opt_Expression_Standard_Parser::T_ADD;
+}
+identifier {
+	$this->token = Opt_Expression_Standard_Parser::T_IDENTIFIER;
+}
+string {
+	$this->token = Opt_Expression_Standard_Parser::T_STRING;
+}
+backticks {
+	$this->token = Opt_Expression_Standard_Parser::T_BACKTICKS;
+}
+number {
+	$this->token = Opt_Expression_Standard_Parser::T_NUMBER;
+}
+hexadecimal {
+	$this->token = Opt_Expression_Standard_Parser::T_NUMBER;
+}
+*/
+
+} // end Opt_Expression_Standard_Lexer;

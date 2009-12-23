@@ -2,12 +2,12 @@ The test checks the reporting of multiple opt:selectorelse.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <opt:selector name="sect">
-<opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
-<opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
-<opt:selectorelse>NO DATA</opt:selectorelse>
-<opt:selectorelse>NO DATA</opt:selectorelse>
+<opt:select name="foo">FOO: {$sect.val1},{$sect.val2}</opt:select>
+<opt:select name="bar">BAR: {$sect.val1},{$sect.val2}</opt:select>
+<opt:else>NO DATA</opt:else>
+<opt:else>NO DATA</opt:else>
 </opt:selector>
 </opt:root>
 

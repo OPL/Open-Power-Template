@@ -2,7 +2,7 @@ Test the conditional attribute value.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <foo>
 <opt:attribute name="class">
 	<opt:value test="$val1 == 'foo'">a</opt:value>

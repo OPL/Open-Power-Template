@@ -2,7 +2,7 @@ More advanced relationships. sect3 should be connected with sect1.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <opt:section name="sect1">
 <opt:section name="sect2" parent="">
 <opt:section name="sect3" parent="sect1">

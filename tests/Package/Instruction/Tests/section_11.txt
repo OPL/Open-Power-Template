@@ -2,7 +2,7 @@ The test checks the cooperation with "opt:if" attribute.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 START
 <opt:section name="sect" opt:if="$falseVar">
 {$sect.val1},{$sect.val2}

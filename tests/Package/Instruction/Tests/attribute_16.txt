@@ -2,9 +2,9 @@ Disable duplicated attributes.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <foo abc="foo">
-<opt:attribute str:name="abc" str:value="def" />
+<opt:attribute name="str:abc" value="str:def" />
 bar
 </foo>
 </opt:root>

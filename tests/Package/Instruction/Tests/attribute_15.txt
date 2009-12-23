@@ -2,9 +2,9 @@ Test, if the other instructions are blocked in opt:value
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/namespaces/opt">
 <foo>
-<opt:attribute name="class" str:value="c">
+<opt:attribute name="class" value="str:c">
 	<opt:value test="$val1 == 'foo'">a <opt:section name="foo">...</opt:section> bar</opt:value>
 	<opt:value test="$val1 == 'bar'">b</opt:value>
 	<opt:value>c</opt:value>
