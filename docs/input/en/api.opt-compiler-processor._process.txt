@@ -1,8 +1,12 @@
 Title: _process()
 ShortTitle: Opt_Compiler_Processor::_process()
+Construct: method
 Reference: void _process(Opt_Xml_Scannable $node)
-Status: final protected
+Visibility: final protected
+Arguments:
+ - Name: $node | Type: api.opt-xml-scannable | Desc: The node whose children should be enqueued for processing.
 SeeAlso:
+ - api.opt-compiler-processor._enqueue
  - api.opt-compiler-processor.process-node
  
 ----
@@ -17,3 +21,6 @@ public function processNode(Opt_Xml_Node $node)
     $this->_process($node);
 } // end processNode();
 ~~~~
+
+> [information]
+> The node itself is not enqueued. If you want to enqueue a certain node directly, please use [_enqueue()][api.opt-compiler-processor._enqueue].

@@ -96,6 +96,7 @@
 							$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $i);
 						//	Opt_Array_Push($this->_subnodes, $i, $cnt);
 							$this->_subnodes[$i] = $newnode;
+							break;
 						}
 					}
 					$i++;

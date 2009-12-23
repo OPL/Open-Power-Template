@@ -216,11 +216,11 @@
 		 *
 		 * @final
 		 * @internal
-		 * @param Opt_Xml_Node $node
+		 * @param Opt_Xml_Scannable $node
 		 */
-		final protected function _process(Opt_Xml_Node $node)
+		final protected function _process(Opt_Xml_Scannable $node)
 		{
-			if(is_null($this->_queue))
+			if($this->_queue === null)
 			{
 				$this->_queue = new SplQueue;
 			}
@@ -232,6 +232,21 @@
 				}
 			}
 		} // end _process();
+
+		/**
+		 * Directly enqueues the specified node in the queue of the elements
+		 * waiting for parsing.
+		 *
+		 * @param Opt_Xml_Node $node The node to be enqueued.
+		 */
+		final protected function _enqueue(Opt_Xml_Node $node)
+		{
+			if($this->_queue === null)
+			{
+				$this->_queue = new SplQueue;
+			}
+			$this->_queue->enqueue($node);
+		} // end _enqueue();
 		
 		final protected function _debugPrintQueue()
 		{

@@ -195,12 +195,17 @@
 				$node->set('escaping', $this->_compiler->get('escaping'));
 				$node->set('single', false);
 				$this->_compiler->set('escaping', $this->_snippets[$n][$i]->get('escaping'));
+
+				$master = $node->getParent();
+
 				foreach($this->_snippets[$n][$i] as $subnode)
 				{
-					$node->appendChild(clone $subnode);
+					$master->insertBefore($cloned = clone $subnode, $node);
+					$this->_enqueue($cloned);
 				}
+
+				$master->removeChild($node);
 				$node->set('postprocess', true);
-				$this->_process($node);
 			}
 		} // end _processParent();
 

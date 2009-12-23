@@ -120,6 +120,7 @@
 			if(!self::$_optWarnings)
 			{
 				Opl_Debug_Console::addTable('opt_warnings', 'OPT: Warnings', array('Message'));
+				self::$_optWarnings = true;
 			}
 			Opl_Debug_Console::addTableItem('opt_warnings', array($text));
 		} // end warning();

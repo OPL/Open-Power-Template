@@ -227,6 +227,8 @@
 				array('snippet_4.txt'),
 				array('snippet_5.txt'),
 				array('snippet_6.txt'),
+				array('snippet_7.txt'),
+				array('snippet_8.txt'),
 				array('tag_1.txt'),
 				array('tag_2.txt'),
 				array('tag_3.txt'),
