@@ -72,6 +72,7 @@
 				array('tags_7.txt'),
 				array('tags_8.txt'),
 				array('tags_9.txt'),
+				array('tags_10.txt'),
 				array('attributes_1.txt'),
 				array('attributes_2.txt'),
 				array('attributes_3.txt'),
@@ -127,9 +128,9 @@
 			}
 
 			$out = new Opt_Output_Return;
-			$expected = file_get_contents('test://expected.txt');
+			$expected = file('test://expected.txt');
 
-			if(strpos($expected, 'OUTPUT') === 0)
+			if(strpos($expected[0], 'OUTPUT') === 0)
 			{
 				// This test shoud give correct results
 				try
@@ -145,16 +146,20 @@
 			else
 			{
 				// This test should generate an exception
-				$expected = trim($expected);
+				$expected[0] = trim($expected[0]);
 				try
 				{
 					$out->render($view);
 				}
 				catch(Opt_Exception $e)
 				{
-					if($expected != get_class($e))
+					if($expected[0] != get_class($e))
 					{
 						$this->fail('Invalid exception returned: #'.get_class($e).', '.$expected.' expected.');
+					}
+					if(isset($expected[1]) && trim($expected[1]) != '' && trim($expected[1]) != $e->getMessage())
+					{
+						$this->fail('Invalid exception message returned: #'.$e->getMessage());
 					}
 					return true;
 				}
