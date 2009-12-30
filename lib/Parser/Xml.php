@@ -54,14 +54,40 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 	 */
 	public function parse($filename, &$code)
 	{
+		$debug = array(
+			XMLReader::NONE => 'NONE',
+			XMLReader::ELEMENT => 'ELEMENT',
+			XMLReader::ATTRIBUTE => 'ATTRIBUTE',
+			XMLReader::TEXT => 'TEXT',
+			XMLReader::CDATA => 'CDATA',
+			XMLReader::ENTITY_REF => 'ENTITY_REF',
+			XMLReader::ENTITY => 'ENTITY',
+			XMLReader::PI => 'PI',
+			XMLReader::COMMENT => 'COMMENT',
+			XMLReader::DOC => 'DOC',
+			XMLReader::DOC_TYPE => 'DOC_TYPE',
+			XMLReader::DOC_FRAGMENT => 'DOC_FRAGMENT',
+			XMLReader::NOTATION => 'NOTATION',
+			XMLReader::WHITESPACE => 'WHITESPACE',
+			XMLReader::SIGNIFICANT_WHITESPACE => 'SIGNIFICANT_WHITESPACE',
+			XMLReader::END_ELEMENT => 'END_ELEMENT',
+			XMLReader::END_ENTITY => 'END_ENTITY',
+			XMLReader::XML_DECLARATION => 'XML_DECLARATION'
+		);
+
+		libxml_use_internal_errors(true);
+
 		$reader = new XMLReader;
-	//	$reader->setParserProperty(XMLReader::LOADDTD, false);
 		$reader->xml($code);
+	//	$reader->setParserProperty(XMLReader::LOADDTD, true);
+	//	$reader->setParserProperty(XMLReader::VALIDATE, true);
+		$reader->setParserProperty(XMLReader::SUBST_ENTITIES, true);
 
 		$root = $current = new Opt_Xml_Root;
 		$firstElementMatched = false;
 		$depth = 0;
-		while($reader->read())
+		// Thanks, Oh Great PHP for your excellent WARNINGS!!! >:(
+		while(@$reader->read())
 		{
 			if($reader->depth < $depth)
 			{
@@ -71,6 +97,7 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 			{
 				$current = $optNode;
 			}
+		//	Opl_Debug::write($debug[$reader->nodeType].': '.$reader->name.', '.$reader->value);
 			switch($reader->nodeType)
 			{
 				// XML elements
@@ -125,9 +152,53 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 					$optNode = new Opt_Xml_Comment($reader->value);
 					$current->appendChild($optNode);
 					break;
+				case XMLReader::CDATA:
+					$cdata = new Opt_Xml_Cdata($reader->value);
+					$cdata->set('cdata', true);
+
+					if($current instanceof Opt_Xml_Text)
+					{
+						$current->appendChild($cdata);
+					}
+					else
+					{
+						$text = new Opt_Xml_Text();
+						$text->appendChild($cdata);
+						$current->appendChild($text);
+						$current = $text;
+					}
+					break;
+		/*		case XMLReader::SIGNIFICANT_WHITESPACE:
+					$cdata = new Opt_Xml_Cdata($reader->value);
+					$cdata->set('cdata', true);
+
+					if($current instanceof Opt_Xml_Text)
+					{
+						$current->appendChild($cdata);
+					}
+					else
+					{
+						$text = new Opt_Xml_Text();
+						$text->appendChild($cdata);
+						$current->appendChild($text);
+						$current = $text;
+					}
+					break;
+		 */
 			}
 			$depth = $reader->depth;
 		}
+		// Error checking
+		$errors = libxml_get_errors();
+		if(sizeof($errors) > 0)
+		{
+			libxml_clear_errors();
+			foreach($errors as $error)
+			{
+				echo $error->message.' ('.$error->line.')<br/>';
+			}
+		}
+
 		return $root;
 	} // end parse();
 

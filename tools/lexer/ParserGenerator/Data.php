@@ -529,20 +529,77 @@ class PHP_ParserGenerator_Data
      */
     private function buildshifts(PHP_ParserGenerator_State $stp)
     {
+		// Avoid true recursion which breaks the parser with
+		// "maximum nesting level too deep" in more complex grammars
+		$stack = new SplStack;
+		$action = 0;
+		$argument = $stp;
+		do
+		{
+			switch($action)
+			{
+				case 0:
+					$result = $this->buildshiftsInitial($argument);
+
+					if(is_array($result))
+					{
+						$stack->push($result[0]);
+						$argument = $result[1];
+						$action = 0;
+					}
+					else
+					{
+						$action = ($stack->count() == 0 ? 3 : 2);
+					}
+					break;
+				case 1:
+					$result = $this->buildshiftsResumed($stack->pop());
+
+					if(is_array($result))
+					{
+						$stack->push($result[0]);
+						$argument = $result[1];
+						$action = 0;
+					}
+					else
+					{
+						$action = ($stack->count() == 0 ? 3 : 2);
+					}
+					break;
+				case 2:
+					$returned = $stack->pop();
+
+					$stack->push($this->buildshiftsFinalizer($returned));
+					$action = 1;
+					break;
+			}
+		}
+		while($action != 3);
+    } // end buildshifts();
+
+	/**
+	 * This is a modification of an original function that uses a true stack
+	 * to avoid "maximum nesting level too deep" error which occured in case of more
+	 * complex grammars.
+	 *
+	 * @param PHP_ParserGenerator_State $stp The state from which successors are computed
+	 */
+	function buildshiftsInitial(PHP_ParserGenerator_State $stp)
+	{
 //    struct config *cfp;  /* For looping thru the config closure of "stp" */
 //    struct config *bcfp; /* For the inner loop on config closure of "stp" */
 //    struct config *new;  /* */
 //    struct symbol *sp;   /* Symbol following the dot in configuration "cfp" */
 //    struct symbol *bsp;  /* Symbol following the dot in configuration "bcfp" */
 //    struct state *newstp; /* A pointer to a successor state */
-    
+
         /* Each configuration becomes complete after it contibutes to a successor
         ** state.  Initially, all configurations are incomplete */
         $cfp = $stp->cfp;
         for ($cfp = $stp->cfp; $cfp; $cfp = $cfp->next) {
             $cfp->status = PHP_ParserGenerator_Config::INCOMPLETE;
         }
-    
+
         /* Loop through all configurations of the state "stp" */
         for ($cfp = $stp->cfp; $cfp; $cfp = $cfp->next) {
             if ($cfp->status == PHP_ParserGenerator_Config::COMPLETE) {
@@ -553,7 +610,7 @@ class PHP_ParserGenerator_Data
             }
             PHP_ParserGenerator_Config::Configlist_reset();                      /* Reset the new config set */
             $sp = $cfp->rp->rhs[$cfp->dot];             /* Symbol after the dot */
-    
+
             /* For every configuration in the state "stp" which has the symbol "sp"
             ** following its dot, add the same configuration to the basis set under
             ** construction but with the dot shifted one symbol to the right. */
@@ -578,8 +635,8 @@ class PHP_ParserGenerator_Data
             ** constructed in the preceding loop */
             $newstp = $this->getstate();
             if (is_array($newstp)) {
-                $this->buildshifts($newstp[0]); /* Recursively compute successor states */
-                $newstp = $newstp[0];
+				// A RECURSIVE CALL
+				return array(array($cfp, $bcfp, $new, $sp, $bsp, $newstp, $stp), $newstp[0]);
             }
 
             /* The state "newstp" is reached from the state "stp" by a shift action
@@ -593,7 +650,95 @@ class PHP_ParserGenerator_Data
                 PHP_ParserGenerator_Action::Action_add($stp->ap, PHP_ParserGenerator_Action::SHIFT, $sp, $newstp);
             }
         }
-    }
+	} // end buildshiftsInitial();
+
+	/**
+	 * This is a modification of an original function that uses a true stack
+	 * to avoid "maximum nesting level too deep" error which occured in case of more
+	 * complex grammars.
+	 *
+	 * @param array $restored The restored function variables
+	 */
+	function buildshiftsResumed($restored)
+	{
+		list($cfp, $bcfp, $new, $sp, $bsp, $newstp, $stp) = $restored;
+
+        /* Loop through all configurations of the state "stp" */
+        for (; $cfp; $cfp = $cfp->next) {
+            if ($cfp->status == PHP_ParserGenerator_Config::COMPLETE) {
+                continue;    /* Already used by inner loop */
+            }
+            if ($cfp->dot >= $cfp->rp->nrhs) {
+                continue;  /* Can't shift this config */
+            }
+            PHP_ParserGenerator_Config::Configlist_reset();                      /* Reset the new config set */
+            $sp = $cfp->rp->rhs[$cfp->dot];             /* Symbol after the dot */
+
+            /* For every configuration in the state "stp" which has the symbol "sp"
+            ** following its dot, add the same configuration to the basis set under
+            ** construction but with the dot shifted one symbol to the right. */
+            $bcfp = $cfp;
+            for ($bcfp = $cfp; $bcfp; $bcfp = $bcfp->next) {
+                if ($bcfp->status == PHP_ParserGenerator_Config::COMPLETE) {
+                    continue;    /* Already used */
+                }
+                if ($bcfp->dot >= $bcfp->rp->nrhs) {
+                    continue; /* Can't shift this one */
+                }
+                $bsp = $bcfp->rp->rhs[$bcfp->dot];           /* Get symbol after dot */
+                if (!PHP_ParserGenerator_Symbol::same_symbol($bsp, $sp)) {
+                    continue;      /* Must be same as for "cfp" */
+                }
+                $bcfp->status = PHP_ParserGenerator_Config::COMPLETE;             /* Mark this config as used */
+                $new = PHP_ParserGenerator_Config::Configlist_addbasis($bcfp->rp, $bcfp->dot + 1);
+                PHP_ParserGenerator_PropagationLink::Plink_add($new->bplp, $bcfp);
+            }
+
+            /* Get a pointer to the state described by the basis configuration set
+            ** constructed in the preceding loop */
+            $newstp = $this->getstate();
+            if (is_array($newstp)) {
+				// A RECURSIVE CALL
+				return array(array($cfp, $bcfp, $new, $sp, $bsp, $newstp, $stp), $newstp[0]);
+            }
+
+            /* The state "newstp" is reached from the state "stp" by a shift action
+            ** on the symbol "sp" */
+            if ($sp->type == PHP_ParserGenerator_Symbol::MULTITERMINAL) {
+                for($i = 0; $i < $sp->nsubsym; $i++) {
+                    PHP_ParserGenerator_Action::Action_add($stp->ap, PHP_ParserGenerator_Action::SHIFT, $sp->subsym[$i],
+                                            $newstp);
+                }
+            } else {
+                PHP_ParserGenerator_Action::Action_add($stp->ap, PHP_ParserGenerator_Action::SHIFT, $sp, $newstp);
+            }
+        }
+	} // end buildshiftsInitial();
+
+	/**
+	 * This is a modification of an original function that uses a true stack
+	 * to avoid "maximum nesting level too deep" error which occured in case of more
+	 * complex grammars.
+	 *
+	 * @param array $restored The restored function variables
+	 */
+	function buildshiftsFinalizer($restored)
+	{
+		list($cfp, $bcfp, $new, $sp, $bsp, $newstp, $stp) = $restored;
+
+			$newstp = $newstp[0];
+            /* The state "newstp" is reached from the state "stp" by a shift action
+            ** on the symbol "sp" */
+            if ($sp->type == PHP_ParserGenerator_Symbol::MULTITERMINAL) {
+                for($i = 0; $i < $sp->nsubsym; $i++) {
+                    PHP_ParserGenerator_Action::Action_add($stp->ap, PHP_ParserGenerator_Action::SHIFT, $sp->subsym[$i],
+                                            $newstp);
+                }
+            } else {
+                PHP_ParserGenerator_Action::Action_add($stp->ap, PHP_ParserGenerator_Action::SHIFT, $sp, $newstp);
+            }
+		return array($cfp, $bcfp, $new, $sp, $bsp, $newstp, $stp);
+	} // end buildshiftsFinalizer();
 
     /**
      * Construct the propagation links

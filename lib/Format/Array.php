@@ -207,17 +207,17 @@ class Opt_Format_Array extends Opt_Compiler_Format
 				$section = $this->_getVar('section');
 				return '(($_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1)) || ($_sect'.$section['nesting'].'_i == 0))';
 			// The variable access.
-			case 'variable:main':
+			case 'variable:item':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
-				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-				{
+			//	if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
+		//		{
 					return '$this->_data[\''.$item.'\']';
-				}
-				else
-				{
-					return 'self::$_global[\''.$item.'\']';
-				}
+		//		}
+		//		else
+		//		{
+		//			return 'self::$_global[\''.$item.'\']';
+		//		}
 			case 'variable:assign':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');

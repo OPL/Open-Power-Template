@@ -325,6 +325,17 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 				}
 			}
 		}
+		// Testing if everything was closed.
+		if($current !== $tree)
+		{
+			// Error handling - determine the name of the unclosed tag.
+			while(! $current instanceof Opt_Xml_Element)
+			{
+				$current = $current->getParent();
+			}
+			throw new Opt_UnclosedTag_Exception($current->getXmlName());
+		}
+
 		if($this->_mode == 0 && $this->_tpl->singleRootNode)
 		{
 			// TODO: The current code does not check the contents of Opt_Text_Nodes and other root elements

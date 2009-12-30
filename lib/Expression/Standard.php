@@ -20,47 +20,48 @@
  */
 class Opt_Expression_Standard implements Opt_Expression_Interface
 {
-	// Opcodes
-	const OP_VARIABLE = 1;
-	const OP_LANGUAGE_VAR = 2;
-	const OP_STRING = 4;
-	const OP_NUMBER = 8;
-	const OP_ARRAY = 16;
-	const OP_OBJECT = 32;
-	const OP_IDENTIFIER = 64;
-	const OP_OPERATOR = 128;
-	const OP_POST_OPERATOR = 256;
-	const OP_PRE_OPERATOR = 512;
-	const OP_ASSIGN = 1024;
-	const OP_NULL = 2048;
-	const OP_SQ_BRACKET = 4096;
-	const OP_SQ_BRACKET_E = 8192;
-	const OP_FUNCTION = 16384;
-	const OP_METHOD = 32768;
-	const OP_BRACKET = 65536;
-	const OP_CLASS = 131072;
-	const OP_CALL = 262144;
-	const OP_FIELD = 524288;
-	const OP_EXPRESSION = 1048576;
-	const OP_OBJMAN = 2097152;
-	const OP_BRACKET_E = 4194304;
-	const OP_TU = 8388608;
-	const OP_CURLY_BRACKET = 16777216;
+	const SCALAR_WEIGHT = 1;
+	const PARENTHESES_WEIGHT = 1;
+	const CONTAINER_ITEM_WEIGHT = 2;
+	const VARIABLE_WEIGHT = 2;
+	const SECTION_ITEM_WEIGHT = 2;
+	const SECTION_VARIABLE_WEIGHT = 2;
+	const LANGUAGE_VARIABLE = 3;
+	const MATH_OP_WEIGHT = 5;
+	const LOGICAL_OP_WEIGHT = 5;
+	const COMPARE_OP_WEIGHT = 5;
+	const CONCAT_OP_WEIGHT = 6;
+	const ASSIGN_OP_WEIGHT = 15;
+	const EXISTS_OP_WEIGHT = 15;
+	const DF_OP_WEIGHT = 20;
+	const INCDEC_OP_WEIGHT = 30;
+	const FUNCTIONAL_OP_WEIGHT = 30;
+	const CLONE_WEIGHT = 50;
 
-	// Regular expressions
-	private $_rBacktickString = '`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`';
-	private $_rSingleQuoteString = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';
-	private $_rHexadecimalNumber = '\-?0[xX][0-9a-fA-F]+';
-	private $_rDecimalNumber = '[0-9]+\.?[0-9]*';
-	private $_rLanguageVar = '\$[a-zA-Z0-9\_]+@[a-zA-Z0-9\_]+';
-	private $_rVariable = '(\$|@)[a-zA-Z0-9\_\.]*';
-	private $_rOperators = '\-\>|!==|===|==|!=|\=\>|<>|<<|>>|<=|>=|\&\&|\|\||\(|\)|,|\!|\^|=|\&|\~|<|>|\||\%|\+\+|\-\-|\+|\-|\*|\/|\[|\]|\.|\:\:|\{|\}|\'|\"|';
-	private $_rIdentifier = '[a-zA-Z\_]{1}[a-zA-Z0-9\_\.]*';
-	private $_rLanguageVarExtract = '\$([a-zA-Z0-9\_]+)@([a-zA-Z0-9\_]+)';
+	const CONTEXT_READ = 0;
+	const CONTEXT_ASSIGN = 1;
+	const CONTEXT_POSTINCREMENT = 2;
+	const CONTEXT_POSTDECREMENT = 3;
+	const CONTEXT_PREINCREMENT = 4;
+	const CONTEXT_PREDECREMENT = 5;
+	const CONTEXT_EXISTS = 6;
 
-	// Help fields
-	private $_translationConversion = null;
-	private $_tf = null;
+	/**
+	 * A translation of the context numbers to the
+	 * data format calls.
+	 *
+	 * @var array
+	 */
+	private $_dfCalls = array(0 =>
+		'',
+		'.assign',
+		'.postincrement',
+		'.postdecrement',
+		'.preincrement',
+		'.predecrement',
+		'.exists'
+	);
+
 
 	/**
 	 * The compiler instance.
@@ -75,6 +76,28 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 * @var Opt_Class
 	 */
 	protected $_tpl;
+
+	/**
+	 * The compiled expression.
+	 * @var string
+	 */
+	protected $_compiled;
+	/**
+	 * Is the assignment operator used at the lowest level?
+	 * @var boolean
+	 */
+	protected $_assign;
+	/**
+	 * The calculated expression complexity for optimization purposes.
+	 * @var integer
+	 */
+	protected $_complexity;
+
+	/**
+	 * The unique identifier generator
+	 * @var integer
+	 */
+	protected $_unique = 0;
 
 	/**
 	 * Sets the compiler instance in the expression parser.
@@ -92,1258 +115,467 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	/**
 	 * Parses the source expressions to the PHP code.
 	 *
-	 * @param String $expression The expression source
-	 * @return Array
+	 * @param string $expression The expression source
+	 * @return array
 	 */
 	public function parse($expr)
 	{
-		// cat $expr > /dev/oracle > $result > happy programmer :)
-		preg_match_all('/(?:'.
-				$this->_rSingleQuoteString.'|'.
-				$this->_rBacktickString.'|'.
-				$this->_rHexadecimalNumber.'|'.
-				$this->_rDecimalNumber.'|'.
-				$this->_rLanguageVar.'|'.
-				$this->_rVariable.'|'.
-				$this->_rOperators.'|'.
-				$this->_rIdentifier.')/x', $expr, $match);
+		$this->_unique = 0;
 
-		// Skip the whitespaces and create the translation units
-		$cnt = sizeof($match[0]);
-		$stack = new SplStack;
-		$tu = array(0 => array());
-		$tuid = 0;
-		$maxTuid = 0;
-		$prev = '';
-		$chr = chr(18);
-		$assignments = array();
-
-		/* The translation units allow to avoid recursive compilation of the
-		 * expression. Each sub-expression within parentheses and that is a
-		 * function call parameter, becomes a separate translation unit. The
-		 * loop below scans the array of tokens, looking for translation
-		 * unit separators and builds suitable arrays of tokens for each
-		 * TU.
-		 */
-		for($i = 0; $i < $cnt; $i++)
+		$lexer = new Opt_Expression_Standard_Lexer($expr);
+		$parser = new Opt_Expression_Standard_Parser($this);
+		while ($lexer->yylex())
 		{
-			if(ctype_space($match[0][$i]) || $match[0][$i] == '')
+			if($lexer->token != 'w')
 			{
-				continue;
+				$parser->doParse($lexer->token, $lexer->value);
 			}
-			switch($match[0][$i])
-			{
-				case ',':
-					if($prev == '(' || $prev == ',')
-					{
-						throw new Opt_Expression_Exception('OP_COMMA', $match[0][$i], $expr);
-					}
-					$tuid = $stack->pop();
-					if(in_array($tuid, $assignments))
-					{
-						$tuid = $stack->pop();
-					}
-				case '[':
-				case '(':
-				case 'is':
-				case '=':
-					if($match[0][$i] == '=' || $match[0][$i] == 'is')
-					{
-						$assignments[] = $tuid;
-					}
-					$tu[$tuid][] = $match[0][$i];
-					++$maxTuid;
-					$tu[$tuid][] = $chr.$maxTuid;	// A fake token that marks the translation unit which goes here.
-					$stack->push($tuid);
-					$tuid = $maxTuid;
-					$tu[$tuid] = array();
-					break;
-				case ']':
-				case ')':
-					// If we have a situation like (), we can remove the TU we've just created,
-					// because it's empty and will confuse the expression compiler later.
-					if($prev == '(')
-					{
-						unset($tu[$tuid]);
-						--$maxTuid;
-					}
-					if($stack->count() > 0)
-					{
-						$tuid = $stack->pop();
-						if(in_array($tuid, $assignments))
-						{
-							$tuid = $stack->pop();
-						}
-					}
-					if($prev == '(')
-					{
-						array_pop($tu[$tuid]);
-					}
-					if($prev == ',')
-					{
-						throw new Opt_Expression_Exception('OP_BRACKET', $match[0][$i], $expr);
-					}
-					$tu[$tuid][] = $match[0][$i];
-					break;
-				default:
-					$tu[$tuid][] = $match[0][$i];
-			}
-			$prev = $match[0][$i];
 		}
-		if(sizeof($tu[0]) == 0)
-		{
-			throw new Opt_EmptyExpression_Exception();
-		}
-		/*
-		 * Now we have an array of translation units and their tokens and
-		 * we can process it linearly, thus avoiding recursive calls.
-		 */
-		foreach($tu as $id => &$tuItem)
-		{
-			$tuItem = $this->_compileExpression($expr, $tuItem, $id);
-		}
-		$type = $tu[0]['type'];
+		$parser->doParse(0, 0);
 
-		/*
-		 * Finally, we have to link all the subexpressions into an output
-		 * expression. We use SPL stack to achieve this, because we need
-		 * to store the current subexpression status while finding a new one.
-		 */
-		$tuid = 0;
-		$i = -1;
-		$cnt = sizeof($tu[0]['bare']);
-		$stack = new SplStack;
-		$prev = null;
-		$expression = '';
-
-		while(true)
-		{
-			$i++;
-			$token = &$tu[$tuid]['bare'][$i];
-
-			// If we've found a translation unit, we must stop for a while the current one
-			// and link the new.
-			if(strlen($token) > 0 && $token[0] == $chr)
-			{
-				$wasAssignment = in_array($tuid, $assignments);
-				$stack->push(Array($tuid, $i, $cnt));
-				$tuid = (int)ltrim($token, $chr);
-				$i = -1;
-				$cnt = sizeof($tu[$tuid]['bare']);
-				if($cnt == 0 && $wasAssignment)
-				{
-					throw new Opt_Expression_Exception('OP_NULL', '', $expr);
-				}
-				continue;
-			}
-			else
-			{
-				$expression .= $token;
-			}
-
-			if($i >= $cnt)
-			{
-				if($stack->count() == 0)
-				{
-					break;
-				}
-				// OK, current TU is ready. Check, whether there are unfinished upper-level TUs
-				// on the stack
-				unset($tu[$tuid]);
-				list($tuid, $i, $cnt) = $stack->pop();
-			}
-			$prev = $token;
-		}
-
-		return array('bare' => $expression, 'escaped' => $expression, 'type' => $type);
+		return array(
+			'bare'			=> $this->_compiled,
+			'expression'	=> $this->_compiled,
+			'complexity'	=> $this->_complexity,
+			'type'			=> Opt_Compiler_Class::COMPOUND
+		);
 	} // end parse();
 
 	/**
-	 * Compiles a single translation unit in the expression.
-	 *
-	 * @internal
-	 * @param String &$expr A reference to the compiled expressions for debug purposes.
-	 * @param Boolean $allowAssignment True, if the assignments are allowed in this unit.
-	 * @param Array &$tokens A reference to the array of tokens for this translation unit.
-	 * @param String $tu The number of the current translation unit.
-	 * @return Array An array build of three items: the compiled expression, the assignment status
-	 *    and the variable status (whether the expression is in fact a single variable).
+	 * Finalizes the expression parsing. Side effects: the compilation
+	 * results are saved into the $_compiled and $_complexity object
+	 * fields.
+	 * 
+	 * @param SplFixedArray $expression The expression array.
 	 */
-	protected function _compileExpression(&$expr, Array &$tokens, $tu)
+	public function _finalize(SplFixedArray $expression)
 	{
-		/* The method processes a single translation unit (TU). For example, in the expression
-		 *		$a is ($b + $c) * $d
-		 * we have the following translation units:
-		 * 1. $a is #TU2 * $d
-		 * 2. $b + $c
-		 *
-		 * They are compiled separately and automatically, so you do not have to do this on
-		 * your own. This has been done to remove the recursion from the source code, and moreover
-		 * it allows, for example, to manage the argument order in the functions.
-		 */
+		$this->_compiled = $expression[0];
+		$this->_complexity = $expression[1];
+	} // end _finalize();
 
-		// Operator mappings
-		$wordOperators = array(
-			'eq' => '==',
-			'eqt' => '===',
-			'ne' => '!=',
-			'net' => '!==',
-			'neq' => '!=',
-			'neqt' => '!==',
-			'lt' => '<',
-			'le' => '<=',
-			'lte' => '<=',
-			'gt' => '>',
-			'ge' => '>=',
-			'gte' => '>=',
-			'and' => '&&',
-			'or' => '||',
-			'xor' => 'xor',
-			'not' => '!',
-			'mod' => '%',
-			'div' => '/',
-			'add' => '+',
-			'sub' => '-',
-			'mul' => '*',
-			'shl' => '<<',
-			'shr' => '>>'
-		);
+	/**
+	 * Creates a scalar value.
+	 *
+	 * @param mixed $value
+	 * @param int $weight
+	 * @return SplFixedArray
+	 */
+	public function _scalarValue($value, $weight)
+	{
+		$array = new SplFixedArray(2);
+		$array[0] = $value;
+		$array[1] = $weight;
 
-		// Previous token information
-		$previous = array(
-			'token' => null,
-			'source' => null,
-			'result' => null
-		);
-		// Some standard "next token sets"
-		$valueSet = self::OP_VARIABLE | self::OP_LANGUAGE_VAR | self::OP_STRING | self::OP_NUMBER |
-			self::OP_IDENTIFIER | self::OP_PRE_OPERATOR | self::OP_OBJMAN | self::OP_BRACKET;
-		$operatorSet = self::OP_OPERATOR | self::OP_POST_OPERATOR | self::OP_NULL;
-		// Initial state
+		return $array;
+	} // end _scalarValue();
+
+	/**
+	 * Prepares a script variable for further parsing. We do not parse it
+	 * into PHP here, because we must check if we have an assignment, incrementation
+	 * or something else.
+	 *
+	 * @param string $name The variable name
+	 * @return SplFixedArray
+	 */
+	public function _prepareScriptVar($name)
+	{
+		$array = new SplFixedArray(3);
+		$array[0] = $name;
+		$array[1] = '$';
+
+		return $array;
+	} // end _prepareScriptVar();
+
+	/**
+	 * Prepares a template variable for further parsing. We do not parse it
+	 * into PHP here, because we must check if we have an assignment, incrementation
+	 * or something else.
+	 *
+	 * @param string $name The variable name
+	 * @return SplFixedArray
+	 */
+	public function _prepareTemplateVar($name)
+	{
+		$array = new SplFixedArray(3);
+		$array[0] = $name;
+		$array[1] = '@';
+
+		return $array;
+	} // end _prepareTemplateVar();
+
+	/**
+	 * Compiles the variable call in the specified context. It processes the containers,
+	 * assignments and other stuff directly related to the variables, returning an
+	 * SplFixedArray object with token information.
+	 *
+	 * @param array $variable The list of container elements
+	 * @param string $type The variable type
+	 * @param integer $weight The expression weight
+	 * @param integer $context The variable occurence context (normal, assignment, etc.)
+	 * @param string $contextInfo The information provided by the context
+	 * @return SplFixedArray
+	 */
+	public function _compileVariable(array $variable, $type, $weight, $context = 0, $contextInfo = null)
+	{
+		$conversion = '##simplevar_';
+		$defaultFormat = null;
+		if($type == '@')
+		{
+			$conversion = '##var_';
+			$defaultFormat = 'TemplateVariable';
+		}
+
 		$state = array(
-			'next' => $valueSet | self::OP_NULL,	// What token must occur next.
-			'step' => 0,		// This flag helps processing brackets by saving some extra token information.
-			'func' => 0,		// The function call type: 0 - OPT function (with "$this" as the first argument); 1 - ordinary function
-			'oper' => false,	// The assignment flag. The value must be assigned to a variable, so on the left side there must not be any operator (false).
-			'clone' => 0,		// We've already used "clone"
-			'preop' => false,	// Prefix operators ++ and -- found. This flag is cancelled by any other operator.
-			'rev' => NULL,		// Changing the argument order options
-			'assign_func' => false,	// Informing the bracket parser that the first argument must be a language block, which must be processed separately.
-			'tu'	=> 0,		// What has opened a translation unit? The field contains the token type.
-			'variable' => NULL,	// To detect if the expression is a single variable or not.
-			'function' => NULL	// Function name for the argument checker errors
+			'further'	=> false,
+			'section'	=> null
 		);
-		$chr = chr(18);		// Which ASCII code marks the translation unit
-		$result = array();	// Here we put the compilation result
-		$void = false;		// This is a fake variable for a recursive call, as a last argument (reference)
-		$assign = false;
-		$to = sizeof($tokens);
 
-		// Loop through the token list.
-		for($i = 0; $i < $to; $i++)
+		$answer = new SplFixedArray(2);
+
+		// The variable scanner
+		$proc = null;
+		if($this->_compiler->isProcessor('section') !== null)
 		{
-			// Some initializing stuff.
-			$token = &$tokens[$i];
-			$parsefunc = false;
-			$current = array(
-				'token' => null,		// Symbolic token type. Look at the file header to find the token definitions.
-				'source' => $token,		// Original form of the token is also remembered.
-				'result' => null,		// Here we have to put the result PHP code generated from the token.
-			);
-			// Find out, what it is and process it.
-			switch($token)
+			$proc = $this->_compiler->processor('section');
+		}
+
+		$count = sizeof($variable);
+		$final = $count - 1;
+		$localWeight = 0;
+		$code = '';
+		$path = '';
+		$previous = null;
+		foreach($variable as $id => $item)
+		{
+			// Handle conversions
+			$previous = $path;
+			if($path == '')
 			{
-				case '[':
-					// This code checks, whether the token is properly used. We have to assign it to one of the token groups.
-					if(!($state['next'] & self::OP_SQ_BRACKET))
-					{
-						throw new Opt_Expression_Exception('OP_SQ_BRACKET', $token, $expr);
-					}
-					$result[] = '[';
-					$state['tu'] = self::OP_SQ_BRACKET_E;
-					$state['next'] = self::OP_TU;
-					$state['step'] = self::OP_VARIABLE;
-					continue;
-				case ']':
-					if(!($state['next'] & self::OP_SQ_BRACKET_E))
-					{
-						throw new Opt_Expression_Exception('OP_SQ_BRACKET_E', $token, $expr);
-					}
-					$current['token'] = $state['step'];
-					$current['result'] = ']';
-					$state['step'] = 0;
-					// This is the way we mark, what tokens can occur next.
-					$state['next'] = self::OP_OPERATOR | self::OP_NULL | self::OP_SQ_BRACKET;
-					if($state['clone'] == 1)
-					{
-						$state['next'] = self::OP_NULL | self::OP_SQ_BRACKET;
-					}
-					break;
-				// These tokens are invalid and must produce an error
-				case '\'':
-				case '"':
-				case '{':
-				case '}':
-					throw new Opt_Expression_Exception('OP_CURLY_BRACKET', $token, $expr);
-					break;
-				// Text operators.
-				case 'add':
-				case 'sub':
-				case 'mul':
-				case 'div':
-				case 'mod':
-				case 'shl':
-				case 'shr':
-				case 'eq':
-				case 'neq':
-				case 'eqt':
-				case 'neqt':
-				case 'ne':
-				case 'net':
-				case 'lt':
-				case 'le':
-				case 'lte':
-				case 'gt':
-				case 'gte':
-				case 'ge':
-					// These guys can be also method names, if in proper context
-					if($previous['token'] == self::OP_CALL)
-					{
-						$this->_compileIdentifier($token, $previous['token'], $previous['result'],
-							isset($tokens[$i+1]) ? $tokens[$i+1] : null, $operatorSet, $expr, $current, $state);
-						break;
-					}
-				case 'and':
-				case 'or':
-				case 'xor':
-					$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
-
-					// And these three ones - only strings.
-					if($state['next'] & self::OP_STRING)
-					{
-						$current['result'] = '\''.$token.'\'';
-						$current['token'] = self::OP_STRING;
-						$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E;
-					}
-					else
-					{
-						if(!($state['next'] & self::OP_OPERATOR))
-						{
-							throw new Opt_Expression_Exception('OP_OPERATOR', $token, $expr);
-						}
-						$current['result'] = $wordOperators[$token];
-						$current['token'] = self::OP_OPERATOR;
-						$state['next'] = $valueSet;
-						$state['preop'] = false;
-					}
-					$state['variable'] = false;
-					break;
-				case 'not':
-					if(!($state['next'] & self::OP_PRE_OPERATOR))
-					{
-						throw new Opt_Expression_Exception('OP_PRE_OPERATOR', $token, $expr);
-					}
-					$current['token'] = self::OP_PRE_OPERATOR;
-					$current['result'] = $wordOperators[$token];
-					$state['next'] = $valueSet;
-					$state['variable'] = false;
-					break;
-				case 'new':
-				case 'clone':
-					// These operators are active only if the directive advancedOOP is true.
-					if(!$this->_tpl->advancedOOP)
-					{
-						throw new Opt_ExpressionOptionDisabled_Exception($token, 'security reasons');
-					}
-					if(!($state['next'] & self::OP_OBJMAN))
-					{
-						throw new Opt_Expression_Exception('OP_OBJMAN', $token, $expr);
-					}
-					$current['result'] = $token.' ';
-					$current['token'] = self::OP_OBJMAN;
-					$state['next'] = ($token == 'new' ? self::OP_IDENTIFIER : self::OP_BLOCK);
-					$state['clone'] = 1;
-					$state['variable'] = false;
-					break;
-				case 'is':
-					if($state['next'] & self::OP_STRING)
-					{
-						$current['result'] = '\''.$token.'\'';
-						$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E | self::OP_TU;
-						break;
-					}
-				case '=':
-					// We have to assign the data to the variable or object field.
-					if(($previous['token'] == self::OP_VARIABLE || $previous['token'] == self::OP_FIELD) && !$state['oper'] && $previous['token'] != self::OP_LANGUAGE_VAR)
-					{
-						$current['result'] = '';
-						$current['token'] = self::OP_ASSIGN;
-						$state['variable'] = false;
-						$state['next'] = self::OP_TU;
-						$state['tu'] = self::OP_NULL;
-						$assign = true;
-					}
-					else
-					{
-						throw new Opt_Expression_Exception('OP_ASSIGN', $token, $expr);
-					}
-					break;
-				case '!==':
-				case '==':
-				case '===':
-				case '!=':
-				case '+':
-				case '*':
-				case '/':
-				case '%':
-					if(!($state['next'] & self::OP_OPERATOR))
-					{
-						throw new Opt_Expression_Exception('OP_OPERATOR', $token, $expr);
-					}
-					$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
-
-					$current['result'] = $token;
-					$state['next'] = $valueSet;
-					$state['oper'] = true;
-					$state['preop'] = false;
-					$state['variable'] = false;
-					break;
-				case '-':
-					if($state['next'] & self::OP_OPERATOR)
-					{
-						$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
-
-						$current['result'] = $token;
-						$state['oper'] = true;
-						$state['next'] = $valueSet;
-						$state['preop'] = false;
-					}
-					elseif($state['next'] & self::OP_NUMBER | self::OP_VARIABLE | self::OP_IDENTIFIER)
-					{
-						$current['result'] = $token;
-						$state['next'] = self::OP_NUMBER | self::OP_VARIABLE | self::OP_IDENTIFIER;
-					}
-					else
-					{
-						throw new Opt_Expression_Exception('OP_OPERATOR', $token, $expr);
-					}
-					$state['variable'] = false;
-					break;
-				case '~':
-					if(!($state['next'] & self::OP_OPERATOR))
-					{
-						throw new Opt_Expression_Exception('OP_OPERATOR', $token, $expr);
-					}
-					$current['result'] = '.';
-					$state['next'] = $valueSet;
-					$state['oper'] = true;
-					$state['preop'] = false;
-					$state['variable'] = false;
-					break;
-				case '++':
-				case '--':
-					$current['token'] = self::OP_PRE_OPERATOR;
-					if(!($state['next'] & self::OP_PRE_OPERATOR))
-					{
-						$current['token'] = self::OP_POST_OPERATOR;
-						if(!($state['next'] & self::OP_POST_OPERATOR))
-						{
-							throw new Opt_Expression_Exception('OP_POST_OPERATOR', $token, $expr);
-						}
-						else
-						{
-							$state['next'] = self::OP_OPERATOR | self::OP_NULL;
-						}
-					}
-					else
-					{
-						$state['next'] = self::OP_VARIABLE | self::OP_LANGUAGE_VAR | self::OP_NUMBER;
-						$state['preop'] = true;
-					}
-					$state['oper'] = true;
-					$state['variable'] = false;
-					$current['result'] = $token;
-					break;
-				case '!':
-					if(!($state['next'] & self::OP_PRE_OPERATOR))
-					{
-						throw new Opt_Expression_Exception('OP_PRE_OPERATOR', $token, $expr);
-					}
-					$current['result'] = $token;
-					$current['token'] = self::OP_PRE_OPERATOR;
-					$state['variable'] = false;
-					break;
-				case 'null':
-				case 'false':
-				case 'true':
-					// These special values are treated as numbers by the compiler.
-					if(!($state['next'] & self::OP_NUMBER))
-					{
-						throw new Opt_Expression_Exception('OP_NUMBER', $token, $expr);
-					}
-					$current['token'] = self::OP_NUMBER;
-					$current['result'] = $token;
-					$state['next'] = $operatorSet;
-					break;
-				case '.':
-					throw new Opt_Expression_Exception('.', $token, $expr);
-					break;
-				case '::':
-					if(!($state['next'] & self::OP_CALL))
-					{
-						throw new Opt_Expression_Exception('OP_CALL', $token, $expr);
-					}
-					if(!$this->_tpl->basicOOP)
-					{
-						throw new Opt_NotSupported_Exception('object-oriented programming', 'disabled');
-					}
-					// OPT decides from the context, whether "::" means a static
-					// or dynamic call.
-					if($previous['token'] == self::OP_CLASS)
-					{
-						$current['result'] = '::';
-						$state['call'] = 0;
-					}
-					else
-					{
-						$current['result'] = '->';
-					}
-					$current['token'] = self::OP_CALL;
-					$state['next'] = self::OP_IDENTIFIER;
-					break;
-				case '(':
-					// Check, if the parenhesis begins a function/method argument list
-					if($previous['token'] == self::OP_METHOD || $previous['token'] == self::OP_FUNCTION || $previous['token'] == self::OP_CLASS)
-					{
-						// Yes, this is a function call, so we need to find its arguments.
-						$args = array();
-						for($j = $i + 1; $j < $to && $tokens[$j] != ')'; $j++)
-						{
-							if($tokens[$j][0] == $chr)
-							{
-								$args[] = $tokens[$j];
-							}
-							elseif($tokens[$j] != ',')
-							{
-								throw new Opt_Expression_Exception('OP_UNKNOWN', $tokens[$j], $expr);
-							}
-						}
-						$argNum = sizeof($args);
-
-						// Optionally, change the argument order
-						if(!is_null($state['rev']))
-						{
-							$this->_reverseArgs($args, $state['rev'], $state['function']);
-							$state['rev'] = null;
-							$argNum = sizeof($args);
-						}
-
-						// Put the parenthesis to the compiled token list.
-						$result[] = '(';
-
-						// If we have a call of the assign() function, we need to store the
-						// number of the translation unit in the _translationConversion field.
-						// This will allow the language variable compiler to notice that here
-						// we should have a language call that must be treated in a bit different
-						// way.
-						if($argNum > 0 && $state['assign_func'])
-						{
-							$this->_translationConversion = (int)trim($args[0], $chr);
-						}
-						// Build the argument list.
-						for($k = 0; $k < $argNum; $k++)
-						{
-							$result[] = $args[$k];
-							if($k < $argNum - 1)
-							{
-								$result[] = ',';
-							}
-						}
-						$i = $j-1;
-						$state['next'] = self::OP_BRACKET_E;
-						$state['step'] = $previous['token'];
-						continue;
-					}
-					else
-					{
-						if(!($state['next'] & self::OP_BRACKET))
-						{
-							throw new Opt_Expression_Exception('OP_BRACKET', $token, $expr);
-						}
-						$result[] = '(';
-						$state['tu'] = self::OP_BRACKET_E;
-						$state['next'] = self::OP_TU;
-						$state['step'] = self::OP_VARIABLE;
-					}
-					break;
-				case ')':
-					if($state['step'] == 0)
-					{
-						throw new Opt_Expression_Exception('OP_BRACKET', $token, $expr);
-					}
-					else
-					{
-						if(!($state['next'] & self::OP_BRACKET_E))
-						{
-							throw new Opt_Expression_Exception('OP_BRACKET_E', $token, $expr);
-						}
-						$current['token'] = $state['step'];
-						$current['result'] = ')';
-						$state['step'] = 0;
-						$state['next'] = self::OP_OPERATOR | self::OP_NULL | self::OP_CALL;
-						if($state['clone'] == 1)
-						{
-							$state['next'] = self::OP_NULL | self::OP_CALL;
-						}
-					}
-					break;
-				default:
-					if($token[0] == $chr)
-					{
-						// We've found another translation unit.
-						if(!($state['next'] & self::OP_TU))
-						{
-							throw new Opt_Expression_Exception('OP_TU', 'Translation unit #'.ltrim($token, $chr), $expr);
-						}
-						if($previous['token'] != self::OP_ASSIGN)
-						{
-							$result[] = $token;
-						}
-						$state['next'] = $state['tu'];
-					}
-					elseif(preg_match('/^'.$this->_rVariable.'$/', $token))
-					{
-						// Variable call.
-						if(!($state['next'] & self::OP_VARIABLE))
-						{
-							throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
-						}
-						// We do the first character test manually, because
-						// in regular expression the parser would receive too much rubbish.
-						if(!ctype_alpha($token[1]) && $token[1] != '_')
-						{
-							throw new Opt_Expression_Exception('OP_VARIABLE', $token, $expr);
-						}
-						// Moreover, we need to know the future (assignments)
-						$assignment = null;
-						if(isset($tokens[$i+1]) && ($tokens[$i+1] == '=' || $tokens[$i+1] == 'is'))
-						{
-							$assignment = $tokens[$i+2];
-						}
-
-						$out = $this->_compileVariable($token, $assignment);
-						if(is_array($out))
-						{
-							foreach($out as $t)
-							{
-								$result[] = $t;
-							}
-							$current['result'] = '';
-							$current['token'] = self::OP_VARIABLE;
-						}
-						else
-						{
-							$current['result'] = $out;
-							$current['token'] = self::OP_VARIABLE;
-						}
-						if(is_null($state['variable']))
-						{
-							$state['variable'] = true;
-						}
-						// Hmmm... and what is the purpose of this IF? Seriously, I forgot.
-						// So better do not touch it; it must have been very important.
-						if($state['clone'] == 1)
-						{
-							$state['next'] = self::OP_SQ_BRACKET | self::OP_CALL | self::OP_NULL;
-						}
-						else
-						{
-							$state['next'] = $operatorSet | self::OP_SQ_BRACKET | self::OP_CALL;
-						}
-					}
-					elseif(preg_match('/^'.$this->_rLanguageVarExtract.'$/', $token, $found))
-					{
-						// Extracting the language var.
-						if(!($state['next'] & self::OP_LANGUAGE_VAR))
-						{
-							throw new Opt_Expression_Exception('OP_LANGUAGE_VAR', $token, $expr);
-						}
-						$current['result'] = $this->_compileLanguageVar($found[1], $found[2], $tu);
-						$current['token'] = self::OP_LANGUAGE_VAR;
-						$state['next'] = $operatorSet;
-					}
-					elseif(preg_match('/^'.$this->_rDecimalNumber.'$/', $token))
-					{
-						// Handling the decimal numbers.
-						if(!($state['next'] & self::OP_NUMBER))
-						{
-							throw new Opt_Expression_Exception('OP_NUMBER', $token, $expr);
-						}
-						$current['result'] = $token;
-						$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E;
-					}
-					elseif(preg_match('/^'.$this->_rHexadecimalNumber.'$/', $token))
-					{
-						// Hexadecimal, too.
-						if(!($state['next'] & self::OP_NUMBER))
-						{
-							throw new Opt_Expression_Exception('OP_NUMBER', $token, $expr);
-						}
-						$current['result'] = $token;
-						$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E;
-					}
-					elseif(preg_match('/^'.$this->_rSingleQuoteString.'$/', $token))
-					{
-						if(!($state['next'] & self::OP_STRING))
-						{
-							throw new Opt_Expression_Exception('OP_STRING', $token, $expr);
-						}
-						$current['result'] = $this->_compileString($token);
-						$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E;
-					}
-					elseif(preg_match('/^'.$this->_rBacktickString.'$/', $token))
-					{
-						if(!($state['next'] & self::OP_STRING))
-						{
-							throw new Opt_Expression_Exception('OP_STRING', $token, $expr);
-						}
-						$current['result'] = $this->_compileString($token);
-						$state['next'] = $operatorSet | self::OP_SQ_BRACKET_E;
-					}
-					elseif(preg_match('/^'.$this->_rIdentifier.'$/', $token))
-					{
-						$this->_compileIdentifier($token, $previous['token'], $previous['result'],
-							isset($tokens[$i+1]) ? $tokens[$i+1] : null, $operatorSet, $expr, $current, $state);
-					}
-			}
-			$previous = $current;
-			if($current['result'] != '')
-			{
-				$result[] = $current['result'];
-			}
-		}
-		// Finally, test if the pre- operators have been used properly.
-		$this->_testPreOperators($previous['token'], $state['preop'], $token, $expr);
-
-		// And if we are allowed to finish here...
-		if(!($state['next'] & self::OP_NULL))
-		{
-			throw new Opt_Expression_Exception('OP_NULL', $token, $expr);
-		}
-
-		// TODO: Improve the type detection
-		$final = array('bare' => $result, 'type' => Opt_Compiler_Class::COMPOUND);
-		if($state['variable'])
-		{
-			$final['type'] = Opt_Compiler_Class::SINGLE_VAR;
-		}
-		if($assign)
-		{
-			$final['type'] = Opt_Compiler_Class::ASSIGNMENT;
-		}
-		return $final;
-	} // end _compileExpression();
-
-	/**
-	 * An utility function that allows to test the preincrementation
-	 * operators, if they are used in the right place. In case of
-	 * problems, it generates an exception.
-	 *
-	 * @internal
-	 * @param Int $previous The previous token type.
-	 * @param Boolean $state The state of the "preop" expression parser flag.
-	 * @param String $token The current token provided for debug purposes.
-	 * @param String &$expr The reference to the parsed expression for debug purposes.
-	 */
-	protected function _testPreOperators($previous, $state, &$token, &$expr)
-	{
-		if(($previous == self::OP_METHOD || $previous == self::OP_FUNCTION || $previous == self::OP_EXPRESSION) && $state)
-		{
-			// Invalid use of prefix operators!
-			throw new Opt_Expression_Exception('OP_PRE_OPERATOR', $token, $expr);
-		}
-	} // end _testPreOperators();
-
-	/**
-	 * Compiles the template variable into the PHP code. It can be
-	 * generated in two contexts: read and save. The method supports
-	 * all the special variables, local template variables and
-	 * chooses the correct data formats. Moreover, it provides a
-	 * build-in support for sections.
-	 *
-	 * @internal
-	 * @param String $name Variable call
-	 * @param String $newValue Null or the new value to assign
-	 * @return String The output PHP code.
-	 */
-	protected function _compileVariable($name, $saveContext = null)
-	{
-		$value = substr($name, 1, strlen($name) - 1);
-		$result = '';
-		if(strpos($value, '.') !== FALSE)
-		{
-			$ns = explode('.', $value);
-		}
-		else
-		{
-			$ns = array(0 => $value);
-		}
-
-		if($name[0] == '@')
-		{
-			// The instruction may wish to handle this variable somehow differently.
-			if(($to = $this->_compiler->convert('##var_'.$ns[0])) == '##var_'.$ns[0])
-			{
-				$result = 'self::$_vars';	// Standard handler
+				// Parsing the first element. First, check the conversions.
+				if(($to = $this->_compiler->convert($conversion.$item)) != $conversion.$item)
+				{
+					$item = $to;
+				}
+				$path = $item;
+				$state['first'] = true;
 			}
 			else
 			{
-				$result = $to;		// Programmer-defined handler
-				unset($ns[0]);		// We assume that the variable name is already included into the handler.
+				// Parsing one of the later elements
+				$path .= '.'.$item;
+				$state['first'] = false;
 			}
 
-			// Link the rest of the array call.
-			foreach($ns as $item)
+			// Processing section calls
+			if($proc !== null)
 			{
-				if(ctype_digit($item))
+				if($state['section'] === null)
 				{
-					$result .= '['.$item.']';
-				}
-				else
-				{
-					$result .= '[\''.$item.'\']';
-				}
-			}
-			if($saveContext !== null)
-			{
-				return array($result.'=', $saveContext);
-			}
-			return $result;
-		}
-		else
-		{
-			/*
-			 * This is the variable scanner that parses things like "$var.foo.bar.joe".
-			 * Each segment of the name can be parsed in different format, depending on
-			 * the programmer settings. Moreover, it recognizes the special calls, like "opt"/"system"
-			 * or section element calls.
-			 */
+					// Check if any section with the specified name exists.
+					$sectionName = $this->_compiler->convert($item);
 
-			$path = '';
-			$previous = null;
-			$code = '';
-			$count = sizeof($ns);
-			$state = array(
-				'access' => $this->_tpl->variableAccess,
-				'section' => null,
-				'first' => false
-			);
-
-			// Check the first element for special keywords.
-			switch($ns[0])
-			{
-				case 'opt':
-				case 'sys':
-				case 'system':
-					if($saveContext !== null)
+					if(($section = $proc->getSection($sectionName)) !== null)
 					{
-						throw new Opt_AssignNotSupported_Exception($name);
-					}
-					return $this->_compileSys($ns);
-				case 'this':
-					$state['access'] = Opt_Class::ACCESS_LOCAL;
-					unset($ns[0]);
-					break;
-				case 'global':
-					$state['access'] = Opt_Class::ACCESS_GLOBAL;
-					unset($ns[0]);
-					break;
-			}
-			// Scan the rest of the name
-			$final = sizeof($ns) - 1;
-			foreach($ns as $id => $item)
-			{
-				$previous = $path;
-				if($path == '')
-				{
-					// Parsing the first element. First, check the conversions.
-					if(($to = $this->_compiler->convert('##simplevar_'.$item)) != '##simplevar_'.$item)
-					{
-						$item = $to;
-					}
-					$path = $item;
-					$state['first'] = true;
-				}
-				else
-				{
-					// Parsing one of the later elements
-					$path .= '.'.$item;
-					$state['first'] = false;
-				}
+						$path = $sectionName;
+						$state['section'] = $section;
 
-				// Processing sections
-				if(!is_null($this->_compiler->isProcessor('section')))
-				{
-					if(is_null($state['section']))
-					{
-						// Check if any section with the specified name exists.
-						$proc = $this->_compiler->processor('section');
-						$sectionName = $this->_compiler->convert($item);
-						if(!is_null($section = $proc->getSection($sectionName)))
+						if($id == $final)
 						{
-							$path = $sectionName;
-							$state['section'] = $section;
-
-							if($id == $count - 1)
+							// This is the last element
+							$hook = 'section:item'.$this->_dfCalls[$context];
+							if(!$section['format']->property($hook))
 							{
-								// This is the last name element.
-								if($saveContext !== null)
-								{
-									if(!$section['format']->property('section:itemAssign'))
-									{
-										throw new Opt_AssignNotSupported_Exception($name);
-									}
-									$format->assign('value', $saveContext);
-									return $section['format']->get('section:itemAssign');
-								}
-
-								return $section['format']->get('section:item');
+								throw new Opt_OperationNotSupported($name, $this->_dfCalls[$context]);
 							}
-							continue;
-						}
-					}
-					else
-					{
-						// The section has been found, we need to process the item.
-						$state['section']['format']->assign('item', $item);
+							$section['format']->assign('value', $contextInfo);
+							$section['format']->assign('code', $code);
 
-						if($saveContext !== null && $id == $final)
-						{
-							if(!$state['section']['format']->property('section:variableAssign'))
-							{
-								throw new Opt_AssignNotSupported_Exception($name);
-							}
-							$state['section']['format']->assign('value', $saveContext);
-							$code = $state['section']['format']->get('section:variableAssign');
+							$code = $section['format']->get($hook);
+							$localWeight = self::SECTION_ITEM_WEIGHT;
+
+							break;
 						}
-						else
-						{
-							$code = $state['section']['format']->get('section:variable');
-						}
-						$state['section'] = null;
 						continue;
 					}
 				}
-
-				// Now, the normal variables
-				if($state['first'])
+				else
 				{
-					if($state['access'] == Opt_Class::ACCESS_GLOBAL)
-					{
-						$format = $this->_compiler->getFormat('global.'.$path, true);
-					}
-					else
-					{
-						$format = $this->_compiler->getFormat($path, true);
-					}
-					if(!$format->supports('variable'))
-					{
-						throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
-					}
+					// The section has been found, we need to process the item.
+					// TODO: Perhaps INCREMENT and DECREMENT must have here a different code...
+					// We must remember that the container call may be longer and they may refer
+					// to the other part of the chain.
+					$state['section']['format']->assign('item', $item);
 
-					if($final == $id && $saveContext !== null)
+					$hook = 'section:variable';
+					if($id == $final)
 					{
-						if(!$format->property('variable:assign'))
+						$hook .= $this->_dfCalls[$context];
+						$section['format']->assign('value', $contextInfo);
+						$section['format']->assign('code', $code);
+						if(!$section['format']->property($hook))
 						{
-							throw new Opt_AssignNotSupported_Exception($name);
+							throw new Opt_OperationNotSupported($name, $this->_dfCalls[$context]);
 						}
-						$format->assign('access', $state['access']);
-						$format->assign('item', $item);
-						$format->assign('value', $saveContext);
-						$code = $format->get('variable:assign');
 					}
-					else
+					$code = $section['format']->get($hook);
+					$localWeight = self::SECTION_VARIABLE_WEIGHT;
+
+					$state['section'] = null;
+
+					continue;
+				}
+			}
+
+			// Now, the normal container calls
+			if($id == 0)
+			{
+				// The first element processing
+				$format = $this->_compiler->getFormat($path, true);
+				if(!$format->supports('variable'))
+				{
+					throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
+				}
+				// Check if the format supports capturing the whole container
+				if($format->property('variable:capture'))
+				{
+					$format->assign('items', $variable);
+					$format->assign('dynamic', $isDynamic);
+					$hook = 'capture';
+				}
+				// An ordinary call
+				else
+				{
+					$hook = 'item';
+				}
+
+				if($context > 0)
+				{
+					$format->assign('value', $contextInfo);
+					$format->assign('code', $code);
+
+					if(!$section['format']->property('variable:'.$hook.$this->_dfCalls[$context]))
 					{
-						$format->assign('access', $state['access']);
-						$format->assign('item', $item);
-						$code = $format->get('variable:main');
+						throw new Opt_OperationNotSupported($path, $this->_dfCalls[$context]);
 					}
+				}
+				$code = $format->get('variable:'.$hook.$this->_dfCalls[$context]);
+				$localWeight = $count * self::CONTAINER_ITEM_WEIGHT;
+				if($hook == 'capture')
+				{
+					break;
+				}
+			}
+			else
+			{
+				$format = $this->_compiler->getFormat($previous, true);
+
+				$hook = 'item:item';
+				if($id == $final)
+				{
+					$hook .= $this->_dfCalls[$context];
+					$section['format']->assign('value', $contextInfo);
+					$section['format']->assign('code', $code);
+
+					if(!$section['format']->property($hook))
+					{
+						throw new Opt_OperationNotSupported($path, $this->_dfCalls[$context]);
+					}
+					$code = $format->get($hook);
 				}
 				else
 				{
-					// The subitems are processed with the upper-item format
-					if($state['access'] == Opt_Class::ACCESS_GLOBAL)
-					{
-						$format = $this->_compiler->getFormat('global.'.$previous, true);
-					}
-					else
-					{
-						$format = $this->_compiler->getFormat($previous, true);
-					}
-					if(!$format->supports('item'))
-					{
-						throw new Opt_FormatNotSupported_Exception($format->getName(), 'item');
-					}
-					if($final == $id && $saveContext !== null)
-					{
-						if(!$format->property('item:assign'))
-						{
-							throw new Opt_AssignNotSupported_Exception($name);
-						}
-						$format->assign('item', $item);
-						$format->assign('value', $saveContext);
-						$code .= $format->get('item:assign');
-					}
-					else
-					{
-						$format->assign('item', $item);
-						$code .= $format->get('item:item');
-					}
+					$code .= $format->get($hook);
 				}
+				$localWeight += self::CONTAINER_ITEM_WEIGHT;
 			}
-			if($saveContext !== null)
-			{
-				$out = explode($saveContext, $code);
-				if(sizeof($out) == 0)
-				{
-					return $code;
-				}
-				return array(0 => $out[0], $saveContext, $out[1]);
-			}
-			return $code;
 		}
+		$answer[0] = $code;
+		$answer[1] = $localWeight + $weight;
+		return $answer;
 	} // end _compileVariable();
 
 	/**
-	 * Compiles the call to the language variable into the PHP code.
+	 * Processes a binary operator that connects two expressions.
 	 *
-	 * @param String $group Group name
-	 * @param String $id Message identifier name within a group
-	 * @param String $tu The ID of the current translation unit for handling the assign() function properly.
-	 * @return String The output PHP code.
+	 * @param string $operator The PHP operator
+	 * @param SplFixedArray $expr1 The left expression
+	 * @param SplFixedArray $expr2 The right expression
+	 * @param int $weight The operator weight
+	 * @return SplFixedArray
 	 */
-	protected function _compileLanguageVar($group, $id, $tu)
+	public function _stdOperator($operator, SplFixedArray $expr1, SplFixedArray $expr2, $weight)
 	{
-		if(is_null($this->_tf))
-		{
-			throw new Opl_NoTranslationInterface_Exception('OPT template compiler');
-		}
-		if($tu === $this->_translationConversion)
-		{
-			$this->_translationConversion = null;
-			return '\''.$group.'\',\''.$id.'\'';
-		}
-		return '$this->_tf->_(\''.$group.'\',\''.$id.'\')';
-	} // end _compileLanguageVar();
+		$expr1[0] = $expr1[0].' '.$operator.' '.$expr2[0];
+		$expr1[1] += $expr2[1] + $weight;
+
+		return $expr1;
+	} // end _stdOperator();
 
 	/**
-	 * Compiles the special $sys variable to PHP code.
+	 * The compound expression operator parsing.
 	 *
-	 * @param Array $ns The $sys call splitted into array.
-	 * @return String The output PHP code.
+	 * @param string $operator The used operator name
+	 * @param array $arguments The operator arguments
+	 * @param int $weight The operator weight
+	 * @return SplFixedArray
 	 */
-	protected function _compileSys(Array $ns)
+	public function _expressionOperator($operator, array $arguments, $weight)
 	{
-		switch($ns[1])
+		// More complex expressions should be sanitized to avoid
+		// potential problems with operator precedence.
+		foreach($arguments as &$arg)
 		{
-			case 'version':
-				return '\''.Opt_Class::VERSION.'\'';
-			case 'const':
-				return 'constant(\''.$ns[2].'\')';
-			default:
-				if(!is_null($this->_compiler->isProcessor($ns[1])))
-				{
-					return $this->_compiler->processor($ns[1])->processSystemVar($ns);
-				}
-
-				throw new Opt_SysVariableUnknown_Exception('$'.implode('.', $ns));
+			if($arg[1] >= 5)
+			{
+				$arg[0] = '('.$arg[0].')';
+			}
 		}
-	} // end _compileSys();
 
-	/**
-	 * Compiles the string call in the expression to a suitable PHP source code.
-	 *
-	 * @internal
-	 * @param String $str The "string" string (with the delimiting characters)
-	 * @return String The output PHP code.
-	 */
-	protected function _compileString($str)
-	{
-		// TODO: Fix
-		// COMMENT: Fix what?
-		switch($str[0])
+		// Select the operator and the action.
+		switch($operator)
 		{
-			case '\'':
-				return $str;
-			case '`':
-				if(is_null($this->_tpl->backticks))
-				{
-					throw new Opt_NotSupported_Exception('backticks', 'not configured');
-				}
-				elseif(is_string($this->_tpl->backticks))
-				{
-					// A redirect to a function
-					return $this->_tpl->backticks.'(\''.str_replace('\'', '\\\'', stripslashes(substr($str, 1, strlen($str) - 2))).'\')';
-				}
-				elseif(is_array($this->_tpl->backticks) && is_object($this->_tpl->backticks[0]))
-				{
-					// A redirect to an object method
+			case 'contains':
+				// TODO: Add data format support here.
+				$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
+				$finalWeight = $arguments[0][1] + $arguments[1][1] + $weight;
+				break;
 
-					return '$this->_tpl->backticks[0]->'.$this->_tpl->backticks[1].'(\''.str_replace('\'', '\\\'', stripslashes(substr($str, 1, strlen($str) - 2))).'\')';
+			case 'contains_both':
+				$operator = '&&';
+			case 'contains_either':
+				// TODO: Add data format support here.
+				// TODO: Simplify and optimize the lookup of multiple values by forcing smarter searching
+				// by the data format.
+
+				$operator = (isset($operator) ? $operator : '||');
+				// Decide if we need an optimization, when the tested first expression is too complex.
+				if($arguments[0][1] < 5)
+				{
+					// OK, this is pretty lightweight, we can duplicate it
+					$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].') '.$operator.' Opt_Function::contains('.$arguments[0][0].', '.$arguments[2][0].')';
 				}
 				else
 				{
-					throw new Opt_InvalidCallback_Exception('backticks');
+					// This is hard. The result of the first expression should be stored in a
+					// temporary variable in order not to calculate everything twice.
+					$finalExpression = 'Opt_Function::contains($__expru_'.$this->_unique.' = '.$arguments[0][0].', '.$arguments[1][0].') '.$operator.' Opt_Function::contains($__expru_'.$this->_unique.', '.$arguments[2][0].')';
+					$this->_unique++;
 				}
+				$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
+				$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				break;
+			case 'contains_neither':
+				// TODO: Add data format support here.
+
+				// Decide if we need an optimization, when the tested first expression is too complex.
+				if($arguments[0][1] < 5)
+				{
+					// OK, this is pretty lightweight, we can duplicate it
+					$finalExpression = '!Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].') && !Opt_Function::contains('.$arguments[0][0].', '.$arguments[2][0].')';
+				}
+				else
+				{
+					// This is hard. The result of the first expression should be stored in a
+					// temporary variable in order not to calculate everything twice.
+					$finalExpression = '!Opt_Function::contains($__expru_'.$this->_unique.' = '.$arguments[0][0].', '.$arguments[1][0].') && !Opt_Function::contains($__expru_'.$this->_unique.', '.$arguments[2][0].')';
+					$this->_unique++;
+				}
+				$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
+				$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				break;
+			case 'between':
+				// Decide if we need an optimization, when the tested first expression is too complex.
+				if($arguments[0][1] < 5)
+				{
+					// OK, this is pretty lightweight, we can duplicate it
+					$finalExpression = $arguments[1][0].' < '.$arguments[0][0].' && '.$arguments[0][0].' < '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				}
+				else
+				{
+					// This is hard. The result of the first expression should be stored in a
+					// temporary variable in order not to calculate everything twice.
+					$finalExpression = $arguments[1][0].' < ($__expru_'.$this->_unique.' = '.$arguments[0][0].') && $__expru_'.$this->_unique.' < '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+					$this->_unique++;
+				}
+				break;
+			case 'not_between':
+				// Decide if we need an optimization, when the tested first expression is too complex.
+				if($arguments[0][1] < 5)
+				{
+					// OK, this is pretty lightweight, we can duplicate it
+					$finalExpression = $arguments[1][0].' >= '.$arguments[0][0].' || '.$arguments[0][0].' >= '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				}
+				else
+				{
+					// This is hard. The result of the first expression should be stored in a
+					// temporary variable in order not to calculate everything twice.
+					$finalExpression = $arguments[1][0].' >= ($__expru_'.$this->_unique.' = '.$arguments[0][0].') || $__expru_'.$this->_unique.' >= '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+					$this->_unique++;
+				}
+				break;
+			case 'either':
+				// Decide if we need an optimization, when the tested first expression is too complex.
+				if($arguments[0][1] < 5)
+				{
+					// OK, this is pretty lightweight, we can duplicate it
+					$finalExpression = $arguments[1][0].' == '.$arguments[0][0].' || '.$arguments[0][0].' == '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				}
+				else
+				{
+					// This is hard. The result of the first expression should be stored in a
+					// temporary variable in order not to calculate everything twice.
+					$finalExpression = $arguments[1][0].' == ($__expru_'.$this->_unique.' = '.$arguments[0][0].') || $__expru_'.$this->_unique.' == '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+					$this->_unique++;
+				}
+				break;
+			case 'neither':
+				// Decide if we need an optimization, when the tested first expression is too complex.
+				if($arguments[0][1] < 5)
+				{
+					// OK, this is pretty lightweight, we can duplicate it
+					$finalExpression = $arguments[1][0].' !== '.$arguments[0][0].' && '.$arguments[0][0].' !== '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				}
+				else
+				{
+					// This is hard. The result of the first expression should be stored in a
+					// temporary variable in order not to calculate everything twice.
+					$finalExpression = $arguments[1][0].' !== ($__expru_'.$this->_unique.' = '.$arguments[0][0].') && $__expru_'.$this->_unique.' !== '.$arguments[2][0];
+					$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+					$this->_unique++;
+				}
+				break;
 			default:
-				return '\''.$str.'\'';
+				// TODO: Error here!
 		}
-	} // end _compileString();
+		$arguments[0][0] = $finalExpression;
+		$arguments[0][1] = $finalWeight;
+
+		return $arguments[0];
+	} // end _expressionOperator();
 
 	/**
-	 * Compiles the specified identifier encountered in the expression
-	 * to the PHP code.
+	 * Packs the expression within parentheses.
 	 *
-	 * @internal
-	 * @param String $token The encountered token.
-	 * @param Int $previous Previous token
-	 * @param String $pt Used for OOP parsing to determine whether we have a static call.
-	 * @param String $next The next token in the list
-	 * @param Int $operatorSet The flag of allowed opcodes at this position.
-	 * @param String &$expr The current expression (for debug purposes)
-	 * @param Array &$current Reference to the current token information
-	 * @param Array &$state Reference to the parser state flags.
+	 * @param string $what The parenthese type
+	 * @param SplFixedArray $expr The expression to pack
+	 * @param int $weight The parentheses weight
+	 * @return SplFixedArray
 	 */
-	protected function _compileIdentifier($token, $previous, $pt, $next, $operatorSet, &$expr, &$current, &$state)
+	public function _package($what, SplFixedArray $expr, $weight)
 	{
-		if($previous == self::OP_OBJMAN)
-		{
-			// Class constructor call
-			if(($compiled = $this->_compiler->isClass($token)) !== null && $this->_tpl->basicOOP)
-			{
-				$current['result'] = $compiled;
-				$current['token'] = self::OP_CLASS;
-				$state['next'] = self::OP_BRACKET | self::OP_NULL;
-				if($next == '(')
-				{
-					$state['func'] = 1;
-				}
-			}
-			else
-			{
-				throw new Opt_ItemNotAllowed_Exception('Class', $token);
-			}
-		}
-		elseif($next == '(')
-		{
-			// Function/method call
-			if($previous == self::OP_CALL)
-			{
-				$current['result'] = $token;
-				$current['token'] = self::OP_METHOD;
-				$state['next'] = self::OP_BRACKET;
-				$state['func'] = 1;
-			}
-			elseif(($compiled = $this->_compiler->isFunction($token)) !== null)
-			{
-				$name = $compiled;
-				if($name[0] == '#')
-				{
-					$pos = strpos($name, '#', 1);
-					if($pos === false)
-					{
-						throw new Opt_InvalidArgumentFormat_Exception($name, $token);
-					}
-					$state['rev'] = substr($name, 1, $pos - 1);
-					$name = substr($name, $pos+1, strlen($name));
-				}
-				$current['result'] = $name;
-				$current['token'] = self::OP_FUNCTION;
-				$state['next'] = self::OP_BRACKET;
-				$state['function'] = $token;
-			}
-			elseif($token == 'assign')
-			{
-				$current['result'] = '$this->_tf->assign';
-				$current['token'] = self::OP_FUNCTION;
-				$state['next'] = self::OP_BRACKET;
-				$state['assign_func'] = true;
-				$state['function'] = $token;
-			}
-			else
-			{
-				throw new Opt_ItemNotAllowed_Exception('Function', $token);
-			}
-		}
-		elseif($previous == self::OP_CALL)
-		{
-			// Class/object field call, check whether static or not.
-			$current['result'] = ($pt == '::' ? '$'.$token : $token);
-			$current['token'] = self::OP_FIELD;
-			$state['next'] = $operatorSet | self::OP_SQ_BRACKET | self::OP_CALL;
-			if($state['clone'] == 1)
-			{
-				$state['next'] = self::OP_SQ_BRACKET | self::OP_CALL | self::OP_NULL;
-			}
-		}
-		elseif($next == '::')
-		{
-			// Static class call
-			if(($compiled = $this->_compiler->isClass($token)) !== null)
-			{
-				$current['result'] = $compiled;
-				$current['token'] = self::OP_CLASS;
-				$state['next'] = self::OP_CALL;
-			}
-			else
-			{
-				throw new Opt_ItemNotAllowed_Exception('Class', $token);
-			}
-		}
-		else
-		{
-			// An ending string.
-			if(!($state['next'] & self::OP_STRING))
-			{
-				throw new Opt_Expression_Exception('OP_STRING', $token, $expr);
-			}
-			$state['next'] = self::OP_NULL;
-			$current['token'] = self::OP_STRING;
-			$current['result'] = '\''.$token.'\'';
-		}
-	} // end _compileIdentifier();
+		$expr[0] = '('.$expr[0].')';
+		$expr[1] += $weight;
 
-	/**
-	 * Processes the argument order change functionality for function
-	 * parsing in expressions.
-	 *
-	 * @internal
-	 * @param Array &$args Reference to a list of function arguments.
-	 * @param String $format The new order format code.
-	 * @param String $function The function name provided for debugging purposes.
-	 */
-	protected function _reverseArgs(&$args, $format, $function)
-	{
-		$codes = explode(',', $format);
-		$newArgs = array();
-		$i = 0;
-		foreach($codes as $code)
-		{
-			$data = explode(':', $code);
-			if(!isset($args[$i]))
-			{
-				if(!isset($data[1]))
-				{
-					throw new Opt_FunctionArgument_Exception($i, $function);
-				}
-				$newArgs[(int)$data[0]-1] = $data[1];
-			}
-			else
-			{
-				$newArgs[(int)$data[0]-1] = $args[$i];
-			}
-			$i++;
-		}
-		$args = $newArgs;
-	} // end _reverseArgs();
+		return $expr;
+	} // end _package();
+
+
 } // end Opt_Expression_Standard;
