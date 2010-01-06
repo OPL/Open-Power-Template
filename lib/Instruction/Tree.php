@@ -36,6 +36,16 @@ class Opt_Instruction_Tree extends Opt_Instruction_BaseSection
 	} // end configure();
 
 	/**
+	 * Migrates the opt:tree node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function _migrateTree(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end _migrateTree();
+
+	/**
 	 * Processes the opt:tree node.
 	 * @internal
 	 * @param Opt_Xml_Node $node The instruction node found by the compiler.

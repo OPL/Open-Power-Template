@@ -67,6 +67,24 @@ class Opt_Xml_Expression extends Opt_Xml_Node
 	 * This function is executed by the compiler during the second compilation stage,
 	 * processing.
 	 */
+	public function preMigrate(Opt_Compiler_Class $compiler)
+	{
+		$this->set('hidden', false);
+	} // end preMigrate();
+
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * after processing the child nodes.
+	 */
+	public function postMigrate(Opt_Compiler_Class $compiler)
+	{
+
+	} // end postMigrate();
+
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing.
+	 */
 	public function preProcess(Opt_Compiler_Class $compiler)
 	{
 		$this->set('hidden', false);

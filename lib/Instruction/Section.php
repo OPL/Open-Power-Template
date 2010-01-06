@@ -38,6 +38,16 @@ class Opt_Instruction_Section extends Opt_Instruction_BaseSection
 	} // end configure();
 
 	/**
+	 * Migrates the opt:section node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function _migrateSection(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end _migrateSection();
+
+	/**
 	 * Processes the opt:section tag.
 	 * @internal
 	 * @param Opt_Xml_Element $node The recognized node.

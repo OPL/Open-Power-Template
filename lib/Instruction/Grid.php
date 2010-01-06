@@ -45,6 +45,16 @@ class Opt_Instruction_Grid extends Opt_Instruction_BaseSection
 	} // end configure();
 
 	/**
+	 * Migrates the opt:grid node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function _migrateGrid(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end _migrateGrid();
+
+	/**
 	 * Processes the opt:grid tag.
 	 * @internal
 	 * @param Opt_Xml_Element $node The recognized node.

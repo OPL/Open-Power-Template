@@ -43,6 +43,16 @@ class Opt_Instruction_Extend extends Opt_Compiler_Processor
 	} // end configure();
 
 	/**
+	 * Migrates the opt:extend node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end migrateNode();
+
+	/**
 	 * Processes the opt:extend node.
 	 * @internal
 	 * @param Opt_Xml_Node $node The recognized node.

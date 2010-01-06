@@ -1153,6 +1153,61 @@ class Opt_Compiler_Class
 	} // end _closeComments();
 
 	/*
+	 * Main migration methods
+	 */
+
+	/**
+	 * The migration launcher. Executes template parsing and template migration
+	 * process, then it saves migrated template.
+	 *
+	 * @param Opt_Xml_Node $node Node to be processed
+	 * @return Opt_
+	 */
+	public function migrate()
+	{
+		// Implement
+	} //end migrate();
+
+	protected function _migrate(Opt_Xml_Node $node)
+	{
+		//$this->_debugPrintNodes($node); exit;
+		$queue = new SplQueue;
+		$stack = new SplStack;
+
+		$queue->enqueue($node);
+		while(true)
+		{
+			$item = $queue->dequeue();
+			// Now process the node.
+			$item->preMigrate($this);
+			if($this->_newQueue !== null)
+			{
+				// Starting next level.
+				$stack->push(array($item, $queue));
+				$queue = $this->_newQueue;
+				$this->_newQueue = null;
+			}
+			else
+			{
+				$item->postProcess($this);
+			}
+
+			// Closing the current level.
+			while($queue->count() == 0)
+			{
+				if($stack->count() == 0)
+				{
+					break 2;
+				}
+				unset($queue);
+				list($item, $queue) = $stack->pop();
+				$item->postProcess($this);
+			}
+		}
+		exit;
+	} // end _migrate();
+
+	/*
 	 * Main compilation methods
 	 */
 
@@ -1228,6 +1283,11 @@ class Opt_Compiler_Class
 				{
 					$initial = memory_get_usage();
 					$tree = $parser->parse($extend, $code);
+					// Migration stage - only if backwards compatibility is on
+					if($this->_tpl->backwardCompatibility)
+					{
+						$tree = $this->_migrate($tree);
+					}
 					// Stage 2 - PHP tree processing
 					$this->_stack = null;
 					$this->_stage2($tree);
@@ -1240,6 +1300,13 @@ class Opt_Compiler_Class
 				{
 					$tree = $parser->parse($extend, $code);
 					unset($code);
+					// Migration stage - only if backward compatibility is on
+					if($this->_tpl->backwardCompatibility)
+					{
+						//$this->_debugPrintNodes($tree);
+						$this->_migrate($tree); exit;
+						//$this->_debugPrintNodes($tree);
+					}
 					// Stage 2 - PHP tree processing
 					$this->_stack = array();
 					$this->_stage2($tree);
@@ -1373,6 +1440,7 @@ class Opt_Compiler_Class
 			// And throw it forward.
 			throw $e;
 		}
+		exit;
 	} // end compile();
 
 	/**

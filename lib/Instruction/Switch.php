@@ -35,6 +35,16 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	} // end configure();
 
 	/**
+	 * Migrates the opt:switch node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function _migrateSwitch(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end _migrateSwitch();
+
+	/**
 	 * Processes the opt:switch tag.
 	 *
 	 * @param Opt_Node $node The node.

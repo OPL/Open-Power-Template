@@ -44,6 +44,16 @@ class Opt_Instruction_Foreach extends Opt_Instruction_Loop
 	} // end configure();
 
 	/**
+	 * Migrates the opt:foreach node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end migrateNode();
+
+	/**
 	 * Processes the opt:foreach node.
 	 * @internal
 	 * @param Opt_Xml_Node $node The recognized node.

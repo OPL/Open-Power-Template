@@ -55,6 +55,16 @@ class Opt_Instruction_Block extends Opt_Compiler_Processor
 	} // end configure();
 
 	/**
+	 * Migrates the opt:block node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end migrateNode();
+
+	/**
 	 * Processes the opt:block node.
 	 * @internal
 	 * @param Opt_Xml_Node $node The recognized node.

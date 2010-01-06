@@ -44,6 +44,16 @@ class Opt_Instruction_Selector extends Opt_Instruction_BaseSection
 	} // end configure();
 
 	/**
+	 * Migrates the opt:selector node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function _migrateSelector(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end _migrateSelector();
+
+	/**
 	 * Processes the opt:selector element using the section API.
 	 * @internal
 	 * @param Opt_Xml_Node $node The found element.

@@ -244,6 +244,133 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	} // end _testNode();
 
 	/**
+	 * This function is executed by the compiler before the second compilation stage,
+	 * processing. It migrates syntax from OPT 2.0 to OPT 2.1
+	 */
+	public function preMigrate(Opt_Compiler_Class $compiler)
+	{
+		if($compiler->isNamespace($this->getNamespace()))
+		{
+			$name = $this->getXmlName();
+			//$this->_processXml($compiler, false);
+
+			// Look for the processor
+			if(!is_null($processor = $compiler->isInstruction($name)))
+			{
+				$processor->migrateNode($this);
+			}
+			elseif($compiler->isComponent($name))
+			{
+				$processor = $compiler->processor('component');
+				$processor->migrateComponent($this);
+			}
+			elseif($compiler->isBlock($name))
+			{
+				$processor = $compiler->processor('block');
+				$processor->migrateBlock($this);
+			}
+
+			if(is_object($processor))
+			{
+				$this->set('hidden', false);
+				$compiler->setChildren($processor->getQueue());
+			}
+			elseif($this->get('processAll'))
+			{
+				$this->set('hidden', false);
+				$compiler->setChildren($this);
+			}
+			else
+			{
+				// Remember to set the hidden state IF AND ONLY IF
+				// it is not set.
+				$this->get('hidden') === null and $this->set('hidden', true);
+			}
+		}
+		else
+		{
+			$this->_processMigration($compiler);
+			$this->set('hidden', false);
+			if($this->hasChildren())
+			{
+				$compiler->setChildren($this);
+			}
+		}
+	} // end preMigrate();
+
+	/**
+	 * Function processes attributes and changes them to new syntax.
+	 *
+	 * @internal
+	 * @param Opt_Compiler_Class $compiler Compiler class
+	 */
+	private function _processMigration(Opt_Compiler_Class $compiler)
+	{
+		if(!$this->hasAttributes())
+		{
+			return array();
+		}
+		foreach($this->getAttributes() as $attr)
+		{
+			if($compiler->isNamespace($attr->getNamespace()))
+			{
+				switch($attr->getNamespace())
+				{
+					case 'parse':
+						$this->removeAttribute($attr->getXmlName());
+						$attr->setValue('parse:'.$attr->getValue());
+						$attr->setNamespace(null);
+						$this->addAttribute($attr);
+						break;
+					case 'str':
+						$this->removeAttribute($attr->getXmlName());
+						$attr->setValue('str:'.$attr->getValue());
+						$attr->setNamespace(null);
+						$this->addAttribute($attr);
+						break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing, after processing the child nodes.
+	 */
+	public function postMigrate(Opt_Compiler_Class $compiler)
+	{
+		/*
+		if(sizeof($this->_postprocess) > 0)
+		{
+			$this->_postprocessXml($compiler);
+		}
+		$this->_postprocess = null;
+
+		if($this->get('postprocess'))
+		{
+			if(!is_null($processor = $compiler->isInstruction($this->getXmlName())))
+			{
+				$processor->postprocessNode($this);
+			}
+			elseif($compiler->isComponent($this->getXmlName()))
+			{
+				$processor = $compiler->processor('component');
+				$processor->postprocessComponent($this);
+			}
+			elseif($compiler->isBlock($this->getXmlName()))
+			{
+				$processor = $compiler->processor('block');
+				$processor->postprocessBlock($this);
+			}
+			else
+			{
+				throw new Opt_UnknownProcessor_Exception($this->getXmlName());
+			}
+		}
+		*/
+	} // end postMigrate();
+
+	/**
 	 * This function is executed by the compiler during the second compilation stage,
 	 * processing.
 	 */

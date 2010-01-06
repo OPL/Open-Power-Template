@@ -69,6 +69,11 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 		$this->_current = array();
 	} // end reset();
 /*
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end migrateNode();
+
 	public function processNode(Opt_Xml_Node $node)
 	{
 		$name = '_process'.ucfirst($node->getName());

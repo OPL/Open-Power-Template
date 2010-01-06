@@ -104,6 +104,21 @@ class Opt_Compiler_Processor
 
 	/**
 	 * This method is called automatically for each XML element that the
+	 * processor has registered, because of backwards compatibility mode is on.
+	 * It can handle many instructions tags, and the default implementation
+	 * redirects the migrating to the private user-created methods _migrateTagName
+	 * for "opt:tagName".
+	 *
+	 * @param Opt_Xml_Node $node The node to be migrated.
+	 */
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		$name = '_migrate'.ucfirst($node->getName());
+		$this->$name($node);
+	} // end migrateNode();
+
+	/**
+	 * This method is called automatically for each XML element that the
 	 * processor has registered. It can handle many instructions tags, and
 	 * the default implementation redirects the processing to the private
 	 * user-created methods _processTagName for "opt:tagName".

@@ -68,6 +68,27 @@ class Opt_Xml_Text extends Opt_Xml_Scannable
 	} // end _testNode();
 
 	/**
+	 * This function is executed by the compiler before the second compilation stage.
+	 */
+	public function preMigrate(Opt_Compiler_Class $compiler)
+	{
+		$this->set('hidden', false);
+		if($this->hasChildren())
+		{
+			$compiler->setChildren($this);
+		}
+	} // end preMigrate();
+
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * after processing the child nodes.
+	 */
+	public function postMigrate(Opt_Compiler_Class $compiler)
+	{
+
+	} // end postMigrate();
+
+	/**
 	 * This function is executed by the compiler during the second compilation stage,
 	 * processing.
 	 */

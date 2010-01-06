@@ -49,6 +49,28 @@ class Opt_Instruction_Attribute extends Opt_Compiler_Processor
 	} // end configure();
 
 	/**
+	 * Migrates the opt:attribute instruction tag to newer syntax.
+	 * @internal
+	 * @param Opt_Xml_Node $node XML node
+	 */
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		foreach($node->getAttributes() as $attr)
+		{
+			switch($attr->getNamespace())
+			{
+				case 'str':
+					$node->removeAttribute($attr->getXmlName());
+					$attr->setValue('str:'.$attr->getValue());
+					$attr->setNamespace(null);
+					$node->addAttribute($attr);
+					break;
+			}
+		}
+		$this->_process($node);
+	}
+
+	/**
 	 * Processes the opt:attribute instruction tag.
 	 * @internal
 	 * @param Opt_Xml_Node $node XML node.

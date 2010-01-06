@@ -38,6 +38,16 @@ class Opt_Instruction_Literal extends Opt_Compiler_Processor
 	} // end configure();
 
 	/**
+	 * Migrates the opt:literal node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end migrateNode();
+
+	/**
 	 * Processes the opt:literal node.
 	 * @internal
 	 * @param Opt_Xml_Node $node The recognized node.
