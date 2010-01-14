@@ -400,9 +400,9 @@
 			if(!is_null($unknown))
 			{
 				// TODO: Add here namespace check!
-				$type = $unknown[1];
 				foreach($attrList as $name => $attr)
-				{					
+				{
+					$type = $unknown[1];
 					if(strpos($name, 'str:') === 0 && ($type == self::STRING || $type == self::EXPRESSION || $type == self::ASSIGN_EXPR))
 					{
 						$type = self::STRING;
