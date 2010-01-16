@@ -1,6 +1,10 @@
 Title: onOpen()
 ShortTitle: Opt_Block_Interface::onOpen()
+Construct: abstract method
 Reference: boolean onOpen(Array $attributes)
+Visibility: public
+Arguments:
+ - Name: $attributes | EType: array | Desc: The associative array of block tag attributes.
 SeeAlso:
  - api.opt-block-interface.on-close
 

@@ -1,7 +1,10 @@
 Title: __construct()
 ShortTitle: Opt_Compiler_Class::__construct()
+Construct: constructor
 Reference: __construct(mixed $parentObject)
-Status: constructor
+Visibility: public
+Arguments:
+ - Name: $parentObject | EType: mixed | Desc: The parent object used to import the parser configuration etc.
 
 ----
 

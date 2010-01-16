@@ -1,6 +1,8 @@
 Title: onClose()
 ShortTitle: Opt_Block_Interface::onClose()
+Construct: abstract method
 Reference: void onClose()
+Visibility: public
 SeeAlso:
  - api.opt-block-interface.on-open
 

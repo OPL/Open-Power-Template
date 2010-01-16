@@ -1,7 +1,8 @@
 Title: getName()
 ShortTitle: Opt_Compiler_Processor::getName()
+Construct: final method
 Reference: string getName()
-Status: final public
+Returns: The processor name
 
 ---
 

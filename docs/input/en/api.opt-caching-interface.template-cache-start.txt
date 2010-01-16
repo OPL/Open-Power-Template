@@ -1,7 +1,11 @@
 Title: templateCacheStart()
 ShortTitle: Opt_Caching_Interface::templateCacheStart()
+Construct: abstract method
 Reference: boolean templateCacheStart(Opt_View $view)
-Status: abstract public
+Visibility: public
+Arguments:
+ - Name: $view | Type: api.opt-view | Desc: The cached view object.
+Returns: The information whether to execute the view or not.
 
 ----
 

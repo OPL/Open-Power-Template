@@ -1,7 +1,9 @@
 Title: configure()
 ShortTitle: Opt_Compiler_Processor::configure()
+Construct: optional method
 Reference: void configure()
-Status: extendable public
+Visibility: public
+
 
 ---
 

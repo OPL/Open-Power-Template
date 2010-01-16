@@ -1,7 +1,11 @@
 Title: processAttribute()
 ShortTitle: Opt_Compiler_Processor::processAttribute()
+Construct: optional method
 Reference: void processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attribute)
-Status: extendable public
+Visibility: public
+Arguments:
+ - Name: $node | Type: api.opt-xml-node | Desc: The node with the attribute to process.
+ - Name: $attribute | Type: api.opt-xml-attribute | Desc: The attribute to process.
 SeeAlso:
  - api.opt-compiler-processor.postprocess-attribute
  - api.opt-compiler-processor.process-node

@@ -1,7 +1,10 @@
 Title: postprocessNode()
 ShortTitle: Opt_Compiler_Processor::postprocessNode()
+Construct: optional method
 Reference: void postprocessNode(Opt_Xml_Node $node)
-Status: extendable public
+Visibility: public
+Arguments:
+ - Name: $node | Type: api.opt-xml-node | Desc: The node to process.
 SeeAlso:
  - api.opt-compiler-processor.process-node
 
