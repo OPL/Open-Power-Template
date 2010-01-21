@@ -20,6 +20,28 @@
 class Opt_Cdf_CssParser
 {
 	/**
+	 * The LALR(1) grammar description for Generalized CSS.
+	 * 
+	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 * !!!! WARNING !! ACHTUNG !! POZOR !! UWAGA !!!!!
+	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 * 
+	 * DO NOT EVEN TRY TO MODIFY ANY BYTE OF THE CODE BELOW
+	 * MANUALLY OR YOU WILL BE KILLED!!! IF YOU NEED TO
+	 * EXTEND THE GENERALIZED CSS PARSER WITH NEW FEATURES,
+	 * ADD THEM TO THE GRAMMAR FILE IN /TOOLS/GENERALIZED_CSS.TXT
+	 * FILE AVAILABLE ON SVN REPOSITORY AND USE THE
+	 * /TOOLS/LALR1.PHP SCRIPT TO GENERATE A **NEW** PARSER
+	 * TABLE FROM IT!!!
+	 * 
+	 * @var array
+	 */
+	private $_grammar = array();
+
+	// End of kill-if-modified-manually-zone.
+
+
+	/**
 	 * Registers a value type that may be accepted by the parser.
 	 *
 	 * @param string $id The value type unique identifier.
@@ -40,15 +62,30 @@ class Opt_Cdf_CssParser
 	 */
 	protected function _parse($code)
 	{
-		$lexer = new Opt_Cdf_GeneralCss_Lexer($code);
-		$parser = new Opt_Cdf_GeneralCss_Parser();
-		while ($lexer->yylex())
-		{
-			if($lexer->token != 'w')
-			{
-				$parser->doParse($lexer->token, $lexer->value);
-			}
-		}
-		$parser->doParse(0, 0);
+
 	} // end _parse();
+
+	/**
+	 * The CSS lexer implementation.
+	 */
+	private function _lexer()
+	{
+
+	} // end _lexer();
+
+	/**
+	 * The CSS parser implementation.
+	 */
+	private function _parser()
+	{
+		
+	} // end _parser();
+
+	/**
+	 * Copies the common rules between the same elements.
+	 */
+	private function _linker()
+	{
+
+	} // end _linker();
 } // end Opt_Cdf_CssParser;

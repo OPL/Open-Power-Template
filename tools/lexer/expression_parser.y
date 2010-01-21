@@ -97,7 +97,7 @@ expr(res)			::= CLONE expr(ex).			{	res = $this->_expr->_objective('clone', ex, 
 
 expr(res)			::= variable(var).				{	res = $this->_expr->_compileVariable(var[0], var[1], 0);	}
 expr(res)			::= static_value(val).			{	res =  val;	}
-expr(res)			::= calculated(val).				{	res =  val;	}
+expr(res)			::= calculated(val).			{	res =  val;	}
 expr(res)			::= language_variable(val).		{	res =  val;	}
 expr(res)			::= container_creator(val).		{	res =  val;	}
 expr(res)			::= object_creator(val).			{	res =  val;	}
@@ -126,13 +126,13 @@ number(n)			::= MINUS NUMBER(val).		{ n = - val; }
 boolean(b)			::= TRUE.			{ b = 'true'; }
 boolean(b)			::= FALSE.			{ b = 'false'; }
 
-container_creator	::= LSQ_BRACKET RSQ_BRACKET.
-container_creator	::= LSQ_BRACKET container_def RSQ_BRACKET.
-container_def		::= single_container_def.
-container_def		::= single_container_def COMMA container_def.
+container_creator(res)	::= LSQ_BRACKET RSQ_BRACKET.					{	res = $this->_expr->_containerValue(null, Opt_Expression_Standard::CONTAINER_WEIGHT); }
+container_creator(res)	::= LSQ_BRACKET container_def(p) RSQ_BRACKET.	{	res = $this->_expr->_containerValue(p, Opt_Expression_Standard::CONTAINER_WEIGHT); }
+container_def(res)		::= single_container_def(def).						{	res = array(def);	}
+container_def(res)		::= single_container_def(def) COMMA container_def(r).	{	array_unshift(r, def); res = r;	}
 
-single_container_def	::= expr COLON expr.
-single_container_def	::= expr.
+single_container_def(res)	::= expr(e1) COLON expr(e2).	{	res = $this->_expr->_pair(e1, e2);	}
+single_container_def(res)	::= expr(e1).					{	res = $this->_expr->_pair(null, e1);	}
 
 script_variable(res)	::= DOLLAR IDENTIFIER(name).	{	res = $this->_expr->_prepareScriptVar(name); }
 template_variable(res)	::= AT IDENTIFIER(name).		{	res = $this->_expr->_prepareTemplateVar(name); }
@@ -180,18 +180,18 @@ object_call		::= field_call.
 method_call		::= functional.
 field_call		::= IDENTIFIER.
 
-calculated		::= function_call.
-calculated		::= object_method_call.
-calculated		::= class_method_call.
+calculated(res)		::= function_call(fc).		{	res = fc;	}
+calculated(res)		::= object_method_call(oc).	{	res = oc;	}
+calculated(res)		::= class_method_call(cc).	{	res = cc;	}
 
-function_call	::= functional.
+function_call(res)	::= functional(fun).		{	res = $this->_expr->_makeFunction(fun);	}
 
-functional		::= IDENTIFIER L_BRACKET argument_list R_BRACKET.
-functional		::= IDENTIFIER L_BRACKET container_def R_BRACKET.
-functional		::= IDENTIFIER L_BRACKET R_BRACKET.
+functional(f)	::= IDENTIFIER(s) L_BRACKET argument_list(a) R_BRACKET.	{	f = $this->_expr->_makeFunctional(s, a); }
+functional(f)	::= IDENTIFIER(s) L_BRACKET container_def(a) R_BRACKET.	{	f = $this->_expr->_makeFunctional(s, array($this->_expr->_containerValue(a, Opt_Expression_Standard::CONTAINER_WEIGHT)));	}
+functional(f)	::= IDENTIFIER(s) L_BRACKET R_BRACKET.	{	f = $this->_expr->_makeFunctional(s, array()); }
 
-argument_list	::= expr.
-argument_list	::= expr COMMA argument_list.
+argument_list(a)	::= expr(e).							{	a = array(e);	}
+argument_list(a)	::= expr(e) COMMA argument_list(nxt).	{	array_unshift(nxt, e); a = nxt; }
 
 array_call		::= simple_variable array_call_list.
 array_call_list	::= LSQ_BRACKET expr RSQ_BRACKET.

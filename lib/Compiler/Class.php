@@ -1170,7 +1170,7 @@ class Opt_Compiler_Class
 
 	protected function _migrate(Opt_Xml_Node $node)
 	{
-		//$this->_debugPrintNodes($node); exit;
+		//$this->_debugPrintNodes($node);
 		$queue = new SplQueue;
 		$stack = new SplStack;
 
@@ -1204,7 +1204,6 @@ class Opt_Compiler_Class
 				$item->postProcess($this);
 			}
 		}
-		exit;
 	} // end _migrate();
 
 	/*
@@ -1304,7 +1303,7 @@ class Opt_Compiler_Class
 					if($this->_tpl->backwardCompatibility)
 					{
 						//$this->_debugPrintNodes($tree);
-						$this->_migrate($tree); exit;
+						$this->_migrate($tree);
 						//$this->_debugPrintNodes($tree);
 					}
 					// Stage 2 - PHP tree processing
@@ -1440,7 +1439,6 @@ class Opt_Compiler_Class
 			// And throw it forward.
 			throw $e;
 		}
-		exit;
 	} // end compile();
 
 	/**

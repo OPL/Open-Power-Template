@@ -1175,7 +1175,7 @@ class Opt_View
 		if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 		{
 			list($compileName, $compileTime) = $this->_preprocess($exception);
-			if(is_null($compileName))
+			if($compileName === null)
 			{
 				return false;
 			}
@@ -1189,7 +1189,7 @@ class Opt_View
 				return false;
 			}
 		}
-
+		
 		$old = error_reporting($this->_tpl->errorReporting);
 		require($this->_tpl->compileDir.$compileName);
 		error_reporting($old);
@@ -1257,7 +1257,6 @@ class Opt_View
 				$result = file_get_contents($item);
 			}
 		}
-
 		if(is_null($result))
 		{
 			return array($compiled, $compileTime);

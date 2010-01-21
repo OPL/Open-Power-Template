@@ -1629,6 +1629,9 @@ static public $yy_action = array(
         35 => 35,
         81 => 35,
         82 => 35,
+        98 => 35,
+        99 => 35,
+        100 => 35,
         36 => 36,
         38 => 36,
         37 => 37,
@@ -1661,176 +1664,206 @@ static public $yy_action = array(
         65 => 65,
         66 => 66,
         67 => 67,
+        68 => 68,
+        69 => 69,
+        70 => 70,
+        79 => 70,
+        105 => 70,
+        71 => 71,
+        72 => 72,
+        73 => 73,
         74 => 74,
         75 => 75,
         77 => 77,
         78 => 78,
-        79 => 79,
         80 => 80,
         83 => 83,
+        101 => 101,
+        102 => 102,
+        103 => 103,
+        104 => 104,
+        106 => 106,
     );
 #line 49 "expression_parser.y"
     function yy_r0(){	$this->_retvalue = $this->_expr->_finalize($this->yystack[$this->yyidx + 0]->minor);	    }
-#line 1660 "expression_parser.php"
+#line 1675 "expression_parser.php"
 #line 50 "expression_parser.y"
     function yy_r1(){	$this->_retvalue = $this->_expr->_stdOperator('+', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::MATH_OP_WEIGHT);	    }
-#line 1663 "expression_parser.php"
+#line 1678 "expression_parser.php"
 #line 51 "expression_parser.y"
     function yy_r2(){	$this->_retvalue = $this->_expr->_stdOperator('-', $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::MATH_OP_WEIGHT);	    }
-#line 1666 "expression_parser.php"
+#line 1681 "expression_parser.php"
 #line 53 "expression_parser.y"
     function yy_r4(){	$this->_retvalue = $this->_expr->_stdOperator('*',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::MATH_OP_WEIGHT);	    }
-#line 1669 "expression_parser.php"
+#line 1684 "expression_parser.php"
 #line 54 "expression_parser.y"
     function yy_r5(){	$this->_retvalue = $this->_expr->_stdOperator('/',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::MATH_OP_WEIGHT);	    }
-#line 1672 "expression_parser.php"
+#line 1687 "expression_parser.php"
 #line 55 "expression_parser.y"
     function yy_r6(){	$this->_retvalue = $this->_expr->_stdOperator('%',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::MATH_OP_WEIGHT);	    }
-#line 1675 "expression_parser.php"
+#line 1690 "expression_parser.php"
 #line 56 "expression_parser.y"
     function yy_r7(){	$this->_retvalue = $this->_expr->_stdOperator('&&',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::LOGICAL_OP_WEIGHT);	    }
-#line 1678 "expression_parser.php"
+#line 1693 "expression_parser.php"
 #line 57 "expression_parser.y"
     function yy_r8(){	$this->_retvalue = $this->_expr->_stdOperator('||',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::LOGICAL_OP_WEIGHT);	    }
-#line 1681 "expression_parser.php"
+#line 1696 "expression_parser.php"
 #line 58 "expression_parser.y"
     function yy_r9(){	$this->_retvalue = $this->_expr->_stdOperator(' xor ',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::LOGICAL_OP_WEIGHT);	    }
-#line 1684 "expression_parser.php"
+#line 1699 "expression_parser.php"
 #line 59 "expression_parser.y"
     function yy_r10(){	$this->_retvalue = $this->_expr->_functionalOperator('pow', array( $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::FUNCTIONAL_OP_WEIGHT);	    }
-#line 1687 "expression_parser.php"
+#line 1702 "expression_parser.php"
 #line 60 "expression_parser.y"
     function yy_r11(){	$this->_retvalue = $this->_expr->_stdOperator('==',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1690 "expression_parser.php"
+#line 1705 "expression_parser.php"
 #line 61 "expression_parser.y"
     function yy_r12(){	$this->_retvalue = $this->_expr->_stdOperator('===',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1693 "expression_parser.php"
+#line 1708 "expression_parser.php"
 #line 62 "expression_parser.y"
     function yy_r13(){	$this->_retvalue = $this->_expr->_stdOperator('!=',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1696 "expression_parser.php"
+#line 1711 "expression_parser.php"
 #line 63 "expression_parser.y"
     function yy_r14(){	$this->_retvalue = $this->_expr->_stdOperator('!==',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1699 "expression_parser.php"
+#line 1714 "expression_parser.php"
 #line 64 "expression_parser.y"
     function yy_r15(){	$this->_retvalue = $this->_expr->_stdOperator('>',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1702 "expression_parser.php"
+#line 1717 "expression_parser.php"
 #line 65 "expression_parser.y"
     function yy_r16(){	$this->_retvalue = $this->_expr->_stdOperator('>=',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1705 "expression_parser.php"
+#line 1720 "expression_parser.php"
 #line 66 "expression_parser.y"
     function yy_r17(){	$this->_retvalue = $this->_expr->_stdOperator('<',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1708 "expression_parser.php"
+#line 1723 "expression_parser.php"
 #line 67 "expression_parser.y"
     function yy_r18(){	$this->_retvalue = $this->_expr->_stdOperator('<=',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1711 "expression_parser.php"
+#line 1726 "expression_parser.php"
 #line 68 "expression_parser.y"
     function yy_r19(){	$this->_retvalue = $this->_expr->_stdOperator('.',  $this->yystack[$this->yyidx + -2]->minor,  $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::CONCAT_OP_WEIGHT);	    }
-#line 1714 "expression_parser.php"
+#line 1729 "expression_parser.php"
 #line 69 "expression_parser.y"
     function yy_r20(){	$this->_retvalue = $this->_expr->_expressionOperator('contains', array($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1717 "expression_parser.php"
+#line 1732 "expression_parser.php"
 #line 70 "expression_parser.y"
     function yy_r21(){	$this->_retvalue = $this->_expr->_expressionOperator('contains_either', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1720 "expression_parser.php"
+#line 1735 "expression_parser.php"
 #line 71 "expression_parser.y"
     function yy_r22(){	$this->_retvalue = $this->_expr->_expressionOperator('contains_neither', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1723 "expression_parser.php"
+#line 1738 "expression_parser.php"
 #line 72 "expression_parser.y"
     function yy_r23(){	$this->_retvalue = $this->_expr->_expressionOperator('contains_both', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1726 "expression_parser.php"
+#line 1741 "expression_parser.php"
 #line 73 "expression_parser.y"
     function yy_r24(){	$this->_retvalue = $this->_expr->_expressionOperator('between', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), 2 * Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1729 "expression_parser.php"
+#line 1744 "expression_parser.php"
 #line 74 "expression_parser.y"
     function yy_r25(){	$this->_retvalue = $this->_expr->_expressionOperator('not_between', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), 2 * Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1732 "expression_parser.php"
+#line 1747 "expression_parser.php"
 #line 75 "expression_parser.y"
     function yy_r26(){	$this->_retvalue = $this->_expr->_expressionOperator('either', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), 2 * Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1735 "expression_parser.php"
+#line 1750 "expression_parser.php"
 #line 76 "expression_parser.y"
     function yy_r27(){	$this->_retvalue = $this->_expr->_expressionOperator('neither', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), 2 * Opt_Expression_Standard::COMPARE_OP_WEIGHT);	    }
-#line 1738 "expression_parser.php"
+#line 1753 "expression_parser.php"
 #line 77 "expression_parser.y"
     function yy_r28(){	$this->_retvalue = $this->_expr->_expressionOperator('is_in', array($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1741 "expression_parser.php"
+#line 1756 "expression_parser.php"
 #line 78 "expression_parser.y"
     function yy_r29(){	$this->_retvalue = $this->_expr->_expressionOperator('is_not_in', array($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1744 "expression_parser.php"
+#line 1759 "expression_parser.php"
 #line 79 "expression_parser.y"
     function yy_r30(){	$this->_retvalue = $this->_expr->_expressionOperator('is_either_in', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1747 "expression_parser.php"
+#line 1762 "expression_parser.php"
 #line 80 "expression_parser.y"
     function yy_r31(){	$this->_retvalue = $this->_expr->_expressionOperator('is_neither_in', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1750 "expression_parser.php"
+#line 1765 "expression_parser.php"
 #line 81 "expression_parser.y"
     function yy_r32(){	$this->_retvalue = $this->_expr->_expressionOperator('is_both_in', array($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor), Opt_Expression_Standard::DF_OP_WEIGHT);	    }
-#line 1753 "expression_parser.php"
+#line 1768 "expression_parser.php"
 #line 82 "expression_parser.y"
     function yy_r33(){	$this->_retvalue = $this->_expr->_unaryOperator('!', $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::LOGICAL_OP_WEIGHT);	    }
-#line 1756 "expression_parser.php"
+#line 1771 "expression_parser.php"
 #line 83 "expression_parser.y"
     function yy_r34(){	$this->_retvalue = $this->_expr->_package('(', $this->yystack[$this->yyidx + -1]->minor, Opt_Expression_Standard::PARENTHESES_WEIGHT);	    }
-#line 1759 "expression_parser.php"
+#line 1774 "expression_parser.php"
 #line 84 "expression_parser.y"
     function yy_r35(){	$this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
-#line 1762 "expression_parser.php"
+#line 1777 "expression_parser.php"
 #line 86 "expression_parser.y"
     function yy_r36(){	$$this->yystack[$this->yyidx + -1]->minor = $this->yystack[$this->yyidx + -1]->minor; $this->_retvalue = $this->_expr->_compileVariable($$this->yystack[$this->yyidx + -1]->minor[0], $$this->yystack[$this->yyidx + -1]->minor[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);	    }
-#line 1765 "expression_parser.php"
+#line 1780 "expression_parser.php"
 #line 87 "expression_parser.y"
     function yy_r37(){	$$this->yystack[$this->yyidx + 0]->minor = $this->yystack[$this->yyidx + 0]->minor; $this->_retvalue = $this->_expr->_compileVariable($$this->yystack[$this->yyidx + 0]->minor[0], $$this->yystack[$this->yyidx + 0]->minor[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREINCREMENT, null);	    }
-#line 1768 "expression_parser.php"
+#line 1783 "expression_parser.php"
 #line 89 "expression_parser.y"
     function yy_r39(){	$$this->yystack[$this->yyidx + 0]->minor = $this->yystack[$this->yyidx + 0]->minor; $this->_retvalue = $this->_expr->_compileVariable($$this->yystack[$this->yyidx + 0]->minor[0], $$this->yystack[$this->yyidx + 0]->minor[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREDECREMENT, null);	    }
-#line 1771 "expression_parser.php"
+#line 1786 "expression_parser.php"
 #line 90 "expression_parser.y"
     function yy_r40(){	$$this->yystack[$this->yyidx + -2]->minor = $this->yystack[$this->yyidx + -2]->minor; $this->_retvalue = $this->_expr->_compileVariable($$this->yystack[$this->yyidx + -2]->minor[0], $$this->yystack[$this->yyidx + -2]->minor[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_ASSIGN, $this->yystack[$this->yyidx + 0]->minor);	    }
-#line 1774 "expression_parser.php"
+#line 1789 "expression_parser.php"
 #line 92 "expression_parser.y"
     function yy_r42(){	$$this->yystack[$this->yyidx + -1]->minor = $this->yystack[$this->yyidx + -1]->minor; $this->_retvalue = $this->_expr->_compileVariable($$this->yystack[$this->yyidx + -1]->minor[0], $$this->yystack[$this->yyidx + -1]->minor[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_EXISTS, expr);	    }
-#line 1777 "expression_parser.php"
+#line 1792 "expression_parser.php"
 #line 94 "expression_parser.y"
     function yy_r43(){	$this->_retvalue = $this->_expr->_objective('clone', $this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::CLONE_WEIGHT);	    }
-#line 1780 "expression_parser.php"
+#line 1795 "expression_parser.php"
 #line 96 "expression_parser.y"
     function yy_r44(){	$this->_retvalue = $this->_expr->_compileVariable($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1], 0);	    }
-#line 1783 "expression_parser.php"
+#line 1798 "expression_parser.php"
 #line 97 "expression_parser.y"
     function yy_r45(){	$this->_retvalue =  $this->yystack[$this->yyidx + 0]->minor;	    }
-#line 1786 "expression_parser.php"
+#line 1801 "expression_parser.php"
 #line 103 "expression_parser.y"
     function yy_r50(){	$this->yystack[$this->yyidx + 0]->minor[0] = array($this->yystack[$this->yyidx + 0]->minor[0]); $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
-#line 1789 "expression_parser.php"
+#line 1804 "expression_parser.php"
 #line 112 "expression_parser.y"
     function yy_r57(){	$this->_retvalue = $this->_expr->_scalarValue($this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::SCALAR_WEIGHT);	    }
-#line 1792 "expression_parser.php"
+#line 1807 "expression_parser.php"
 #line 114 "expression_parser.y"
     function yy_r59(){	$this->_retvalue = $this->_expr->_backtick($this->yystack[$this->yyidx + 0]->minor, Opt_Expression_Standard::BACKTICK_WEIGHT);	    }
-#line 1795 "expression_parser.php"
+#line 1810 "expression_parser.php"
 #line 116 "expression_parser.y"
     function yy_r61(){	$this->_retvalue = $this->_expr->_scalarValue('null', Opt_Expression_Standard::SCALAR_WEIGHT);	    }
-#line 1798 "expression_parser.php"
+#line 1813 "expression_parser.php"
 #line 118 "expression_parser.y"
     function yy_r62(){ $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;     }
-#line 1801 "expression_parser.php"
+#line 1816 "expression_parser.php"
 #line 121 "expression_parser.y"
     function yy_r64(){ $this->_retvalue =  $this->yystack[$this->yyidx + 0]->minor;     }
-#line 1804 "expression_parser.php"
+#line 1819 "expression_parser.php"
 #line 122 "expression_parser.y"
     function yy_r65(){ $this->_retvalue = - $this->yystack[$this->yyidx + 0]->minor;     }
-#line 1807 "expression_parser.php"
+#line 1822 "expression_parser.php"
 #line 124 "expression_parser.y"
     function yy_r66(){ $this->_retvalue = 'true';     }
-#line 1810 "expression_parser.php"
+#line 1825 "expression_parser.php"
 #line 125 "expression_parser.y"
     function yy_r67(){ $this->_retvalue = 'false';     }
-#line 1813 "expression_parser.php"
+#line 1828 "expression_parser.php"
+#line 127 "expression_parser.y"
+    function yy_r68(){	$this->_retvalue = $this->_expr->_containerValue(null, Opt_Expression_Standard::CONTAINER_WEIGHT);     }
+#line 1831 "expression_parser.php"
+#line 128 "expression_parser.y"
+    function yy_r69(){	$this->_retvalue = $this->_expr->_containerValue($this->yystack[$this->yyidx + -1]->minor, Opt_Expression_Standard::CONTAINER_WEIGHT);     }
+#line 1834 "expression_parser.php"
+#line 129 "expression_parser.y"
+    function yy_r70(){	$this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor);	    }
+#line 1837 "expression_parser.php"
+#line 130 "expression_parser.y"
+    function yy_r71(){	array_unshift($this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -2]->minor); $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
+#line 1840 "expression_parser.php"
+#line 132 "expression_parser.y"
+    function yy_r72(){	$this->_retvalue = $this->_expr->_pair($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);	    }
+#line 1843 "expression_parser.php"
+#line 133 "expression_parser.y"
+    function yy_r73(){	$this->_retvalue = $this->_expr->_pair(null, $this->yystack[$this->yyidx + 0]->minor);	    }
+#line 1846 "expression_parser.php"
 #line 135 "expression_parser.y"
     function yy_r74(){	$this->_retvalue = $this->_expr->_prepareScriptVar($this->yystack[$this->yyidx + 0]->minor);     }
-#line 1816 "expression_parser.php"
+#line 1849 "expression_parser.php"
 #line 136 "expression_parser.y"
     function yy_r75(){	$this->_retvalue = $this->_expr->_prepareTemplateVar($this->yystack[$this->yyidx + 0]->minor);     }
-#line 1819 "expression_parser.php"
+#line 1852 "expression_parser.php"
 #line 139 "expression_parser.y"
     function yy_r77(){
 			$$this->yystack[$this->yyidx + -1]->minor = $this->yystack[$this->yyidx + -1]->minor;
@@ -1839,7 +1872,7 @@ static public $yy_action = array(
 			$this->_retvalue[0] = $this->yystack[$this->yyidx + 0]->minor;
 			$this->_retvalue[1] = '$';
 		    }
-#line 1828 "expression_parser.php"
+#line 1861 "expression_parser.php"
 #line 147 "expression_parser.y"
     function yy_r78(){
 			$$this->yystack[$this->yyidx + -1]->minor = $this->yystack[$this->yyidx + -1]->minor;
@@ -1848,16 +1881,28 @@ static public $yy_action = array(
 			$this->_retvalue[0] = $this->yystack[$this->yyidx + 0]->minor;
 			$this->_retvalue[1] = '@';
 		    }
-#line 1837 "expression_parser.php"
-#line 155 "expression_parser.y"
-    function yy_r79(){	$this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor);	    }
-#line 1840 "expression_parser.php"
+#line 1870 "expression_parser.php"
 #line 156 "expression_parser.y"
     function yy_r80(){	array_unshift($this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -1]->minor); $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
-#line 1843 "expression_parser.php"
+#line 1873 "expression_parser.php"
 #line 160 "expression_parser.y"
     function yy_r83(){	$this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;	    }
-#line 1846 "expression_parser.php"
+#line 1876 "expression_parser.php"
+#line 185 "expression_parser.y"
+    function yy_r101(){	$this->_retvalue = $this->_expr->_makeFunction($this->yystack[$this->yyidx + 0]->minor);	    }
+#line 1879 "expression_parser.php"
+#line 187 "expression_parser.y"
+    function yy_r102(){	$this->_retvalue = $this->_expr->_makeFunctional($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor);     }
+#line 1882 "expression_parser.php"
+#line 188 "expression_parser.y"
+    function yy_r103(){	$this->_retvalue = $this->_expr->_makeFunctional($this->yystack[$this->yyidx + -3]->minor, array($this->_expr->_containerValue($this->yystack[$this->yyidx + -1]->minor, Opt_Expression_Standard::CONTAINER_WEIGHT)));	    }
+#line 1885 "expression_parser.php"
+#line 189 "expression_parser.y"
+    function yy_r104(){	$this->_retvalue = $this->_expr->_makeFunctional($this->yystack[$this->yyidx + -2]->minor, array());     }
+#line 1888 "expression_parser.php"
+#line 192 "expression_parser.y"
+    function yy_r106(){	array_unshift($this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -2]->minor); $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;     }
+#line 1891 "expression_parser.php"
 
     private $_retvalue;
 
@@ -1917,7 +1962,7 @@ static public $yy_action = array(
 #line 22 "expression_parser.y"
 
 	throw new Exception('Unexpected '.$TOKEN);
-#line 1907 "expression_parser.php"
+#line 1952 "expression_parser.php"
     }
 
     function yy_accept()

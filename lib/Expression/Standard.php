@@ -36,7 +36,9 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	const DF_OP_WEIGHT = 20;
 	const INCDEC_OP_WEIGHT = 30;
 	const FUNCTIONAL_OP_WEIGHT = 30;
+	const CONTAINER_WEIGHT = 30;
 	const CLONE_WEIGHT = 50;
+	const FUNCTION_WEIGHT = 100;
 
 	const CONTEXT_READ = 0;
 	const CONTEXT_ASSIGN = 1;
@@ -359,6 +361,10 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 						throw new Opt_OperationNotSupported($path, $this->_dfCalls[$context]);
 					}
 				}
+				else
+				{
+					$format->assign('item', $item);
+				}
 				$code = $format->get('variable:'.$hook.$this->_dfCalls[$context]);
 				$localWeight = $count * self::CONTAINER_ITEM_WEIGHT;
 				if($hook == 'capture')
@@ -577,5 +583,154 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		return $expr;
 	} // end _package();
 
+	/**
+	 * Produces a container constructor.
+	 *
+	 * @param array $list The list of container items.
+	 * @param int $weight The initial container weight
+	 * @return SplFixedArray
+	 */
+	public function _containerValue($list, $weight)
+	{
+		if($list === null)
+		{
+			$obj = new SplFixedArray(2);
+			$obj[0] = 'array()';
+			$obj[1] = $weight;
+		}
+		else
+		{
+			$code = 'array(';
+			$cardinal = array();
+			$associative = array();
+			foreach($list as $item)
+			{
+				if($item[0] === null)
+				{
+					$cardinal[] = $item;
+				}
+				else
+				{
+					$associative[] = $item;
+				}
+			}
+			foreach($cardinal as $item)
+			{
+				$weight += $item[1][1];
+				$code .= $item[1][0].', ';
+			}
+			foreach($associative as $item)
+			{
+				$weight += $item[0][1] + $item[1][1];
+				$code .= $item[0][0].' => '.$item[1][0].',';
+			}
+			$obj = new SplFixedArray(2);
+			$obj[0] = $code . ')';
+			$obj[1] = $weight;
+		}
+		return $obj;
+	} // end _containerValue();
 
+	/**
+	 * Creates a pair of two elements.
+	 *
+	 * @param mixed $e1 First element.
+	 * @param mixed $e2 Second element.
+	 * @return SplFixedArray
+	 */
+	public function _pair($e1, $e2)
+	{
+		$array = new SplFixedArray(2);
+		$array[0] = $e1;
+		$array[1] = $e2;
+		return $array;
+	} // end _pair();
+
+	/**
+	 * Produces a functional which can be later used to create either
+	 * function or method call.
+	 *
+	 * @param string $identifier The function or method name.
+	 * @param array $arguments The list of arguments.
+	 * @return SplFixedArray
+	 */
+	public function _makeFunctional($identifier, array $arguments)
+	{
+		$array = new SplFixedArray(2);
+		$array[0] = (string)$identifier;
+		$array[1] = $arguments;
+
+		return $array;
+	} // end _makeFunctional();
+
+	/**
+	 * Creates a function from a functional.
+	 *
+	 * @param SplFixedArray $functional The functional to process.
+	 * @return SplFixedArray
+	 */
+	public function _makeFunction(SplFixedArray $functional)
+	{
+		if(($name = $this->_compiler->isFunction($functional[0])) === null)
+		{
+			throw new Opt_ItemNotAllowed_Exception('Function', $functional[0]);
+		}
+
+		// Determine the requested argument order.
+		if($name[0] == '#')
+		{
+			$pos = strpos($name, '#', 1);
+			if($pos === false)
+			{
+				throw new Opt_InvalidArgumentFormat_Exception($name, $token);
+			}
+			$codes = explode(',', substr($name, 1, $pos - 1));
+			$name = substr($name, $pos+1, strlen($name));
+			$newArgs = array();
+			$i = 0;
+			foreach($codes as $code)
+			{
+				$data = explode(':', $code);
+				if(!isset($functional[1][$i]))
+				{
+					if(!isset($data[1]))
+					{
+						throw new Opt_FunctionArgument_Exception($i, $name);
+					}
+					$array = new SplFixedArray(2);
+					$array[0] = $data[1];
+					$array[1] = self::SCALAR_WEIGHT;
+					$newArgs[(int)$data[0]-1] = $array;
+				}
+				else
+				{
+					$newArgs[(int)$data[0]-1] = $functional[1][$i];
+				}
+				$i++;
+			}
+			$functional[1] = $newArgs;
+		}
+		// Parse the argument list.
+
+		$code = $name.'(';
+		$weight = self::FUNCTION_WEIGHT;
+		$first = true;
+		foreach($functional[1] as $argument)
+		{
+			if(!$first)
+			{
+				$code .= ',';
+			}
+			else
+			{
+				$first = false;
+			}
+			$code .= $argument[0];
+			$weight += $argument[1];
+		}
+		$obj = new SplFixedArray(2);
+		$obj[0] = $code.')';
+		$obj[1] = $weight;
+		return $obj;
+	} // end _makeFunction();
 } // end Opt_Expression_Standard;

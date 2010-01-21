@@ -177,10 +177,11 @@ class Opt_Xml_Cdata extends Opt_Xml_Node
 			// The CDATA composed of white characters only is reduced to a single space.
 			if(ctype_space((string)$this))
 			{
-				if($wasElement)
+				// TODO: Wtf is this? Compare with OPT 2.0 code...
+				/*if($wasElement)
 				{
 					$output .= ' ';
-				}
+				}*/
 			}
 			else
 			{
