@@ -94,10 +94,10 @@ class Opt_Xml_Expression extends Opt_Xml_Node
 			$result = $compiler->parseExpression((string)$this);
 			switch($result['type'])
 			{
-				case Opt_Compiler_Class::ASSIGNMENT:
+				case Opt_Expression_Interface::ASSIGNMENT:
 					$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result['bare'].'; ');
 					break;
-				case Opt_Compiler_Class::SCALAR:
+				case Opt_Expression_Interface::SCALAR:
 					if($result['escaping'] == false)
 					{
 						$this->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $result['bare']);

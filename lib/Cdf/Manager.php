@@ -18,5 +18,13 @@
  */
 class Opt_Cdf_Manager
 {
+	public function getProperties($element)
+	{
 
+	} // end getProperties();
+
+	public function getFormat($element)
+	{
+		
+	} // end getFormat();
 } // end Opt_Cdf_Manager;

@@ -22,8 +22,11 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 {
 	const SCALAR_WEIGHT = 1;
 	const PARENTHESES_WEIGHT = 1;
+	const ARRAY_CALL_WEIGHT = 1;
 	const CONTAINER_ITEM_WEIGHT = 2;
 	const VARIABLE_WEIGHT = 2;
+	const OBJECT_FIELD_CALL_WEIGHT = 2;
+	const STATIC_FIELD_CALL_WEIGHT = 2;
 	const SECTION_ITEM_WEIGHT = 2;
 	const SECTION_VARIABLE_WEIGHT = 2;
 	const LANGUAGE_VARIABLE = 3;
@@ -38,7 +41,9 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	const FUNCTIONAL_OP_WEIGHT = 30;
 	const CONTAINER_WEIGHT = 30;
 	const CLONE_WEIGHT = 50;
+	const NEW_WEIGHT = 50;
 	const FUNCTION_WEIGHT = 100;
+	const METHOD_CALL_WEIGHT = 100;
 
 	const CONTEXT_READ = 0;
 	const CONTEXT_ASSIGN = 1;
@@ -135,11 +140,17 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		}
 		$parser->doParse(0, 0);
 
+		$exprType = Opt_Expression_Interface::COMPOUND;
+		if($this->_assign == true)
+		{
+			$exprType = Opt_Expression_Interface::ASSIGNMENT;
+		}
+		$this->_assign = false;
 		return array(
 			'bare'			=> $this->_compiled,
 			'expression'	=> $this->_compiled,
 			'complexity'	=> $this->_complexity,
-			'type'			=> Opt_Compiler_Class::COMPOUND
+			'type'			=> $exprType
 		);
 	} // end parse();
 
@@ -154,6 +165,13 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		$this->_compiled = $expression[0];
 		$this->_complexity = $expression[1];
+
+		// The last expression field is used to mark some special things,
+		// such as that we have an assignment.
+		if($expression[3] == 1)
+		{
+			$this->_assign = true;
+		}
 	} // end _finalize();
 
 	/**
@@ -165,9 +183,10 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _scalarValue($value, $weight)
 	{
-		$array = new SplFixedArray(2);
+		$array = new SplFixedArray(4);
 		$array[0] = $value;
 		$array[1] = $weight;
+		$array[3] = 0;
 
 		return $array;
 	} // end _scalarValue();
@@ -183,7 +202,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function _prepareScriptVar($name)
 	{
 		$array = new SplFixedArray(3);
-		$array[0] = $name;
+		$array[0] = array($name);
 		$array[1] = '$';
 
 		return $array;
@@ -200,7 +219,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function _prepareTemplateVar($name)
 	{
 		$array = new SplFixedArray(3);
-		$array[0] = $name;
+		$array[0] = array($name);
 		$array[1] = '@';
 
 		return $array;
@@ -216,9 +235,10 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 * @param integer $weight The expression weight
 	 * @param integer $context The variable occurence context (normal, assignment, etc.)
 	 * @param string $contextInfo The information provided by the context
+	 * @param string $extra The support for object and array calls
 	 * @return SplFixedArray
 	 */
-	public function _compileVariable(array $variable, $type, $weight, $context = 0, $contextInfo = null)
+	public function _compileVariable(array $variable, $type, $weight, $context = 0, $contextInfo = null, $extra = null)
 	{
 		$conversion = '##simplevar_';
 		$defaultFormat = null;
@@ -233,7 +253,16 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			'section'	=> null
 		);
 
-		$answer = new SplFixedArray(2);
+		$answer = new SplFixedArray(4);
+		$answer[3] = 0;
+
+		// If we have an assignment context, we must mark it in the created
+		// expression node for the _finalize() method in order to choose
+		// an appropriate expression type.
+		if($context == self::CONTEXT_ASSIGN)
+		{
+			$answer[3] = 1;
+		}
 
 		// The variable scanner
 		$proc = null;
@@ -290,7 +319,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 							{
 								throw new Opt_OperationNotSupported($name, $this->_dfCalls[$context]);
 							}
-							$section['format']->assign('value', $contextInfo);
+							$section['format']->assign('value', $contextInfo[0]);
 							$section['format']->assign('code', $code);
 
 							$code = $section['format']->get($hook);
@@ -313,7 +342,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 					if($id == $final)
 					{
 						$hook .= $this->_dfCalls[$context];
-						$section['format']->assign('value', $contextInfo);
+						$section['format']->assign('value', $contextInfo[0]);
 						$section['format']->assign('code', $code);
 						if(!$section['format']->property($hook))
 						{
@@ -353,12 +382,12 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 
 				if($context > 0)
 				{
-					$format->assign('value', $contextInfo);
+					$format->assign('value', $contextInfo[0]);
 					$format->assign('code', $code);
 
-					if(!$section['format']->property('variable:'.$hook.$this->_dfCalls[$context]))
+					if(!$format->property('variable:'.$hook.$this->_dfCalls[$context]))
 					{
-						throw new Opt_OperationNotSupported($path, $this->_dfCalls[$context]);
+						throw new Opt_OperationNotSupported_Exception($path, ltrim($this->_dfCalls[$context], '.'));
 					}
 				}
 				else
@@ -380,7 +409,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				if($id == $final)
 				{
 					$hook .= $this->_dfCalls[$context];
-					$section['format']->assign('value', $contextInfo);
+					$section['format']->assign('value', $contextInfo[0]);
 					$section['format']->assign('code', $code);
 
 					if(!$section['format']->property($hook))
@@ -414,6 +443,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		$expr1[0] = $expr1[0].' '.$operator.' '.$expr2[0];
 		$expr1[1] += $expr2[1] + $weight;
+		$expr1[3] = 0;
 
 		return $expr1;
 	} // end _stdOperator();
@@ -563,6 +593,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		}
 		$arguments[0][0] = $finalExpression;
 		$arguments[0][1] = $finalWeight;
+		$arguments[0][3] = 0;
 
 		return $arguments[0];
 	} // end _expressionOperator();
@@ -594,15 +625,18 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if($list === null)
 		{
-			$obj = new SplFixedArray(2);
+			$obj = new SplFixedArray(4);
 			$obj[0] = 'array()';
 			$obj[1] = $weight;
+			$obj[3] = 0;
 		}
 		else
 		{
 			$code = 'array(';
 			$cardinal = array();
 			$associative = array();
+
+			// Put the non-indexed elements in the first place.
 			foreach($list as $item)
 			{
 				if($item[0] === null)
@@ -624,9 +658,10 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				$weight += $item[0][1] + $item[1][1];
 				$code .= $item[0][0].' => '.$item[1][0].',';
 			}
-			$obj = new SplFixedArray(2);
+			$obj = new SplFixedArray(4);
 			$obj[0] = $code . ')';
 			$obj[1] = $weight;
+			$obj[3] = 0;
 		}
 		return $obj;
 	} // end _containerValue();
@@ -711,7 +746,6 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			$functional[1] = $newArgs;
 		}
 		// Parse the argument list.
-
 		$code = $name.'(';
 		$weight = self::FUNCTION_WEIGHT;
 		$first = true;
@@ -728,9 +762,309 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			$code .= $argument[0];
 			$weight += $argument[1];
 		}
-		$obj = new SplFixedArray(2);
+		$obj = new SplFixedArray(4);
 		$obj[0] = $code.')';
 		$obj[1] = $weight;
+		$obj[3] = 0;
 		return $obj;
 	} // end _makeFunction();
+
+	/**
+	 * Processes the object access operator from a template variable
+	 * or a container.
+	 *
+	 * @param SplFixedArray $variable The parent variable
+	 * @param string $current The object field name
+	 * @return SplFixedArray
+	 */
+	public function _buildObjectFieldDynamic(SplFixedArray $variable, $current)
+	{
+		if(!$this->_tpl->allowObjects)
+		{
+			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+		}
+
+		$variable = $this->_compileVariable($variable[0], $variable[1], 0);
+
+		$variable[0] .= '->'.(string)$current;
+		$variable[1] += self::OBJECT_FIELD_CALL_WEIGHT;
+		return $variable;
+	} // end _buildObjectFieldDynamic();
+
+	/**
+	 * Processes the object access operator from a static class.
+	 *
+	 * @param string $className The static class name
+	 * @param string $current The class field name
+	 * @return SplFixedArray
+	 */
+	public function _buildObjectFieldStatic($className, $current)
+	{
+		if(!$this->_tpl->allowObjects)
+		{
+			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+		}
+
+		if(($compiled = $this->_compiler->isClass($token)) !== null)
+		{
+			throw new Opt_ItemNotAllowed_Exception('Class', $className);
+		}
+		$variable = new SplFixedArray(2);
+		$variable[0] = $compiled.'::$'.(string)$current;
+		$variable[1] = self::STATIC_FIELD_CALL_WEIGHT;
+		return $variable;
+	} // end _buildObjectFieldStatic();
+
+	/**
+	 * Processes the object access operator from an existing PHP
+	 * call (arrays, objects, functions, methods etc.)
+	 *
+	 * @param SplFixedArray $variable The parent item
+	 * @param string $current The object field name
+	 * @return SplFixedArray
+	 */
+	public function _buildObjectFieldNext(SplFixedArray $variable, $current)
+	{
+		if(!$this->_tpl->allowObjects)
+		{
+			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+		}
+
+		$variable[0] .= '->'.(string)$current;
+		$variable[1] += self::OBJECT_FIELD_CALL_WEIGHT;
+		return $variable;
+	} // end _buildObjectFieldNext();
+
+	/**
+	 * Processes the method access operator from a template variable
+	 * or a container.
+	 *
+	 * @param SplFixedArray $variable The parent variable
+	 * @param SplFixedArray $current The method functional
+	 * @return SplFixedArray
+	 */
+	public function _buildMethodDynamic(SplFixedArray $variable, $current)
+	{
+		if(!$this->_tpl->allowObjects)
+		{
+			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+		}
+
+		$variable = $this->_compileVariable($variable[0], $variable[1], 0);
+
+		$variable[0] .= '->'.(string)$current[0].'(';
+		$first = true;
+		// Process the method arguments
+		foreach($current[1] as $item)
+		{
+			if(!$first)
+			{
+				$variable[0] .= ',';
+			}
+			else
+			{
+				$first = false;
+			}
+			$variable[0] .= $item[0];
+			$variable[1] += $item[1];
+		}
+		$variable[0] .= ')';
+		$variable[1] += self::METHOD_CALL_WEIGHT;
+		return $variable;
+	} // end _buildMethodDynamic();
+
+	/**
+	 * Processes the object access operator from a static class.
+	 *
+	 * @param string $className The static class name.
+	 * @param SplFixedArray $current The method functional.
+	 * @return SplFixedArray
+	 */
+	public function _buildMethodStatic($className, $current)
+	{
+		if(!$this->_tpl->allowObjects)
+		{
+			throw new Opt_NotSupported_Exception('direct class access', 'disabled by the configuration');
+		}
+
+		if(($compiled = $this->_compiler->isClass($token)) !== null)
+		{
+			throw new Opt_ItemNotAllowed_Exception('Class', $className);
+		}
+		$variable = new SplFixedArray(2);
+		$variable[0] = $compiled.'::'.(string)$current[0].'(';
+		$variable[1] = self::METHOD_CALL_WEIGHT;
+		$first = true;
+		// Process the method arguments
+		foreach($current[1] as $item)
+		{
+			if(!$first)
+			{
+				$variable[0] .= ',';
+			}
+			else
+			{
+				$first = false;
+			}
+			$variable[0] .= $item[0];
+			$variable[1] += $item[1];
+		}
+		$variable[0] .= ')';
+		return $variable;
+	} // end _buildMethodStatic();
+
+	/**
+	 * Processes the method access operator from another PHP
+	 * call (methods, functions, objects, arrays etc.)
+	 *
+	 * @param SplFixedArray $variable The parent item
+	 * @param SplFixedArray $current The method functional
+	 * @return SplFixedArray
+	 */
+	public function _buildMethodNext(SplFixedArray $variable, $current)
+	{
+		if(!$this->_tpl->allowObjects)
+		{
+			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+		}
+
+		$variable[0] .= '->'.(string)$current[0].'(';
+		$first = true;
+		// Process the method arguments
+		foreach($current[1] as $item)
+		{
+			if(!$first)
+			{
+				$variable[0] .= ',';
+			}
+			else
+			{
+				$first = false;
+			}
+			$variable[0] .= $item[0];
+			$variable[1] += $item[1];
+		}
+		$variable[0] .= ')';
+		$variable[1] += self::METHOD_CALL_WEIGHT;
+		return $variable;
+	} // end _buildMethodNext();
+
+	/**
+	 * Processes the array access operator from a template
+	 * variable or container.
+	 *
+	 * @param SplFixedArray $variable The parent variable
+	 * @param SplFixedArray $current The index expression
+	 * @return SplFixedArray
+	 */
+	public function _buildArrayDynamic(SplFixedArray $variable, SplFixedArray $current)
+	{
+		if(!$this->_tpl->allowArrays)
+		{
+			throw new Opt_NotSupported_Exception('direct array access', 'disabled by the configuration');
+		}
+
+		$variable = $this->_compileVariable($variable[0], $variable[1], 0);
+
+		$variable[0] .= '['.(string)$current[0].']';
+		$variable[1] += self::ARRAY_CALL_WEIGHT + $current[1];
+
+		
+		return $variable;
+	} // end _buildArrayDynamic();
+
+	/**
+	 * Processes the array access operator from another PHP call
+	 * (objects, arrays).
+	 *
+	 * @param SplFixedArray $variable The parent item
+	 * @param SplFixedArray $current The index expression
+	 * @return SplFixedArray
+	 */
+	public function _buildArrayNext(SplFixedArray $variable, SplFixedArray $current)
+	{
+		if(!$this->_tpl->allowArrays)
+		{
+			throw new Opt_NotSupported_Exception('direct array access', 'disabled by the configuration');
+		}
+
+		$variable[0] .= '['.(string)$current[0].']';
+		$variable[1] += self::ARRAY_CALL_WEIGHT + $current[1];
+		return $variable;
+	} // end _buildArrayNext();
+
+	/**
+	 * Processes some extra objective calls: cloning and creating
+	 * new objects.
+	 *
+	 * @param string $action The action: 'new' or 'clone'
+	 * @param mixed $what The action argument
+	 * @param int $weight The action weight
+	 * @return SplFixedArray
+	 */
+	public function _objective($action, $what, $weight)
+	{
+		if(!$this->_tpl->allowObjects || !$this->_tpl->allowObjectCreation)
+		{
+			throw new Opt_NotSupported_Exception('object creation', 'disabled by the configuration');
+		}
+		switch($action)
+		{
+			case 'clone':
+				$answer = $what;
+				$answer[0] = 'clone '.$answer[0];
+				$answer[1] += $weight;
+				$answer[3] = 0;
+				break;
+			case 'new':
+				if(($compiled = $this->_compiler->isClass($what[0])) === null)
+				{
+					throw new Opt_ItemNotAllowed_Exception('Class', $what[0]);
+				}
+				$answer = new SplFixedArray(4);
+				$answer[0] = 'new '.$compiled;
+				$answer[1] = $weight;
+				$answer[3] = 0;
+				
+				// Process the constructor arguments
+				if(sizeof($what[1]) > 0)
+				{
+					$answer[0] .= '(';
+					$first = true;
+					foreach($what[1] as $item)
+					{
+						if(!$first)
+						{
+							$answer[0] .= ',';
+						}
+						else
+						{
+							$first = false;
+						}
+						$answer[0] .= $item[0];
+						$answer[1] += $item[1];
+					}
+					$answer[0] .= ')';
+				}
+		}
+		return $answer;
+	} // end _objective();
+
+	/**
+	 * Compiles the assignment to a PHP call, such as object
+	 * field or array item.
+	 *
+	 * @param SplFixedArray $var The variable
+	 * @param SplFixedArray $expr The assigned expression
+	 * @param int $weight The operation weight
+	 * @return SplFixedArray
+	 */
+	public function _compilePhpAssign(SplFixedArray $var, SplFixedArray $expr, $weight)
+	{
+		$var[0] .= ' = '.$expr[0];
+		$var[1] += $weight + $expr[1];
+		$var[3] = 1;
+
+		return $var;
+	} // end _compilePhpAssign();
 } // end Opt_Expression_Standard;

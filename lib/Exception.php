@@ -281,6 +281,11 @@ class Opt_UnknownEntity_Exception extends Opt_Template_Exception
 	protected $_message = 'The entity %s is not registered in the XML parser.';
 } // end Opt_UnknownEntity_Exception;
 
+class Opt_OperationNotSupported_Exception extends Opt_Template_Exception
+{
+	protected $_message = 'The following operation on container %s is not available: %s';
+} // end Opt_OperationNotSupported_Exception;
+
 /*
  * Compiler code and API problems.
  */
@@ -439,5 +444,5 @@ class Opt_NotImplemented_Exception extends Opt_Exception
 
 class Opt_NotSupported_Exception extends Opt_Exception
 {
-	protected $_message = 'The %s is not supported: %d.';
+	protected $_message = 'The %s is not supported: %s.';
 } // end Opt_NotSupported_Exception;

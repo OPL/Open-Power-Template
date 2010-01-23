@@ -29,12 +29,6 @@ class Opt_Compiler_Class
 	const ESCAPE_OFF = false;
 	const ESCAPE_BOTH = 2;
 
-	// The expression engine control values
-	const SINGLE_VAR = 0;
-	const ASSIGNMENT = 1;
-	const SCALAR = 2;
-	const COMPOUND = 3;
-
 	// Current compilation
 	protected $_template = NULL;
 	protected $_attr = array();

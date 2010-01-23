@@ -174,8 +174,9 @@ class Opt_Class extends Opl_Class
 	public $prologRequired = true;
 	public $stripWhitespaces = true;
 	public $singleRootNode = true;
-	public $basicOOP = true;
-	public $advancedOOP = true;
+	public $allowArrays = false;
+	public $allowObjects = false;
+	public $allowObjectCreation = false;
 	public $backticks = null;
 	public $translate = null;
 	public $strictCallbacks = true;

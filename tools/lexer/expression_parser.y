@@ -89,27 +89,46 @@ expr(res)			::= variable(var) INCREMENT.		{	$var = var; res = $this->_expr->_com
 expr(res)			::= INCREMENT variable(var).		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREINCREMENT, null);	}
 expr(res)			::= variable(var) DECREMENT.		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);	}
 expr(res)			::= DECREMENT variable(var).		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREDECREMENT, null);	}
-expr(res)			::= variable(var) ASSIGN expr(expr).	{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_ASSIGN, expr);	}
+expr(res)			::= variable(var) ASSIGN expr(expr).
+{
+	if(var[1] == 0)
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_ASSIGN, expr);
+	}
+	else
+	{
+		res = $this->_expr->_compilePhpAssign(var[0][0], expr, Opt_Expression_Standard::ASSIGN_OP_WEIGHT);
+	}
+}
 expr(res)			::= variable(var) IS expr(expr).		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_ASSIGN, expr);	}
 expr(res)			::= variable(var) EXISTS.				{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_EXISTS, expr);	}
 
 expr(res)			::= CLONE expr(ex).			{	res = $this->_expr->_objective('clone', ex, Opt_Expression_Standard::CLONE_WEIGHT);	}
 
-expr(res)			::= variable(var).				{	res = $this->_expr->_compileVariable(var[0], var[1], 0);	}
-expr(res)			::= static_value(val).			{	res =  val;	}
-expr(res)			::= calculated(val).			{	res =  val;	}
-expr(res)			::= language_variable(val).		{	res =  val;	}
-expr(res)			::= container_creator(val).		{	res =  val;	}
-expr(res)			::= object_creator(val).			{	res =  val;	}
+expr(res)			::= variable(var).
+{
+	if(var[1] == 0)
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1], 0);
+	}
+	else
+	{
+		res = var[0];
+	}
+}
+expr(res)			::= static_value(val).			{	res = val;	}
+expr(res)			::= calculated(val).			{	res = val;	}
+expr(res)			::= language_variable(val).		{	res = val;	}
+expr(res)			::= container_creator(val).		{	res = val;	}
+expr(res)			::= object_creator(val).		{	res = val;	}
 
-variable(res)		::= simple_variable(val).		{	val[0] = array(val[0]); res = val;	}
-variable(res)		::= object_field_call(val).		{	res =  val;	}
-variable(res)		::= class_field_call(val).		{	res =  val;	}
-variable(res)		::= array_call(val).				{	res =  val;	}
+variable(res)		::= simple_variable(val).		{	res = array(val, 0);	}
+variable(res)		::= object_field_call(val).		{	res = array(val, 1);	}
+variable(res)		::= array_call(val).			{	res = array(val, 1);	}
 
-simple_variable(res)	::= script_variable(val).		{	res =  val;	}
-simple_variable(res)	::= template_variable(val).		{	res =  val;	}
-simple_variable(res)	::= container(val).				{	res =  val;	}
+simple_variable(res)	::= script_variable(val).		{	res =   val;	}
+simple_variable(res)	::= template_variable(val).		{	res =	val;	}
+simple_variable(res)	::= container(val).				{	res =	val;	}
 
 static_value(res)	::= number(n).				{	res = $this->_expr->_scalarValue(n, Opt_Expression_Standard::SCALAR_WEIGHT);	}
 static_value(res)	::= string(s).				{	res = $this->_expr->_scalarValue(s, Opt_Expression_Standard::SCALAR_WEIGHT);	}
@@ -141,7 +160,7 @@ container(res)			::= script_variable(var) container_call(cont).
 		{
 			$var = var;
 			array_unshift(cont, $var[0]);
-			res = new SplFixedArray(2);
+			res = new SplFixedArray(3);
 			res[0] = cont;
 			res[1] = '$';
 		}
@@ -149,7 +168,7 @@ container(res)			::= template_variable(var) container_call(cont).
 		{
 			$var = var;
 			array_unshift(cont, $var[0]);
-			res = new SplFixedArray(2);
+			res = new SplFixedArray(3);
 			res[0] = cont;
 			res[1] = '@';
 		}
@@ -161,28 +180,26 @@ single_container_call(res)	::= DOT IDENTIFIER(s).					{	res = s;	}
 single_container_call(res)	::= DOT NUMBER(n).						{	res = n;	}
 single_container_call(res)	::= DOT L_BRACKET expr(r) R_BRACKET.	{	res = r;	}
 
-object_field_call	::= variable OBJECT_OPERATOR field_call.
-object_method_call	::= variable OBJECT_OPERATOR method_call.
-object_field_call	::= variable object_call_list OBJECT_OPERATOR field_call.
-object_method_call	::= variable object_call_list OBJECT_OPERATOR method_call.
+object_field_call(res)	::= simple_variable(prev) OBJECT_OPERATOR IDENTIFIER(cur).		{	res = $this->_expr->_buildObjectFieldDynamic(prev, cur);	}
+object_field_call(res)	::= IDENTIFIER(prev) OBJECT_OPERATOR IDENTIFIER(cur).			{	res = $this->_expr->_buildObjectFieldStatic(prev, cur);	}
+object_field_call(res)	::= object_field_call(prev) OBJECT_OPERATOR IDENTIFIER(cur).	{	res = $this->_expr->_buildObjectFieldNext(prev, cur);	}
+object_field_call(res)	::= array_call(prev) OBJECT_OPERATOR IDENTIFIER(cur).		{	res = $this->_expr->_buildObjectFieldNext(prev, cur);	}
+object_field_call(res)	::= method_call(prev) OBJECT_OPERATOR IDENTIFIER(cur).			{	res = $this->_expr->_buildObjectFieldNext(prev, cur);	}
+object_field_call(res)	::= function_call(prev) OBJECT_OPERATOR IDENTIFIER(cur).				{	res = $this->_expr->_buildObjectFieldNext(prev, cur);	}
 
-class_field_call	::= IDENTIFIER OBJECT_OPERATOR field_call.
-class_method_call	::= IDENTIFIER OBJECT_OPERATOR method_call.
-class_field_call	::= IDENTIFIER object_call_list OBJECT_OPERATOR field_call.
-class_method_call	::= IDENTIFIER object_call_list OBJECT_OPERATOR method_call.
+method_call(res)	::= simple_variable(prev) OBJECT_OPERATOR functional(cur).		{	res = $this->_expr->_buildMethodDynamic(prev, cur);	}
+method_call(res)	::= IDENTIFIER(prev) OBJECT_OPERATOR functional(cur).			{	res = $this->_expr->_buildMethodStatic(prev, cur);	}
+method_call(res)	::= object_field_call(prev) OBJECT_OPERATOR functional(cur).	{	res = $this->_expr->_buildMethodNext(prev, cur);	}
+method_call(res)	::= array_call(prev) OBJECT_OPERATOR functional(cur).		{	res = $this->_expr->_buildMethodNext(prev, cur);	}
+method_call(res)	::= method_call(prev) OBJECT_OPERATOR functional(cur).			{	res = $this->_expr->_buildMethodNext(prev, cur);	}
+method_call(res)	::= function_call(prev) OBJECT_OPERATOR functional(cur).				{	res = $this->_expr->_buildMethodNext(prev, cur);	}
 
-object_call_list	::= OBJECT_OPERATOR object_call.
-object_call_list	::= object_call_list OBJECT_OPERATOR object_call.
-
-object_call		::= method_call.
-object_call		::= field_call.
-
-method_call		::= functional.
-field_call		::= IDENTIFIER.
+array_call(res)	::= simple_variable(prev) LSQ_BRACKET expr(cur) RSQ_BRACKET.	{	res = $this->_expr->_buildArrayDynamic(prev, cur);	}
+array_call(res)	::= array_call(prev) LSQ_BRACKET expr(cur) RSQ_BRACKET.			{	res = $this->_expr->_buildArrayNext(prev, cur);	}
+array_call(res)	::= object_field_call(prev) LSQ_BRACKET expr(cur) RSQ_BRACKET.	{	res = $this->_expr->_buildArrayNext(prev, cur);	}
 
 calculated(res)		::= function_call(fc).		{	res = fc;	}
-calculated(res)		::= object_method_call(oc).	{	res = oc;	}
-calculated(res)		::= class_method_call(cc).	{	res = cc;	}
+calculated(res)		::= method_call(oc).	{	res = oc;	}
 
 function_call(res)	::= functional(fun).		{	res = $this->_expr->_makeFunction(fun);	}
 
@@ -193,9 +210,5 @@ functional(f)	::= IDENTIFIER(s) L_BRACKET R_BRACKET.	{	f = $this->_expr->_makeFu
 argument_list(a)	::= expr(e).							{	a = array(e);	}
 argument_list(a)	::= expr(e) COMMA argument_list(nxt).	{	array_unshift(nxt, e); a = nxt; }
 
-array_call		::= simple_variable array_call_list.
-array_call_list	::= LSQ_BRACKET expr RSQ_BRACKET.
-array_call_list	::= LSQ_BRACKET expr RSQ_BRACKET array_call_list.
-
-object_creator	::= NEW IDENTIFIER.
-object_creator	::= NEW IDENTIFIER L_BRACKET argument_list R_BRACKET.
+object_creator(res)	::= NEW IDENTIFIER(id).											{	res = $this->_expr->_objective('new', array(id, array()), Opt_Expression_Standard::NEW_WEIGHT); }
+object_creator(res)	::= NEW IDENTIFIER(id) L_BRACKET argument_list(args) R_BRACKET.	{	res = $this->_expr->_objective('new', array(id, args), Opt_Expression_Standard::NEW_WEIGHT); }

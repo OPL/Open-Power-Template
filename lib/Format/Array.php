@@ -27,7 +27,7 @@ class Opt_Format_Array extends Opt_Compiler_Format
 	protected $_properties = array(
 		'section:useReference' => true,
 		'section:anyRequests' => 'ancestorNumbers',
-		'variable:assign' => true,
+		'variable:item.assign' => true,
 		'variable:useReference' => true,
 		'item:assign' => true,
 		'item:useReference' => true,
@@ -218,7 +218,7 @@ class Opt_Format_Array extends Opt_Compiler_Format
 		//		{
 		//			return 'self::$_global[\''.$item.'\']';
 		//		}
-			case 'variable:assign':
+			case 'variable:item.assign':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
 				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)

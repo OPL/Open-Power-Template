@@ -20,6 +20,12 @@
  */
 interface Opt_Expression_Interface
 {
+	// The expression engine control values
+	const SINGLE_VAR = 0;
+	const ASSIGNMENT = 1;
+	const SCALAR = 2;
+	const COMPOUND = 3;
+
 	/**
 	 * The compiler uses this method to send itself to the expression engine.
 	 *
