@@ -1673,8 +1673,8 @@ class Opt_Compiler_Class
 
 		return array(0 =>
 			$expression['escaped'],
-			$expression['type'] == Opt_Compiler_Class::ASSIGNMENT,
-			$expression['type'] == Opt_Compiler_Class::SINGLE_VAR,
+			$expression['type'] == Opt_Expression_Interface::ASSIGNMENT,
+			$expression['type'] == Opt_Expression_Interface::SINGLE_VAR,
 			$expression['bare']
 		);
 	} // end compileExpression();

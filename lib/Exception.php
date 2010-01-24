@@ -218,7 +218,7 @@ class Opt_EngineNotExists_Exception extends Opt_Template_Exception
 
 class Opt_Expression_Exception extends Opt_Template_Exception
 {
-	protected $_message = 'Unexpected token: %s (%s) in expression %s';
+	protected $_message = 'Unexpected token: %s in expression %s';
 } // end Opt_Expression_Exception;
 
 class Opt_EmptyExpression_Exception extends Opt_Template_Exception

@@ -195,8 +195,7 @@ class Opt_Expression_Standard_Lexer
                     // skip this token
                     continue;
                 }            } else {
-                throw new Exception('Unexpected input at line' . $this->_line .
-                    ': ' . $this->_data[$this->_counter]);
+                throw new Opt_Expression_Exception($this->_data[$this->_counter], $this->_data);
             }
             break;
         } while (true);

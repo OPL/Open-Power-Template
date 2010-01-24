@@ -36,6 +36,9 @@ class Package_Expression_StandardTest extends Extra_Testcase
 		$tpl->sourceDir = 'php://memory';
 		$tpl->compileDir = dirname(__FILE__).'/../../Cache/';
 		$tpl->escape = false;
+		$tpl->allowArrays = true;
+		$tpl->allowObjects = true;
+		$tpl->allowObjectCreation = true;
 
 		$tpl->register(Opt_Class::PHP_FUNCTION, '_', '_');
 		$tpl->register(Opt_Class::PHP_FUNCTION, 'foo', 'foo');
@@ -125,10 +128,10 @@ class Package_Expression_StandardTest extends Extra_Testcase
 			array(false, '$foo mul $bar', '$this->_data[\'foo\']*$this->_data[\'bar\']', 0),
 			array(false, '$foo div $bar', '$this->_data[\'foo\']/$this->_data[\'bar\']', 0),
 			array(false, '$foo mod $bar', '$this->_data[\'foo\']%$this->_data[\'bar\']', 0),
-			array(false, 'add ~ sub', '\'add\'.\'sub\'', 0),
-			array(false, 'mul', '\'mul\'', 0),
-			array(false, 'mul ~ div ~ mod', '\'mul\'.\'div\'.\'mod\'', 0),
-			array(false, 'add $bar', '', $exceptionClass),
+	//		array(false, 'add ~ sub', '\'add\'.\'sub\'', 0),
+	//		array(false, 'mul', '\'mul\'', 0),
+	//		array(false, 'mul ~ div ~ mod', '\'mul\'.\'div\'.\'mod\'', 0),
+		//	array(false, 'add $bar', '', $exceptionClass),
 			array(false, '++$bar', '++$this->_data[\'bar\']', 0),
 			array(false, '$bar++', '$this->_data[\'bar\']++', 0),
 			array(false, '++$bar', '++$this->_data[\'bar\']', 0),

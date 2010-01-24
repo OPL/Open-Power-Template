@@ -22,7 +22,7 @@
 }
 
 %syntax_error {
-	throw new Exception('Unexpected '.$TOKEN);
+	throw new Opt_Expression_Exception($TOKEN, $this->_expr->getExpression());
 }
 
 %left	AND.
@@ -82,13 +82,53 @@ cexpr(res)			::= expr(ex1) IS_EITHER_IN expr(ex2) OR expr(ex3).			{	res = $this-
 cexpr(res)			::= expr(ex1) IS_NEITHER_IN expr(ex2) NOR expr(ex3).		{	res = $this->_expr->_expressionOperator('is_neither_in', array(ex1, ex2, ex3), Opt_Expression_Standard::DF_OP_WEIGHT);	}
 cexpr(res)			::= expr(ex1) IS_BOTH_IN expr(ex2) AND expr(ex3).			{	res = $this->_expr->_expressionOperator('is_both_in', array(ex1, ex2, ex3), Opt_Expression_Standard::DF_OP_WEIGHT);	}
 expr(res)			::= NOT expr(ex).					{	res = $this->_expr->_unaryOperator('!', ex, Opt_Expression_Standard::LOGICAL_OP_WEIGHT);	}
+expr(res)			::= MINUS expr(ex).					{	res = $this->_expr->_unaryOperator('-', ex, Opt_Expression_Standard::LOGICAL_OP_WEIGHT);	}
 expr(res)			::= L_BRACKET expr(ex) R_BRACKET.	{	res = $this->_expr->_package('(', ex, Opt_Expression_Standard::PARENTHESES_WEIGHT);	}
 expr(res)			::= cexpr(ex).						{	res = ex;	}
-
-expr(res)			::= variable(var) INCREMENT.		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);	}
-expr(res)			::= INCREMENT variable(var).		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREINCREMENT, null);	}
-expr(res)			::= variable(var) DECREMENT.		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);	}
-expr(res)			::= DECREMENT variable(var).		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1], Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREDECREMENT, null);	}
+expr(res)			::= variable(var) INCREMENT.
+{
+	if(var[1] == 0)
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);
+	}
+	else
+	{
+		res = $this->_expr->_compilePhpOperation('postincrement', var[0], null, Opt_Expression_Standard::INCDEC_OP_WEIGHT);
+	}
+}
+expr(res)			::= INCREMENT variable(var).
+{
+	if(var[1] == 0)
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREINCREMENT, null);
+	}
+	else
+	{
+		res = $this->_expr->_compilePhpOperation('preincrement', var[0], null, Opt_Expression_Standard::INCDEC_OP_WEIGHT);
+	}
+}
+expr(res)			::= variable(var) DECREMENT.
+{
+	if(var[1] == 0)
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);
+	}
+	else
+	{
+		res = $this->_expr->_compilePhpOperation('postdecrement', var[0], null, Opt_Expression_Standard::INCDEC_OP_WEIGHT);
+	}
+}
+expr(res)			::= DECREMENT variable(var).
+{
+	if(var[1] == 0)
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_PREDECREMENT, null);
+	}
+	else
+	{
+		res = $this->_expr->_compilePhpOperation('predecrement', var[0], null, Opt_Expression_Standard::INCDEC_OP_WEIGHT);
+	}
+}
 expr(res)			::= variable(var) ASSIGN expr(expr).
 {
 	if(var[1] == 0)
@@ -97,11 +137,21 @@ expr(res)			::= variable(var) ASSIGN expr(expr).
 	}
 	else
 	{
-		res = $this->_expr->_compilePhpAssign(var[0][0], expr, Opt_Expression_Standard::ASSIGN_OP_WEIGHT);
+		res = $this->_expr->_compilePhpOperation('assign', var[0], expr, Opt_Expression_Standard::ASSIGN_OP_WEIGHT);
 	}
 }
-expr(res)			::= variable(var) IS expr(expr).		{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_ASSIGN, expr);	}
-expr(res)			::= variable(var) EXISTS.				{	$var = var; res = $this->_expr->_compileVariable($var[0], $var[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_EXISTS, expr);	}
+expr(res)			::= variable(var) IS expr(expr).
+{
+	if(var[1] == 0)
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_ASSIGN, expr);
+	}
+	else
+	{
+		res = $this->_expr->_compilePhpOperation('assign', var[0], expr, Opt_Expression_Standard::ASSIGN_OP_WEIGHT);
+	}
+}
+expr(res)			::= variable(var) EXISTS.				{	res = $this->_expr->_compileVariable(var[0], var[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_EXISTS, expr);	}
 
 expr(res)			::= CLONE expr(ex).			{	res = $this->_expr->_objective('clone', ex, Opt_Expression_Standard::CLONE_WEIGHT);	}
 
@@ -145,6 +195,12 @@ number(n)			::= MINUS NUMBER(val).		{ n = - val; }
 boolean(b)			::= TRUE.			{ b = 'true'; }
 boolean(b)			::= FALSE.			{ b = 'false'; }
 
+// Note - this HAS to be above container_creator, otherwise
+// there are lots of balls with function calls.
+
+argument_list(a)	::= expr(e).							{	a = array(e);	}
+argument_list(a)	::= expr(e) COMMA argument_list(nxt).	{	array_unshift(nxt, e); a = nxt; }
+
 container_creator(res)	::= LSQ_BRACKET RSQ_BRACKET.					{	res = $this->_expr->_containerValue(null, Opt_Expression_Standard::CONTAINER_WEIGHT); }
 container_creator(res)	::= LSQ_BRACKET container_def(p) RSQ_BRACKET.	{	res = $this->_expr->_containerValue(p, Opt_Expression_Standard::CONTAINER_WEIGHT); }
 container_def(res)		::= single_container_def(def).						{	res = array(def);	}
@@ -155,19 +211,17 @@ single_container_def(res)	::= expr(e1).					{	res = $this->_expr->_pair(null, e1
 
 script_variable(res)	::= DOLLAR IDENTIFIER(name).	{	res = $this->_expr->_prepareScriptVar(name); }
 template_variable(res)	::= AT IDENTIFIER(name).		{	res = $this->_expr->_prepareTemplateVar(name); }
-language_variable(res)	::= DOLLAR IDENTIFIER(group) AT IDENTIFIER(id).
+language_variable(res)	::= DOLLAR IDENTIFIER(group) AT IDENTIFIER(id).	{	res = $this->_expr->_compileLanguageVar(group, id, Opt_Expression_Standard::LANGUAGE_VARIABLE_WEIGHT); }
 container(res)			::= script_variable(var) container_call(cont).
 		{
-			$var = var;
-			array_unshift(cont, $var[0]);
+			array_unshift(cont, var[0]);
 			res = new SplFixedArray(3);
 			res[0] = cont;
 			res[1] = '$';
 		}
 container(res)			::= template_variable(var) container_call(cont).
 		{
-			$var = var;
-			array_unshift(cont, $var[0]);
+			array_unshift(cont, var[0]);
 			res = new SplFixedArray(3);
 			res[0] = cont;
 			res[1] = '@';
@@ -203,12 +257,9 @@ calculated(res)		::= method_call(oc).	{	res = oc;	}
 
 function_call(res)	::= functional(fun).		{	res = $this->_expr->_makeFunction(fun);	}
 
-functional(f)	::= IDENTIFIER(s) L_BRACKET argument_list(a) R_BRACKET.	{	f = $this->_expr->_makeFunctional(s, a); }
 functional(f)	::= IDENTIFIER(s) L_BRACKET container_def(a) R_BRACKET.	{	f = $this->_expr->_makeFunctional(s, array($this->_expr->_containerValue(a, Opt_Expression_Standard::CONTAINER_WEIGHT)));	}
+functional(f)	::= IDENTIFIER(s) L_BRACKET argument_list(a) R_BRACKET.	{	f = $this->_expr->_makeFunctional(s, a); }
 functional(f)	::= IDENTIFIER(s) L_BRACKET R_BRACKET.	{	f = $this->_expr->_makeFunctional(s, array()); }
-
-argument_list(a)	::= expr(e).							{	a = array(e);	}
-argument_list(a)	::= expr(e) COMMA argument_list(nxt).	{	array_unshift(nxt, e); a = nxt; }
 
 object_creator(res)	::= NEW IDENTIFIER(id).											{	res = $this->_expr->_objective('new', array(id, array()), Opt_Expression_Standard::NEW_WEIGHT); }
 object_creator(res)	::= NEW IDENTIFIER(id) L_BRACKET argument_list(args) R_BRACKET.	{	res = $this->_expr->_objective('new', array(id, args), Opt_Expression_Standard::NEW_WEIGHT); }

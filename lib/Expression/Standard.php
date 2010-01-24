@@ -29,7 +29,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	const STATIC_FIELD_CALL_WEIGHT = 2;
 	const SECTION_ITEM_WEIGHT = 2;
 	const SECTION_VARIABLE_WEIGHT = 2;
-	const LANGUAGE_VARIABLE = 3;
+	const LANGUAGE_VARIABLE_WEIGHT = 3;
 	const MATH_OP_WEIGHT = 5;
 	const LOGICAL_OP_WEIGHT = 5;
 	const COMPARE_OP_WEIGHT = 5;
@@ -107,6 +107,12 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	protected $_unique = 0;
 
 	/**
+	 * The expression body.
+	 * @var string
+	 */
+	protected $_expression;
+
+	/**
 	 * Sets the compiler instance in the expression parser.
 	 *
 	 * @param Opt_Compiler_Class $compiler The compiler object
@@ -128,6 +134,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function parse($expr)
 	{
 		$this->_unique = 0;
+		$this->_expression = $expr;
 
 		$lexer = new Opt_Expression_Standard_Lexer($expr);
 		$parser = new Opt_Expression_Standard_Parser($this);
@@ -153,6 +160,16 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			'type'			=> $exprType
 		);
 	} // end parse();
+
+	/**
+	 * Returns the expression body for debugging purposes.
+	 *
+	 * @return string
+	 */
+	public function getExpression()
+	{
+		return $this->_expression;
+	} // end getExpression();
 
 	/**
 	 * Finalizes the expression parsing. Side effects: the compilation
@@ -224,6 +241,28 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 
 		return $array;
 	} // end _prepareTemplateVar();
+
+	/**
+	 * Compiles a language variable.
+	 * @param string $group The group name
+	 * @param string $id The message ID name
+	 * @param int $weight The token weight
+	 * @return SplFixedArray
+	 */
+	public function _compileLanguageVar($group, $id, $weight)
+	{
+		if($this->_tpl->getTranslationInterface() == null)
+		{
+			throw new Opt_NotSupported_Exception('language variable call', 'no translation interface installed');
+		}
+
+		$array = new SplFixedArray(4);
+		$array[0] = '$this->_tf->_(\''.$group.'\',\''.$id.'\')';
+		$array[1] = $weight;
+		$array[3] = 0;
+
+		return $array;
+	} // end _compileLanguageVar();
 
 	/**
 	 * Compiles the variable call in the specified context. It processes the containers,
@@ -379,7 +418,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				{
 					$hook = 'item';
 				}
-
+				$format->assign('item', $item);
 				if($context > 0)
 				{
 					$format->assign('value', $contextInfo[0]);
@@ -389,10 +428,6 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 					{
 						throw new Opt_OperationNotSupported_Exception($path, ltrim($this->_dfCalls[$context], '.'));
 					}
-				}
-				else
-				{
-					$format->assign('item', $item);
 				}
 				$code = $format->get('variable:'.$hook.$this->_dfCalls[$context]);
 				$localWeight = $count * self::CONTAINER_ITEM_WEIGHT;
@@ -441,12 +476,29 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _stdOperator($operator, SplFixedArray $expr1, SplFixedArray $expr2, $weight)
 	{
-		$expr1[0] = $expr1[0].' '.$operator.' '.$expr2[0];
+		$expr1[0] = $expr1[0].$operator.$expr2[0];
 		$expr1[1] += $expr2[1] + $weight;
 		$expr1[3] = 0;
 
 		return $expr1;
 	} // end _stdOperator();
+
+	/**
+	 * Processes an unary operator for a single expression.
+	 *
+	 * @param string $operator The PHP operator
+	 * @param SplFixedArray $expr The expression
+	 * @param int $weight The operator weight
+	 * @return SplFixedArray
+	 */
+	public function _unaryOperator($operator, SplFixedArray $expr, $weight)
+	{
+		$expr[0] = $operator.$expr[0];
+		$expr[1] += $weight;
+		$expr[3] = 0;
+
+		return $expr;
+	} // end _unaryOperator();
 
 	/**
 	 * The compound expression operator parsing.
@@ -809,9 +861,10 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		{
 			throw new Opt_ItemNotAllowed_Exception('Class', $className);
 		}
-		$variable = new SplFixedArray(2);
+		$variable = new SplFixedArray(4);
 		$variable[0] = $compiled.'::$'.(string)$current;
 		$variable[1] = self::STATIC_FIELD_CALL_WEIGHT;
+		$variable[3] = 0;
 		return $variable;
 	} // end _buildObjectFieldStatic();
 
@@ -887,11 +940,11 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			throw new Opt_NotSupported_Exception('direct class access', 'disabled by the configuration');
 		}
 
-		if(($compiled = $this->_compiler->isClass($token)) !== null)
+		if(($compiled = $this->_compiler->isClass($className)) === null)
 		{
 			throw new Opt_ItemNotAllowed_Exception('Class', $className);
 		}
-		$variable = new SplFixedArray(2);
+		$variable = new SplFixedArray(4);
 		$variable[0] = $compiled.'::'.(string)$current[0].'(';
 		$variable[1] = self::METHOD_CALL_WEIGHT;
 		$first = true;
@@ -910,6 +963,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			$variable[1] += $item[1];
 		}
 		$variable[0] .= ')';
+		$variable[3] = 0;
 		return $variable;
 	} // end _buildMethodStatic();
 
@@ -1051,19 +1105,45 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	} // end _objective();
 
 	/**
-	 * Compiles the assignment to a PHP call, such as object
+	 * Compiles the operation on a PHP call, such as object
 	 * field or array item.
 	 *
+	 * @param string $operation The operation to perform
 	 * @param SplFixedArray $var The variable
 	 * @param SplFixedArray $expr The assigned expression
 	 * @param int $weight The operation weight
 	 * @return SplFixedArray
 	 */
-	public function _compilePhpAssign(SplFixedArray $var, SplFixedArray $expr, $weight)
+	public function _compilePhpOperation($operation, SplFixedArray $var, $expr, $weight)
 	{
-		$var[0] .= ' = '.$expr[0];
-		$var[1] += $weight + $expr[1];
-		$var[3] = 1;
+		switch($operation)
+		{
+			case' assign':
+				$var[0] .= ' = '.$expr[0];
+				$var[1] += $weight + $expr[1];
+				$var[3] = 1;
+				break;
+			case 'preincrement':
+				$var[0] = '++'.$var[0];
+				$var[1] += $weight;
+				$var[3] = 0;
+				break;
+			case 'postincrement':
+				$var[0] .= '++';
+				$var[1] += $weight;
+				$var[3] = 0;
+				break;
+			case 'predecrement':
+				$var[0] = '--'.$var[0];
+				$var[1] += $weight;
+				$var[3] = 0;
+				break;
+			case 'postdecrement':
+				$var[0] .= $var[0].'--';
+				$var[1] += $weight;
+				$var[3] = 0;
+				break;
+		}
 
 		return $var;
 	} // end _compilePhpAssign();

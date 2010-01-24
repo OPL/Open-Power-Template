@@ -33,5 +33,9 @@ $comment = <<<'EOF'
 EOF;
 
 file_put_contents('../../lib/Expression/Standard/Parser.php', str_replace('<'.'?php', '<'."?php\r\n".$comment, file_get_contents('./expression_parser.php')));
-copy('expression_lexer.php', '../../lib/Expression/Standard/Lexer.php');
+
+
+
+file_put_contents('../../lib/Expression/Standard/Lexer.php', preg_replace('/throw new Exception\(\'Unexpected input at line\' \. (\$this\-\>_line) \.
+                    \'\: \' \. (\$this\-\>_data\[\$this\-\>_counter\])\)\;/', 'throw new Opt_Expression_Exception($2, $this->_data);', file_get_contents('expression_lexer.php')));
 echo "\n\nSUCCESS\n\n";
