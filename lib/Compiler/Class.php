@@ -175,6 +175,11 @@ class Opt_Compiler_Class
 	 */
 	protected $_inheritance;
 
+	/**
+	 * The CDF manager instance
+	 * @var Opt_Cdf_Manager
+	 */
+	protected $_cdfManager;
 
 	// Help fields
 	private $_charset = null;
@@ -394,6 +399,23 @@ class Opt_Compiler_Class
 	} // end escape();
 
 	/**
+	 * Returns the CDF manager.
+	 *
+	 * @return Opt_Cdf_Manager
+	 */
+	public function getCdfManager()
+	{
+		if($this->_cdfManager === null)
+		{
+			$this->_cdfManager = new Opt_Cdf_Manager(
+				$tpl->_getList('_formats')
+			);
+		}
+
+		return $this->_cdfManager;
+	} // end getCdfManager();
+
+	/**
 	 * Returns the format object for the specified variable.
 	 *
 	 * @param String $variable The variable identifier.
@@ -402,6 +424,7 @@ class Opt_Compiler_Class
 	 */
 	public function getFormat($variable, $restore = false)
 	{
+		// TODO: REIMPLEMENT!!!
 		$hc = self::DEFAULT_FORMAT_CLASS;
 		if(isset($this->_formatInfo[$variable]))
 		{
@@ -429,6 +452,7 @@ class Opt_Compiler_Class
 	 */
 	public function createFormat($variable, $hc)
 	{
+		// TODO: REIMPLEMENT!!!
 		// Decorate the objects, if necessary
 		$expanded = explode('/', $hc);
 		$obj = null;

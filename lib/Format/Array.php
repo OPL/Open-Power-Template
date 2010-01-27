@@ -28,8 +28,16 @@ class Opt_Format_Array extends Opt_Compiler_Format
 		'section:useReference' => true,
 		'section:anyRequests' => 'ancestorNumbers',
 		'variable:item.assign' => true,
+		'variable:item.preincrement' => true,
+		'variable:item.postincrement' => true,
+		'variable:item.predecrement' => true,
+		'variable:item.postdecrement' => true,
 		'variable:useReference' => true,
-		'item:assign' => true,
+		'item:item.assign' => true,
+		'item:item.preincrement' => true,
+		'item:item.postincrement' => true,
+		'item:item.predecrement' => true,
+		'item:item.postdecrement' => true,
 		'item:useReference' => true,
 		'section:itemAssign' => false,
 		'section:variableAssign' => true
@@ -229,6 +237,18 @@ class Opt_Format_Array extends Opt_Compiler_Format
 				{
 					return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
 				}
+			case 'variable:item.preincrement':
+			case 'item:item.preincrement':
+				return '++'.$this->_getVar('code');
+			case 'variable:item.postincrement':
+			case 'item:item.postincrement':
+				return $this->_getVar('code').'++';
+			case 'variable:item.predecrement':
+			case 'item:item.predecrement':
+				return '--'.$this->_getVar('code');
+			case 'variable:item.postdecrement':
+			case 'item:item.postdecrement':
+				return $this->_getVar('code').'--';
 			case 'item:item':
 				return '[\''.$this->_getVar('item').'\']';
 			case 'item:assign':
