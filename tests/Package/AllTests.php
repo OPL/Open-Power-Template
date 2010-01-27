@@ -40,6 +40,8 @@ class Package_AllTests extends PHPUnit_Framework_TestSuite
 		$suite->addTestSuite(Package_Expression_AllTests::suite());
 		$suite->addTestSuite(Package_Language_AllTests::suite());
 
+		$suite->addTestSuite(Package_Cdf_AllTests::suite());
+
 		return $suite;
 	} // end suite();
 

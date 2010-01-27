@@ -523,7 +523,7 @@ class Opt_Compiler_Processor
 					$result = $this->_compiler->parseExpression($value, $exprType);
 				}
 
-				if($result['type'] == Opt_Compiler_Class::ASSIGNMENT && $type != self::ASSIGN_EXPR)
+				if($result['type'] == Opt_Expression_Interface::ASSIGNMENT && $type != self::ASSIGN_EXPR)
 				{
 					Opt_ExpressionOptionDisabled_Exception('Assignments', 'compiler requirements');
 				}

@@ -45,6 +45,6 @@ class Opt_Expression_String implements Opt_Expression_Interface
 	public function parse($expression)
 	{
 		$expression = '\''.addslashes($expression).'\'';
-		return array('bare' => $expression, 'escaped' => $expression, 'type' => Opt_Compiler_Class::SCALAR);
+		return array('bare' => $expression, 'escaped' => $expression, 'type' => Opt_Expression_Interface::SCALAR);
 	} // end parse();
 } // end Opt_Expression_String;

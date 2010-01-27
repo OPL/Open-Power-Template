@@ -196,6 +196,11 @@ class Opt_FormatNotFound_Exception extends Opt_Template_Exception
 	protected $_message = 'Error parsing %s: the format %s not found.';
 } // end Opt_FormatNotFound_Exception;
 
+class Opt_NoMatchingFormat_Exception extends Opt_Template_Exception
+{
+	protected $_message = 'No matching format for the element %s.';
+} // end Opt_NoMatchingFormat_Exception;
+
 class Opt_FormatNotSupported_Exception extends Opt_Template_Exception
 {
 	protected $_message = 'The format %s does not support %s.';

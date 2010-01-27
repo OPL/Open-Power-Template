@@ -31,13 +31,31 @@ class Opt_Cdf_Manager
 	private $_resolved;
 
 	/**
+	 * The selected default locator.
+	 * @var Opt_Cdf_Locator_Interface
+	 */
+	private $_locator;
+
+	/**
+	 * The list of available data formats.
+	 * @var array
+	 */
+	private $_formats;
+
+	/**
+	 * The main template engine class.
+	 * @var Opt_Class
+	 */
+
+	/**
 	 * Creates a new CDF manager instance.
 	 *
 	 * @param array $formatList The list of data formats from the public API.
 	 */
-	public function __construct(array $formatList)
+	public function __construct($tpl, array $formatList)
 	{
-		
+		$this->_tpl = $tpl;
+		$this->_formats = $formatList;
 	} // end __construct();
 
 	/**
@@ -47,7 +65,7 @@ class Opt_Cdf_Manager
 	 */
 	public function setLocator(Opt_Cdf_Locator_Interface $locator)
 	{
-
+		$this->_locator = $locator;
 	} // end setLocator();
 
 	/**
@@ -55,10 +73,10 @@ class Opt_Cdf_Manager
 	 * data format for the element is already cached, it returns the
 	 * existing object. Otherwise, a new one is created.
 	 *
-	 * @param <type> $elementType
-	 * @param <type> $id
-	 * @param <type> $type
-	 * @param <type> $locator
+	 * @param string $elementType The element type name
+	 * @param string $id The element ID
+	 * @param string $type The data format type name
+	 * @param Opt_Cdf_Locator_Interface $locator The locator used to determine the element location.
 	 */
 	public function getFormat($elementType, $id, $type, $locator = null)
 	{	
@@ -119,7 +137,7 @@ class Opt_Cdf_Manager
 				{
 					if($location[$i] != $pathItem)
 					{
-						break 2;
+						continue 2;
 					}
 					$i++;
 				}
@@ -132,7 +150,12 @@ class Opt_Cdf_Manager
 			throw new Opt_NoMatchingFormat_Exception(reset($checkIn));
 		}
 
-		return $this->_resolved[$code] = $this->_createFormat(reset($checkIn), $match['format']);
+		if(!isset($this->_resolved[$code]))
+		{
+			$this->_resolved[$code] = array();
+		}
+
+		return $this->_resolved[$code][$type] = $this->_createFormat(reset($checkIn), $match['format']);
 	} // end getFormat();
 
 	/**
@@ -167,11 +190,11 @@ class Opt_Cdf_Manager
 		}
 		foreach($insertTo as $key)
 		{
-			if(!isset($this->_information[$id]))
+			if(!isset($this->_information[$key]))
 			{
-				$this->_information[$id] = new SplPriorityQueue;
+				$this->_information[$key] = new SplPriorityQueue;
 			}
-			$this->_information[$id]->insert(&$row, sizeof($fullyQualifiedPath));
+			$this->_information[$key]->insert(&$row, sizeof($fullyQualifiedPath));
 		}
 	} // end addFormat();
 

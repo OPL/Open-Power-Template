@@ -408,7 +408,8 @@ class Opt_Compiler_Class
 		if($this->_cdfManager === null)
 		{
 			$this->_cdfManager = new Opt_Cdf_Manager(
-				$tpl->_getList('_formats')
+				$this->_tpl,
+				$this->_tpl->_getList('_formats')
 			);
 		}
 
