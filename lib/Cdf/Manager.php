@@ -115,34 +115,51 @@ class Opt_Cdf_Manager
 			$checkIn[] = $elementType.'#';
 		}
 
+		if($type == 'generic')
+		{
+			$types = array('generic');
+		}
+		else
+		{
+			$types = array($type, 'generic');
+		}
+
 		$location = $locator->getElementLocation($elementType, $id);
 
 		// Now look for the data format definition and process it.
 		$match = null;
 		foreach($checkIn as $key)
 		{
-			if(!isset($this->_information[$key]))
+			foreach($types as $checkedType)
 			{
-				continue;
-			}
-
-			// Check each matching definition for the element against
-			// the obtained location.
-			foreach($this->_information[$key] as $definition)
-			{
-				$i = 0;
-				// The path must match the element location
-				// in order to select this definition
-				foreach($definition['path'] as $pathItem)
+				if(!isset($this->_information[$checkedType]))
 				{
-					if($location[$i] != $pathItem)
-					{
-						continue 2;
-					}
-					$i++;
+					continue;
 				}
-				$match = $definition;
-				break 2;
+				if(!isset($this->_information[$checkedType][$key]))
+				{
+
+					continue 2;
+				}
+
+				// Check each matching definition for the element against
+				// the obtained location.
+				foreach($this->_information[$checkedType][$key] as $definition)
+				{
+					$i = 0;
+					// The path must match the element location
+					// in order to select this definition
+					foreach($definition['path'] as $pathItem)
+					{
+						if($location[$i] != $pathItem)
+						{
+							continue 2;
+						}
+						$i++;
+					}
+					$match = $definition;
+					break 3;
+				}
 			}
 		}
 		if($match === null)
@@ -169,8 +186,11 @@ class Opt_Cdf_Manager
 	 */
 	public function addFormat($elementType, $id, $type, $format, array $fullyQualifiedPath)
 	{
+		if(!isset($this->_information[$type]))
+		{
+			$this->_information[$type] = array();
+		}
 		$row = array(
-			'type' => $type,
 			'format' => $format,
 			'path' => $fullyQualifiedPath
 		);
@@ -180,21 +200,21 @@ class Opt_Cdf_Manager
 		{
 			$insertTo[] = $elementType.'#'.$id;
 		}
-		if($elementType !== null)
+		elseif($elementType !== null)
 		{
 			$insertTo[] = $elementType.'#';
 		}
-		if($id !== null)
+		elseif($id !== null)
 		{
 			$insertTo[] = '#'.$id;
 		}
 		foreach($insertTo as $key)
 		{
-			if(!isset($this->_information[$key]))
+			if(!isset($this->_information[$type][$key]))
 			{
-				$this->_information[$key] = new SplPriorityQueue;
+				$this->_information[$type][$key] = new SplPriorityQueue;
 			}
-			$this->_information[$key]->insert(&$row, sizeof($fullyQualifiedPath));
+			$this->_information[$type][$key]->insert(&$row, sizeof($fullyQualifiedPath));
 		}
 	} // end addFormat();
 
