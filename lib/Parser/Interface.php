@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Class.php 155 2009-07-18 07:25:11Z zyxist $
+ * $Id$
  */
 /**
  * The interface for writing parsers.
