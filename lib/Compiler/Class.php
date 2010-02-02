@@ -1321,9 +1321,7 @@ class Opt_Compiler_Class
 					// Migration stage - only if backward compatibility is on
 					if($this->_tpl->backwardCompatibility)
 					{
-						//$this->_debugPrintNodes($tree);
 						$this->_migrate($tree);
-						//$this->_debugPrintNodes($tree);
 					}
 					// Stage 2 - PHP tree processing
 					$this->_stack = array();
@@ -1581,14 +1579,19 @@ class Opt_Compiler_Class
 
 		if(preg_match('/^([a-zA-Z0-9\_]+)\:([^\:].*)$/', $value, $found))
 		{
-			if($found[1] === 'null')
+			switch($found[1])
 			{
-				$attr->setValue($found[2]);
-			}
-			else
-			{
-				$result = $this->parseExpression($found[2], $found[1], self::ESCAPE_ON, $this->_tpl->attributeModifier);
-				$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$result['escaped'].'; ');
+				case 'parse':
+						$result = $this->parseExpression($found[2], $found[1], self::ESCAPE_ON, $this->_tpl->attributeModifier);
+						$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$result['expression'].'; ');
+					break;
+				case 'str':
+						$result = $this->parseExpression($found[2], $found[1], self::ESCAPE_ON, $this->_tpl->attributeModifier);
+						$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$result['escaped'].'; ');
+					break;
+				case null:
+						$attr->setValue($found[2]);
+					break;
 			}
 		}
 	} // end compileAttribute();

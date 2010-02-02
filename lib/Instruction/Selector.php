@@ -33,6 +33,18 @@ class Opt_Instruction_Selector extends Opt_Instruction_BaseSection
 	protected $_extraAttributes = array('test' => array(self::OPTIONAL, self::ID, 'item'));
 
 	/**
+	 * Array contains deprecated attributes.
+	 * @var array
+	 */
+	protected $_deprecatedAttributes = array();
+
+	/**
+	 * Array contains deprecated instructions.
+	 * @var array
+	 */
+	protected $_deprecatedInstructions = array();
+
+	/**
 	 * Configures the instruction processor.
 	 *
 	 * @internal
@@ -41,6 +53,11 @@ class Opt_Instruction_Selector extends Opt_Instruction_BaseSection
 	{
 		$this->_addInstructions(array('opt:selector', 'opt:selectorelse'));
 		$this->_addAttributes('opt:selector');
+		if($this->_tpl->backwardCompatibility)
+		{
+			$this->_addAttributes($this->_deprecatedAttributes);
+			$this->_addInstructions($this->_deprecatedInstructions);
+		}
 	} // end configure();
 
 	/**
@@ -52,6 +69,36 @@ class Opt_Instruction_Selector extends Opt_Instruction_BaseSection
 	{
 		$this->_process($node);
 	} // end _migrateSelector();
+
+	/**
+	 * Checks if attribute is deprecated and needs migration.
+	 * @param Opt_Xml_Attribute $attr Attribute to migrate
+	 * @return boolean If attribute needs migration
+	 */
+	public function attributeNeedMigration(Opt_Xml_Attribute $attr)
+	{
+		$name = $attr->getXmlName();
+		if(in_array($name, $this->_deprecatedAttributes))
+		{
+			return true;
+		}
+		return false;
+	} // end attributeNeedMigration();
+
+	/**
+	 * Migrates the opt:selector attribute.
+	 * @internal
+	 * @param Opt_Xml_Attribute $attr The recognized attribute.
+	 * @return Opt_Xml_Attribute Migrated attribute
+	 */
+	public function migrateAttribute(Opt_Xml_Attribute $attr)
+	{
+		/*switch($attr->getName())
+		{
+			// null
+		}*/
+		return $attr;
+	} // end migrateAttribute();
 
 	/**
 	 * Processes the opt:selector element using the section API.

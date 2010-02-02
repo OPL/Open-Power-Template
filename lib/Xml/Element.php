@@ -328,6 +328,14 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 						$attr->setNamespace(null);
 						$this->addAttribute($attr);
 						break;
+					case 'opt':
+						if(($processor = $compiler->getAttribute($attr->getXmlName())) !== null && $processor->attributeNeedMigration($attr))
+						{
+							$this->removeAttribute($attr->getXmlName());
+							$attr = $processor->migrateAttribute($attr);
+							$this->addAttribute($attr);
+						}
+						break;
 				}
 			}
 		}
@@ -591,36 +599,17 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			if($compiler->isNamespace($attr->getNamespace()))
 			{
 				$xml = $attr->getXmlName();
-				// Check the namespace we found
-				switch($attr->getNamespace())
+				if(($processor = $compiler->isOptAttribute($xml)) !== null)
 				{
-					case 'parse':
-						if($specialNs && $opt->backwardCompatibility)
-						{
-							$result = $compiler->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_BOTH);
-							$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo '.$result[0].'; ');
-							$attr->setNamespace(null);
-						}
-						break;
-					case 'str':
-						if($specialNs && $this->_tpl->backwardCompatibility)
-						{
-							$attr->setNamespace(null);
-						}
-						break;
-					default:
-						if(($processor = $compiler->isOptAttribute($xml)) !== null)
-						{
-							$processor->processAttribute($this, $attr);
-							if($attr->get('postprocess'))
-							{
-								$this->_postprocess[] = array($processor, $attr);
-							}
-						}
-						$this->removeAttribute($xml);
+					$processor->processAttribute($this, $attr);
+					if($attr->get('postprocess'))
+					{
+						$this->_postprocess[] = array($processor, $attr);
+					}
 				}
+				$this->removeAttribute($xml);
 			}
-			elseif(!$opt->backwardCompatibility)
+			else
 			{
 				$compiler->compileAttribute($attr);
 			}

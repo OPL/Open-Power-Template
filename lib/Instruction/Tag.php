@@ -27,6 +27,18 @@ class Opt_Instruction_Tag extends Opt_Compiler_Processor
 	protected $_name = 'tag';
 
 	/**
+	 * Array contains deprecated attributes.
+	 * @var array
+	 */
+	protected $_deprecatedAttributes = array();
+
+	/**
+	 * Array contains deprecated instructions.
+	 * @var array
+	 */
+	protected $_deprecatedInstructions = array();
+
+	/**
 	 * Configures the instruction processor.
 	 *
 	 * @internal
@@ -35,6 +47,11 @@ class Opt_Instruction_Tag extends Opt_Compiler_Processor
 	{
 		$this->_addInstructions('opt:tag');
 		$this->_addAttributes('opt:single');
+		if($this->_tpl->backwardCompatibility)
+		{
+			$this->_addAttributes($this->_deprecatedAttributes);
+			$this->_addInstructions($this->_deprecatedInstructions);
+		}
 	} // end configure();
 
 	/**
@@ -46,6 +63,36 @@ class Opt_Instruction_Tag extends Opt_Compiler_Processor
 	{
 		$this->_process($node);
 	} // end migrateNode();
+
+	/**
+	 * Checks if attribute is deprecated and needs migration.
+	 * @param Opt_Xml_Attribute $attr Attribute to migrate
+	 * @return boolean If attribute needs migration
+	 */
+	public function attributeNeedMigration(Opt_Xml_Attribute $attr)
+	{
+		$name = $attr->getXmlName();
+		if(in_array($name, $this->_deprecatedAttributes))
+		{
+			return true;
+		}
+		return false;
+	} // end attributeNeedMigration();
+
+	/**
+	 * Migrates the opt:if (and its derivatives) attributes.
+	 * @internal
+	 * @param Opt_Xml_Attribute $attr The recognized attribute.
+	 * @return Opt_Xml_Attribute Migrated attribute
+	 */
+	public function migrateAttribute(Opt_Xml_Attribute $attr)
+	{
+		/*switch($attr->getName())
+		{
+			// null
+		}*/
+		return $attr;
+	} // end migrateAttribute();
 
 	/**
 	 * Processes the opt:tag element.

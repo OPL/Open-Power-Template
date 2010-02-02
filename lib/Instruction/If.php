@@ -34,14 +34,31 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 	protected $_cnt = 0;
 
 	/**
+	 * Array contains deprecated attributes.
+	 * @var array
+	 */
+	protected $_deprecatedAttributes = array('opt:on');
+
+	/**
+	 * Array contains deprecated instructions.
+	 * @var array
+	 */
+	protected $_deprecatedInstructions = array('opt:elseif');
+
+	/**
 	 * Configures the instruction processor, registering the tags and
 	 * attributes.
 	 * @internal
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:if', 'opt:elseif', 'opt:else'));
-		$this->_addAttributes(array('opt:if', 'opt:on'));
+		$this->_addInstructions(array('opt:if', 'opt:else-if', 'opt:else'));
+		$this->_addAttributes(array('opt:if', 'opt:omit-tag'));
+		if($this->_tpl->backwardCompatibility)
+		{
+			$this->_addAttributes($this->_deprecatedAttributes);
+			$this->_addInstructions($this->_deprecatedInstructions);
+		}
 	} // end configure();
 
 	/**
@@ -51,6 +68,12 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 	 */
 	public function migrateNode(Opt_Xml_Node $node)
 	{
+		switch($node->getName())
+		{
+			case 'elseif':
+				$node->setName('else-if');
+				break;
+		}
 		$this->_process($node);
 	} // end migrateNode();
 
@@ -74,7 +97,7 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 				$node->sort(array('*' => 0, 'opt:elseif' => 1, 'opt:else' => 2));
 				$this->_process($node);
 				break;
-			case 'elseif':
+			case 'else-if':
 				if($node->getParent()->getName() == 'if')
 				{
 					$this->_extractAttributes($node, $params);
@@ -101,6 +124,38 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 	} // end processNode();
 
 	/**
+	 * Checks if attribute is deprecated and needs migration.
+	 * @param Opt_Xml_Attribute $attr Attribute to migrate
+	 * @return boolean If attribute needs migration
+	 */
+	public function attributeNeedMigration(Opt_Xml_Attribute $attr)
+	{
+		$name = $attr->getXmlName();
+		if(in_array($name, $this->_deprecatedAttributes))
+		{
+			return true;
+		}
+		return false;
+	} // end attributeNeedMigration();
+
+	/**
+	 * Migrates the opt:if (and its derivatives) attributes.
+	 * @internal
+	 * @param Opt_Xml_Attribute $attr The recognized attribute.
+	 * @return Opt_Xml_Attribute Migrated attribute
+	 */
+	public function migrateAttribute(Opt_Xml_Attribute $attr)
+	{
+		switch($attr->getName())
+		{
+			case 'on':
+				$attr->setName('omit-tag');
+				break;
+		}
+		return $attr;
+	} // end migrateAttribute();
+
+	/**
 	 * Processes the opt:if and opt:omit-tag attributes.
 	 * @internal
 	 * @param Opt_Xml_Node $node The node with the attribute
@@ -108,10 +163,10 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		// TODO: Add opt:omit-tag implementation
+		// TODO: Add opt:omit-tag implementation, changed opt:on->opt:omit-tag, it should work as before
 		switch($attr->getName())
 		{
-			case 'on':
+			case 'omit-tag':
 				if(!$this->_compiler->isNamespace($node->getNamespace()))
 				{
 					$expr = $this->_compiler->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_OFF);
