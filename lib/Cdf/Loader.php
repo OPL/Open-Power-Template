@@ -47,6 +47,62 @@ class Opt_Cdf_Loader
 	 */
 	public function load($filename)
 	{
-		
+		$lexer = new Opt_Cdf_Lexer($filename);
+		$parser = new Opt_Cdf_Parser($this);
+
+		$this->_definitions = array();
+
+		while($lexer->yylex())
+		{
+			if($lexer->token != 'w')
+			{
+				$parser->doParse($lexer->token, $lexer->value);
+			}
+		}
+		$parser->doParse(0, 0);
+
+		// Now register everything in the manager
+		foreach($this->_definitions as $definition)
+		{
+			foreach($definition[0] as $group)
+			{
+				$last = reset($group);
+				array_shift($group);
+			//	array_reverse($group);
+
+				// Concatenate the list for the locator
+				$fullyQualifiedPath = array();
+				foreach($group as $item)
+				{
+					if($item[0] !== null && $item[1] !== null)
+					{
+						$fullyQualifiedPath[] = $item[0].'#'.$item[1];
+					}
+					elseif($item[0] != null)
+					{
+						$fullyQualifiedPath[] = '#'.$item[1];
+					}
+					else
+					{
+						$fullyQualifiedPath[] = $item[0].'#';
+					}
+				}
+				// Add the format definitions to the manager
+				foreach($definition[1] as $property => $format)
+				{
+					$this->_manager->addFormat($last[0], $last[1], $property, $format, $fullyQualifiedPath);
+				}
+			}
+		}
 	} // end load();
+
+	/**
+	 * Adds a definition to the internal buffer from the CDF parser.
+	 *
+	 * @param array $definition The data format definition
+	 */
+	public function _addDefinition(array $definition)
+	{
+		$this->_definitions[] = $definition;
+	} // end _addDefinition();
 } // end Opt_Cdf_Loader;

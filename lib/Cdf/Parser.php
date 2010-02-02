@@ -95,6 +95,24 @@ class Opt_Cdf_yyStackEntry
 #line 3 "cdf_parser.y"
 class Opt_Cdf_Parser#line 79 "cdf_parser.php"
 {
+#line 6 "cdf_parser.y"
+
+	/**
+	 * The CDF loader object.
+	 * @var Opt_Cdf_Loader
+	 */
+	private $_loader;
+
+	/**
+	 * Constructs the CDF parser.
+	 *
+	 * @param Opt_Cdf_Loader $expr The CDF loader used for parsing.
+	 */
+	public function __construct(Opt_Cdf_Loader $loader)
+	{
+		$this->_loader = $loader;
+	} // end __construct();
+#line 99 "cdf_parser.php"
 
     const T_COMMA                          =  1;
     const T_ID                             =  2;
@@ -538,42 +556,67 @@ static public $yy_action = array(
     );
 
     static public $yyReduceMap = array(
-        0 => 0,
         3 => 3,
+        4 => 4,
+        6 => 4,
+        5 => 5,
+        7 => 7,
+        8 => 8,
+        9 => 9,
         10 => 10,
-        11 => 10,
+        11 => 11,
+        12 => 12,
+        15 => 12,
+        17 => 12,
+        19 => 12,
+        13 => 13,
         14 => 14,
-        15 => 15,
-        17 => 15,
-        19 => 15,
         16 => 16,
         18 => 18,
         20 => 20,
     );
-#line 9 "cdf_parser.y"
-    function yy_r0(){	echo "cdf_file accepted\n";	    }
-#line 540 "cdf_parser.php"
-#line 13 "cdf_parser.y"
-    function yy_r3(){	echo "block_item accepted\n";	    }
-#line 543 "cdf_parser.php"
-#line 24 "cdf_parser.y"
-    function yy_r10(){	echo "block_body accepted\n";	    }
-#line 546 "cdf_parser.php"
-#line 29 "cdf_parser.y"
-    function yy_r14(){	echo 'single_rule '.$this->yystack[$this->yyidx + -3]->minor.': '.$this->yystack[$this->yyidx + -1]->minor."\n";	    }
-#line 549 "cdf_parser.php"
-#line 31 "cdf_parser.y"
-    function yy_r15(){	$this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
-#line 552 "cdf_parser.php"
+#line 30 "cdf_parser.y"
+    function yy_r3(){	$this->_loader->_addDefinition(array($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor));	    }
+#line 566 "cdf_parser.php"
 #line 32 "cdf_parser.y"
-    function yy_r16(){	$this->_retvalue = $this->yystack[$this->yyidx + -2]->minor.'.'.$this->yystack[$this->yyidx + 0]->minor;	    }
-#line 555 "cdf_parser.php"
-#line 35 "cdf_parser.y"
-    function yy_r18(){	$this->_retvalue = $this->yystack[$this->yyidx + -2]->minor.'-'.$this->yystack[$this->yyidx + 0]->minor;	    }
-#line 558 "cdf_parser.php"
+    function yy_r4(){	$this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor);	    }
+#line 569 "cdf_parser.php"
+#line 33 "cdf_parser.y"
+    function yy_r5(){	$this->yystack[$this->yyidx + 0]->minor[] = $this->yystack[$this->yyidx + -2]->minor; $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
+#line 572 "cdf_parser.php"
+#line 36 "cdf_parser.y"
+    function yy_r7(){	$this->yystack[$this->yyidx + 0]->minor[] = $this->yystack[$this->yyidx + -1]->minor;	$this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
+#line 575 "cdf_parser.php"
 #line 38 "cdf_parser.y"
+    function yy_r8(){	$this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor, null);	    }
+#line 578 "cdf_parser.php"
+#line 39 "cdf_parser.y"
+    function yy_r9(){	$this->_retvalue = array($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);	    }
+#line 581 "cdf_parser.php"
+#line 41 "cdf_parser.y"
+    function yy_r10(){	$this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;	    }
+#line 584 "cdf_parser.php"
+#line 42 "cdf_parser.y"
+    function yy_r11(){	$this->_retvalue = array();	    }
+#line 587 "cdf_parser.php"
+#line 43 "cdf_parser.y"
+    function yy_r12(){	$this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;	    }
+#line 590 "cdf_parser.php"
+#line 44 "cdf_parser.y"
+    function yy_r13(){	$this->_retvalue = array_merge($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);	    }
+#line 593 "cdf_parser.php"
+#line 46 "cdf_parser.y"
+    function yy_r14(){	$this->_retvalue = array($this->yystack[$this->yyidx + -3]->minor => $this->yystack[$this->yyidx + -1]->minor);	    }
+#line 596 "cdf_parser.php"
+#line 49 "cdf_parser.y"
+    function yy_r16(){	$this->_retvalue = $this->yystack[$this->yyidx + -2]->minor.'.'.$this->yystack[$this->yyidx + 0]->minor;	    }
+#line 599 "cdf_parser.php"
+#line 52 "cdf_parser.y"
+    function yy_r18(){	$this->_retvalue = $this->yystack[$this->yyidx + -2]->minor.'-'.$this->yystack[$this->yyidx + 0]->minor;	    }
+#line 602 "cdf_parser.php"
+#line 55 "cdf_parser.y"
     function yy_r20(){	$this->_retvalue = $this->yystack[$this->yyidx + -2]->minor.'/'.$this->yystack[$this->yyidx + 0]->minor;	    }
-#line 561 "cdf_parser.php"
+#line 605 "cdf_parser.php"
 
     private $_retvalue;
 
@@ -630,10 +673,10 @@ static public $yy_action = array(
 
     function yy_syntax_error($yymajor, $TOKEN)
     {
-#line 5 "cdf_parser.y"
+#line 22 "cdf_parser.y"
 
 	throw new Exception('Unexpected token '.$TOKEN);
-#line 622 "cdf_parser.php"
+#line 666 "cdf_parser.php"
     }
 
     function yy_accept()

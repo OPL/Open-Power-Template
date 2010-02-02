@@ -14,4 +14,5 @@ require($config['libraries']['Opl'].'Base.php');
 Opl_Loader::loadPaths($config);
 Opl_Loader::setCheckFileExists(false);
 Opl_Loader::addLibrary('Extra', array('directory' => './Extra/', 'handler' => null));
+Opl_Loader::addLibrary('Package', array('directory' => './Package/', 'handler' => null));
 Opl_Loader::register();

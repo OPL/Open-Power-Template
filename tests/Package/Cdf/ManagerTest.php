@@ -83,6 +83,24 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 	 * @covers Opt_Cdf_Manager::getFormat
 	 * @covers Opt_Cdf_Manager::addFormat
 	 */
+	public function testTheSimplestFormatTwoDefinitions()
+	{
+		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
+		$locator->expects($this->exactly(2))
+			->method('getElementLocation')
+			->will($this->returnValue(array()));
+
+		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array());
+		$this->_obj->addFormat('foo', 'bar', 'testing', 'Objective', array());
+
+		$this->assertEquals('Opt_Format_Array', get_class($this->_obj->getFormat('foo', 'bar', 'generic', $locator)));
+		$this->assertEquals('Opt_Format_Objective', get_class($this->_obj->getFormat('foo', 'bar', 'testing', $locator)));
+	} // end testTheSimplestFormatCreationElementOnly();
+
+	/**
+	 * @covers Opt_Cdf_Manager::getFormat
+	 * @covers Opt_Cdf_Manager::addFormat
+	 */
 	public function testTheSimplestFormatCreationIdOnly()
 	{
 		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
@@ -281,7 +299,7 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 	public function testFormatCachingIfGenericSelected()
 	{
 		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->once())
+		$locator->expects($this->exactly(2))
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
@@ -424,8 +442,6 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 
 		$this->_obj->addFormat('foo', 'joe', 'generic', 'Objective', array('rotfl', 'lmao'));
 		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
-
-	//	$this->assertFalse(is_object($format));
 	} // end testThrowsExceptionIfNoMatchingDefinition();
 
 	/**

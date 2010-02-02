@@ -94,10 +94,6 @@ class Opt_Cdf_Manager
 			{
 				return $this->_resolved[$code][$type];
 			}
-			elseif(isset($this->_resolved[$code]['generic']))
-			{
-				return $this->_resolved[$code]['generic'];
-			}
 		}
 
 		$checkIn = array();
@@ -138,8 +134,7 @@ class Opt_Cdf_Manager
 				}
 				if(!isset($this->_information[$checkedType][$key]))
 				{
-
-					continue 2;
+					continue;
 				}
 
 				// Check each matching definition for the element against
@@ -157,6 +152,7 @@ class Opt_Cdf_Manager
 						}
 						$i++;
 					}
+					$foundType = $checkedType;
 					$match = $definition;
 					break 3;
 				}
@@ -170,6 +166,14 @@ class Opt_Cdf_Manager
 		if(!isset($this->_resolved[$code]))
 		{
 			$this->_resolved[$code] = array();
+		}
+
+		if($foundType == 'generic' && $type != 'generic')
+		{
+			if(isset($this->_resolved[$code]['generic']))
+			{
+				return $this->_resolved[$code][$type] = $this->_resolved[$code]['generic'];
+			}
 		}
 
 		return $this->_resolved[$code][$type] = $this->_createFormat(reset($checkIn), $match['format']);
