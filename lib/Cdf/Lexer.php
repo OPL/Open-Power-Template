@@ -212,7 +212,7 @@ class Opt_Cdf_Lexer
     function yy_r1_10($yy_subpatterns)
     {
 
-	$this->token = Opt_Cdf_Parser::T_DOT;
+	$this->token = Opt_Cdf_Parser::T_SLASH;
     }
     function yy_r1_11($yy_subpatterns)
     {

@@ -119,7 +119,7 @@ pause{
 	$this->token = Opt_Cdf_Parser::T_PAUSE;
 }
 slash{
-	$this->token = Opt_Cdf_Parser::T_DOT;
+	$this->token = Opt_Cdf_Parser::T_SLASH;
 }
 colon{
 	$this->token = Opt_Cdf_Parser::T_COLON;
