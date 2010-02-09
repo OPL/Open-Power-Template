@@ -18,6 +18,9 @@
  */
 class Opt_Cdf_Manager
 {
+	const AS_LOCAL = 0;
+	const AS_GLOBAL = 1;
+
 	/**
 	 * A search area
 	 * @var array
@@ -37,15 +40,23 @@ class Opt_Cdf_Manager
 	private $_locator;
 
 	/**
+	 * The list of local CDF file identifiers that should
+	 * be used for matching.
+	 * @var array
+	 */
+	private $_locals;
+
+	/**
 	 * The list of available data formats.
 	 * @var array
 	 */
 	private $_formats;
 
 	/**
-	 * The main template engine class.
-	 * @var Opt_Class
+	 * The locality flag.
+	 * @var integer
 	 */
+	private $_locality = self::AS_GLOBAL;
 
 	/**
 	 * Creates a new CDF manager instance.
@@ -69,6 +80,49 @@ class Opt_Cdf_Manager
 	} // end setLocator();
 
 	/**
+	 * Sets the flag identifying that the registered entries come
+	 * from a global or local (view-specific) source in order to
+	 * be able to remove them later.
+	 *
+	 * @param integer|string $flag The global/local identification flag
+	 */
+	public function setLocality($flag)
+	{
+		$this->_locality = $flag;
+	} // end setLocality();
+
+	/**
+	 * Returns the current value of the locality flag.
+	 *
+	 * @return integer|string
+	 */
+	public function getLocality()
+	{
+		return $this->_locality;
+	} // end getLocality();
+
+	/**
+	 * Sets the list of CDF file identifiers that are allowed to be
+	 * used in searching.
+	 *
+	 * @param array $locals The list of local CDF file identifiers.
+	 */
+	public function setLocals(array $locals)
+	{
+		$this->_locals = $locals;
+	} // end setLocals();
+
+	/**
+	 * Clears the local entries from the buffer, clears the definitions
+	 * associated with them in the cache and restores original (global)
+	 * overwritten rules.
+	 */
+	public function clearLocals()
+	{
+
+	} // end clearLocals();
+
+	/**
 	 * Returns the data format for the specified element type. If the
 	 * data format for the element is already cached, it returns the
 	 * existing object. Otherwise, a new one is created.
@@ -78,7 +132,7 @@ class Opt_Cdf_Manager
 	 * @param string $type The data format type name
 	 * @param Opt_Cdf_Locator_Interface $locator The locator used to determine the element location.
 	 */
-	public function getFormat($elementType, $id, $type, $locator = null)
+	public function getFormat($elementType, $id, $locator = null)
 	{	
 		if($locator === null)
 		{
@@ -90,10 +144,7 @@ class Opt_Cdf_Manager
 		// Maybe we have already solved this element?
 		if(isset($this->_resolved[$code]))
 		{
-			if(isset($this->_resolved[$code][$type]))
-			{
-				return $this->_resolved[$code][$type];
-			}
+			return $this->_resolved[$code];
 		}
 
 		$checkIn = array();
@@ -111,51 +162,46 @@ class Opt_Cdf_Manager
 			$checkIn[] = $elementType.'#';
 		}
 
-		if($type == 'generic')
+		if($locator === null)
 		{
-			$types = array('generic');
+			$location = array();
 		}
 		else
 		{
-			$types = array($type, 'generic');
+			$location = $locator->getElementLocation($elementType, $id);
 		}
-
-		$location = $locator->getElementLocation($elementType, $id);
-
 		// Now look for the data format definition and process it.
 		$match = null;
 		foreach($checkIn as $key)
 		{
-			foreach($types as $checkedType)
+			if(!isset($this->_information[$key]))
 			{
-				if(!isset($this->_information[$checkedType]))
-				{
-					continue;
-				}
-				if(!isset($this->_information[$checkedType][$key]))
+				continue;
+			}
+
+			// Check each matching definition for the element against
+			// the obtained location.
+			foreach($this->_information[$key] as $definition)
+			{
+				// Skip the entries that do not belong to the current template.
+				if(!is_integer($definition['flag']) && !in_array($definition['flag'], $this->_locals))
 				{
 					continue;
 				}
 
-				// Check each matching definition for the element against
-				// the obtained location.
-				foreach($this->_information[$checkedType][$key] as $definition)
+				$i = 0;				
+				// The path must match the element location
+				// in order to select this definition
+				foreach($definition['path'] as $pathItem)
 				{
-					$i = 0;
-					// The path must match the element location
-					// in order to select this definition
-					foreach($definition['path'] as $pathItem)
+					if($location[$i] != $pathItem)
 					{
-						if($location[$i] != $pathItem)
-						{
-							continue 2;
-						}
-						$i++;
+						continue 2;
 					}
-					$foundType = $checkedType;
-					$match = $definition;
-					break 3;
+					$i++;
 				}
+				$match = $definition;
+				break 2;
 			}
 		}
 		if($match === null)
@@ -168,15 +214,7 @@ class Opt_Cdf_Manager
 			$this->_resolved[$code] = array();
 		}
 
-		if($foundType == 'generic' && $type != 'generic')
-		{
-			if(isset($this->_resolved[$code]['generic']))
-			{
-				return $this->_resolved[$code][$type] = $this->_resolved[$code]['generic'];
-			}
-		}
-
-		return $this->_resolved[$code][$type] = $this->_createFormat(reset($checkIn), $match['format']);
+		return $this->_resolved[$code] = $this->_createFormat(reset($checkIn), $match['format']);
 	} // end getFormat();
 
 	/**
@@ -188,15 +226,12 @@ class Opt_Cdf_Manager
 	 * @param string $format The format itself
 	 * @param array $fullyQualifiedPath The fully qualified path to the element
 	 */
-	public function addFormat($elementType, $id, $type, $format, array $fullyQualifiedPath)
+	public function addFormat($elementType, $id, $format, array $fullyQualifiedPath)
 	{
-		if(!isset($this->_information[$type]))
-		{
-			$this->_information[$type] = array();
-		}
 		$row = array(
 			'format' => $format,
-			'path' => $fullyQualifiedPath
+			'path' => $fullyQualifiedPath,
+			'flag' => $this->_locality
 		);
 
 		$insertTo = array();
@@ -214,11 +249,11 @@ class Opt_Cdf_Manager
 		}
 		foreach($insertTo as $key)
 		{
-			if(!isset($this->_information[$type][$key]))
+			if(!isset($this->_information[$key]))
 			{
-				$this->_information[$type][$key] = new SplPriorityQueue;
+				$this->_information[$key] = new SplPriorityQueue;
 			}
-			$this->_information[$type][$key]->insert(&$row, sizeof($fullyQualifiedPath));
+			$this->_information[$key]->insert(&$row, sizeof($fullyQualifiedPath));
 		}
 	} // end addFormat();
 

@@ -1,3 +1,3 @@
 variable#item.subitem {
-	generic: Objective;
+	data-format: Objective;
 }

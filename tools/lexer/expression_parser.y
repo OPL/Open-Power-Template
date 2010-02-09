@@ -214,14 +214,14 @@ template_variable(res)	::= AT IDENTIFIER(name).		{	res = $this->_expr->_prepareT
 language_variable(res)	::= DOLLAR IDENTIFIER(group) AT IDENTIFIER(id).	{	res = $this->_expr->_compileLanguageVar(group, id, Opt_Expression_Standard::LANGUAGE_VARIABLE_WEIGHT); }
 container(res)			::= script_variable(var) container_call(cont).
 		{
-			array_unshift(cont, var[0]);
+			array_unshift(cont, var[0][0]);
 			res = new SplFixedArray(3);
 			res[0] = cont;
 			res[1] = '$';
 		}
 container(res)			::= template_variable(var) container_call(cont).
 		{
-			array_unshift(cont, var[0]);
+			array_unshift(cont, var[0][0]);
 			res = new SplFixedArray(3);
 			res[0] = cont;
 			res[1] = '@';

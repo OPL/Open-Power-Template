@@ -1,3 +1,3 @@
 foo#bar {
-	generic: Array/Objective;
+	data-format: Array/Objective;
 }

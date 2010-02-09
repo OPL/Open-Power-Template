@@ -132,6 +132,7 @@ class Opt_Class extends Opl_Class
 
 	// Directory configuration
 	public $sourceDir = NULL;
+	public $cdfDir = NULL;
 	public $compileDir = NULL;
 	public $cacheDir = NULL;
 
@@ -337,9 +338,13 @@ class Opt_Class extends Opl_Class
 		{
 			$this->loadConfig($config);
 		}
-		if(!is_null($this->pluginDir))
+		if($this->pluginDir !== null)
 		{
 			$this->loadPlugins();
+		}
+		if($this->cdfDir === null)
+		{
+			$this->cdfDir = $this->sourceDir;
 		}
 
 		if(Opl_Registry::exists('opl_translate'))
@@ -590,34 +595,6 @@ class Opt_Class extends Opl_Class
 	} // end _pluginLoader();
 
 	/**
-	 * Parses the stream in the template path name and returns
-	 * the real path.
-	 *
-	 * @internal
-	 * @param String $name Template filename
-	 * @return String
-	 */
-	public function _stream($name)
-	{
-		if(strpos($name, ':') !== FALSE)
-		{
-			// We get the stream ID from the given filename.
-			$data = explode(':', $name);
-			if(!isset($this->sourceDir[$data[0]]))
-			{
-				throw new Opt_ObjectNotExists_Exception('resource', $data[0]);
-			}
-			return $this->sourceDir[$data[0]].$data[1];
-		}
-		// Here, the standard stream is used.
-		if(!isset($this->sourceDir[$this->stdStream]))
-		{
-			throw new Opt_ObjectNotExists_Exception('resource', $this->stdStream);
-		}
-		return $this->sourceDir[$this->stdStream].$name;
-	} // end _stream();
-
-	/**
 	 * Loads the template source code. Returns the template body or
 	 * the array with two (false) values in case of problems.
 	 *
@@ -695,7 +672,9 @@ class Opt_View
 	private $_branch = null;
 	private $_cache = null;
 	private $_parser;
+	private $_localCdf = array();
 
+	static private $_globalCdf = array();
 	static private $_vars = array();
 	static private $_capture = array();
 	static private $_global = array();
@@ -817,6 +796,16 @@ class Opt_View
 	/*
 	 * Data management
 	 */
+
+	/**
+	 * Adds a new view-specific CDF file to the system.
+	 *
+	 * @param string $file The CDF file name (with the extension)
+	 */
+	public function addCdf($file)
+	{
+		$this->_localCdf[] = (string)$file;
+	} // end addCdf();
 
 	/**
 	 * Creates a new local template variable.
@@ -952,6 +941,17 @@ class Opt_View
 	} // end __unset();
 
 	/**
+	 * Adds a new global CDF file to the system.
+	 *
+	 * @static
+	 * @param string $file The CDF file name (with the extension)
+	 */
+	static public function addCdfGlobal($file)
+	{
+		self::$_globalCdf[] = (string)$file;
+	} // end addCdf();
+
+	/**
 	 * Creates a new global template variable.
 	 *
 	 * @static
@@ -1068,12 +1068,17 @@ class Opt_View
 	 * identify a template variable or some other things. The details
 	 * are explained in the OPT user manual.
 	 *
-	 * @param string $item The item name
+	 * @param string|null $item The item name
+	 * @param string|null $id The item ID
 	 * @param string $format The format to be used for the specified item.
 	 */
-	public function setFormat($item, $format)
+	public function setFormat($item, $id, $format)
 	{
-		$this->_formatInfo[$item] = $format;
+		if(!isset($this->_formatInfo[$item]))
+		{
+			$this->_formatInfo[$item] = array();
+		}
+		$this->_formatInfo[$item][$id] = (string)$format;
 	} // end setFormat();
 
 	/**
@@ -1082,12 +1087,18 @@ class Opt_View
 	 * are explained in the OPT user manual.
 	 *
 	 * @static
-	 * @param string $item The item name
+	 * @param string|null $item The item name
+	 * @param string|null $id The item ID
 	 * @param string $format The format to be used for the specified item.
 	 */
-	static public function setFormatGlobal($item, $format)
+	static public function setFormatGlobal($item, $id, $format)
 	{
-		self::$_globalFormatInfo['global.'.$item] = $format;
+		if(!isset(self::$_globalFormatInfo[$item][$id]))
+		{
+			self::$_globalFormatInfo[$item][$id] = array();
+		}
+		// TODO: Needs checking
+		self::$_globalFormatInfo['global.'.$item][$id] = $format;
 	} // end setFormatGlobal();
 
 	/**
@@ -1265,7 +1276,7 @@ class Opt_View
 
 		$compiler = $this->_tpl->getCompiler();
 		$compiler->setInheritance($this->_cplInheritance);
-		$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
+		$compiler->addFormats(self::$_globalCdf, $this->_localCdf, self::$_globalFormatInfo, $this->_formatInfo);
 		$compiler->set('branch', $this->_branch);
 		$compiler->compile($result, $this->_template, $compiled, $this->_parser);
 		return array($compiled, $compileTime);
@@ -1285,29 +1296,26 @@ class Opt_View
 	 */
 	protected function _massPreprocess($compileTime, $templates)
 	{
-		switch($this->_tpl->compileMode)
+		if($this->_tpl->compileMode == Opt_Class::CM_DEFAULT)
 		{
-			case Opt_Class::CM_PERFORMANCE:
-			case Opt_Class::CM_REBUILD:
-				return false;	// We return false even here, because the compilation has already been done in _parse()
-			case Opt_Class::CM_DEFAULT:
-				$cnt = sizeof($templates);
-				$inflector = $this->_tpl->getInflector();
-				for($i = 0; $i < $cnt; $i++)
+			$cnt = sizeof($templates);
+			$inflector = $this->_tpl->getInflector();
+			for($i = 0; $i < $cnt; $i++)
+			{
+				$templates[$i] = $inflector->getSourcePath($templates[$i]);
+				$time = @filemtime($templates[$i]);
+				if(is_null($time))
 				{
-					$templates[$i] = $inflector->getSourcePath($templates[$i]);
-					$time = @filemtime($templates[$i]);
-					if(is_null($time))
-					{
-						throw new Opt_TemplateNotFound_Exception($templates[$i]);
-					}
-					if($time >= $compileTime)
-					{
-						return true;
-					}
+					throw new Opt_TemplateNotFound_Exception($templates[$i]);
 				}
-				return false;
+				if($time >= $compileTime)
+				{
+					return true;
+				}
+			}
 		}
+		// For CM_REBUILD we return false, too, because the compilation has already been done in _parse()
+		return false;
 	} // end _massPreprocess();
 
 	/**

@@ -25,6 +25,18 @@ class Opt_Format_Objective extends Opt_Compiler_Format
 	);
 
 	protected $_properties = array(
+		'variable:item.assign' => true,
+		'variable:item.preincrement' => true,
+		'variable:item.postincrement' => true,
+		'variable:item.predecrement' => true,
+		'variable:item.postdecrement' => true,
+		'item:item.assign' => true,
+		'item:item.preincrement' => true,
+		'item:item.postincrement' => true,
+		'item:item.predecrement' => true,
+		'item:item.postdecrement' => true,
+
+
 		'section:useReference' => true,
 		'section:anyRequests' => null,
 		'section:itemAssign' => false,
@@ -201,18 +213,18 @@ class Opt_Format_Objective extends Opt_Compiler_Format
 				$section = $this->_getVar('section');
 				return '(($_sect'.$section['name'].'_i == ($_sect'.$section['name'].'_cnt-1)) || ($_sect'.$section['name'].'_i == 0))';
 			// The variable access.
-			case 'variable:main':
+			case 'variable:item':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
-				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-				{
+			//	if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
+		//		{
 					return '$this->_data[\''.$item.'\']';
-				}
-				else
-				{
-					return 'self::$_global[\''.$item.'\']';
-				}
-			case 'variable:assign':
+		//		}
+		//		else
+		//		{
+		//			return 'self::$_global[\''.$item.'\']';
+		//		}
+			case 'variable:item.assign':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
 				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
@@ -223,6 +235,18 @@ class Opt_Format_Objective extends Opt_Compiler_Format
 				{
 					return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
 				}
+			case 'variable:item.preincrement':
+			case 'item:item.preincrement':
+				return '++'.$this->_getVar('code');
+			case 'variable:item.postincrement':
+			case 'item:item.postincrement':
+				return $this->_getVar('code').'++';
+			case 'variable:item.predecrement':
+			case 'item:item.predecrement':
+				return '--'.$this->_getVar('code');
+			case 'variable:item.postdecrement':
+			case 'item:item.postdecrement':
+				return $this->_getVar('code').'--';
 			case 'item:item':
 				return '->'.$this->_getVar('item');
 			case 'item:assign':

@@ -1,4 +1,3 @@
 bar#joe foo#bar, joe {
-	generic: Array;
-	testing: Objective;
+	data-format: Array;
 }

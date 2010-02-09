@@ -47,6 +47,14 @@ class Opt_Cdf_Loader
 	 */
 	public function load($filename)
 	{
+		// If the file has already been loaded, skip the parsing process.
+		if(in_array($filename, $this->_loaded))
+		{
+			return;
+		}
+		$this->_loaded[] = $filename;
+
+		// Initialize the parser and lexer and parse everything.
 		$lexer = new Opt_Cdf_Lexer($filename);
 		$parser = new Opt_Cdf_Parser($this);
 
@@ -68,7 +76,6 @@ class Opt_Cdf_Loader
 			{
 				$last = reset($group);
 				array_shift($group);
-			//	array_reverse($group);
 
 				// Concatenate the list for the locator
 				$fullyQualifiedPath = array();
@@ -87,10 +94,10 @@ class Opt_Cdf_Loader
 						$fullyQualifiedPath[] = $item[0].'#';
 					}
 				}
-				// Add the format definitions to the manager
-				foreach($definition[1] as $property => $format)
+				// Add the format definition to the manager
+				if(isset($definition[1]['data-format']))
 				{
-					$this->_manager->addFormat($last[0], $last[1], $property, $format, $fullyQualifiedPath);
+					$this->_manager->addFormat($last[0], $last[1], $definition[1]['data-format'], $fullyQualifiedPath);
 				}
 			}
 		}

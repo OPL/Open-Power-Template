@@ -181,6 +181,11 @@ class Opt_Compiler_Class
 	 */
 	protected $_cdfManager;
 
+	/**
+	 * The CDF loader instance.
+	 */
+	protected $_cdfLoader;
+
 	// Help fields
 	private $_charset = null;
 	private $_initialMemory = null;
@@ -419,74 +424,79 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the format object for the specified variable.
 	 *
+	 * @deprecated
 	 * @param String $variable The variable identifier.
 	 * @param Boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
 	 * @return Opt_Compiler_Format The format object.
 	 */
 	public function getFormat($variable, $restore = false)
 	{
-		// TODO: REIMPLEMENT!!!
-		$hc = self::DEFAULT_FORMAT_CLASS;
-		if(isset($this->_formatInfo[$variable]))
-		{
-			$hc = $this->_formatInfo[$variable];
-		}
-		if($restore && isset($this->_formatObj[$hc]))
-		{
-			return $this->_formatObj[$hc];
-		}
-
-		$top = $this->createFormat($variable, $hc);
-		if($restore)
-		{
-			$this->_formatObj[$hc] = $top;
-		}
-		return $top;
+		return $this->getCdfManager()->getFormat(null, $variable);
 	} // end getFormat();
 
 	/**
 	 * Creates a format object for the specified description string.
 	 *
+	 * @deprecated
 	 * @param String $variable The variable name (for debug purposes)
 	 * @param String $hc The description string.
 	 * @return Opt_Compiler_Format The newly created format object.
 	 */
 	public function createFormat($variable, $hc)
 	{
-		// TODO: REIMPLEMENT!!!
-		// Decorate the objects, if necessary
-		$expanded = explode('/', $hc);
-		$obj = null;
-		foreach($expanded as $class)
-		{
-			if(!isset($this->_formats[$class]))
-			{
-				throw new Opt_FormatNotFound_Exception($variable, $class);
-			}
-			$hcName = $this->_formats[$class];
-			if(!is_null($obj))
-			{
-				$obj->decorate($obj2 = new $hcName($this->_tpl, $this));
-				$obj = $obj2;
-			}
-			else
-			{
-				$top = $obj = new $hcName($this->_tpl, $this, $hc);
-			}
-		}
-		return $top;
+		throw new Opt_NotSupported_Exception('Opt_Compiler_Class::createFormat', 'deprecated');
 	} // end createFormat();
 
 	/**
-	 * Allows to export the list of variables and their data formats to
-	 * the template compiler.
+	 * Allows to export the data format configuration to the compiler.
 	 *
 	 * @param Array $list An associative array of pairs "variable => format description"
 	 */
-	public function setFormatList(Array $list)
+	public function addFormats(array $globalCdf, array $localCdf, array $globalDefs, array $localDefs)
 	{
-		$this->_formatInfo = $list;
-	} // end setFormatList();
+		$manager = $this->getCdfManager();
+
+		if(sizeof($globalCdf) > 0 || sizeof($localCdf) > 0)
+		{
+			// Initialize the loader
+			if($this->_cdfLoader === null)
+			{
+				$this->_cdfLoader = new Opt_Cdf_Loader($manager);
+			}
+
+			$manager->setLocality(Opt_Cdf_Manager::AS_GLOBAL);
+			foreach($globalCdf as $cdf)
+			{
+				$this->_cdfLoader->load($this->_tpl->cdfDir.$cdf);
+			}
+
+			foreach($localCdf as $cdf)
+			{
+				$manager->setLocality($cdf);
+				$this->_cdfLoader->load($this->_tpl->cdfDir.$cdf);
+			}
+
+			$this->_cdfManager->setLocals($localCdf);
+		}
+
+		// Now manual definitions...
+		$manager->setLocality(Opt_Cdf_Manager::AS_GLOBAL);
+		foreach($globalDefs as $item => &$idList)
+		{
+			foreach($idList as $id => $format)
+			{
+				$this->_cdfManager->addFormat($item, $id, $format, array());
+			}
+		}
+		$manager->setLocality(Opt_Cdf_Manager::AS_LOCAL);
+		foreach($localDefs as $item => &$idList)
+		{
+			foreach($idList as $id => $format)
+			{
+				$this->_cdfManager->addFormat($item, $id, $format, array());
+			}
+		}
+	} // end addFormats();
 
 	/**
 	 * Converts the specified item into another string using one of the
@@ -1240,6 +1250,7 @@ class Opt_Compiler_Class
 	 */
 	public function compile($code, $filename, $compiledFilename, $mode)
 	{
+		$manager = $this->getCdfManager();
 		try
 		{
 			// First, we select a parser.
@@ -1426,6 +1437,7 @@ class Opt_Compiler_Class
 				}
 			}
 			$this->_template = NULL;
+			$manager->clearLocals();
 
 			// Run the new garbage collector, if it is available.
 		/*	if(version_compare(PHP_VERSION, '5.3.0', '>='))
@@ -1448,11 +1460,8 @@ class Opt_Compiler_Class
 			{
 				$processor->reset();
 			}
-			// Run the new garbage collector, if it is available.
-		/*	if(version_compare(PHP_VERSION, '5.3.0', '>='))
-			{
-				gc_collect_cycles();
-			}*/
+			$manager->clearLocals();
+
 			// And throw it forward.
 			throw $e;
 		}

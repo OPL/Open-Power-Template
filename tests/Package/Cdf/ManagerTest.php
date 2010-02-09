@@ -56,8 +56,8 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array()));
 
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array());
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', 'bar', 'Array', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Compiler_Format);
 	} // end testTheSimplestFormatCreation();
@@ -73,28 +73,10 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array()));
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Array', array());
-		$format = $this->_obj->getFormat('foo', null, 'generic', $locator);
+		$this->_obj->addFormat('foo', null, 'Array', array());
+		$format = $this->_obj->getFormat('foo', null, $locator);
 
 		$this->assertTrue($format instanceof Opt_Compiler_Format);
-	} // end testTheSimplestFormatCreationElementOnly();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testTheSimplestFormatTwoDefinitions()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->exactly(2))
-			->method('getElementLocation')
-			->will($this->returnValue(array()));
-
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array());
-		$this->_obj->addFormat('foo', 'bar', 'testing', 'Objective', array());
-
-		$this->assertEquals('Opt_Format_Array', get_class($this->_obj->getFormat('foo', 'bar', 'generic', $locator)));
-		$this->assertEquals('Opt_Format_Objective', get_class($this->_obj->getFormat('foo', 'bar', 'testing', $locator)));
 	} // end testTheSimplestFormatCreationElementOnly();
 
 	/**
@@ -108,8 +90,8 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array()));
 
-		$this->_obj->addFormat(null, 'bar', 'generic', 'Array', array());
-		$format = $this->_obj->getFormat(null, 'bar', 'generic', $locator);
+		$this->_obj->addFormat(null, 'bar', 'Array', array());
+		$format = $this->_obj->getFormat(null, 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Compiler_Format);
 	} // end testTheSimplestFormatCreationIdOnly();
@@ -125,9 +107,9 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('goo', 'hoo')));
 
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array('goo', 'hoo'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array());
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', 'bar', 'Array', array('goo', 'hoo'));
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testFullyQualifiedPathThatMatches();
@@ -143,12 +125,30 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'hoo'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array());
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array('goo', 'hoo'));
+		$this->_obj->addFormat('foo', 'bar', 'Array', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testFullyQualifiedPathThatMatches();
+
+	/**
+	 * @covers Opt_Cdf_Manager::getFormat
+	 * @covers Opt_Cdf_Manager::addFormat
+	 */
+	public function testFullyQualifiedPathWithId()
+	{
+		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
+		$locator->expects($this->once())
+			->method('getElementLocation')
+			->will($this->returnValue(array('goo#identifier', 'hoo')));
+
+		$this->_obj->addFormat('foo', 'bar', 'Array', array('goo#identifier', 'hoo'));
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
+
+		$this->assertTrue($format instanceof Opt_Format_Array);
+	} // end testFullyQualifiedPathWithId();
 
 	/**
 	 * @covers Opt_Cdf_Manager::getFormat
@@ -161,11 +161,11 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'hoo', 'woo'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array());
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array('goo', 'hoo', 'woo'));
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array('goo', 'rotfl', 'lmao'));
+		$this->_obj->addFormat('foo', 'bar', 'Array', array('rotfl', 'lmao'));
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testMultiplePathsSelection();
@@ -181,159 +181,16 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'hoo', 'woo'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array());
-		$formatA = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
-		$formatB = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array('goo', 'hoo', 'woo'));
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array('goo', 'rotfl', 'lmao'));
+		$this->_obj->addFormat('foo', 'bar', 'Array', array('rotfl', 'lmao'));
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array());
+		$formatA = $this->_obj->getFormat('foo', 'bar', $locator);
+		$formatB = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($formatA instanceof Opt_Format_Array);
 		$this->assertSame($formatA, $formatB);
 	} // end testFormatCaching();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testAccessingAnotherFormatType()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->once())
-			->method('getElementLocation')
-			->will($this->returnValue(array('rotfl', 'lmao')));
-
-		$this->_obj->addFormat('foo', 'bar', 'testing', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array());
-		$formatA = $this->_obj->getFormat('foo', 'bar', 'testing', $locator);
-
-		$this->assertTrue($formatA instanceof Opt_Format_Array);
-	} // end testAccessingAnotherFormatType();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testAccessingAnotherFormatTypeOrderChangeDoesntMatter()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->once())
-			->method('getElementLocation')
-			->will($this->returnValue(array('rotfl', 'lmao')));
-
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'testing', 'Array', array('rotfl', 'lmao'));
-		$formatA = $this->_obj->getFormat('foo', 'bar', 'testing', $locator);
-
-		$this->assertTrue($formatA instanceof Opt_Format_Array);
-	} // end testAccessingAnotherFormatTypeOrderChangeDoesntMatter();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testAccessingAnotherFormatTypeComplexMixingDoesntMatter()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->once())
-			->method('getElementLocation')
-			->will($this->returnValue(array('rotfl', 'lmao')));
-
-		$this->_obj->addFormat('foo', 'bar', 'testing', 'Objective', array('goo', 'hoo'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'hoo', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'mysterious', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'testing', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array());
-		$this->_obj->addFormat('foo', 'bar', 'mysterious', 'Objective', array());
-		$formatA = $this->_obj->getFormat('foo', 'bar', 'testing', $locator);
-
-		$this->assertTrue($formatA instanceof Opt_Format_Array);
-	} // end testAccessingAnotherFormatTypeComplexMixingDoesntMatter();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testAccessingAnotherFormatTypeWithNoDefinition()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->once())
-			->method('getElementLocation')
-			->will($this->returnValue(array('rotfl', 'lmao')));
-
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array('rotfl', 'lmao'));
-		$format = $this->_obj->getFormat('foo', 'bar', 'testing', $locator);
-
-		$this->assertTrue($format instanceof Opt_Format_Array);
-	} // end testAccessingAnotherFormatTypeWithNoDefinition();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testAccessingAnotherFormatTypeMissingSelectsGeneric()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->once())
-			->method('getElementLocation')
-			->will($this->returnValue(array('rotfl', 'lmao')));
-
-		$this->_obj->addFormat('foo', 'bar', 'testing', 'Objective', array('goo', 'hoo'));
-		$this->_obj->addFormat('foo', 'moe', 'generic', 'Objective', array('goo', 'hoo', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'mysterious', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'moe', 'testing', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array());
-		$this->_obj->addFormat('foo', 'bar', 'mysterious', 'Objective', array());
-		$format = $this->_obj->getFormat('foo', 'bar', 'testing', $locator);
-
-		$this->assertTrue($format instanceof Opt_Format_Array);
-	} // end testAccessingAnotherFormatTypeMissingSelectsGeneric();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testFormatCachingIfGenericSelected()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->exactly(2))
-			->method('getElementLocation')
-			->will($this->returnValue(array('rotfl', 'lmao')));
-
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'hoo', 'woo'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('goo', 'rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array());
-		$formatA = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
-		$formatB = $this->_obj->getFormat('foo', 'bar', 'testing', $locator);
-
-		$this->assertTrue($formatA instanceof Opt_Format_Array);
-		$this->assertSame($formatA, $formatB);
-	} // end testFormatCachingIfGenericSelected();
-
-	/**
-	 * @covers Opt_Cdf_Manager::getFormat
-	 * @covers Opt_Cdf_Manager::addFormat
-	 */
-	public function testFormatCachingButForYetAnotherType()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->exactly(2))
-			->method('getElementLocation')
-			->will($this->returnValue(array('rotfl', 'lmao')));
-
-		$this->_obj->addFormat('foo', 'bar', 'mysterious', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'testing', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$formatA = $this->_obj->getFormat('foo', 'bar', 'mysterious', $locator);
-		$formatB = $this->_obj->getFormat('foo', 'bar', 'testing', $locator);
-
-		$this->assertTrue($formatA instanceof Opt_Format_Objective);
-		$this->assertTrue($formatB instanceof Opt_Format_Array);
-	} // end testFormatCachingButForYetAnotherType();
 
 	/**
 	 * @covers Opt_Cdf_Manager::getFormat
@@ -346,10 +203,10 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat(null, 'bar', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', null, 'Objective', array('rotfl', 'lmao'));
+		$this->_obj->addFormat('foo', 'bar', 'Array', array('rotfl', 'lmao'));
+		$this->_obj->addFormat(null, 'bar', 'Objective', array('rotfl', 'lmao'));
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testFirstlySelectTypeAndId();
@@ -365,9 +222,9 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat(null, 'bar', 'generic', 'Array', array('rotfl', 'lmao'));
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', null, 'Objective', array('rotfl', 'lmao'));
+		$this->_obj->addFormat(null, 'bar', 'Array', array('rotfl', 'lmao'));
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testSecondlySelectId();
@@ -383,9 +240,9 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'joe', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', null, 'Array', array('rotfl', 'lmao'));
+		$this->_obj->addFormat('foo', 'joe', 'Objective', array('rotfl', 'lmao'));
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testFinallySelectType();
@@ -401,10 +258,10 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Array', array('rotfl', 'lmao'));
-		$this->_obj->addFormat(null, 'bar', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$this->_obj->addFormat('foo', 'bar', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$format = $this->_obj->getFormat('foo', null, 'generic', $locator);
+		$this->_obj->addFormat('foo', null, 'Array', array('rotfl', 'lmao'));
+		$this->_obj->addFormat(null, 'bar', 'Objective', array('rotfl', 'lmao'));
+		$this->_obj->addFormat('foo', 'bar', 'Objective', array('rotfl', 'lmao'));
+		$format = $this->_obj->getFormat('foo', null, $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testIfNoIdSelectType();
@@ -422,8 +279,8 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 
 		$this->_obj->setLocator($locator);
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Array', array('rotfl', 'lmao'));
-		$format = $this->_obj->getFormat('foo', null, 'generic');
+		$this->_obj->addFormat('foo', null, 'Array', array('rotfl', 'lmao'));
+		$format = $this->_obj->getFormat('foo', null);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 	} // end testUsingDefaultLocator();
@@ -440,8 +297,8 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array('rotfl', 'lmao')));
 
-		$this->_obj->addFormat('foo', 'joe', 'generic', 'Objective', array('rotfl', 'lmao'));
-		$format = $this->_obj->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_obj->addFormat('foo', 'joe', 'Objective', array('rotfl', 'lmao'));
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
 	} // end testThrowsExceptionIfNoMatchingDefinition();
 
 	/**
@@ -455,8 +312,8 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array()));
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Array/Objective', array());
-		$format = $this->_obj->getFormat('foo', null, 'generic', $locator);
+		$this->_obj->addFormat('foo', null, 'Array/Objective', array());
+		$format = $this->_obj->getFormat('foo', null, $locator);
 
 		$this->assertTrue($format instanceof Opt_Format_Array);
 		$this->assertTrue($format->isDecorating());
@@ -474,7 +331,7 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 			->method('getElementLocation')
 			->will($this->returnValue(array()));
 
-		$this->_obj->addFormat('foo', null, 'generic', 'Array/MissingFormat', array());
-		$this->_obj->getFormat('foo', null, 'generic', $locator);
+		$this->_obj->addFormat('foo', null, 'Array/MissingFormat', array());
+		$this->_obj->getFormat('foo', null, $locator);
 	} // end testFormatDecorationMissingFormat();
 } // end Package_Cdf_ManagerTest;

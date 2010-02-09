@@ -69,26 +69,8 @@ class Package_Cdf_LoaderTest extends Extra_Testcase
 			->will($this->returnValue(array()));
 
 		$this->_loader->load(self::PATH.'simple_loading.cdf');
-		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', 'generic', $locator)));
+		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', $locator)));
 	} // end testSimpleLoading();
-
-	/**
-	 * @covers Opt_Cdf_Lexer
-	 * @covers Opt_Cdf_Parser
-	 * @covers Opt_Cdf_Loader::load
-	 * @covers Opt_Cdf_Loader::_addDefinition
-	 */
-	public function testMultipleFormats()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->exactly(2))
-			->method('getElementLocation')
-			->will($this->returnValue(array()));
-
-		$this->_loader->load(self::PATH.'multiple_formats.cdf');
-		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', 'generic', $locator)));
-		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('foo', 'bar', 'testing', $locator)));
-	} // end testMultipleFormats();
 
 	/**
 	 * @covers Opt_Cdf_Lexer
@@ -99,13 +81,12 @@ class Package_Cdf_LoaderTest extends Extra_Testcase
 	public function testNestedElements()
 	{
 		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->exactly(2))
+		$locator->expects($this->once())
 			->method('getElementLocation')
 			->will($this->returnValue(array('bar#joe')));
 
 		$this->_loader->load(self::PATH.'nested_elements.cdf');
-		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', 'generic', $locator)));
-		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('foo', 'bar', 'testing', $locator)));
+		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', $locator)));
 	} // end testNestedElements();
 
 	/**
@@ -117,16 +98,13 @@ class Package_Cdf_LoaderTest extends Extra_Testcase
 	public function testMultipleDefs()
 	{
 		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->exactly(4))
+		$locator->expects($this->exactly(2))
 			->method('getElementLocation')
 			->will($this->returnValue(array('bar#joe')));
 
 		$this->_loader->load(self::PATH.'multiple_defs.cdf');
-		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', 'generic', $locator)));
-		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('foo', 'bar', 'testing', $locator)));
-
-		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('joe', null, 'generic', $locator)));
-		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('joe', null, 'testing', $locator)));
+		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', $locator)));
+		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('joe', null, $locator)));
 	} // end testMultipleDefs();
 
 	/**
@@ -144,7 +122,7 @@ class Package_Cdf_LoaderTest extends Extra_Testcase
 
 		$this->_loader->load(self::PATH.'decoration.cdf');
 
-		$format = $this->_manager->getFormat('foo', 'bar', 'generic', $locator);
+		$format = $this->_manager->getFormat('foo', 'bar', $locator);
 		$this->assertEquals('Opt_Format_Array', get_class($format));
 		$this->assertTrue($format->isDecorating());
 	} // end testDecoration();
@@ -163,25 +141,8 @@ class Package_Cdf_LoaderTest extends Extra_Testcase
 			->will($this->returnValue(array()));
 
 		$this->_loader->load(self::PATH.'variables.cdf');
-		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('variable', 'item.subitem', 'generic', $locator)));
+		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('variable', 'item.subitem', $locator)));
 	} // end testVariables();
-
-	/**
-	 * @covers Opt_Cdf_Lexer
-	 * @covers Opt_Cdf_Parser
-	 * @covers Opt_Cdf_Loader::load
-	 * @covers Opt_Cdf_Loader::_addDefinition
-	 */
-	public function testSlashedType()
-	{
-		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
-		$locator->expects($this->once())
-			->method('getElementLocation')
-			->will($this->returnValue(array()));
-
-		$this->_loader->load(self::PATH.'slashed_type.cdf');
-		$this->assertEquals('Opt_Format_Array', get_class($this->_manager->getFormat('foo', 'bar', 'data-format', $locator)));
-	} // end testSlashedType();
 
 	/**
 	 * @covers Opt_Cdf_Lexer
@@ -198,7 +159,7 @@ class Package_Cdf_LoaderTest extends Extra_Testcase
 			->will($this->returnValue(array()));
 
 		$this->_loader->load(self::PATH.'comments_multiline.cdf');
-		$this->_manager->getFormat('foo', 'bar', 'generic', $locator);
+		$this->_manager->getFormat('foo', 'bar', $locator);
 	} // end testMultilineComments1();
 
 	/**
@@ -215,7 +176,7 @@ class Package_Cdf_LoaderTest extends Extra_Testcase
 			->will($this->returnValue(array()));
 
 		$this->_loader->load(self::PATH.'comments_multiline.cdf');
-		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('bar', 'joe', 'generic', $locator)));
+		$this->assertEquals('Opt_Format_Objective', get_class($this->_manager->getFormat('bar', 'joe', $locator)));
 	} // end testMultilineComments2();
 
 } // end Package_Cdf_LoaderTest;

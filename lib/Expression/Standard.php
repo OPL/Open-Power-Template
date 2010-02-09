@@ -280,6 +280,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function _compileVariable(array $variable, $type, $weight, $context = 0, $contextInfo = null, $extra = null)
 	{
 		$conversion = '##simplevar_';
+		$manager = $this->_compiler->getCdfManager();
 		$defaultFormat = null;
 		if($type == '@')
 		{
@@ -317,13 +318,13 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		$path = '';
 		$previous = null;
 		foreach($variable as $id => $item)
-		{
+		{			
 			// Handle conversions
 			$previous = $path;
 			if($path == '')
 			{
 				// Parsing the first element. First, check the conversions.
-				if(($to = $this->_compiler->convert($conversion.$item)) != $conversion.$item)
+				if(($to = $this->_compiler->convert($conversion.$item[0])) != $conversion.$item[0])
 				{
 					$item = $to;
 				}
@@ -343,7 +344,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				if($state['section'] === null)
 				{
 					// Check if any section with the specified name exists.
-					$sectionName = $this->_compiler->convert($item);
+					$sectionName = $this->_compiler->convert($item[0]);
 
 					if(($section = $proc->getSection($sectionName)) !== null)
 					{
@@ -356,7 +357,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 							$hook = 'section:item'.$this->_dfCalls[$context];
 							if(!$section['format']->property($hook))
 							{
-								throw new Opt_OperationNotSupported($name, $this->_dfCalls[$context]);
+								throw new Opt_OperationNotSupported_Exception($name, $this->_dfCalls[$context]);
 							}
 							$section['format']->assign('value', $contextInfo[0]);
 							$section['format']->assign('code', $code);
@@ -401,7 +402,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			if($id == 0)
 			{
 				// The first element processing
-				$format = $this->_compiler->getFormat($path, true);
+				$format = $manager->getFormat('variable', $item);
 				if(!$format->supports('variable'))
 				{
 					throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
@@ -438,20 +439,21 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			}
 			else
 			{
-				$format = $this->_compiler->getFormat($previous, true);
+				$format = $manager->getFormat('variable', $previous);
 
 				$hook = 'item:item';
+				$format->assign('item', $item);
 				if($id == $final)
 				{
 					$hook .= $this->_dfCalls[$context];
-					$section['format']->assign('value', $contextInfo[0]);
-					$section['format']->assign('code', $code);
+					$format->assign('value', $contextInfo[0]);
+					$format->assign('code', $code);
 
-					if(!$section['format']->property($hook))
+					if($context > 0 && !$format->property($hook))
 					{
-						throw new Opt_OperationNotSupported($path, $this->_dfCalls[$context]);
+						throw new Opt_OperationNotSupported_Exception($path, $this->_dfCalls[$context]);
 					}
-					$code = $format->get($hook);
+					$code .= $format->get($hook);
 				}
 				else
 				{

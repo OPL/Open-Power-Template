@@ -1,8 +1,8 @@
 // This is commented
 //foo#bar {
-//	generic: Array;
+//	data-format: Array;
 //}
 
 bar#joe {	// this is not
-	generic: Objective;
+	data-format: Objective;
 }

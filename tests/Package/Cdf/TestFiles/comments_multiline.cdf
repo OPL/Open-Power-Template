@@ -2,12 +2,12 @@
 This is commented:
 
 foo#bar {
-	generic: Array;
+	data-format: Array;
 }
 */
 
 /* this is not */
 
 bar#joe {
-	generic: Objective;
+	data-format: Objective;
 }

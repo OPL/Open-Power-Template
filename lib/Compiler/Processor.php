@@ -527,7 +527,7 @@ class Opt_Compiler_Processor
 				{
 					Opt_ExpressionOptionDisabled_Exception('Assignments', 'compiler requirements');
 				}
-				return $result['escaped'];
+				return $result['bare'];
 		}
 	} // end _extractAttribute();
 } // end Opt_Compiler_Processor;
