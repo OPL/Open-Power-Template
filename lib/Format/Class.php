@@ -18,7 +18,7 @@
  * @abstract
  * @package Compiler
  */
-abstract class Opt_Compiler_Format
+abstract class Opt_Format_Class
 {
 	/**
 	 * The list of variables passed by the format user.
@@ -58,14 +58,14 @@ abstract class Opt_Compiler_Format
 	/**
 	 * The used OPT Compiler
 	 *
-	 * @var Opt_Compiler Class
+	 * @var Opt_Compiler_Class
 	 */
 	protected $_compiler;
 
 	/**
 	 * The decorated data format object.
 	 *
-	 * @var Opt_Compiler_Format|NULL
+	 * @var Opt_Format_Class|NULL
 	 */
 	protected $_decorated;
 
@@ -224,9 +224,9 @@ abstract class Opt_Compiler_Format
 	 * Decorates the specified format object with the current object.
 	 *
 	 * @final
-	 * @param Opt_Compiler_Format $object Format object.
+	 * @param Opt_Format_Class $object Format object.
 	 */
-	final public function decorate(Opt_Compiler_Format $object)
+	final public function decorate(Opt_Format_Class $object)
 	{
 		$this->_decorated = $object;
 		$this->_decorated->_vars = &$this->_vars;
@@ -289,4 +289,4 @@ abstract class Opt_Compiler_Format
 	 * @return String The PHP code
 	 */
 	abstract protected function _build($hookName);
-} // end Opt_Compiler_Hook;
+} // end Opt_Format_Class;

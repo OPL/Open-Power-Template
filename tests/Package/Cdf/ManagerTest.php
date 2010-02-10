@@ -334,4 +334,107 @@ class Package_Cdf_ManagerTest extends Extra_Testcase
 		$this->_obj->addFormat('foo', null, 'Array/MissingFormat', array());
 		$this->_obj->getFormat('foo', null, $locator);
 	} // end testFormatDecorationMissingFormat();
+
+	/**
+	 * @covers Opt_Cdf_Manager::getFormat
+	 * @covers Opt_Cdf_Manager::addFormat
+	 * @covers Opt_Cdf_Manager::setLocality
+	 */
+	public function testSelectingGlobalDefinitions()
+	{
+		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
+		$locator->expects($this->once())
+			->method('getElementLocation')
+			->will($this->returnValue(array()));
+
+		$this->_obj->setLocality(Opt_Cdf_Manager::AS_GLOBAL);
+		$this->_obj->addFormat('foo', 'bar', 'Array', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
+
+		$this->assertTrue($format instanceof Opt_Format_Array);
+	} // end testSelectingGlobalDefinitions();
+
+	/**
+	 * @covers Opt_Cdf_Manager::getFormat
+	 * @covers Opt_Cdf_Manager::addFormat
+	 * @covers Opt_Cdf_Manager::setLocality
+	 */
+	public function testSelectingLocalDefinitions()
+	{
+		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
+		$locator->expects($this->once())
+			->method('getElementLocation')
+			->will($this->returnValue(array()));
+
+		$this->_obj->setLocality(Opt_Cdf_Manager::AS_LOCAL);
+		$this->_obj->addFormat('foo', 'bar', 'Array', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
+
+		$this->assertTrue($format instanceof Opt_Format_Array);
+	} // end testSelectingLocalDefinitions();
+
+	/**
+	 * @covers Opt_Cdf_Manager::getFormat
+	 * @covers Opt_Cdf_Manager::addFormat
+	 * @covers Opt_Cdf_Manager::setLocality
+	 * @covers Opt_Cdf_Manager::setLocals
+	 */
+	public function testSelectingLocalCdfDefinitions()
+	{
+		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
+		$locator->expects($this->once())
+			->method('getElementLocation')
+			->will($this->returnValue(array()));
+
+		$this->_obj->setLocality('file.cdf');
+		$this->_obj->setLocals(array('file.cdf'));
+		$this->_obj->addFormat('foo', 'bar', 'Array', array());
+		$format = $this->_obj->getFormat('foo', 'bar', $locator);
+
+		$this->assertTrue($format instanceof Opt_Format_Array);
+	} // end testSelectingLocalCdfDefinitions();
+
+	/**
+	 * @covers Opt_Cdf_Manager::getFormat
+	 * @covers Opt_Cdf_Manager::addFormat
+	 * @covers Opt_Cdf_Manager::setLocality
+	 * @covers Opt_Cdf_Manager::setLocals
+	 * @expectedException Opt_NoMatchingFormat_Exception
+	 */
+	public function testMaskingLocalCdfDefinitions()
+	{
+		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
+		$locator->expects($this->once())
+			->method('getElementLocation')
+			->will($this->returnValue(array()));
+
+		$this->_obj->setLocality('file.cdf');
+		$this->_obj->setLocals(array('foo.cdf'));
+		$this->_obj->addFormat('foo', 'bar', 'Array', array());
+		$this->_obj->getFormat('foo', 'bar', $locator);
+	} // end testMaskingLocalCdfDefinitions();
+
+	/**
+	 * @covers Opt_Cdf_Manager::getFormat
+	 * @covers Opt_Cdf_Manager::addFormat
+	 * @covers Opt_Cdf_Manager::setLocality
+	 * @covers Opt_Cdf_Manager::clearLocals
+	 * @expectedException Opt_NoMatchingFormat_Exception
+	 */
+	public function testDisablingLocalDefinitions()
+	{
+		$locator = $this->getMock('Opt_Cdf_Locator_Interface', array('getElementLocation'));
+		$locator->expects($this->exactly(2))
+			->method('getElementLocation')
+			->will($this->returnValue(array()));
+
+		$this->_obj->setLocality(Opt_Cdf_Manager::AS_LOCAL);
+		$this->_obj->addFormat('foo', 'bar', 'Array', array());
+		$this->_obj->addFormat('joe', 'goo', 'Array', array());
+		$this->assertTrue($this->_obj->getFormat('foo', 'bar', $locator) instanceof Opt_Format_Array);
+
+		$this->_obj->clearLocals();
+
+		$this->_obj->getFormat('joe', 'goo', $locator);
+	} // end testDisablingLocalDefinitions();
 } // end Package_Cdf_ManagerTest;

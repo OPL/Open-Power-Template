@@ -18,7 +18,7 @@
  *
  * @package Formats
  */
-class Opt_Format_RuntimeGenerator extends Opt_Compiler_Format
+class Opt_Format_RuntimeGenerator extends Opt_Format_Class
 {
 	protected $_supports = array(
 		'section'

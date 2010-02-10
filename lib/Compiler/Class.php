@@ -155,7 +155,7 @@ class Opt_Compiler_Class
 	 * @internal
 	 * @var array
 	 */
-	protected $_formnatInfo;
+	protected $_formatInfo;
 	/**
 	 * The list of registered data formats imported from Opt_Class.
 	 * @internal
@@ -185,6 +185,12 @@ class Opt_Compiler_Class
 	 * The CDF loader instance.
 	 */
 	protected $_cdfLoader;
+
+	/**
+	 * The context stack.
+	 * @var SplStack
+	 */
+	protected $_contextStack;
 
 	// Help fields
 	private $_charset = null;
@@ -281,6 +287,8 @@ class Opt_Compiler_Class
 			Opl_Loader::load('Opt_Xml_Dtd');
 			Opl_Loader::load('Opt_Format_Array');
 		}
+
+		$this->_contextStack = new SplStack;
 	} // end __construct();
 
 	/**
@@ -427,7 +435,7 @@ class Opt_Compiler_Class
 	 * @deprecated
 	 * @param String $variable The variable identifier.
 	 * @param Boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
-	 * @return Opt_Compiler_Format The format object.
+	 * @return Opt_Format_Class The format object.
 	 */
 	public function getFormat($variable, $restore = false)
 	{
@@ -440,7 +448,7 @@ class Opt_Compiler_Class
 	 * @deprecated
 	 * @param String $variable The variable name (for debug purposes)
 	 * @param String $hc The description string.
-	 * @return Opt_Compiler_Format The newly created format object.
+	 * @return Opt_Format_Class The newly created format object.
 	 */
 	public function createFormat($variable, $hc)
 	{
@@ -1048,6 +1056,15 @@ class Opt_Compiler_Class
 	} // end hasModifier();
 
 	/**
+	 * Returns the context stack object.
+	 * @return SplStack
+	 */
+	public function getContextStack()
+	{
+		return $this->_contextStack;
+	} // end getContextStack();
+
+	/**
 	 * Returns the template name that is inherited by the template '$name'
 	 *
 	 * @param String $name The "current" template file name
@@ -1251,6 +1268,12 @@ class Opt_Compiler_Class
 	public function compile($code, $filename, $compiledFilename, $mode)
 	{
 		$manager = $this->getCdfManager();
+
+		// Initialize the context.
+		$this->_contextStack->push(
+			new Opt_Compiler_Context($this, Opt_Compiler_Context::TEMPLATE_CTX, $filename)
+		);
+
 		try
 		{
 			// First, we select a parser.
@@ -1439,6 +1462,13 @@ class Opt_Compiler_Class
 			$this->_template = NULL;
 			$manager->clearLocals();
 
+			// Free the context.
+			while($this->_contextStack->count() > 0)
+			{
+				$ctx = $this->_contextStack->pop();
+				$ctx->dispose();
+			}
+
 			// Run the new garbage collector, if it is available.
 		/*	if(version_compare(PHP_VERSION, '5.3.0', '>='))
 			{
@@ -1447,6 +1477,13 @@ class Opt_Compiler_Class
 		}
 		catch(Exception $e)
 		{
+			// Free the context
+			while($this->_contextStack->count() > 0)
+			{
+				$ctx = $this->_contextStack->pop();
+				$ctx->dispose();
+			}
+
 			// Free the memory
 			if(isset($tree))
 			{

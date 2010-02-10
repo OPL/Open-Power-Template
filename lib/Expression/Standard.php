@@ -402,7 +402,15 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			if($id == 0)
 			{
 				// The first element processing
-				$format = $manager->getFormat('variable', $item);
+				$info = $this->_compiler->getContextStack()->top()->useVariable($item, false, null);
+
+				if($info['replacement'] !== null)
+				{
+					$answer[0] = $info['replacement'];
+					$answer[1] = Opt_Expression_Standard::SCALAR_WEIGHT;
+					return $answer;
+				}
+				$format = $info['format'];
 				if(!$format->supports('variable'))
 				{
 					throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');

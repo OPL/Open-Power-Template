@@ -20,6 +20,7 @@ class Opt_Cdf_Manager
 {
 	const AS_LOCAL = 0;
 	const AS_GLOBAL = 1;
+	const DISCARDED = 2;
 
 	/**
 	 * A search area
@@ -119,7 +120,16 @@ class Opt_Cdf_Manager
 	 */
 	public function clearLocals()
 	{
-
+		foreach($this->_information as $key => &$items)
+		{
+			foreach($items as $id => $subitem)
+			{
+				if($subitem['flag'] == self::AS_LOCAL)
+				{
+					$subitem['flag'] = self::DISCARDED;
+				}
+			}
+		}
 	} // end clearLocals();
 
 	/**
@@ -184,7 +194,7 @@ class Opt_Cdf_Manager
 			foreach($this->_information[$key] as $definition)
 			{
 				// Skip the entries that do not belong to the current template.
-				if(!is_integer($definition['flag']) && !in_array($definition['flag'], $this->_locals))
+				if(!is_integer($definition['flag']) && !in_array($definition['flag'], $this->_locals) || $definition['flag'] == self::DISCARDED)
 				{
 					continue;
 				}
@@ -262,7 +272,7 @@ class Opt_Cdf_Manager
 	 *
 	 * @param String $key The element key.
 	 * @param String $hc The description string.
-	 * @return Opt_Compiler_Format The newly created format object.
+	 * @return Opt_Format_Class The newly created format object.
 	 */
 	protected function _createFormat($key, $hc)
 	{

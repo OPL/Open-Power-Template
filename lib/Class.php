@@ -13,41 +13,6 @@
  */
 
 /**
- * The interface for writing components.
- *
- * @package Interfaces
- * @subpackage Public
- */
-interface Opt_Component_Interface
-{
-	public function __construct($name = '');
-	public function setView(Opt_View $view);
-	public function setDatasource($data);
-
-	public function set($name, $value);
-	public function get($name);
-	public function defined($name);
-
-	public function display($attributes = array());
-	public function processEvent($name);
-	public function manageAttributes($tagName, Array $attributes);
-} // end Opt_Component_Interface;
-
-/**
- * The interface for writing blocks.
- *
- * @package Interfaces
- * @subpackage Public
- */
-interface Opt_Block_Interface
-{
-	public function setView(Opt_View $view);
-	public function onOpen(Array $attributes);
-	public function onClose();
-	public function onSingle(Array $attributes);
-} // end Opt_Block_Interface;
-
-/**
  * The interface for writing caching systems for OPT.
  *
  * @package Interfaces
@@ -70,18 +35,6 @@ interface Opt_Output_Interface
 	public function getName();
 	public function render(Opt_View $view);
 } // end Opt_Output_Interface;
-
-/**
- * The interface for writing data generators for
- * StaticGenerator and RuntimeGenerator data formats.
- *
- * @package Interfaces
- * @subpackage Public
- */
-interface Opt_Generator_Interface
-{
-	public function generate($what);
-} // end Opt_Generator_Interface;
 
 /**
  * The interface for writing inflectors.
@@ -279,6 +232,7 @@ class Opt_Class extends Opl_Class
 	 * @var array
 	 */
 	protected $_formats = array(
+		'Scalar' => 'Opt_Format_Scalar',
 		'Array' => 'Opt_Format_Array',
 		'SingleArray' => 'Opt_Format_SingleArray',
 		'StaticGenerator' => 'Opt_Format_StaticGenerator',
@@ -1269,10 +1223,12 @@ class Opt_View
 				$result = file_get_contents($item);
 			}
 		}
-		if(is_null($result))
+		if($result === null)
 		{
 			return array($compiled, $compileTime);
 		}
+
+		$this->_calculateFormats();
 
 		$compiler = $this->_tpl->getCompiler();
 		$compiler->setInheritance($this->_cplInheritance);
@@ -1349,4 +1305,38 @@ class Opt_View
 		$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
 		return time();
 	} // end _compile();
+
+	/**
+	 * Calculates the assigned variable formats according to their values.
+	 */
+	protected function _calculateFormats()
+	{
+		if(!isset($this->_formatInfo['variable']))
+		{
+			$this->_formatInfo['variable'] = array();
+		}
+		foreach($this->_data as $id => &$value)
+		{
+			if(!isset($this->_formatInfo['variable'][$id]))
+			{
+				switch(gettype($value))
+				{
+					case 'boolean':
+					case 'integer':
+					case 'double':
+					case 'string':
+					case 'NULL':
+					case 'resource':
+						$this->_formatInfo['variable'][$id] = 'Scalar';
+						break;
+					case 'array':
+						$this->_formatInfo['variable'][$id] = 'Array';
+						break;
+					case 'object':
+						$this->_formatInfo['variable'][$id] = 'Objective';
+						break;
+				}
+			}
+		}
+	} // end _calculateFormats();
 } // end Opt_View;
