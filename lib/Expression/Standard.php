@@ -402,7 +402,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			if($id == 0)
 			{
 				// The first element processing
-				$info = $this->_compiler->getContextStack()->top()->useVariable($item, false, null);
+				$info = $this->_compiler->getContextStack()->top()->useVariable($item, $type, false, null);
 
 				if($info['replacement'] !== null)
 				{

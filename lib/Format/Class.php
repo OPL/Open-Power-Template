@@ -190,7 +190,7 @@ abstract class Opt_Format_Class
 		do
 		{
 			$result = $obj->_build($hookName);
-			if(is_null($result))
+			if($result === NULL)
 			{
 				if(is_object($obj->_decorated))
 				{
@@ -230,6 +230,8 @@ abstract class Opt_Format_Class
 	{
 		$this->_decorated = $object;
 		$this->_decorated->_vars = &$this->_vars;
+
+		$this->_onDecorate();
 	} // end decorate();
 
 	/**
@@ -240,7 +242,7 @@ abstract class Opt_Format_Class
 	 */
 	final public function isDecorating()
 	{
-		return !is_null($this->_decorated);
+		return $this->_decorated !== NULL;
 	} // end isDecorated();
 
 	/**
@@ -278,7 +280,17 @@ abstract class Opt_Format_Class
 	 */
 	public function supports($hookType)
 	{
-		return in_array($hookType, $this->_supports);
+		$item = $this;
+		do
+		{
+			if(is_array($item->_supports) && in_array($hookType, $item->_supports))
+			{
+				return true;
+			}
+			$item = $item->_decorated;
+		}
+		while($item !== NULL);
+		return false;
 	} // end supports();
 
 	/**
@@ -289,4 +301,13 @@ abstract class Opt_Format_Class
 	 * @return String The PHP code
 	 */
 	abstract protected function _build($hookName);
+
+	/**
+	 * The on-decorate event, allows to perform an extra initialization
+	 * if the data format is decorated with something.
+	 */
+	protected function _onDecorate()
+	{
+		/* null */
+	} // end _onDecorate();
 } // end Opt_Format_Class;

@@ -223,7 +223,7 @@ class Opt_Cdf_Manager
 		{
 			$this->_resolved[$code] = array();
 		}
-
+		
 		return $this->_resolved[$code] = $this->_createFormat(reset($checkIn), $match['format']);
 	} // end getFormat();
 

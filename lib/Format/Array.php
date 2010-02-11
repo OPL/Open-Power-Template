@@ -59,7 +59,7 @@ class Opt_Format_Array extends Opt_Format_Class
 			case 'section:init':
 				$section = $this->_getVar('section');
 
-				if(!is_null($section['datasource']))
+				if($section['datasource'] === NULL)
 				{
 					return '$_sect'.$section['name'].'_vals = '.$section['datasource'].'; ';
 				}
@@ -218,25 +218,19 @@ class Opt_Format_Array extends Opt_Format_Class
 			case 'variable:item':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
-			//	if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-		//		{
-					return '$this->_data[\''.$item.'\']';
-		//		}
-		//		else
-		//		{
-		//			return 'self::$_global[\''.$item.'\']';
-		//		}
+				if($this->_getVar('global') === true)
+				{
+					return 'self::$_global[\''.$item.'\']';
+				}
+				return '$this->_data[\''.$item.'\']';
 			case 'variable:item.assign':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
-				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-				{
-					return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
-				}
-				else
+				if($this->_getVar('global') === true)
 				{
 					return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
 				}
+				return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
 			case 'variable:item.preincrement':
 			case 'item:item.preincrement':
 				return '++'.$this->_getVar('code');

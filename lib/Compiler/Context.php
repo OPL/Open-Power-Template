@@ -98,9 +98,9 @@ class Opt_Compiler_Context implements Opt_Cdf_Locator_Interface
 	 * @param string $contextFormat The format enforced by the occurence context.
 	 * @return array
 	 */
-	public function useVariable($variable, $isGlobal, $contextFormat = null)
+	public function useVariable($variable, $type, $isGlobal, $contextFormat = null)
 	{
-		if(!isset($this->_variables[$variable]))
+		if(!isset($this->_variables[$type.$variable]))
 		{
 			// In this case the variable has not been used yet. We must check
 			// if the user have not selected any format for it, calculate the
@@ -109,14 +109,22 @@ class Opt_Compiler_Context implements Opt_Cdf_Locator_Interface
 
 			try
 			{
-				$this->_variables[$variable] = $manager->getFormat('variable', $variable, $this);
+				// In case of template variables, we should not check the data formats
+				// because we would run into several problems. We immediately jump to the
+				// format resolution algorithm.
+				if($type == '@')
+				{
+					throw new Exception();
+				}
+				// OK, look for a variable
+				$this->_variables[$type.$variable] = $manager->getFormat('variable', $variable, $this);
 				return array(
-					'format' => $this->_variables[$variable],
+					'format' => $this->_variables[$type.$variable],
 					'replacement' => null,
 					'cast' => null
 				);
 			}
-			catch(Opt_NoMatchingFormat_Exception $exception)
+			catch(Exception $exception)
 			{
 				if($contextFormat === null)
 				{
@@ -134,10 +142,10 @@ class Opt_Compiler_Context implements Opt_Cdf_Locator_Interface
 				else
 				{
 					$manager->addFormat('variable', $variable, $contextFormat, $this->getElementLocation('variable', $variable));
-					$this->_variables[$variable] = $manager->getFormat('variable', $variable, $this);
+					$this->_variables[$type.$variable] = $manager->getFormat('variable', $variable, $this);
 
 					return array(
-						'format' => $this->_variables[$variable],
+						'format' => $this->_variables[$type.$variable],
 						'replacement' => null,
 						'cast' => null
 					);
@@ -151,14 +159,14 @@ class Opt_Compiler_Context implements Opt_Cdf_Locator_Interface
 			if($contextFormat !== null)
 			{
 				return array(
-					'format' => $this->_variables[$variable],
+					'format' => $this->_variables[$type.$variable],
 					'replacement' => null,
-					'cast' => $this->_variables[$variable]->getName()
+					'cast' => $this->_variables[$type.$variable]->getName()
 				);
 			}
 			else
 			{
-				return array('format' => $this->_variables[$variable], 'replacement' => null);
+				return array('format' => $this->_variables[$type.$variable], 'replacement' => null);
 			}
 		}
 	} // end useVariable();

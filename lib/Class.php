@@ -234,10 +234,11 @@ class Opt_Class extends Opl_Class
 	protected $_formats = array(
 		'Scalar' => 'Opt_Format_Scalar',
 		'Array' => 'Opt_Format_Array',
+		'Objective' => 'Opt_Format_Objective',
+		'Global' => 'Opt_Format_Global',
 		'SingleArray' => 'Opt_Format_SingleArray',
 		'StaticGenerator' => 'Opt_Format_StaticGenerator',
-		'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
-		'Objective' => 'Opt_Format_Objective');
+		'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator');
 	/**
 	 * The extra entities replaced by OPT
 	 * @var array
@@ -1052,7 +1053,7 @@ class Opt_View
 			self::$_globalFormatInfo[$item][$id] = array();
 		}
 		// TODO: Needs checking
-		self::$_globalFormatInfo['global.'.$item][$id] = $format;
+		self::$_globalFormatInfo[$item][$id] = $format;
 	} // end setFormatGlobal();
 
 	/**
