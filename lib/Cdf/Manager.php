@@ -114,6 +114,23 @@ class Opt_Cdf_Manager
 	} // end setLocals();
 
 	/**
+	 * Returns the data format class name associated to the
+	 * specified data format name.
+	 *
+	 * @throws Opt_FormatNotFound_Exception
+	 * @param string $format The data format name
+	 * @return string
+	 */
+	public function getFormatClass($format)
+	{
+		if(!isset($this->_formats[$format]))
+		{
+			throw new Opt_FormatNotFound_Exception('cast', $format);
+		}
+		return $this->_formats[$format];
+	} // end getFormatClass();
+
+	/**
 	 * Clears the local entries from the buffer, clears the definitions
 	 * associated with them in the cache and restores original (global)
 	 * overwritten rules.

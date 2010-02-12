@@ -21,7 +21,7 @@ class Opt_Format_System extends Opt_Format_Class
 	 * The list of supported types.
 	 * @var array
 	 */
-	protected $_supports = array(
+	static protected $_supports = array(
 		'variable'
 	);
 
@@ -29,7 +29,7 @@ class Opt_Format_System extends Opt_Format_Class
 	 * The data format properties.
 	 * @var array
 	 */
-	protected $_properties = array(
+	static protected $_properties = array(
 		'variable:capture' => true,
 		'variable:capture.dynamic' => true,
 		'variable:capture.assign' => true,

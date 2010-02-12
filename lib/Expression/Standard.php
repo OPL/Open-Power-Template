@@ -85,6 +85,13 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	protected $_tpl;
 
 	/**
+	 * The CDF manager.
+	 *
+	 * @var Opt_Cdf_Manager
+	 */
+	protected $_manager;
+
+	/**
 	 * The compiled expression.
 	 * @var string
 	 */
@@ -99,6 +106,12 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 * @var integer
 	 */
 	protected $_complexity;
+
+	/**
+	 * The calculated data format.
+	 * @var string
+	 */
+	protected $_format;
 
 	/**
 	 * The unique identifier generator
@@ -120,6 +133,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function setCompiler(Opt_Compiler_Class $compiler)
 	{
 		$this->_compiler = $compiler;
+		$this->_manager = $compiler->getCdfManager();
 		$this->_tpl = Opl_Registry::get('opt');
 
 		$this->_tf = $this->_tpl->getTranslationInterface();
@@ -156,6 +170,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		return array(
 			'bare'			=> $this->_compiled,
 			'expression'	=> $this->_compiled,
+			'format'		=> $this->_format,
 			'complexity'	=> $this->_complexity,
 			'type'			=> $exprType
 		);
@@ -182,6 +197,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		$this->_compiled = $expression[0];
 		$this->_complexity = $expression[1];
+		$this->_format = $expression[2];
 
 		// The last expression field is used to mark some special things,
 		// such as that we have an assignment.
@@ -203,6 +219,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		$array = new SplFixedArray(4);
 		$array[0] = $value;
 		$array[1] = $weight;
+		$array[2] = 'Scalar';
 		$array[3] = 0;
 
 		return $array;
@@ -259,6 +276,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		$array = new SplFixedArray(4);
 		$array[0] = '$this->_tf->_(\''.$group.'\',\''.$id.'\')';
 		$array[1] = $weight;
+		$array[2] = 'Scalar';
 		$array[3] = 0;
 
 		return $array;
@@ -294,6 +312,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		);
 
 		$answer = new SplFixedArray(4);
+		$answer[2] = 'Scalar';
 		$answer[3] = 0;
 
 		// If we have an assignment context, we must mark it in the created
@@ -411,6 +430,11 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 					return $answer;
 				}
 				$format = $info['format'];
+				$answer[2] = $format->getName();
+				if($format->isDecorating())
+				{
+					$answer[2] = $format;
+				}
 				if(!$format->supports('variable'))
 				{
 					throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
@@ -448,6 +472,11 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			else
 			{
 				$format = $manager->getFormat('variable', $previous);
+				$answer[2] = $format->getName();
+				if($format->isDecorating())
+				{
+					$answer[2] = $format;
+				}
 
 				$hook = 'item:item';
 				$format->assign('item', $item);
@@ -486,8 +515,9 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _stdOperator($operator, SplFixedArray $expr1, SplFixedArray $expr2, $weight)
 	{
-		$expr1[0] = $expr1[0].$operator.$expr2[0];
+		$expr1[0] = Opt_Compiler_Utils::cast($this->_manager, $expr1[0], $expr1[2], 'Scalar').$operator.Opt_Compiler_Utils::cast($this->_manager, $expr2[0], $expr2[2], 'Scalar');
 		$expr1[1] += $expr2[1] + $weight;
+		$expr1[2] = 'Scalar';
 		$expr1[3] = 0;
 
 		return $expr1;
@@ -503,7 +533,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _unaryOperator($operator, SplFixedArray $expr, $weight)
 	{
-		$expr[0] = $operator.$expr[0];
+		$expr[0] = $operator.Opt_Compiler_Utils::cast($this->_manager, $expr[0], $expr[2], 'Scalar');
 		$expr[1] += $weight;
 		$expr[3] = 0;
 

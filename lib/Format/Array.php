@@ -20,11 +20,21 @@
  */
 class Opt_Format_Array extends Opt_Format_Class
 {
-	protected $_supports = array(
+	/**
+	 * The list of supported hook groups.
+	 * @static
+	 * @var array
+	 */
+	static protected $_supports = array(
 		'section', 'variable', 'item'
 	);
 
-	protected $_properties = array(
+	/**
+	 * The data format properties.
+	 * @static
+	 * @var array
+	 */
+	static protected $_properties = array(
 		'section:useReference' => true,
 		'section:anyRequests' => 'ancestorNumbers',
 		'variable:item.assign' => true,
@@ -43,6 +53,11 @@ class Opt_Format_Array extends Opt_Format_Class
 		'section:variableAssign' => true
 	);
 
+	/**
+	 * A switch that decides, how to compile section item variables. It is
+	 * used by some instructions.
+	 * @var boolean
+	 */
 	protected $_sectionItemVariables = false;
 
 	/**
@@ -252,6 +267,13 @@ class Opt_Format_Array extends Opt_Format_Class
 		}
 	} // end _build();
 
+	/**
+	 * Performs an action on a data format. In case of this one, only
+	 * one is supported: `section:forceItemVariables` which compiles the
+	 * shorter foreach-like form of section item variable call.
+	 *
+	 * @param string $name The action name
+	 */
 	public function action($name)
 	{
 		if($name == 'section:forceItemVariables')
@@ -260,4 +282,23 @@ class Opt_Format_Array extends Opt_Format_Class
 		}
 	} // end action();
 
+	/**
+	 * A type casting utility.
+	 *
+	 * @param string $format The required format name.
+	 * @param string $code The code to cast.
+	 * @param Opt_Format_Class $casted The casted data format object
+	 * @return string|null
+	 */
+	static public function cast($format, $code, $casted = null)
+	{
+		switch($format)
+		{
+			case 'Scalar':
+				return '(string)'.$code;
+			case 'Objective':
+				return 'new ArrayObject('.$code.')';
+		}
+		return NULL;
+	} // end cast();
 } // end Opt_Format_Array;

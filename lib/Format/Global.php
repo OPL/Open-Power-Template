@@ -44,4 +44,25 @@ class Opt_Format_Global extends Opt_Format_Class
 		}
 		return NULL;
 	} // end _build();
+
+	/**
+	 * A type casting utility.
+	 *
+	 * @param string $format The required format name.
+	 * @param string $code The code to cast.
+	 * @param Opt_Format_Class $casted The casted data format object
+	 * @return string|null
+	 */
+	static public function cast($format, $code, $casted = null)
+	{
+		assert($casted instanceof Opt_Format_Global);
+
+		$className = get_class($casted->_decorated);
+
+		if($casted->_decorated->getName() == $format)
+		{
+			return $code;
+		}
+		return $className::cast($format, $code, $casted);
+	} // end cast();
 } // end Opt_Format_Global;

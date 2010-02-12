@@ -20,11 +20,11 @@
  */
 class Opt_Format_Objective extends Opt_Format_Class
 {
-	protected $_supports = array(
+	static protected $_supports = array(
 		'section', 'variable', 'item'
 	);
 
-	protected $_properties = array(
+	static protected $_properties = array(
 		'variable:item.assign' => true,
 		'variable:item.preincrement' => true,
 		'variable:item.postincrement' => true,
@@ -35,8 +35,6 @@ class Opt_Format_Objective extends Opt_Format_Class
 		'item:item.postincrement' => true,
 		'item:item.predecrement' => true,
 		'item:item.postdecrement' => true,
-
-
 		'section:useReference' => true,
 		'section:anyRequests' => null,
 		'section:itemAssign' => false,
@@ -249,4 +247,24 @@ class Opt_Format_Objective extends Opt_Format_Class
 				return NULL;
 		}
 	} // end _build();
+
+	/**
+	 * A type casting utility.
+	 *
+	 * @param string $format The required format name.
+	 * @param string $code The code to cast.
+	 * @param Opt_Format_Class $casted The casted data format object
+	 * @return string|null
+	 */
+	static public function cast($format, $code, $casted = null)
+	{
+		switch($format)
+		{
+			case 'Scalar':
+				return '(string)'.$code;
+			case 'Array':
+				return '(array)'.$code;
+		}
+		return NULL;
+	} // end cast();
 } // end Opt_Format_Objective;

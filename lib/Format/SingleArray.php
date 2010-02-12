@@ -20,7 +20,7 @@
  */
 class Opt_Format_SingleArray extends Opt_Format_Array
 {
-	protected $_properties = array(
+	static protected $_properties = array(
 		'section:useReference' => true,
 		'section:anyRequests' => null,
 		'variable:assign' => true,

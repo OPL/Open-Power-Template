@@ -379,10 +379,11 @@ class Opt_Compiler_Class
 	 *
 	 * @param char $modifier The modifier used to escape the expression.
 	 * @param string $expression The PHP expression to be escaped.
+	 * @param string $format The format of the expression.
 	 * @param boolean $status The status of escaping for this expression or NULL, if not set.
 	 * @return string The expression with the escaping formula added, if necessary.
 	 */
-	public function escape($modifier, $expression, $status = null)
+	public function escape($modifier, $expression, $format, $status = null)
 	{
 		// OPT Configuration
 		$escape = $this->_tpl->escape;
@@ -406,7 +407,7 @@ class Opt_Compiler_Class
 		}
 		if($escape && !empty($this->_modifiers[$modifier]))
 		{
-			return $this->_modifiers[$modifier].'('.$expression.')';
+			return $this->_modifiers[$modifier].'('.Opt_Compiler_Utils::cast($this->_cdfManager, $expression, $format, 'Scalar').')';
 		}
 		return $expression;
 	} // end escape();
@@ -1712,11 +1713,11 @@ class Opt_Compiler_Class
 		{
 			if($modifierSelected || $escape === self::ESCAPE_ON)
 			{
-				$expression['escaped'] = $this->escape($modifier, $expression['bare'], !empty($this->_modifiers[$modifier]));
+				$expression['escaped'] = $this->escape($modifier, $expression['bare'], $expression['format'], !empty($this->_modifiers[$modifier]));
 			}
 			else
 			{
-				$expression['escaped'] = $this->escape($modifier, $expression['bare']);
+				$expression['escaped'] = $this->escape($modifier, $expression['bare'], $expression['format']);
 			}
 		}
 		else

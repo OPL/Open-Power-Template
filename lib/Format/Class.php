@@ -39,14 +39,14 @@ abstract class Opt_Format_Class
 	 *
 	 * @var Array
 	 */
-	protected $_supports;
+	static protected $_supports = array();
 
 	/**
 	 * The list of extra format properties.
 	 *
 	 * @var Array
 	 */
-	protected $_properties = array();
+	static protected $_properties = array();
 
 	/**
 	 * The main OPT class
@@ -106,9 +106,10 @@ abstract class Opt_Format_Class
 		$obj = $this;
 		do
 		{
-			if(isset($obj->_properties[$name]))
+			$className = get_class($obj);
+			if(isset($className::$_properties[$name]))
 			{
-				return $obj->_properties[$name];
+				return $className::$_properties[$name];
 			}
 			if(is_object($obj->_decorated))
 			{
@@ -283,7 +284,8 @@ abstract class Opt_Format_Class
 		$item = $this;
 		do
 		{
-			if(is_array($item->_supports) && in_array($hookType, $item->_supports))
+			$className = get_class($item);
+			if(is_array($className::$_supports) && in_array($hookType, $className::$_supports))
 			{
 				return true;
 			}
@@ -301,6 +303,21 @@ abstract class Opt_Format_Class
 	 * @return String The PHP code
 	 */
 	abstract protected function _build($hookName);
+
+	/**
+	 * Performs a data format type casting on the specified code. The programmer
+	 * should extend it, providing the casting rules to other data formats. If the
+	 * method is not able to perform a conversion, it is obliged to return NULL.
+	 *
+	 * @param string $format The required format name.
+	 * @param string $code The code to cast.
+	 * @param Opt_Format_Class $casted The casted data format object
+	 * @return string|null
+	 */
+	static public function cast($format, $code, $casted = null)
+	{
+		return NULL;
+	} // end cast();
 
 	/**
 	 * The on-decorate event, allows to perform an extra initialization

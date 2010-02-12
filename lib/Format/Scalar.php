@@ -22,7 +22,7 @@ class Opt_Format_Scalar extends Opt_Format_Class
 	 * The list of supported types.
 	 * @var array
 	 */
-	protected $_supports = array(
+	static protected $_supports = array(
 		'variable', 'cast'
 	);
 
@@ -30,7 +30,7 @@ class Opt_Format_Scalar extends Opt_Format_Class
 	 * The data format properties.
 	 * @var array
 	 */
-	protected $_properties = array(
+	static protected $_properties = array(
 		'variable:item.assign' => true,
 		'variable:item.preincrement' => true,
 		'variable:item.postincrement' => true,
@@ -76,5 +76,23 @@ class Opt_Format_Scalar extends Opt_Format_Class
 				return $this->_getVar('code').'--';
 		}
 	} // end _build();
+
+	/**
+	 * A type casting utility.
+	 *
+	 * @param string $format The required format name.
+	 * @param string $code The code to cast.
+	 * @param Opt_Format_Class $casted The casted data format object
+	 * @return string|null
+	 */
+	static public function cast($format, $code, $casted = null)
+	{
+		switch($format)
+		{
+			case 'Array':
+				return '(array)'.$code;
+		}
+		return NULL;
+	} // end cast();
 
 } // end Opt_Format_Scalar;

@@ -20,7 +20,7 @@
  */
 class Opt_Format_StaticGenerator extends Opt_Format_Class
 {
-	protected $_supports = array(
+	static protected $_supports = array(
 		'section'
 	);
 

@@ -14,7 +14,7 @@
 
 /**
  * The class provides various utility functions to perform
- * some operations on OPT-XML tree.
+ * some operations on OPT-XML tree and other elements.
  *
  * @package Compiler
  */
@@ -97,4 +97,42 @@ class Opt_Compiler_Utils
 		}
 		while($queue->count() > 0);
 	} // end removeComments();
+
+	/**
+	 * Performs a data format type casting. If the data format does not match
+	 * the suggested one, it locates the data format class and executes the
+	 * conversion action. Returns the modified code.
+	 *
+	 * @param Opt_Cdf_Manager $manager The CDF manager object.
+	 * @param string $code The code that may be casted
+	 * @param string $actual The actual data format
+	 * @param string $suggested The suggested data format
+	 * @return string
+	 */
+	static public function cast(Opt_Cdf_Manager $manager, $code, $actual, $suggested)
+	{
+		if($actual == $suggested)
+		{
+			return $code;
+		}
+
+		// Type casting goes here.
+		if($actual instanceof Opt_Format_Class)
+		{
+			$className = get_class($actual);
+			$modified = $className::cast($suggested, $code, $actual);
+		}
+		else
+		{
+			$className = $manager->getFormatClass($actual);
+			$modified = $className::cast($suggested, $code);
+		}		
+
+		if($modified === null)
+		{
+			throw new Opt_FormatCasting_Exception($actual, $suggested);
+		}
+
+		return $modified;
+	} // end cast();
 } // end Opt_Compiler_Utils;

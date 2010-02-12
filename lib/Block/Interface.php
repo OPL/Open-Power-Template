@@ -20,8 +20,32 @@
  */
 interface Opt_Block_Interface
 {
+	/**
+	 * Sets the view the object is going to be deployed in.
+	 *
+	 * @param Opt_View $view The deploying view.
+	 */
 	public function setView(Opt_View $view);
+
+	/**
+	 * An action performed for block opening tag. The method may
+	 * return a boolean value to specify whether to display the
+	 * block content or not.
+	 *
+	 * @param array $attributes An associative list of block tag attributes.
+	 * @return boolean
+	 */
 	public function onOpen(Array $attributes);
+
+	/**
+	 * An action performed for block closing tag.
+	 */
 	public function onClose();
+
+	/**
+	 * An action performed for single block tag.
+	 * 
+	 * @param array $attributes An associative list of block tag attributes.
+	 */
 	public function onSingle(Array $attributes);
 } // end Opt_Block_Interface;
