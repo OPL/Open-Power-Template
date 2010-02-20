@@ -18,6 +18,11 @@
 	 */
 	class Opt_Function
 	{
+		/**
+		 * The cycle iterator for cycle() function.
+		 * @static
+		 * @var int
+		 */
 		static private $_cycleIterator = 0;
 
 		/**
@@ -281,9 +286,9 @@
 				return self::processContainer(array('Opt_Function', 'number'), array($number, $d1, $d2, $d3));
 			}
 			$opt = Opl_Registry::get('opt');
-			$d1 = (is_null($d1) ? $opt->numberDecimals : $d1);
-			$d2 = (is_null($d2) ? $opt->numberDecPoint : $d2);
-			$d3 = (is_null($d3) ? $opt->numberThousandSep : $d3);
+			$d1 = ($d1 === null ? $opt->numberDecimals : $d1);
+			$d2 = ($d2 === null ? $opt->numberDecPoint : $d2);
+			$d3 = ($d3 === null ? $opt->numberThousandSep : $d3);
 			return number_format($number, $d1, $d2, $d3);
 		} // end number();
 
@@ -482,7 +487,7 @@
 		 */
 		static public function range($number1, $number2 = null)
 		{
-			if(is_null($number2))
+			if($number2 === null)
 			{
 				$number2 = date('Y');
 			}

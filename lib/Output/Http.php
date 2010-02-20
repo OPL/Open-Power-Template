@@ -128,7 +128,7 @@
 			$this->_tpl->charset = $charset;
 			$this->_tpl->contentType = $contentType;
 
-			if(!is_null($charset))
+			if($charset !== null)
 			{
 				$charset = ';charset='.$charset;
 			}
@@ -223,7 +223,7 @@
 		 */
 		public function render(Opt_View $view)
 		{			
-			if(is_null($this->_mode))
+			if($this->_mode === null)
 			{
 				$this->_mode = $view->getMode();
 

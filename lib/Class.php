@@ -433,14 +433,17 @@
 		protected function _pluginLoader($directory, SplFileInfo $file)
 		{
 			$ns = explode('.', $file->getFilename());
-			switch($ns[0])
+			if(end($ns) == 'php')
 			{
-				case 'instruction':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
-				case 'format':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
-				default:
-					return ' require(\''.$directory.$file->getFilename().'\'); ';
+				switch($ns[0])
+				{
+					case 'instruction':
+						return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
+					case 'format':
+						return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
+					default:
+						return ' require(\''.$directory.$file->getFilename().'\'); ';
+				}
 			}
 		} // end _pluginLoader();
 
@@ -518,9 +521,9 @@
 		 */
 		public function __destruct()
 		{
-			if(ob_get_level() > 0)
+			while(ob_get_level() > 0)
 			{
-				while(@ob_end_flush());
+				ob_end_flush();
 			}
 			if($this->debugConsole)
 			{
@@ -544,23 +547,105 @@
 	{
 		const VAR_LOCAL = false;
 		const VAR_GLOBAL = true;
-	
+
+		/**
+		 * A reference to the main class object.
+		 * @var Opt_Class
+		 */
 		private $_tpl;
+
+		/**
+		 * The template name
+		 * @var string
+		 */
 		private $_template;
+
+		/**
+		 * Data format information storage
+		 * @var array
+		 */
 		private $_formatInfo = array();
+
+		/**
+		 * Template inheritance storage for the inflectors
+		 * @var array
+		 */
 		private $_inheritance = array();
+
+		/**
+		 * Template inheritance storage for the compiler.
+		 * @var array
+		 */
 		private $_cplInheritance = array();
+
+		/**
+		 * View data
+		 * @var array
+		 */
 		private $_data = array();
+
+		/**
+		 * Translation interface
+		 * @var Opl_Translation_Interface
+		 */
 		private $_tf;
+
+		/**
+		 * The information for the debugger: processing time
+		 * @var integer
+		 */
 		private $_processingTime = null;
+
+		/**
+		 * The branch name for the template inheritance.
+		 * @var string
+		 */
 		private $_branch = null;
+
+		/**
+		 * The caching system used in the view.
+		 * @var Opt_Caching_Interface
+		 */
 		private $_cache = null;
+
+		/**
+		 * The compiler mode (XML/HTML or quirks).
+		 * @var integer
+		 */
 		private $_mode;
+
+		/**
+		 * Part of the caching system to integrate with opt:dynamic instruction.
+		 * @var array
+		 */
 		private $_outputBuffer = array();
 
+		/**
+		 * The template variable storage
+		 * @static
+		 * @var array
+		 */
 		static private $_vars = array();
+
+		/**
+		 * The list of the captured content.
+		 * @static
+		 * @var array
+		 */
 		static private $_capture = array();
+
+		/**
+		 * The global template data
+		 * @static
+		 * @var array
+		 */
 		static private $_global = array();
+
+		/**
+		 * The global data format information
+		 * @static
+		 * @var array
+		 */
 		static private $_globalFormatInfo = array();
 
 		/**
@@ -1001,14 +1086,14 @@
 		 */
 		public function inherit($source, $destination = null)
 		{
-			if(is_null($destination))
+			if($destination !== null)
 			{
 				$this->_inheritance[$this->_template] = str_replace(array('/', ':', '\\'), '__', $source);
 				$this->_cplInheritance[$this->_template] = $source;
 				return;
 			}
 			$this->_inheritance[$source] = str_replace(array('/', ':', '\\'), '__',$destination);
-			$this->_cplInheritance[$source] = $destination;			
+			$this->_cplInheritance[$source] = $destination;
 		} // end inherit();
 		
 		/*
@@ -1030,7 +1115,7 @@
 				$time = microtime(true);
 			}
 			$cached = false;
-			if(!is_null($this->_cache))
+			if($this->_cache !== null)
 			{
 				$result = $this->_cache->templateCacheStart($this);
 				if($result !== false)
@@ -1068,7 +1153,7 @@
 			error_reporting($old);
 
 			// The counter stops, if the time counting has been enabled for the debug console purposes
-			if(!is_null($this->_cache))
+			if($this->_cache !== null)
 			{
 				$this->_cache->templateCacheStop($this);
 			}
@@ -1130,7 +1215,7 @@
 				}
 			}
 
-			if(is_null($result))
+			if($result === null)
 			{
 				return array($compiled, $compileTime);
 			}
@@ -1157,31 +1242,27 @@
 		 */
 		protected function _massPreprocess($compileTime, $templates)
 		{
-			switch($this->_tpl->compileMode)
+			// We do not check CM_REBUILD, because the compilation has already been done in _parse()
+			if($this->_tpl->compileMode == Opt_Class::CM_DEFAULT)
 			{
-				case Opt_Class::CM_PERFORMANCE:
-				case Opt_Class::CM_REBUILD:
-					return false;	// We return false even here, because the compilation has already been done in _parse()
-				case Opt_Class::CM_DEFAULT:
-					$cnt = sizeof($templates);
-				//	$templates = array();
+				$cnt = sizeof($templates);
 					
-					// TODO: Check whether the object as array key works :P
-					for($i = 0; $i < $cnt; $i++)
+				// TODO: Check whether the object as array key works :P
+				for($i = 0; $i < $cnt; $i++)
+				{
+					$templates[$i] = $this->_tpl->_stream($templates[$i]);
+					$time = @filemtime($templates[$i]);
+					if($time === null)
 					{
-						$templates[$i] = $this->_tpl->_stream($templates[$i]);
-						$time = @filemtime($templates[$i]);
-						if(is_null($time))
-						{
-							throw new Opt_TemplateNotFound_Exception($templates[$i]);
-						}
-						if($time >= $compileTime)
-						{
-							return true;
-						}
+						throw new Opt_TemplateNotFound_Exception($templates[$i]);
 					}
-					return false;
+					if($time >= $compileTime)
+					{
+						return true;
+					}
+				}
 			}
+			return false;
 		} // end _massPreprocess();
 
 		/**
@@ -1201,7 +1282,7 @@
 				sort($list);
 			}
 			$list[] = str_replace(array('/', ':', '\\'), '__', $filename);
-			if(!is_null($this->_tpl->compileId))
+			if($this->_tpl->compileId !== null)
 			{
 				return $this->_tpl->compileId.'_'.implode('/', $list).'.php';
 			}
