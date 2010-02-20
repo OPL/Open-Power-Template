@@ -32,10 +32,23 @@ class Opt_Output_Http implements Opt_Output_Interface
 	 * @var Opt_Class
 	 */
 	protected $_tpl;
-	protected $_mode;
 
-	// Headers
+	/**
+	 * The parser used by the first view rendered with Output_Http
+	 * @var string
+	 */
+	protected $_parser;
+
+	/**
+	 * The list of buffered headers.
+	 * @var array
+	 */
 	protected $_headers = array();
+
+	/**
+	 * The flag indicating whether the headers have been sent.
+	 * @var boolean
+	 */
 	protected $_headersSent = false;
 
 	/**
@@ -131,7 +144,7 @@ class Opt_Output_Http implements Opt_Output_Interface
 		$this->_tpl->charset = $charset;
 		$this->_tpl->contentType = $contentType;
 
-		if(!is_null($charset))
+		if($charset !== null)
 		{
 			$charset = ';charset='.$charset;
 		}
@@ -226,9 +239,9 @@ class Opt_Output_Http implements Opt_Output_Interface
 	 */
 	public function render(Opt_View $view)
 	{
-		if(is_null($this->_mode))
+		if($this->_parser === null)
 		{
-			$this->_mode = $view->getMode();
+			$this->_parser = $view->getParser();
 
 			// Initialize output buffering and turn on the compression, if necessary.
 			if(!$this->_tpl->debugConsole && $this->_tpl->gzipCompression == true && extension_loaded('zlib') && ini_get('zlib.output_compression') == 0)
@@ -244,7 +257,7 @@ class Opt_Output_Http implements Opt_Output_Interface
 			// Send the headers, if necessary
 			$this->sendHeaders();
 		}
-		elseif($this->_mode == Opt_Class::XML_MODE)
+		elseif($this->_parser == 'Html' || $this->_parser == 'Xml')
 		{
 			throw new Opt_OutputOverloaded_Exception;
 		}

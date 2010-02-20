@@ -91,6 +91,8 @@ class Package_ClassTest extends Extra_Testcase
 	 */
 	public function testSetupCreatesInflector()
 	{
+		$this->_tpl->sourceDir = 'php://memory';
+		$this->_tpl->compileDir = 'php://memory';
 		$this->_tpl->setup();
 		$this->assertTrue($this->_tpl->getInflector() instanceof Opt_Inflector_Standard);
 	} // end testSetupCreatesInflector();

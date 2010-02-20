@@ -21,6 +21,13 @@
 class Opt_Function
 {
 	/**
+	 * The cycle iterator for cycle() function.
+	 * @static
+	 * @var int
+	 */
+	static private $_cycleIterator = 0;
+
+	/**
 	 * The method allows to create aggregate functions that operate
 	 * on container. It calls the specified function for all the
 	 * container elements provided in the first function call
@@ -238,7 +245,7 @@ class Opt_Function
 	 */
 	static public function wordwrap($string, $width, $break = '<br />', $cut = null)
 	{
-		if(!is_null($break))
+		if($break !== null)
 		{
 			$break = str_replace(array('\\n', '\\r', '\\t', '\\\\'), array("\n", "\r", "\t", '\\'), $break);
 		}
@@ -281,9 +288,9 @@ class Opt_Function
 			return self::processContainer(array('Opt_Function', 'number'), array($number, $d1, $d2, $d3));
 		}
 		$opt = Opl_Registry::get('opt');
-		$d1 = (is_null($d1) ? $opt->numberDecimals : $d1);
-		$d2 = (is_null($d2) ? $opt->numberDecPoint : $d2);
-		$d3 = (is_null($d3) ? $opt->numberThousandSep : $d3);
+		$d1 = ($d1 === null ? $opt->numberDecimals : $d1);
+		$d2 = ($d2 === null ? $opt->numberDecPoint : $d2);
+		$d3 = ($d3 === null ? $opt->numberThousandSep : $d3);
 		return number_format($number, $d1, $d2, $d3);
 	} // end number();
 
@@ -482,7 +489,7 @@ class Opt_Function
 	 */
 	static public function range($number1, $number2 = null)
 	{
-		if(is_null($number2))
+		if($number2 === null)
 		{
 			$number2 = date('Y');
 		}
@@ -533,6 +540,21 @@ class Opt_Function
 		}
 		return false;
 	} // end isImage();
+
+	/**
+	 * Returns the next element of the specified list of items.
+	 *
+	 * @return Mixed
+	 */
+	static public function cycle()
+	{
+		$items = func_get_args();
+		if(is_array($items[0]))
+		{
+			$items = $items[0];
+		}
+		return ($items[(self::$_cycleIterator++) % sizeof($items) ]);
+	} // end cycle();
 
 	/**
 	 * Creates an entity for the specified string. If used with the 'u:' modifier,

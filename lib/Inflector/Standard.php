@@ -175,17 +175,20 @@ class Opt_Inflector_Standard implements Opt_Inflector_Interface
 	 */
 	public function getCompiledPath($file, array $inheritance)
 	{
-		$list = array();
 		if(sizeof($inheritance) > 0)
 		{
 			$list = $inheritance;
 			sort($list);
 		}
-		$list[] = str_replace(array('/', ':', '\\'), '__', $file);
-		if(!is_null($this->_tpl->compileId))
+		else
 		{
-			return $this->_tpl->compileId.'_'.implode('/', $list).'.php';
+			$list = array();
 		}
-		return implode('/', $list).'.php';
+		$path = ($this->_tpl->compileId !== null ? $this->_tpl->compileId.'_' : '');
+		foreach($list as $item)
+		{
+			$path .= strtr($item, '/:\\', '___').'/';
+		}
+		return $path.strtr((string)$file, '/:\\', '___').'.php';
 	} // end getCompiledPath();
 } // end Opt_Inflector_Standard;

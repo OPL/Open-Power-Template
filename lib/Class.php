@@ -20,7 +20,22 @@
  */
 interface Opt_Caching_Interface
 {
+	/**
+	 * The method executed during the template execution initialization.
+	 * It is supposed to return false in order to regenerate the cache
+	 * or the cached result.
+	 *
+	 * @param Opt_View $view The cached view
+	 * @return boolean|string
+	 */
 	public function templateCacheStart(Opt_View $view);
+
+	/**
+	 * Executed during the cache rebuilding process. It must finish the
+	 * capturing and store the result in a persistent storage.
+	 * 
+	 * @param Opt_View $view The cached view
+	 */
 	public function templateCacheStop(Opt_View $view);
 } // end Opt_Caching_Interface;
 
@@ -32,7 +47,18 @@ interface Opt_Caching_Interface
  */
 interface Opt_Output_Interface
 {
+	/**
+	 * Returns the output interface name
+	 *
+	 * @return string
+	 */
 	public function getName();
+
+	/**
+	 * Renders the specified view.
+	 *
+	 * @param Opt_View $view The view to render
+	 */
 	public function render(Opt_View $view);
 } // end Opt_Output_Interface;
 
@@ -44,7 +70,23 @@ interface Opt_Output_Interface
  */
 interface Opt_Inflector_Interface
 {
+	/**
+	 * Returns the actual path to the source template suitable to use with
+	 * the PHP filesystem functions.
+	 *
+	 * @param string $file The template file
+	 * @return string
+	 */
 	public function getSourcePath($file);
+
+	/**
+	 * Returns the actual path to the compiled template suitable to use
+	 * with the PHP filesystem functions.
+	 *
+	 * @param string $file The template file
+	 * @param array $inheritance The dynamic template inheritance list
+	 * @return string
+	 */
 	public function getCompiledPath($file, array $inheritance);
 } // end Opt_Inflector_Interface;
 
@@ -188,7 +230,8 @@ class Opt_Class extends Opl_Class
 		'contains' => 'Opt_Function::contains', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
 		'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
 		'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
-		'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey'
+		'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey',
+		'cycle' => 'Opt_Function::cycle'
 	);
 	/**
 	 * The list of registered classes: assotiative array of pairs:
@@ -538,14 +581,17 @@ class Opt_Class extends Opl_Class
 	protected function _pluginLoader($directory, SplFileInfo $file)
 	{
 		$ns = explode('.', $file->getFilename());
-		switch($ns[0])
+		if(end($ns) == 'php')
 		{
-			case 'instruction':
-				return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
-			case 'format':
-				return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
-			default:
-				return ' require(\''.$directory.$file->getFilename().'\'); ';
+			switch($ns[0])
+			{
+				case 'instruction':
+					return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
+				case 'format':
+					return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
+				default:
+					return ' require(\''.$directory.$file->getFilename().'\'); ';
+			}
 		}
 	} // end _pluginLoader();
 
@@ -587,9 +633,9 @@ class Opt_Class extends Opl_Class
 	 */
 	public function __destruct()
 	{
-		if(ob_get_level() > 0)
+		while(ob_get_level() > 0)
 		{
-			while(@ob_end_flush());
+			ob_end_flush();
 		}
 		if($this->debugConsole)
 		{
@@ -616,23 +662,111 @@ class Opt_View
 	const VAR_LOCAL = false;
 	const VAR_GLOBAL = true;
 
+	/**
+	 * A reference to the main class object.
+	 * @var Opt_Class
+	 */
 	private $_tpl;
+
+	/**
+	 * The template name
+	 * @var string
+	 */
 	private $_template;
+
+	/**
+	 * Data format information storage
+	 * @var array
+	 */
 	private $_formatInfo = array();
+
+	/**
+	 * Template inheritance storage for the inflectors
+	 * @var array
+	 */
 	private $_inheritance = array();
-	private $_cplInheritance = array();
+
+	/**
+	 * View data
+	 * @var array
+	 */
 	private $_data = array();
+
+	/**
+	 * Translation interface
+	 * @var Opl_Translation_Interface
+	 */
 	private $_tf;
+
+	/**
+	 * The information for the debugger: processing time
+	 * @var integer
+	 */
 	private $_processingTime = null;
+
+	/**
+	 * The branch name for the template inheritance.
+	 * @var string
+	 */
 	private $_branch = null;
+
+	/**
+	 * The caching system used in the view.
+	 * @var Opt_Caching_Interface
+	 */
 	private $_cache = null;
+
+	/**
+	 * The used parser.
+	 * @var string
+	 */
 	private $_parser;
+
+	/**
+	 * The local CDF storage
+	 * @var array
+	 */
 	private $_localCdf = array();
 
+	/**
+	 * Part of the caching system to integrate with opt:dynamic instruction.
+	 * @var array
+	 */
+	private $_outputBuffer = array();
+
+	/**
+	 * The global CDF storage for all the views.
+	 * @static
+	 * @var array
+	 */
 	static private $_globalCdf = array();
+
+	/**
+	 * The template variable storage
+	 * @static
+	 * @var array
+	 */
 	static private $_vars = array();
+
+	/**
+	 * The list of the captured content.
+	 * @static
+	 * @var array
+	 */
 	static private $_capture = array();
+
+	/**
+	 * The global template data
+	 * @static
+	 * @var array
+	 */
 	static private $_global = array();
+
+	/**
+	 * The global data format information
+	 * @static
+	 * @var array
+	 */
 	static private $_globalFormatInfo = array();
 
 	/**
@@ -647,7 +781,7 @@ class Opt_View
 	public function __construct($template = '')
 	{
 		$this->_tpl = Opl_Registry::get('opt');
-		$this->_template = $template;
+		$this->_template = (string)$template;
 		$this->_parser = $this->_tpl->parser;
 		$this->_cache = $this->_tpl->getCache();
 	} // end __construct();
@@ -659,7 +793,7 @@ class Opt_View
 	 */
 	public function setTemplate($file)
 	{
-		$this->_template = $file;
+		$this->_template = (string)$file;
 	} // end setTemplate();
 
 	/**
@@ -676,7 +810,7 @@ class Opt_View
 	 * Sets the template mode (XML, Quirks, etc...)
 	 *
 	 * @deprecated
-	 * @param Int $mode The new mode
+	 * @param int|string $mode The new mode
 	 */
 	public function setMode($mode)
 	{
@@ -687,7 +821,7 @@ class Opt_View
 	 * Gets the current template mode.
 	 *
 	 * @deprecated
-	 * @return Int
+	 * @return int|string
 	 */
 	public function getMode()
 	{
@@ -695,19 +829,19 @@ class Opt_View
 	} // end getMode();
 
 	/**
-	 * Sets the template mode (XML, Quirks, etc...)
+	 * Sets the name of the parser used to compile the template.
 	 *
-	 * @param Int $mode The new mode
+	 * @param string $parser The parser name
 	 */
-	public function setParser($mode)
+	public function setParser($parser)
 	{
-		$this->_parser = $mode;
+		$this->_parser = (string)$parser;
 	} // end setParser();
 
 	/**
-	 * Gets the current template mode.
+	 * Returns the name of the parsed used to compile the view template.
 	 *
-	 * @return Int
+	 * @return string
 	 */
 	public function getParser()
 	{
@@ -723,7 +857,7 @@ class Opt_View
 	 */
 	public function setBranch($branch)
 	{
-		$this->_branch = $branch;
+		$this->_branch = (string)$branch;
 	} // end setBranch();
 
 	/**
@@ -781,7 +915,7 @@ class Opt_View
 	 */
 	public function assign($name, $value)
 	{
-		$this->_data[$name] = $value;
+		$this->_data[(string)$name] = $value;
 	} // end assign();
 
 	/**
@@ -805,7 +939,7 @@ class Opt_View
 	 */
 	public function assignRef($name, &$value)
 	{
-		$this->_data[$name] = &$value;
+		$this->_data[(string)$name] = &$value;
 	} // end assignRef();
 
 	/**
@@ -817,11 +951,11 @@ class Opt_View
 	 */
 	public function get($name)
 	{
-		if(!isset($this->_data[$name]))
+		if(!isset($this->_data[(string)$name]))
 		{
 			return null;
 		}
-		return $this->_data[$name];
+		return $this->_data[(string)$name];
 	} // end read();
 
 	/**
@@ -833,11 +967,11 @@ class Opt_View
 	 */
 	public function __get($name)
 	{
-		if(!isset($this->_data[$name]))
+		if(!isset($this->_data[(string)$name]))
 		{
 			return null;
 		}
-		return $this->_data[$name];
+		return $this->_data[(string)$name];
 	} // end __get();
 
 	/**
@@ -849,7 +983,7 @@ class Opt_View
 	 */
 	public function defined($name)
 	{
-		return isset($this->_data[$name]);
+		return isset($this->_data[(string)$name]);
 	} // end defined();
 
 	/**
@@ -861,7 +995,7 @@ class Opt_View
 	 */
 	public function __isset($name)
 	{
-		return isset($this->_data[$name]);
+		return isset($this->_data[(string)$name]);
 	} // end __isset();
 
 	/**
@@ -872,6 +1006,7 @@ class Opt_View
 	 */
 	public function remove($name)
 	{
+		$name = (string)$name;
 		if(isset($this->_data[$name]))
 		{
 			unset($this->_data[$name]);
@@ -892,7 +1027,7 @@ class Opt_View
 	 */
 	public function __unset($name)
 	{
-		return $this->remove($name);
+		return $this->remove((string)$name);
 	} // end __unset();
 
 	/**
@@ -915,7 +1050,7 @@ class Opt_View
 	 */
 	static public function assignGlobal($name, $value)
 	{
-		self::$_global[$name] = $value;
+		self::$_global[(string)$name] = $value;
 	} // end assignGlobal();
 
 	/**
@@ -941,7 +1076,7 @@ class Opt_View
 	 */
 	static public function assignRefGlobal($name, &$value)
 	{
-		self::$_global[$name] = &$value;
+		self::$_global[(string)$name] = &$value;
 	} // end assignRefGlobal();
 
 	/**
@@ -954,7 +1089,7 @@ class Opt_View
 	 */
 	static public function definedGlobal($name)
 	{
-		return isset(self::$_global[$name]);
+		return isset(self::$_global[(string)$name]);
 	} // end definedGlobal();
 
 	/**
@@ -967,11 +1102,11 @@ class Opt_View
 	 */
 	static public function getGlobal($name)
 	{
-		if(!isset(self::$_global[$name]))
+		if(!isset(self::$_global[(string)$name]))
 		{
 			return null;
 		}
-		return self::$_global[$name];
+		return self::$_global[(string)$name];
 	} // end getGlobal();
 
 	/**
@@ -983,9 +1118,9 @@ class Opt_View
 	 */
 	static public function removeGlobal($name)
 	{
-		if(isset(self::$_global[$name]))
+		if(isset(self::$_global[(string)$name]))
 		{
-			unset(self::$_global[$name]);
+			unset(self::$_global[(string)$name]);
 			return true;
 		}
 		return false;
@@ -1011,11 +1146,11 @@ class Opt_View
 	 */
 	public function getTemplateVar($name)
 	{
-		if(!isset(self::$_vars[$name]))
+		if(!isset(self::$_vars[(string)$name]))
 		{
 			return null;
 		}
-		return self::$_vars[$name];
+		return self::$_vars[(string)$name];
 	} // end getTemplateVar();
 
 	/**
@@ -1076,6 +1211,30 @@ class Opt_View
 		return $this->_cache;
 	} // end getCache();
 
+	/**
+	 * A method for caching systems that tells, whether there is some
+	 * dynamic content available in the captured part.
+	 *
+	 * @return Boolean
+	 */
+	public function hasDynamicContent()
+	{
+		return sizeof($this->_outputBuffer) > 0;
+	} // end hasDynamicContent();
+
+	/**
+	 * Returns the static parts of the cached template, if the opt:dynamic
+	 * is used. Please note that the returned array does not contain the
+	 * last buffer, which must be closed and retrieved manually with
+	 * ob_get_flush().
+	 *
+	 * @return Array
+	 */
+	public function getOutputBuffers()
+	{
+		return $this->_outputBuffer;
+	} // end getBuffers();
+
 	/*
 	 * Dynamic inheritance
 	 */
@@ -1095,14 +1254,14 @@ class Opt_View
 	 */
 	public function inherit($source, $destination = null)
 	{
-		if(is_null($destination))
+		if($destination !== null)
 		{
-			$this->_inheritance[$this->_template] = str_replace(array('/', ':', '\\'), '__', $source);
-			$this->_cplInheritance[$this->_template] = $source;
-			return;
+			$this->_inheritance[$this->_template] = (string)$source;
 		}
-		$this->_inheritance[$source] = str_replace(array('/', ':', '\\'), '__',$destination);
-		$this->_cplInheritance[$source] = $destination;
+		else
+		{
+			$this->_inheritance[(string)$source] = (string)$destination;
+		}
 	} // end inherit();
 
 	/*
@@ -1124,7 +1283,7 @@ class Opt_View
 			$time = microtime(true);
 		}
 		$cached = false;
-		if(!is_null($this->_cache))
+		if($this->_cache !== null)
 		{
 			$result = $this->_cache->templateCacheStart($this);
 			if($result !== false)
@@ -1162,7 +1321,7 @@ class Opt_View
 		error_reporting($old);
 
 		// The counter stops, if the time counting has been enabled for the debug console purposes
-		if(!is_null($this->_cache))
+		if($this->_cache !== null)
 		{
 			$this->_cache->templateCacheStop($this);
 		}
@@ -1232,7 +1391,7 @@ class Opt_View
 		$this->_calculateFormats();
 
 		$compiler = $this->_tpl->getCompiler();
-		$compiler->setInheritance($this->_cplInheritance);
+		$compiler->setInheritance($this->_inheritance);
 		$compiler->addFormats(self::$_globalCdf, $this->_localCdf, self::$_globalFormatInfo, $this->_formatInfo);
 		$compiler->set('branch', $this->_branch);
 		$compiler->compile($result, $this->_template, $compiled, $this->_parser);
@@ -1261,7 +1420,7 @@ class Opt_View
 			{
 				$templates[$i] = $inflector->getSourcePath($templates[$i]);
 				$time = @filemtime($templates[$i]);
-				if(is_null($time))
+				if($time === null)
 				{
 					throw new Opt_TemplateNotFound_Exception($templates[$i]);
 				}
@@ -1300,7 +1459,7 @@ class Opt_View
 	{
 		$compiled = $this->_tpl->getInflector()->getCompiledPath($filename, $this->_inheritance);
 		$compiler = $this->_tpl->getCompiler();
-		$compiler->setInheritance($this->_cplInheritance);
+		$compiler->setInheritance($this->_inheritance);
 		$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 		$compiler->set('branch', $this->_branch);
 		$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
