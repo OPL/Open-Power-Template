@@ -535,4 +535,40 @@
 			$headers = $output->getHeaders();
 			$this->assertEquals('application/xhtml+xml;charset=utf-8', $headers['Content-type']);
 		} // end testContentNegotiation2();
+
+		/**
+		 * @covers Opt_View
+		 */
+		public function testViewGettersSetters()
+		{
+			$view = new Opt_View('foo.tpl');
+
+			$view->foo = 5;
+			$this->assertEquals(5, $view->foo);
+
+			$view->assign('bar', 10);
+			$this->assertEquals(10, $view->get('bar'));
+
+			$view->assignGroup(array(
+				'joe' => 15,
+				'goo' => 20
+			));
+			$this->assertEquals(15, $view->joe);
+			$this->assertEquals(20, $view->get('goo'));
+
+			$view->compound = array('group' => 10);
+			$this->assertEquals(10, $view->compound['group']);
+			$view->compound['group'] = 15;
+			$this->assertEquals(15, $view->compound['group']);
+		} // end testViewGettersSetters();
+
+		/**
+		 * @covers Opt_View
+		 */
+		public function testViewGetterAccessesUnexistingVariable()
+		{
+			$view = new Opt_View('foo.tpl');
+			$this->assertSame(null, $view->unexisting);
+			$this->assertSame(null, $view->get('unexisting'));
+		} // end testViewGetterAccessesUnexistingVariable();
 	} // end interfaceTest;

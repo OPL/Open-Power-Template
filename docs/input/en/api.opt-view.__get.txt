@@ -1,7 +1,7 @@
 Title: __get()
 ShortTitle: Opt_View::__get()
 Construct: magic method
-Reference: mixed __get(string $name)
+Reference: mixed &__get(string $name)
 VersionSince: 2.0-beta2
 Visibility: public
 SeeAlso:
@@ -15,6 +15,8 @@ This magic method provides an alternative way to read the local template variabl
 [php]
 echo $view->variable;
 ~~~~
+
+The value is returned by reference.
 
 > [help]
 > It is recommended to use the magic method instead of [Opt_View::get()][api.opt-view.get] unless we are not going to specify a dynamic variable name.

@@ -22,6 +22,48 @@ $view = new Opt_View;
 $view->setTemplate('some_template.tpl');
 ~~~~
 
+Template paths
+==============
+
+In the `Opt_View` constructor we specify the template file name which is stored in the directory pointed by the `sourceDir` option. The template name may contain some subdirectories, if they are present in the `sourceDir` directory:
+
+~~~~
+[php]
+$tpl->sourceDir = './templates/';
+
+// Gives './templates/template.tpl'
+$view = new Opt_View('template.tpl');
+
+// Gives './templates/subdirectory/template.tpl'
+$view = new Opt_View('subdirectory/template.tpl');
+~~~~
+
+Note that you must not follow the template name with a slash, because it is automatically added to the `sourceDir` paths.
+
+OPT supports PHP streams, allowing to register multiple template paths within a `sourceDir` option. Each path must be given an unique name and the default one should be called `file`. We select the requested path in the view constructor by following the template name with the path name and a colon:
+
+~~~~
+[php]
+$tpl->sourceDir = array(
+	'file' => './templates/',
+	'database' => 'db://database/'	// a sample database stream handler
+);
+
+// File from the disk
+$view = new Opt_View('file.tpl');
+
+// Another file from the disk
+$view = new Opt_View('file:file.tpl');
+
+// File from the database
+$view = new Opt_View('database:template.tpl');
+~~~~
+
+The detailed requirements for template names depend on the selected PHP stream. For more information about streams, please visit the corresponding chapter in the [PHP manual](http://docs.php.net/streams).
+
+> [information]
+> In Open Power Template 2.1 template path handling will be programmable via inflectors. They will allow to handle more complex path resolving rules that are very common in a modular software (i.e. CMS-es).
+
 Assigning the data
 ==================
 

@@ -812,11 +812,13 @@
 		 * @param string $name The variable name.
 		 * @return mixed The variable value or NULL.
 		 */
-		public function __get($name)
+		public function &__get($name)
 		{
 			if(!isset($this->_data[$name]))
 			{
-				return null;
+				// For returning by reference...
+				$empty = null;
+				return $empty;
 			}
 			return $this->_data[$name];
 		} // end __get();
