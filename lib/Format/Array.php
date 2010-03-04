@@ -206,32 +206,38 @@
 					$section = $this->_getVar('section');
 					return '(($_sect'.$section['nesting'].'_i == ($_sect'.$section['name'].'_cnt-1)) || ($_sect'.$section['nesting'].'_i == 0))';
 				// The variable access.
-				case 'variable:main':
-					$this->_applyVars = false;
-					$item = $this->_getVar('item');
-					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-					{
-						return '$this->_data[\''.$item.'\']';
-					}
-					else
-					{
-						return 'self::$_global[\''.$item.'\']';
-					}
-				case 'variable:assign':
-					$this->_applyVars = false;
-					$item = $this->_getVar('item');
-					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-					{
-						return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
-					}
-					else
-					{
-						return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
-					}
-				case 'item:item':
-					return '[\''.$this->_getVar('item').'\']';
-				case 'item:assign':
-					return '[\''.$this->_getVar('item').'\']='.$this->_getVar('value');
+			case 'variable:item':
+				$this->_applyVars = false;
+				$item = $this->_getVar('item');
+				if($this->_getVar('global') === true)
+				{
+					return 'self::$_global[\''.$item.'\']';
+				}
+				return '$this->_data[\''.$item.'\']';
+			case 'variable:item.assign':
+				$this->_applyVars = false;
+				$item = $this->_getVar('item');
+				if($this->_getVar('global') === true)
+				{
+					return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
+				}
+				return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
+			case 'variable:item.preincrement':
+			case 'item:item.preincrement':
+				return '++'.$this->_getVar('code');
+			case 'variable:item.postincrement':
+			case 'item:item.postincrement':
+				return $this->_getVar('code').'++';
+			case 'variable:item.predecrement':
+			case 'item:item.predecrement':
+				return '--'.$this->_getVar('code');
+			case 'variable:item.postdecrement':
+			case 'item:item.postdecrement':
+				return $this->_getVar('code').'--';
+			case 'item:item':
+				return '[\''.$this->_getVar('item').'\']';
+			case 'item:assign':
+				return '[\''.$this->_getVar('item').'\']='.$this->_getVar('value');
 				default:
 					return NULL;
 			}

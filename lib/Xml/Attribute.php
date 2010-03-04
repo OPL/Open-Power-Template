@@ -12,123 +12,125 @@
  * $Id$
  */
 
+/**
+ * XML Attribute implementation for OPT compiler.
+ *
+ * @package XML
+ */
+class Opt_Xml_Attribute extends Opt_Xml_Buffer
+{
+	protected $_namespace;
+	protected $_name;
+	protected $_value;
+
 	/**
-	 * XML Attribute implementation for OPT compiler.
+	 * Constructs a new attribute object with the specified name and value.
+	 *
+	 * @param String $name Attribute name (with optional namespace in XML notation)
+	 * @param String $value Attribute value.
 	 */
-	class Opt_Xml_Attribute extends Opt_Xml_Buffer
+	public function __construct($name, $value)
 	{
-		protected $_namespace;
-		protected $_name;
-		protected $_value;
+		$this->setName($name);
+		$this->_value = $value;
+	} // end __construct();
 
-		/**
-		 * Constructs a new attribute object with the specified name and value.
-		 *
-		 * @param String $name Attribute name (with optional namespace in XML notation)
-		 * @param String $value Attribute value.
-		 */
-		public function __construct($name, $value)
+	/**
+	 * Sets the specified attribute name, with optional namespace
+	 * in XML notation included, i.e. "ns:name".
+	 *
+	 * @param String $name New attribute name
+	 */
+	public function setName($name)
+	{
+		if(strpos($name, ':') !== false)
 		{
-			$this->setName($name);
-			$this->_value = $value;
-		} // end __construct();
-
-		/**
-		 * Sets the specified attribute name, with optional namespace
-		 * in XML notation included, i.e. "ns:name".
-		 *
-		 * @param String $name New attribute name
-		 */
-		public function setName($name)
+			$data = explode(':', $name);
+			$this->_name = $data[1];
+			$this->_namespace = $data[0];
+		}
+		else
 		{
-			if(strpos($name, ':') !== false)
-			{
-				$data = explode(':', $name);
-				$this->_name = $data[1];
-				$this->_namespace = $data[0];
-			}
-			else
-			{
-				$this->_name = $name;
-			}
-		} // end setName();
+			$this->_name = $name;
+		}
+	} // end setName();
 
-		/**
-		 * Sets the namespace.
-		 *
-		 * @param String $namespace Namespace
-		 */
-		public function setNamespace($namespace)
-		{
-			$this->_namespace = $namespace;
-		} // end setNamespace();
+	/**
+	 * Sets the namespace.
+	 *
+	 * @param String $namespace Namespace
+	 */
+	public function setNamespace($namespace)
+	{
+		$this->_namespace = $namespace;
+	} // end setNamespace();
 
-		/**
-		 * Sets the attribute value. Note that the attributes hold the values
-		 * with the entities replaced to the corresponding characters.
-		 *
-		 * @param String $value The new value.
-		 */
-		public function setValue($value)
-		{
-			$this->_value = $value;
-		} // end setValue();
+	/**
+	 * Sets the attribute value. Note that the attributes hold the values
+	 * with the entities replaced to the corresponding characters.
+	 *
+	 * @param String $value The new value.
+	 */
+	public function setValue($value)
+	{
+		$this->_value = $value;
+	} // end setValue();
 
-		/**
-		 * Returns the attribute name, without the namespace.
-		 *
-		 * @return String The attribute name (without namespace)
-		 */
-		public function getName()
+	/**
+	 * Returns the attribute name, without the namespace.
+	 *
+	 * @return String The attribute name (without namespace)
+	 */
+	public function getName()
+	{
+		return $this->_name;
+	} // end getName();
+
+	/**
+	 * Returns the attribute namespace.
+	 *
+	 * @return String The attribute namespace
+	 */
+	public function getNamespace()
+	{
+		return $this->_namespace;
+	} // end getNamespace();
+
+	/**
+	 * Returns the attribute name with the namespace prepended, if possible.
+	 *
+	 * @return String The attribute name with namespace.
+	 */
+	public function getXmlName()
+	{
+		if(is_null($this->_namespace))
 		{
 			return $this->_name;
-		} // end getName();
-
-		/**
-		 * Returns the attribute namespace.
-		 *
-		 * @return String The attribute namespace
-		 */
-		public function getNamespace()
+		}
+		else
 		{
-			return $this->_namespace;
-		} // end getNamespace();
+			return $this->_namespace.':'.$this->_name;
+		}
+	} // end getXmlName();
 
-		/**
-		 * Returns the attribute name with the namespace prepended, if possible.
-		 *
-		 * @return String The attribute name with namespace.
-		 */
-		public function getXmlName()
-		{
-			if(is_null($this->_namespace))
-			{
-				return $this->_name;
-			}
-			else
-			{
-				return $this->_namespace.':'.$this->_name;
-			}
-		} // end getXmlName();
+	/**
+	 * Returns the current attribute value. It does not replace
+	 * the characters with entities.
+	 *
+	 * @return String The value
+	 */
+	public function getValue()
+	{
+		return $this->_value;
+	} // end getValue();
 
-		/**
-		 * Returns the current attribute value. It does not replace
-		 * the characters with entities.
-		 *
-		 * @return String The value
-		 */
-		public function getValue()
-		{
-			return $this->_value;
-		} // end getValue();
-
-		/**
-		 * The same effect, as getValue().
-		 *
-		 * @return String The value
-		 */
-		public function __toString()
-		{
-			return $this->_value;
-		} // end __toString();		
-	} // end Opt_Xml_Attribute;
+	/**
+	 * The same effect, as getValue().
+	 *
+	 * @return String The value
+	 */
+	public function __toString()
+	{
+		return $this->_value;
+	} // end __toString();
+} // end Opt_Xml_Attribute;

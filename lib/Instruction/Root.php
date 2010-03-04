@@ -12,49 +12,80 @@
  * $Id$
  */
 
-	class Opt_Instruction_Root extends Opt_Compiler_Processor
+/**
+ * The processor for opt:root instruction and its features.
+ * @package Instructions
+ */
+class Opt_Instruction_Root extends Opt_Compiler_Processor
+{
+	/**
+	 * The instruction processor name - required by the instruction API.
+	 * @internal
+	 * @var string
+	 */
+	protected $_name = 'root';
+
+	/**
+	 * Configures the instruction processor, registering the tags and
+	 * attributes.
+	 * @internal
+	 */
+	public function configure()
 	{
-		protected $_name = 'root';
-		
-		public function configure()
+		$this->_addInstructions(array('opt:root'));
+	} // end configure();
+
+	/**
+	 * Migrates the opt:root node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function migrateNode(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end migrateNode();
+
+	/**
+	 * Processes the opt:root node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function processNode(Opt_Xml_Node $node)
+	{
+		if($node->getParent()->getType() != 'Opt_Xml_Root')
 		{
-			$this->_addInstructions(array('opt:root'));
-		} // end configure();
-	
-		public function processNode(Opt_Xml_Node $node)
+			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'ROOT');
+		}
+
+		$params = array(
+			'escaping' => array(0 => self::OPTIONAL, self::BOOL, NULL),
+			'include' => array(0 => self::OPTIONAL, self::STRING, NULL),
+			'dynamic' => array(0 => self::OPTIONAL, self::BOOL, false),
+		);
+		$this->_extractAttributes($node, $params);
+
+		// Compile-time inclusion support
+		if(!is_null($params['include']))
 		{
-			if($node->getParent()->getType() != 'Opt_Xml_Root')
+			$file = $params['include'];
+			if($params['dynamic'])
 			{
-				throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'ROOT');
-			}
-			
-			$params = array(
-				'escaping' => array(0 => self::OPTIONAL, self::BOOL, NULL),
-				'include' => array(0 => self::OPTIONAL, self::HARD_STRING, NULL),
-				'dynamic' => array(0 => self::OPTIONAL, self::BOOL, false),
-			);
-			$this->_extractAttributes($node, $params);
-			
-			if(!is_null($params['include']))
-			{
-				$file = $params['include'];
-				if($params['dynamic'])
+				if(is_null($file = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
 				{
-					if(is_null($file = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
-					{
-						$file = $params['include'];
-					}
+					$file = $params['include'];
 				}
-				$this->_compiler->addDependantTemplate($file);
-				$compiler = new Opt_Compiler_Class($this->_compiler);
-				$compiler->compile($this->_tpl->_getSource($file), $file, NULL, $this->_compiler->get('mode'));
-				$this->_compiler->importDependencies($compiler);
 			}
-			
-			if(!is_null($params['escaping']))
-			{
-				$this->_compiler->set('escaping', $params['escaping']);
-			}
-			$this->_process($node);
-		} // end processNode();
-	} // end Opt_Instruction_Root;
+			$this->_compiler->addDependantTemplate($file);
+			$compiler = new Opt_Compiler_Class($this->_compiler);
+			$compiler->compile($this->_tpl->_getSource($file), $file, NULL, $this->_compiler->get('mode'));
+			$this->_compiler->importDependencies($compiler);
+		}
+		// Escaping control support
+		if(!is_null($params['escaping']))
+		{
+			$this->_compiler->set('escaping', $params['escaping']);
+		}
+
+		$this->_process($node);
+	} // end processNode();
+} // end Opt_Instruction_Root;

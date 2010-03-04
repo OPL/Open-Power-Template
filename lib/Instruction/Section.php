@@ -12,109 +12,213 @@
  * $Id$
  */
 
-	class Opt_Instruction_Section extends Opt_Instruction_BaseSection
+/**
+ * The processor for the classic sections.
+ * @package Instructions
+ * @subpackage Sections
+ */
+class Opt_Instruction_Section extends Opt_Instruction_BaseSection
+{
+	/**
+	 * The processor name - required by the instruction API
+	 * @internal
+	 * @var string
+	 */
+	protected $_name = 'section';
+
+	/**
+	 * Array contains deprecated attributes.
+	 * @var array
+	 */
+	protected $_deprecatedAttributes = array();
+
+	/**
+	 * Array contains deprecated instructions.
+	 * @var array
+	 */
+	protected $_deprecatedInstructions = array();
+
+	/**
+	 * Configures the instruction processor, registering the tags and
+	 * attributes.
+	 * @internal
+	 */
+	public function configure()
 	{
-		protected $_name = 'section';
-		
-		public function configure()
+		$this->_addInstructions(array('opt:section', 'opt:sectionelse', 'opt:show', 'opt:showelse'));
+		$this->_addAttributes('opt:section');
+		if($this->_tpl->backwardCompatibility)
 		{
-			$this->_addInstructions(array('opt:section', 'opt:sectionelse', 'opt:show', 'opt:showelse'));
-			$this->_addAttributes('opt:section');
-		} // end configure();
+			$this->_addAttributes($this->_deprecatedAttributes);
+			$this->_addInstructions($this->_deprecatedInstructions);
+		}
+	} // end configure();
 
-		protected function _processSection(Opt_Xml_Element $node)
+	/**
+	 * Checks if attribute is deprecated and needs migration.
+	 * @param Opt_Xml_Attribute $attr Attribute to migrate
+	 * @return boolean If attribute needs migration
+	 */
+	public function attributeNeedMigration(Opt_Xml_Attribute $attr)
+	{
+		$name = $attr->getXmlName();
+		if(in_array($name, $this->_deprecatedAttributes))
 		{
-			$section = $this->_sectionCreate($node);
-			$this->_sectionStart($section);
+			return true;
+		}
+		return false;
+	} // end attributeNeedMigration();
 
-			$code = $section['format']->get('section:loopBefore');
-			if($section['order'] == 'asc')
-			{
-				$code .= $section['format']->get('section:startAscLoop');
-			}
-			else
-			{
-				$code .= $section['format']->get('section:startDescLoop');
-			}
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
-			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
-			$this->_sortSectionContents($node, 'opt', 'sectionelse');
+	/**
+	 * Migrates the opt:section attribute.
+	 * @internal
+	 * @param Opt_Xml_Attribute $attr The recognized attribute.
+	 * @return Opt_Xml_Attribute Migrated attribute
+	 */
+	public function migrateAttribute(Opt_Xml_Attribute $attr)
+	{
+		/*switch($attr->getName())
+		{
+			// null
+		}*/
+		return $attr;
+	} // end migrateAttribute();
 
-			$node->set('postprocess', true);
-			$this->_process($node);
-		} // end _processSection();
-		
-		protected function _postprocessSection(Opt_Xml_Element $node)
-		{
-			$section = self::getSection($node->get('priv:section'));
-			if(!$node->get('priv:alternative'))
-			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('section:endLoop'));
-				$this->_sectionEnd($node);
-			}
-		} // end _postprocessSection();
-		
-		protected function _processShowelse(Opt_Xml_Element $node)
-		{
-			$parent = $node->getParent();
-			if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:show')
-			{
-				$parent->set('priv:alternative', true);
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
-				$this->_process($node);
-			}
-			else
-			{
-				throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:show');
-			}
-		} // end _processShowelse();
+	/**
+	 * Migrates the opt:section node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The recognized node.
+	 */
+	public function _migrateSection(Opt_Xml_Node $node)
+	{
+		$this->_process($node);
+	} // end _migrateSection();
 
-		protected function _processSectionelse(Opt_Xml_Element $node)
-		{
-			$parent = $node->getParent();
-			if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:section')
-			{
-				$parent->set('priv:alternative', true);
-				
-				$section = self::getSection($parent->get('priv:section'));
-				if(!is_array($section))
-				{
-					throw new Opt_APINoDataReturned_Exception('Opt_Instruction_BaseSection::getSection', 'processing opt:sectionelse');
-				}
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:endLoop').' } else { ');
-				
-				$this->_sectionEnd($parent);
+	/**
+	 * Processes the opt:section tag.
+	 * @internal
+	 * @param Opt_Xml_Element $node The recognized node.
+	 */
+	protected function _processSection(Opt_Xml_Element $node)
+	{
+		$section = $this->_sectionCreate($node);
+		$this->_sectionStart($section);
 
-				$this->_process($node);
-			}
-			else
-			{
-				throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:section');
-			}
-		} // end _processSectionelse();
-		
-		protected function _processAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+		$code = $section['format']->get('section:loopBefore');
+		if($section['order'] == 'asc')
 		{
-			$section = $this->_sectionCreate($node, $attr);
-			$this->_sectionStart($section);
-			$code = $section['format']->get('section:loopBefore');
-			if($section['order'] == 'asc')
-			{
-				$code .= $section['format']->get('section:startAscLoop');
-			}
-			else
-			{
-				$code .= $section['format']->get('section:startDescLoop');
-			}
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
-			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
-			$attr->set('postprocess', true);
-		} // end _processAttrSection();
-		
-		protected function _postprocessAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+			$code .= $section['format']->get('section:startAscLoop');
+		}
+		else
 		{
-			$section = self::getSection($node->get('priv:section'));
+			$code .= $section['format']->get('section:startDescLoop');
+		}
+		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
+		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+		$this->_sortSectionContents($node, 'opt', 'sectionelse');
+
+		$node->set('postprocess', true);
+		$this->_process($node);
+	} // end _processSection();
+
+	/**
+	 * Finishes the processing of the opt:section tag.
+	 * @internal
+	 * @param Opt_Xml_Element $node The recognized element.
+	 */
+	protected function _postprocessSection(Opt_Xml_Element $node)
+	{
+		$section = self::getSection($node->get('priv:section'));
+		if(!$node->get('priv:alternative'))
+		{
 			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('section:endLoop'));
 			$this->_sectionEnd($node);
-		} // end _postprocessAttrSection();
-	} // end Opt_Instruction_Section;
+		}
+	} // end _postprocessSection();
+
+	/**
+	 * Processes the opt:showelse tag.
+	 * @internal
+	 * @param Opt_Xml_Element $node The recognized element.
+	 */
+	protected function _processShowelse(Opt_Xml_Element $node)
+	{
+		$parent = $node->getParent();
+		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:show')
+		{
+			$parent->set('priv:alternative', true);
+			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
+			$this->_process($node);
+		}
+		else
+		{
+			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:show');
+		}
+	} // end _processShowelse();
+
+	/**
+	 * Processes the opt:sectionelse element.
+	 * @internal
+	 * @param Opt_Xml_Element $node The recognized element.
+	 */
+	protected function _processSectionelse(Opt_Xml_Element $node)
+	{
+		$parent = $node->getParent();
+		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:section')
+		{
+			$parent->set('priv:alternative', true);
+
+			$section = self::getSection($parent->get('priv:section'));
+			if(!is_array($section))
+			{
+				throw new Opt_APINoDataReturned_Exception('Opt_Instruction_BaseSection::getSection', 'processing opt:sectionelse');
+			}
+			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:endLoop').' } else { ');
+
+			$this->_sectionEnd($parent);
+
+			$this->_process($node);
+		}
+		else
+		{
+			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:section');
+		}
+	} // end _processSectionelse();
+
+	/**
+	 * Processes the attribute form of opt:section.
+	 * @internal
+	 * @param Opt_Xml_Node $node The node the section is appended to
+	 * @param Opt_Xml_Attribute $attr The section attribute
+	 */
+	protected function _processAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+	{
+		$section = $this->_sectionCreate($node, $attr);
+		$this->_sectionStart($section);
+		$code = $section['format']->get('section:loopBefore');
+		if($section['order'] == 'asc')
+		{
+			$code .= $section['format']->get('section:startAscLoop');
+		}
+		else
+		{
+			$code .= $section['format']->get('section:startDescLoop');
+		}
+		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
+		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+		$attr->set('postprocess', true);
+	} // end _processAttrSection();
+
+	/**
+	 * Finishes the processing of attribute form of opt:section.
+	 * @internal
+	 * @param Opt_Xml_Node $node The node the section is appended to
+	 * @param Opt_Xml_Attribute $attr The section attribute
+	 */
+	protected function _postprocessAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+	{
+		$section = self::getSection($node->get('priv:section'));
+		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('section:endLoop'));
+		$this->_sectionEnd($node);
+	} // end _postprocessAttrSection();
+} // end Opt_Instruction_Section;

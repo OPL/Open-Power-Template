@@ -13,60 +13,119 @@
  */
 
 /**
- * This is a container for Opt_Xml_Cdata and Opt_Xml_Expression objects.
+ * A container for Opt_Xml_Cdata and Opt_Xml_Expression objects.
+ *
+ * @package XML
  */
-	class Opt_Xml_Text extends Opt_Xml_Scannable
+class Opt_Xml_Text extends Opt_Xml_Scannable
+{
+	/**
+	 * Constructs a new object of Opt_Xml_Text. The first argument may be
+	 * used to initialize the first Opt_Xml_Cdata node.
+	 *
+	 * @param String $cdata The optional text to initialize the Opt_Xml_Cdata.
+	 */
+	public function __construct($cdata = null)
 	{
-		/**
-		 * Constructs a new text object. If the argument is a
-		 * string, it automatically creates the initial Opt_Xml_Cdata
-		 * node and initializes it with the argument value.
-		 *
-		 * @param string $cdata The optional text for CDATA node.
-		 */
-		public function __construct($cdata = null)
+		parent::__construct();
+		if(!is_null($cdata))
 		{
-			parent::__construct();
-			if(!is_null($cdata))
-			{
-				$this->appendData($cdata);
-			}
-		} // end __construct();
+			$this->appendData($cdata);
+		}
+	} // end __construct();
 
-		/**
-		 * Appends the text to the last character data node. If the last
-		 * node of Opt_Xml_Text is not Opt_Xml_Cdata, it automatically
-		 * creates the new node and initializes it with the argument value.
-		 *
-		 * @param string $cdata The string to append.
-		 */
-		public function appendData($cdata)
+	/**
+	 * Appends the text to the last Opt_Xml_Cdata node. If the last child is
+	 * not Opt_Xml_Cdata, it is created.
+	 *
+	 * @param String $cdata The text to append.
+	 */
+	public function appendData($cdata)
+	{
+		$node = $this->getLastChild();
+		if(is_null($node) || $node->getType() != 'Opt_Xml_Cdata' || $node->get('cdata') == true)
 		{
-			$node = $this->getLastChild();
-			if(is_null($node) || $node->getType() != 'Opt_Xml_Cdata' || $node->get('cdata') == true)
-			{
-				$node = new Opt_Xml_Cdata($cdata);
-				$this->appendChild($node);
-			}
-			else
-			{
-				$node->appendData($cdata);
-			}
-		} // end appendData();
+			$node = new Opt_Xml_Cdata($cdata);
+			$this->appendChild($node);
+		}
+		else
+		{
+			$node->appendData($cdata);
+		}
+	} // end appendData();
 
-		/**
-		 * Tests, if the node we want to add is either Opt_Xml_Expression or Opt_Xml_Cdata.
-		 * The error is signalized with an exception.
-		 *
-		 * @internal
-		 * @param Opt_Xml_Node $node The node to test.
-		 * @throws Opt_APIInvalidNodeType_Exception
-		 */
-		protected function _testNode(Opt_Xml_Node $node)
+	/**
+	 * Tests if the specified node can be appended to this node type.
+	 *
+	 * @param Opt_Xml_Node $node The node to test.
+	 */
+	protected function _testNode(Opt_Xml_Node $node)
+	{
+		if($node->getType() != 'Opt_Xml_Expression' && $node->getType() != 'Opt_Xml_Cdata')
 		{
-			if($node->getType() != 'Opt_Xml_Expression' && $node->getType() != 'Opt_Xml_Cdata')
-			{
-				throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Text', $node->getType());
-			}
-		} // end _testNode();
-	} // end Opt_Xml_Text;
+			throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Text', $node->getType());
+		}
+	} // end _testNode();
+
+	/**
+	 * This function is executed by the compiler before the second compilation stage.
+	 */
+	public function preMigrate(Opt_Compiler_Class $compiler)
+	{
+		$this->set('hidden', false);
+		if($this->hasChildren())
+		{
+			$compiler->setChildren($this);
+		}
+	} // end preMigrate();
+
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * after processing the child nodes.
+	 */
+	public function postMigrate(Opt_Compiler_Class $compiler)
+	{
+
+	} // end postMigrate();
+
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing.
+	 */
+	public function preProcess(Opt_Compiler_Class $compiler)
+	{
+		$this->set('hidden', false);
+		if($this->hasChildren())
+		{
+			$compiler->setChildren($this);
+		}
+	} // end preProcess();
+
+	/**
+	 * This function is executed by the compiler during the second compilation stage,
+	 * processing, after processing the child nodes.
+	 */
+	public function postProcess(Opt_Compiler_Class $compiler)
+	{
+
+	} // end postProcess();
+
+	/**
+	 * This function is executed by the compiler during the third compilation stage,
+	 * linking.
+	 */
+	public function preLink(Opt_Compiler_Class $compiler)
+	{
+		$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE));
+		$compiler->setChildren($this);
+	} // end preLink();
+
+	/**
+	 * This function is executed by the compiler during the third compilation stage,
+	 * linking, after linking the child nodes.
+	 */
+	public function postLink(Opt_Compiler_Class $compiler)
+	{
+		$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_AFTER));
+	} // end postLink();
+} // end Opt_Xml_Text;
