@@ -134,28 +134,11 @@ class Opt_Expression_Standard_Lexer
               43 => 0,
               44 => 0,
               45 => 0,
-              46 => 0,
-              47 => 0,
-              48 => 0,
-              49 => 0,
-              50 => 0,
-              51 => 0,
-              52 => 0,
-              53 => 0,
-              54 => 0,
-              55 => 0,
-              56 => 0,
-              57 => 0,
-              58 => 0,
-              59 => 0,
-              60 => 0,
-              61 => 0,
-              62 => 0,
             );
         if ($this->_counter >= strlen($this->_data)) {
             return false; // end of input
         }
-        $yy_global_pattern = "/^(\\s+)|^((\\+\\+|--))|^(\\+|add)|^(-)|^(sub)|^(\\*|mul)|^(\/|div)|^(%|mod)|^(\\^|exp)|^(and)|^(or)|^(nor)|^(!|not)|^(xor)|^(==|eq)|^(===|eqt)|^(!=|neq)|^(!=|neqt)|^(gt)|^(lt)|^(gte)|^(lte)|^(~)|^(contains)|^(is\\s+between)|^(is\\s+not\\s+between)|^(is\\s+either)|^(is\\s+neither)|^(contains\\s+both)|^(contains\\s+either)|^(contains\\s+neither)|^(is\\s+in)|^(is\\s+not\\s+in)|^(is\\s+in\\s+both)|^(is\\s+in\\s+either)|^(is\\s+in\\s+neither)|^(new)|^(clone)|^(exists)|^(null)|^(true)|^(false)|^(\\$)|^(@)|^(\\.)|^(=|is)|^(\\()|^(\\))|^(<)|^(>)|^(\\[)|^(\\])|^(::)|^(,)|^(:)|^(\\+|add)|^([a-zA-Z_][a-zA-Z0-9_]*)|^('[^'\\\\]*(?:\\\\.[^'\\\\]*)*')|^(`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`)|^([0-9]+\\.?[0-9]*)|^(0[xX][0-9a-fA-F]+)/";
+        $yy_global_pattern = "/^(\\s+)|^((\\+\\+|--))|^(\\+)|^(-)|^(\\*)|^(\/)|^(%)|^(\\^)|^(!)|^(==)|^(===)|^(!=)|^(!=)|^(~)|^(is\\s+between)|^(is\\s+not\\s+between)|^(is\\s+either)|^(is\\s+neither)|^(contains\\s+both)|^(contains\\s+either)|^(contains\\s+neither)|^(is\\s+in)|^(is\\s+not\\s+in)|^(is\\s+in\\s+both)|^(is\\s+in\\s+either)|^(is\\s+in\\s+neither)|^(\\$)|^(@)|^(\\.)|^(=)|^(\\()|^(\\))|^(<)|^(>)|^(\\[)|^(\\])|^(::)|^(,)|^(:)|^([a-zA-Z_][a-zA-Z0-9_]*)|^('[^'\\\\]*(?:\\\\.[^'\\\\]*)*')|^(`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`)|^([0-9]+\\.?[0-9]*)|^(0[xX][0-9a-fA-F]+)/";
 
         do {
             if (preg_match($yy_global_pattern, substr($this->_data, $this->_counter), $yymatches)) {
@@ -234,284 +217,284 @@ class Opt_Expression_Standard_Lexer
     function yy_r1_6($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_SUB;
+	$this->token = Opt_Expression_Standard_Parser::T_MUL;
     }
     function yy_r1_7($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_MUL;
+	$this->token = Opt_Expression_Standard_Parser::T_DIV;
     }
     function yy_r1_8($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_DIV;
+	$this->token = Opt_Expression_Standard_Parser::T_MOD;
     }
     function yy_r1_9($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_MOD;
+	$this->token = Opt_Expression_Standard_Parser::T_EXP;
     }
     function yy_r1_10($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_EXP;
+	$this->token = Opt_Expression_Standard_Parser::T_NOT;
     }
     function yy_r1_11($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_AND;
+	$this->token = Opt_Expression_Standard_Parser::T_EQUALS;
     }
     function yy_r1_12($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_OR;
+	$this->token = Opt_Expression_Standard_Parser::T_EQUALS_T;
     }
     function yy_r1_13($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_NOR;
+	$this->token = Opt_Expression_Standard_Parser::T_NEQUALS;
     }
     function yy_r1_14($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_NOT;
+	$this->token = Opt_Expression_Standard_Parser::T_NEQUALS_T;
     }
     function yy_r1_15($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_XOR;
+	$this->token = Opt_Expression_Standard_Parser::T_CONCAT;
     }
     function yy_r1_16($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_EQUALS;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_BETWEEN;
     }
     function yy_r1_17($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_EQUALS_T;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_NOT_BETWEEN;
     }
     function yy_r1_18($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_NEQUALS;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_EITHER;
     }
     function yy_r1_19($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_NEQUALS_T;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_NEITHER;
     }
     function yy_r1_20($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_GT;
+	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS_BOTH;
     }
     function yy_r1_21($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_LT;
+	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS_EITHER;
     }
     function yy_r1_22($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_GTE;
+	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS_NEITHER;
     }
     function yy_r1_23($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_LTE;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_IN;
     }
     function yy_r1_24($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_CONCAT;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_NOT_IN;
     }
     function yy_r1_25($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_BOTH_IN;
     }
     function yy_r1_26($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_BETWEEN;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_EITHER_IN;
     }
     function yy_r1_27($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_NOT_BETWEEN;
+	$this->token = Opt_Expression_Standard_Parser::T_IS_NEITHER_IN;
     }
     function yy_r1_28($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_EITHER;
+	$this->token = Opt_Expression_Standard_Parser::T_DOLLAR;
     }
     function yy_r1_29($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_NEITHER;
+	$this->token = Opt_Expression_Standard_Parser::T_AT;
     }
     function yy_r1_30($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS_BOTH;
+	$this->token = Opt_Expression_Standard_Parser::T_DOT;
     }
     function yy_r1_31($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS_EITHER;
+	$this->token = Opt_Expression_Standard_Parser::T_ASSIGN;
     }
     function yy_r1_32($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_CONTAINS_NEITHER;
+	$this->token = Opt_Expression_Standard_Parser::T_L_BRACKET;
     }
     function yy_r1_33($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_IN;
+	$this->token = Opt_Expression_Standard_Parser::T_R_BRACKET;
     }
     function yy_r1_34($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_NOT_IN;
+	$this->token = Opt_Expression_Standard_Parser::T_DLSQ_BRACKET;
     }
     function yy_r1_35($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_BOTH_IN;
+	$this->token = Opt_Expression_Standard_Parser::T_DRSQ_BRACKET;
     }
     function yy_r1_36($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_EITHER_IN;
+	$this->token = Opt_Expression_Standard_Parser::T_LSQ_BRACKET;
     }
     function yy_r1_37($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_IS_NEITHER_IN;
+	$this->token = Opt_Expression_Standard_Parser::T_RSQ_BRACKET;
     }
     function yy_r1_38($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_NEW;
+	$this->token = Opt_Expression_Standard_Parser::T_OBJECT_OPERATOR;
     }
     function yy_r1_39($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_CLONE;
+	$this->token = Opt_Expression_Standard_Parser::T_COMMA;
     }
     function yy_r1_40($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_EXISTS;
+	$this->token = Opt_Expression_Standard_Parser::T_COLON;
     }
     function yy_r1_41($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_NULL;
+	switch($this->value)
+	{
+		case 'add':
+			$this->token = Opt_Expression_Standard_Parser::T_ADD;
+			break;
+		case 'sub':
+			$this->token = Opt_Expression_Standard_Parser::T_SUB;
+			break;
+		case 'mul':
+			$this->token = Opt_Expression_Standard_Parser::T_MUL;
+			break;
+		case 'div':
+			$this->token = Opt_Expression_Standard_Parser::T_DIV;
+			break;
+		case 'mod':
+			$this->token = Opt_Expression_Standard_Parser::T_MOD;
+			break;
+		case 'exp':
+			$this->token = Opt_Expression_Standard_Parser::T_EXP;
+			break;
+		case 'and':
+			$this->token = Opt_Expression_Standard_Parser::T_AND;
+			break;
+		case 'or':
+			$this->token = Opt_Expression_Standard_Parser::T_OR;
+			break;
+		case 'nor':
+			$this->token = Opt_Expression_Standard_Parser::T_NOR;
+			break;
+		case 'not':
+			$this->token = Opt_Expression_Standard_Parser::T_NOT;
+			break;
+		case 'xor':
+			$this->token = Opt_Expression_Standard_Parser::T_XOR;
+			break;
+		case 'eq':
+			$this->token = Opt_Expression_Standard_Parser::T_EQUALS;
+			break;
+		case 'neq':
+			$this->token = Opt_Expression_Standard_Parser::T_NEQUALS;
+			break;
+		case 'eqt':
+			$this->token = Opt_Expression_Standard_Parser::T_EQUALS_T;
+			break;
+		case 'neqt':
+			$this->token = Opt_Expression_Standard_Parser::T_NEQUALS_T;
+			break;
+		case 'gt':
+			$this->token = Opt_Expression_Standard_Parser::T_GT;
+			break;
+		case 'lt':
+			$this->token = Opt_Expression_Standard_Parser::T_LT;
+			break;
+		case 'gte':
+			$this->token = Opt_Expression_Standard_Parser::T_GTE;
+			break;
+		case 'lte':
+			$this->token = Opt_Expression_Standard_Parser::T_LTE;
+			break;
+		case 'contains':
+			$this->token = Opt_Expression_Standard_Parser::T_CONTAINS;
+			break;
+		case 'exists':
+			$this->token = Opt_Expression_Standard_Parser::T_EXISTS;
+			break;
+		case 'is':
+			$this->token = Opt_Expression_Standard_Parser::T_ASSIGN;
+			break;
+		case 'true':
+			$this->token = Opt_Expression_Standard_Parser::T_TRUE;
+			break;
+		case 'false':
+			$this->token = Opt_Expression_Standard_Parser::T_FALSE;
+			break;
+		case 'null':
+			$this->token = Opt_Expression_Standard_Parser::T_NULL;
+			break;
+		case 'new':
+			$this->token = Opt_Expression_Standard_Parser::T_NEW;
+			break;
+		case 'clone':
+			$this->token = Opt_Expression_Standard_Parser::T_CLONE;
+			break;
+		default:
+			$this->token = Opt_Expression_Standard_Parser::T_IDENTIFIER;
+	}
     }
     function yy_r1_42($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_TRUE;
+	$this->token = Opt_Expression_Standard_Parser::T_STRING;
     }
     function yy_r1_43($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_FALSE;
+	$this->token = Opt_Expression_Standard_Parser::T_BACKTICKS;
     }
     function yy_r1_44($yy_subpatterns)
     {
 
-	$this->token = Opt_Expression_Standard_Parser::T_DOLLAR;
-    }
-    function yy_r1_45($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_AT;
-    }
-    function yy_r1_46($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_DOT;
-    }
-    function yy_r1_47($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_ASSIGN;
-    }
-    function yy_r1_48($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_L_BRACKET;
-    }
-    function yy_r1_49($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_R_BRACKET;
-    }
-    function yy_r1_50($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_DLSQ_BRACKET;
-    }
-    function yy_r1_51($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_DRSQ_BRACKET;
-    }
-    function yy_r1_52($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_LSQ_BRACKET;
-    }
-    function yy_r1_53($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_RSQ_BRACKET;
-    }
-    function yy_r1_54($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_OBJECT_OPERATOR;
-    }
-    function yy_r1_55($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_COMMA;
-    }
-    function yy_r1_56($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_COLON;
-    }
-    function yy_r1_57($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_ADD;
-    }
-    function yy_r1_58($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_IDENTIFIER;
-    }
-    function yy_r1_59($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_STRING;
-    }
-    function yy_r1_60($yy_subpatterns)
-    {
-
-	$this->token = Opt_Expression_Standard_Parser::T_BACKTICKS;
-    }
-    function yy_r1_61($yy_subpatterns)
-    {
-
 	$this->token = Opt_Expression_Standard_Parser::T_NUMBER;
     }
-    function yy_r1_62($yy_subpatterns)
+    function yy_r1_45($yy_subpatterns)
     {
 
 	$this->token = Opt_Expression_Standard_Parser::T_NUMBER;

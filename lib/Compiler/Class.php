@@ -357,11 +357,10 @@ class Opt_Compiler_Class
 	 *
 	 * @param char $modifier The modifier used to escape the expression.
 	 * @param string $expression The PHP expression to be escaped.
-	 * @param string $format The format of the expression.
 	 * @param boolean $status The status of escaping for this expression or NULL, if not set.
 	 * @return string The expression with the escaping formula added, if necessary.
 	 */
-	public function escape($modifier, $expression, $format, $status = null)
+	public function escape($modifier, $expression, $status = null)
 	{
 		// OPT Configuration
 		$escape = $this->_tpl->escape;
@@ -385,7 +384,7 @@ class Opt_Compiler_Class
 		}
 		if($escape && !empty($this->_modifiers[$modifier]))
 		{
-			return $this->_modifiers[$modifier].'('.Opt_Compiler_Utils::cast($this->_cdfManager, $expression, $format, 'Scalar').')';
+			return $this->_modifiers[$modifier].'('.$expression.')';
 		}
 		return $expression;
 	} // end escape();
@@ -1195,28 +1194,26 @@ class Opt_Compiler_Class
 	 * The compilation launcher. It executes the proper compilation steps
 	 * according to the inheritance rules etc.
 	 *
-	 * @param String $code The source code to be compiled.
-	 * @param String $filename The source template filename.
-	 * @param String $compiledFilename The output template filename.
-	 * @param Int $mode The compilation mode.
+	 * @param string $code The source code to be compiled.
+	 * @param string $filename The source template filename.
+	 * @param string $compiledFilename The output template filename.
+	 * @param string $parserName The selected parser.
 	 */
-	public function compile($code, $filename, $compiledFilename, $mode)
+	public function compile($code, $filename, $compiledFilename, $parserName)
 	{
-		$manager = $this->getCdfManager();
-
 		// Initialize the context.
 		try
 		{
 			// First, we select a parser.
-			if(!isset($this->_parsers[$mode]))
+			if(!isset($this->_parsers[$parserName]))
 			{
-				$this->_parsers[$mode] = new $mode;
-				if(!$this->_parsers[$mode] instanceof Opt_Parser_Interface)
+				$this->_parsers[$parserName] = new $parserName;
+				if(!$this->_parsers[$parserName] instanceof Opt_Parser_Interface)
 				{
-					throw new Opt_InvalidParser_Exception($mode);
+					throw new Opt_InvalidParser_Exception($parserName);
 				}
 			}
-			$parser = $this->_parsers[$mode];
+			$parser = $this->_parsers[$parserName];
 			$parser->setCompiler($this);
 
 			// We cannot compile two templates at the same time
@@ -1249,7 +1246,7 @@ class Opt_Compiler_Class
 			}
 			// Initializing the template launcher
 			$this->set('template', $this->_template = $filename);
-			$this->set('mode', $mode);
+			$this->set('parser', $parserName);
 			$this->set('currentTemplate', $this->_template);
 			array_push(self::$_templates, $filename);
 			$this->_stack = new SplStack;
@@ -1621,11 +1618,11 @@ class Opt_Compiler_Class
 		{
 			if($modifierSelected || $escape === self::ESCAPE_ON)
 			{
-				$expression['escaped'] = $this->escape($modifier, $expression['bare'], $expression['format'], !empty($this->_modifiers[$modifier]));
+				$expression['escaped'] = $this->escape($modifier, $expression['bare'], !empty($this->_modifiers[$modifier]));
 			}
 			else
 			{
-				$expression['escaped'] = $this->escape($modifier, $expression['bare'], $expression['format']);
+				$expression['escaped'] = $this->escape($modifier, $expression['bare']);
 			}
 		}
 		else

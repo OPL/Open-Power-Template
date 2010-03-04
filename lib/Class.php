@@ -103,12 +103,10 @@ class Opt_Class extends Opl_Class
 	const CM_REBUILD = 1;
 	const CM_PERFORMANCE = 2;
 
-	const ACCESS_LOCAL = 0;
-	const ACCESS_GLOBAL = 1;
-
-	const CHOOSE_MODE = 0;
-	const XML_MODE = 1;
-	const QUIRKS_MODE = 2;
+	const CHOOSE_MODE = 'Opt_Parser_Html';
+	const XML_MODE = 'Opt_Parser_Xml';
+	const QUIRKS_MODE = 'Opt_Parser_Quirks';
+	const HTML_MODE = 'Opt_Parser_Html';
 
 	const OPT_INSTRUCTION = 1;
 	const OPT_NAMESPACE = 2;
@@ -121,7 +119,7 @@ class Opt_Class extends Opl_Class
 	const EXPR_ENGINE = 9;
 	const MODIFIER = 10;
 
-	const VERSION = '2.0.4';
+	const VERSION = '2.1-dev';
 	const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 
 	// Directory configuration
@@ -150,22 +148,28 @@ class Opt_Class extends Opl_Class
 	public $numberDecPoint;
 	public $numberThousandSep;
 
+	// Template language configuration
+	public $parser = 'Opt_Parser_Xml';
+	public $expressionEngine = 'parse';
+	public $attributeModifier = 'a';
+	public $defaultModifier = 'e';
+
 	// Compiler configuration
-	public $mode = self::XML_MODE;
+	public $backwardCompatibility = false;
 	public $unicodeNames = false;
 	public $htmlAttributes = false;
 	public $printComments = false;
 	public $prologRequired = true;
 	public $stripWhitespaces = true;
 	public $singleRootNode = true;
-	public $basicOOP = true;
-	public $advancedOOP = true;
+	public $allowArrays = false;
+	public $allowObjects = false;
+	public $allowObjectCreation = false;
 	public $backticks = null;
 	public $translate = null;
 	public $strictCallbacks = true;
 	public $htmlEntities = true;
 	public $escape = true;
-	public $variableAccess = self::ACCESS_LOCAL;
 	public $defaultFormat = 'Array';
 
 	/**
@@ -217,11 +221,11 @@ class Opt_Class extends Opl_Class
 		'capitalize' => 'Opt_Function::capitalize', 'countWords' => 'str_word_count', 'countChars' => 'strlen',
 		'replace' => '#3,1,2#str_replace', 'repeat' => 'str_repeat', 'nl2br' => 'Opt_Function::nl2br', 'date' => 'date',
 		'regexReplace' => '#3,1,2#preg_replace', 'truncate' => 'Opt_Function::truncate', 'wordWrap' => 'Opt_Function::wordwrap',
-		'contains' => 'Opt_Function::contains', 'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
+		'count' => 'sizeof', 'sum' => 'Opt_Function::sum', 'average' => 'Opt_Function::average',
 		'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
 		'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
-		'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey',
-		'cycle' => 'Opt_Function::cycle'
+		'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'cycle' => 'Opt_Function::cycle',
+		'containsKey' => 'Opt_Function::containsKey'
 	);
 	/**
 	 * The list of registered classes: assotiative array of pairs:
@@ -754,7 +758,7 @@ class Opt_View
 	{
 		$this->_tpl = Opl_Registry::get('opt');
 		$this->_template = $template;
-		$this->_mode = $this->_tpl->mode;
+		$this->_parser = $this->_tpl->parser;
 		$this->_cache = $this->_tpl->getCache();
 	} // end __construct();
 
@@ -1338,10 +1342,10 @@ class Opt_View
 		}
 
 		$compiler = $this->_tpl->getCompiler();
-		$compiler->setInheritance($this->_cplInheritance);
+		$compiler->setInheritance($this->_inheritance);
 		$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 		$compiler->set('branch', $this->_branch);
-		$compiler->compile($result, $this->_template, $compiled, $this->_mode);
+		$compiler->compile($result, $this->_template, $compiled, $this->_parser);
 		return array($compiled, $compileTime);
 	} // end _preprocess();
 
@@ -1406,10 +1410,10 @@ class Opt_View
 	{
 		$compiled = $this->_convert($filename);
 		$compiler = $this->_tpl->getCompiler();
-		$compiler->setInheritance($this->_cplInheritance);
+		$compiler->setInheritance($this->_inheritance);
 		$compiler->setFormatList(array_merge($this->_formatInfo, self::$_globalFormatInfo));
 		$compiler->set('branch', $this->_branch);
-		$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_mode);
+		$compiler->compile($this->_tpl->_getSource($filename), $filename, $compiled, $this->_parser);
 		return time();
 	} // end _compile();
 } // end Opt_View;

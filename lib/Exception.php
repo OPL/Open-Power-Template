@@ -192,7 +192,7 @@ class Opt_FormatNotDecorated_Exception extends Opt_Template_Exception
 
 class Opt_Expression_Exception extends Opt_Template_Exception
 {
-	protected $_message = 'Unexpected token: %s (%s) in expression %s';
+	protected $_message = 'Unexpected token: %s in expression %s';
 } // end Opt_Expression_Exception;
 
 class Opt_EmptyExpression_Exception extends Opt_Template_Exception
@@ -254,6 +254,11 @@ class Opt_UnknownEntity_Exception extends Opt_Template_Exception
 {
 	protected $_message = 'The entity %s is not registered in the XML parser.';
 } // end Opt_UnknownEntity_Exception;
+
+class Opt_OperationNotSupported_Exception extends Opt_Template_Exception
+{
+	protected $_message = 'The following operation on container %s is not available: %s';
+} // end Opt_OperationNotSupported_Exception;
 
 /*
  * Compiler code and API problems.

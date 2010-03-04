@@ -285,7 +285,6 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function _compileVariable(array $variable, $type, $weight, $context = 0, $contextInfo = null, $extra = null)
 	{
 		$conversion = '##simplevar_';
-		$manager = $this->_compiler->getCdfManager();
 		$defaultFormat = null;
 		if($type == '@')
 		{
