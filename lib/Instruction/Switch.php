@@ -26,12 +26,26 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	protected $_name = 'switch';
 
 	/**
+	 * The registered switch handlers
+	 * @var array
+	 */
+	private $_handlers = array();
+
+	/**
+	 * The switchable tags
+	 * @var array
+	 */
+	private $_switchable = array('opt:switch' => true);
+
+	/**
 	 * Configures the instruction processor.
 	 */
 	public function configure()
 	{
 		$this->_addInstructions(array('opt:switch'));
-	//	$this->_addAttributes(array('opt:switch'));
+
+		$this->_handlers['opt:equals'] = array($this, '_handleEquals');
+		$this->_handlers['opt:contains'] = array($this, '_handleContains');
 	} // end configure();
 
 	/**
@@ -48,19 +62,90 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * Processes the opt:switch tag.
 	 *
 	 * @internal
-	 * @param Opt_Node $node The node.
+	 * @param Opt_Xml_Node $node The node.
 	 */
-	protected function _processSwitch(Opt_Node $node)
+	protected function _processSwitch(Opt_Xml_Node $node)
 	{
-		$equalsContainer = array();
-		$containsContainer = array();
+		$params = array(
+			'test' => array(0 => self::REQUIRED, self::EXPRESSION, null, 'parse'),
+		);
+		$this->_extractAttributes($node, $params);
+
+		$this->createSwitch($node, $params['test']);
+	} // end _processSwitch();
+
+	/**
+	 * Adds a tag that is recognized as a beginning of a new switch.
+	 * 
+	 * @param string $tagName The switch tag name
+	 */
+	public function addSwitchable($tagName)
+	{
+		$this->_switchable[$tagName] = true;
+	} // end addSwitchable();
+
+	/**
+	 * Registers a new switch handler which is able to process various conditions etc.
+	 *
+	 * @param string $tagName The registered tag name
+	 * @param callback $handler The tag name handler callback
+	 */
+	public function addSwitchHandler($tagName, $handler)
+	{
+
+	} // end addSwitchHandler();
+
+	/**
+	 * Removes an existing switch handler. If the handler is not found, it throws
+	 * an exception.
+	 *
+	 * @throws Opt_ObjectNotExists_Exception
+	 * @param string $tagName The tag name registered for the handler.
+	 */
+	public function removeSwitchHandler($tagName)
+	{
+		if(!isset($this->_handlers[(string)$tagName]))
+		{
+			throw new Opt_ObjectNotExists_Exception('switch handler', $tagName);
+		}
+		unset($this->_handlers[(string)$tagName]);
+	} // end removeSwitchHandler();
+
+	/**
+	 * Returns true, if the specified switch handler exists under the specified
+	 * tag name.
+	 *
+	 * @param string $tagName The registered tag name
+	 */
+	public function hasSwitchHandler($tagName)
+	{
+		return isset($this->_handlers[(string)$tagName]);
+	} // end hasSwitchHandler();
+
+	/**
+	 * Compiles the specified tag contents as a programmable switch statement.
+	 * The programmer may define his own actions and requirements for node
+	 * compilation.
+	 *
+	 * @param Opt_Xml_Node $node The root node that acts as a switch.
+	 * @param string $test The test condition.
+	 */
+	public function createSwitch(Opt_Xml_Node $node, $test)
+	{
+		// Initialize the containers
+		$containers = array();
+		foreach($this->_handlers as $handler => $callback)
+		{
+			$containers[$handler] = array();
+		}
 
 		// Collect the subnodes with the recursion to detect the opt:equals and opt:contains tags.
 		$stack = new SplStack;
 		$stack->push($node);
 		$node->rewind();
 		$nextAction = 0;
-		while($stack->size() != 0)
+		$previous = null;
+		while($stack->count() != 0)
 		{
 			// This is a finite state machine
 			switch($nextAction)
@@ -70,72 +155,69 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 					$element = $stack->top();
 
 					// Top-level element
-					if($stack->size() == 1)
+					if($stack->count() == 1)
 					{
-						// TODO: Only "opt:equals" and "opt:contains" possible.
 						$nextAction = 3;
 					}
 					// Nested elements
+					elseif($this->_detectSwitchable($element))
+					{
+						$nextAction = 2;
+					}
+					// Switch cases
+					elseif(($type = $element->get('priv:switch-type')) !== null)
+					{
+						$nextAction = 2;
+						if($element->hasChildren())
+						{
+							($previous !== null && $stack->count() > 2) and $container[$type][] = $this->_constructCb($element);
+							$container[$type][] = $this->_constructIb($element);
+							$lastContainer = $type;
+							$nextAction = 3;
+						}						
+					}
+					// Others
 					else
 					{
-						switch($this->_detectCase($element))
+						$nextAction = 2;
+						if($element->hasChildren())
 						{
-							// Ignore the deeper content
-							case 'opt:switch':
-								$nextAction = 2;
-								break;
-							// Push some blocks to the "equals" container
-							case 'opt:equals':
-								$nextAction = 2;
-								if($element->hasChildren())
-								{
-									$equalsContainer[] = $this->_constructIb($element);
-									$lastContainer = &$equalsContainer;
-									$nextAction = 3;
-								}				
-								break;
-
-							// Push some blocks to the "contains" container.
-							case 'opt:contains':
-								$nextAction = 2;
-								if($element->hasChildren())
-								{
-									$containsContainer[] = $this->_constructIb($element);
-									$lastContainer = &$containsContainer;
-									$nextAction = 3;
-								}
-								break;
-							default:
-								$nextAction = 2;
-								if($element->hasChildren())
-								{
-									$nextAction = 3;
-								}
+							$nextAction = 3;
 						}
 					}
 					break;
 				// Move to the next element
 				case 1:
 					$element = $stack->top();
+					if(!$jumpIn)
+					{
+						$element->next();
+					}
+					$jumpIn = false;
 					$found = false;
 					while($element->valid())
 					{
-						$element->next();
 						$item = $element->current();
 						if($item instanceof Opt_Xml_Element)
 						{
-							if(($type = $this->_detectCase($item)) === null)
+							$type = $this->_detectCase($item);
+							if($stack->count() == 1 && $type === null)
 							{
 								// TODO: Exception here!
 								die('Error');
 							}
-
-							$element->push($item);
+							$item->set('priv:switch-type', $type);
+							$stack->push($item);
 
 							$nextAction = 0;
 							$found = true;
 							break;
 						}
+						else
+						{
+							$previous = $item;
+						}
+						$element->next();
 					}
 					if($found === false)
 					{
@@ -145,15 +227,18 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 				// Jump out.
 				case 2:
 					$element = $stack->pop();
-					$type = $this->_detectCase($element);
-					if($type == 'opt:equals')
+					$type = $element->get('priv:switch-type');
+					$doExtra = false;
+					if($element->hasChildren() && (!($__tmp = $element->getLastChild()) instanceof Opt_Xml_Element || $__tmp->get('priv:switch-type') !== null))
 					{
-						$equalsContainer[] = $this->_constructEb($element);
+						$doExtra = true;
 					}
-					elseif($type == 'opt:contains')
+					if($type !== null)
 					{
-						$containsContainer[] = $this->_constructEb($element);
+						$doExtra and $container[$type][] = $this->_constructCb($element);
+						$container[$type][] = $this->_constructEb($element);
 					}
+					$previous = $element;
 					$nextAction = 1;
 					break;
 				// Jump in to the first element
@@ -161,44 +246,72 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 					$element = $stack->top();
 					$element->rewind();
 					$nextAction = 1;
+					$previous = null;
 					$jumpIn = true;
 					break;
 			}
 		}
+		foreach($container as $type => &$level)
+		{
+			echo '------level: '.$type.'<br/>';
+			foreach($level as $element)
+			{
+				echo $element[0].'<br/>';
+			}
+		}
+	} // end createSwitch();
 
-		foreach($equalsContainer as $element)
+	/**
+	 * Detects a switchable tag.
+	 *
+	 * @internal
+	 * @param Opt_Xml_Element $element The tag to test.
+	 * @return boolean
+	 */
+	protected function _detectSwitchable(Opt_Xml_Element $element)
+	{
+		if(isset($this->_switchable[$element->getXmlName()]))
 		{
-			echo $element[0].'<br/>';
+			return true;
 		}
-		foreach($containsContainer as $element)
-		{
-			echo $element[0].'<br/>';
-		}
-	} // end _processSwitch();
+		return false;
+	} // end _detectSwitchable();
 
 	/**
 	 * Recognizes the case tag in the switch. Returns the recognized tag name
-	 * or NULL.
+	 * or NULL. Please note that checking the attributed forms is quite slow,
+	 * so please do not use it too often, but rather cache the results for
+	 * a particular tag.
 	 *
+	 * @internal
 	 * @param Opt_Xml_Element $element The element to test
 	 * @return string|null
 	 */
 	protected function _detectCase(Opt_Xml_Element $element)
 	{
-		switch($element->getXmlName())
+		if(isset($this->_handlers[$element->getXmlName()]))
 		{
-			case 'opt:equals':
-				return 'opt:equals';
-			case 'opt:contains':
-				return 'opt:contains';
-			default:
-				return null;
+			return $element->getXmlName();
 		}
+		// Look for an attribute.
+		else
+		{
+			foreach($element->getAttributes() as $attribute)
+			{
+				if(isset($this->_handlers[$attribute->getXmlName()]))
+				{
+					return $attribute->getXmlName();
+				}
+			}
+
+		}
+		return null;
 	} // end _detectCase();
 
 	/**
 	 * Constructs the "Initialization block" for the containers.
 	 *
+	 * @internal
 	 * @param Opt_Xml_Element $tag The element.
 	 * @return SplFixedArray
 	 */
@@ -212,8 +325,25 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	} // end _constructIb();
 
 	/**
-	 * Constructs the "Initialization block" for the containers.
+	 * Constructs the "Code block" for the containers.
 	 *
+	 * @internal
+	 * @param Opt_Xml_Element $tag The element.
+	 * @return SplFixedArray
+	 */
+	protected function _constructCb($tag)
+	{
+		$object = new SplFixedArray(2);
+		$object[0] = 'cb';
+		$object[1] = $tag;
+
+		return $object;
+	} // end _constructCb();
+
+	/**
+	 * Constructs the "Finalization block" for the containers.
+	 *
+	 * @internal
 	 * @param Opt_Xml_Element $tag The element.
 	 * @return SplFixedArray
 	 */
