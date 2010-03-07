@@ -21,11 +21,39 @@
  */
 abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 {
-	protected $_subnodes;
-	protected $_i;
-	protected $_size;
-	protected $_copy;
+	/**
+	 * The first child.
+	 * @var Opt_Xml_Node
+	 */
+	protected $_first = null;
+	/**
+	 * The last child
+	 * @var Opt_Xml_Node
+	 */
+	protected $_last = null;
 
+	/**
+	 * The number of children
+	 * @var integer
+	 */
+	private $_size = 0;
+
+	/**
+	 * The collection iterator.
+	 * @var Opt_Xml_Node
+	 */
+	private $_iterator = null;
+
+	/**
+	 * The collection iterator position.
+	 * @var integer
+	 */
+	private $_position = 0;
+
+	/**
+	 * The list of prototypes for sort() method.
+	 * @var array
+	 */
 	private $_prototypes;
 
 	/**
@@ -35,10 +63,6 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	{
 		parent::__construct();
 	} // end __construct();
-
-	/*
-	 * Public DOM-like API
-	 */
 
 	/**
 	 * Appends a new child to the end of the children list. The method
@@ -51,12 +75,21 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		// Test if the node can be a child of this and initialize an
 		// empty array if needed.
 		$this->_testNode($child);
-		if(!is_array($this->_subnodes))
+
+		$child->unmount();
+		if($this->_last === null)
 		{
-			$this->_subnodes = array();
+			$this->_first = $this->_last = $child;
+			$child->_parent = $this;
 		}
-		$child->setParent($this);
-		$this->_subnodes[] = $child;
+		else
+		{
+			$child->_previous = $this->_last;
+			$child->_parent = $this;
+			$this->_last->_next = $child;
+			$this->_last = $child;
+		}
+		$this->_size++;
 	} // end appendChild();
 
 	/**
@@ -65,117 +98,150 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	 * If the reference node is empty, the new node is appended to the children
 	 * list, if the last argument allows for that.
 	 *
+	 * Note that in case of objective reference node specification, the reference
+	 * node must be a child of the current node. Otherwise, an exception is thrown.
+	 *
+	 * @throws Opt_APIInvalidBorders_Exception
 	 * @param Opt_Xml_Node $newnode The new node.
-	 * @param Integer|Opt_Xml_Node $refnode The reference node.
-	 * @param Boolean $appendOnError Do we like to append the node, if $refnode does not exist?
+	 * @param integer|Opt_Xml_Node $refnode The reference node.
+	 * @param boolean $appendOnError Do we like to append the node, if $refnode does not exist?
 	 */
-	public function insertBefore(Opt_Xml_Node $newnode, $refnode = null, $appendOnError = true)
+	public function insertBefore(Opt_Xml_Node $newnode, $refnode = null, $appendOnError = false)
 	{
 		// Test if the node can be a child of this and initialize an
 		// empty array if needed.
 		$this->_testNode($newnode);
-		if(!is_array($this->_subnodes))
-		{
-			$this->_subnodes = array();
-		}
-		$newnode->setParent($this);
 		if($refnode === null)
 		{
-			$this->_appendChild($newnode, $appendOnError);
+			return $this->appendChild($newnode);
 		}
-		if(is_object($refnode))
+
+		// If the reference node is specified with an integer, we must find it.
+		if(is_integer($refnode))
 		{
 			$i = 0;
-			$cnt = sizeof($this->_subnodes);
-			while($cnt > 0)
+			$scan = $this->_first;
+			while($scan !== null)
 			{
-				if(isset($this->_subnodes[$i]))
+				if($i == $refnode)
 				{
-					$cnt--;
-					if($this->_subnodes[$i] === $refnode)
-					{
-						$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $i);
-					//	Opt_Array_Push($this->_subnodes, $i, $cnt);
-						$this->_subnodes[$i] = $newnode;
-					}
+					$refnode = $scan;
+					break;
 				}
+				$scan = $scan->_next;
 				$i++;
 			}
+			if(!is_object($refnode))
+			{
+				if($appendOnError)
+				{
+					return $this->appendChild($node);
+				}
+				throw new Opt_APIInvalidBorders_Exception;
+			}
 		}
-		elseif(is_integer($refnode))
+
+		// Now, do the insert.		
+		if($refnode->_parent !== $this)
 		{
-			end($this->_subnodes);
-			if($refnode <= key($this->_subnodes) && $refnode >= 0)
+			if($appendOnError)
 			{
-				$this->_subnodes = $this->_arrayCreateHole($this->_subnodes, $refnode);
-				$this->_subnodes[$refnode] = $newnode;
+				return $this->appendChild($node);
 			}
-			else
-			{
-				$this->_appendChild($newnode, $appendOnError);
-			}
+			throw new Opt_APIInvalidBorders_Exception;
 		}
+		$newnode->unmount();
+		if($refnode->_previous !== null)
+		{
+			$refnode->_previous->_next = $newnode;
+			$newnode->_previous = $refnode->_previous;
+		}
+		$newnode->_next = $refnode;
+		$newnode->_parent = $this;
+		$refnode->_previous = $newnode;
+		if($refnode === $this->_first)
+		{
+			$this->_first = $newnode;
+		}
+		$this->_size++;
 	} // end insertBefore();
 
 	/**
 	 * Removes the child identified either by the number or the object.
 	 *
-	 * @param Integer|Opt_Xml_Node $node The node to be removed.
-	 * @return Boolean
+	 * @param integer|Opt_Xml_Node $node The node to be removed.
+	 * @return boolean
 	 */
 	public function removeChild($node)
 	{
-		if(!is_array($this->_subnodes))
+		if(is_integer($node))
+		{
+			$i = 0;
+			$scan = $this->_first;
+			while($scan !== null)
+			{
+				if($i == $node)
+				{
+					$node = $scan;
+					break;
+				}
+				$scan = $scan->_next;
+				$i++;
+			}
+			if(!is_object($node))
+			{
+				return false;
+			}
+		}
+
+		// Check if this is really our child. We cannot exterminate the
+		// children of other nodes.
+		if($node->_parent !== $this)
 		{
 			return false;
 		}
-		if(is_object($node))
+		$this->_size--;
+
+		// The border cases...
+		if($this->_first === $node)
 		{
-			$cnt = sizeof($this->_subnodes);
-			$found = 0;
-			for($i = 0; $i < $cnt; $i++)
-			{
-				if(isset($this->_subnodes[$i]))
-				{
-					if($this->_subnodes[$i] === $node)
-					{
-						$node->setParent(null);
-						unset($this->_subnodes[$i]);
-						$found++;
-					}
-				}
-			}
-			$this->_subnodes = $this->_arrayReduceHoles($this->_subnodes);
-			return $found > 0;
+			$this->_first = $node->_next;
 		}
-		elseif(is_integer($node) && isset($this->_subnodes[$node]))
+		if($this->_last === $node)
 		{
-			$this->_subnodes[$node]->setParent(null);
-		//	$this->_subnodes[$node]->dispose();
-			unset($this->_subnodes[$node]);
-			$this->_subnodes = $this->_arrayReduceHoles($this->_subnodes);
-			return true;
+			$this->_last = $node->_previous;
 		}
-		return false;
+
+		// Unlink it.
+		if($node->_previous !== null)
+		{
+			$node->_previous->_next = $node->_next;
+		}
+		if($node->_next !== null)
+		{
+			$node->_next->_previous = $node->_previous;
+		}
+		$node->_parent = null;
+		$node->_previous = null;
+		$node->_next = null;
+		return true;
 	} // end removeChild();
 
 	/**
-	 * Removes all the children. The memory after the children is not freed.
+	 * Removes all the children. The memory after the children is not freed, so they
+	 * can be used again in other places.
 	 */
 	public function removeChildren()
 	{
-		if(is_array($this->_subnodes))
+		$scan = $this->_first;
+		while($scan !== null)
 		{
-			foreach($this->_subnodes as $subnode)
-			{
-				if(is_object($subnode))
-				{
-					$subnode->setParent(null);
-				}
-			}
+			$next = $scan->_next;
+			$scan->_previous = $scan->_next = $scan->_parent = null;
+			$scan = $next;
 		}
-		unset($this->_subnodes);
-		$this->_subnodes = null;
+		$this->_first = $this->_last = null;
+		$this->_size = 0;
 	} // end removeChildren();
 
 	/**
@@ -186,40 +252,30 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	public function moveChildren(Opt_Xml_Scannable $node)
 	{
 		// If there are already some nodes, we have to free the memory first.
-		if(is_array($this->_subnodes))
+		$scan = $this->_first;
+		while($scan !== null)
 		{
-			foreach($this->_subnodes as $item)
-			{
-				if(is_object($item))
-				{
-					$item->dispose();
-				}
-			}
+			$next = $scan->_next;
+			$scan->dispose();
+			$scan = $next;
 		}
-		// Move the nodes by copying the internal data structures.
-		$this->_subnodes = $node->_subnodes;
-		$this->_i = $node->_i;
+
+		$this->_first = $node->_first;
+		$this->_last = $node->_last;
 		$this->_size = $node->_size;
-		$this->_copy = $node->_copy;
-		// Reset the children list in the $node.
-		$node->_subnodes = null;
-		$node->_i = null;
-		$node->_size = null;
-		$node->_copy = null;
-		// Create a connection between this node and the new children.
-		if(is_array($this->_subnodes))
+
+		$scan = $this->_first;
+		while($scan !== null)
 		{
-			foreach($this->_subnodes as $subnode)
-			{
-				if(is_object($subnode))
-				{
-					// Test the node in order to check whether
-					// we have moved them to the correct node.
-					$this->_testNode($subnode);
-					$subnode->setParent($this);
-				}
-			}
+			$next = $scan->_next;
+			$scan->_parent = $this;
+			$scan = $next;
 		}
+
+		$node->_size = 0;
+		$node->_first = $node->_last = null;
+		$node->_iterator = null;
+		$node->_position = 0;
 	} // end moveChildren();
 
 	/**
@@ -227,186 +283,197 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	 * identified either by the number or by the object.
 	 *
 	 * @param Opt_Xml_Node $newnode The new node.
-	 * @param Integer|Opt_Xml_Node $refnode The old node.
-	 * @return Boolean
+	 * @param integer|Opt_Xml_Node $refnode The old node.
+	 * @return boolean
 	 */
 	public function replaceChild(Opt_Xml_Node $newnode, $refnode)
 	{
 		$this->_testNode($newnode);
-		if(!is_array($this->_subnodes))
-		{
-			return false;
-		}
-		$newnode->setParent($this);
-		if(is_object($refnode))
+
+		// If the reference node is specified with an integer, we must find it.
+		if(is_integer($refnode))
 		{
 			$i = 0;
-			$cnt = sizeof($this->_subnodes);
-			while($cnt > 0)
+			$scan = $this->_first;
+			while($scan !== null)
 			{
-				if(isset($this->_subnodes[$i]))
+				if($i == $refnode)
 				{
-					// SEE: note about comparing" in bringToEnd()
-					if($refnode === $this->_subnodes[$i])
-					{
-						$this->_subnodes[$i]->dispose();
-						$this->_subnodes[$i] = $newnode;
-						return true;
-					}
+					$refnode = $scan;
+					break;
 				}
+				$scan = $scan->_next;
 				$i++;
 			}
+			if(!is_object($refnode))
+			{
+				return false;
+			}
 		}
-		elseif(is_integer($refnode) && isset($this->_subnodes[$refnode]))
+
+		// Now, do the replacement.
+		if($refnode->_parent !== $this)
 		{
-			$this->_subnodes[$refnode]->dispose();
-			$this->_subnodes[$refnode] = $newnode;
-			return true;
+			throw new Opt_APIInvalidBorders_Exception;
 		}
-		return false;
+		$newnode->unmount();
+		$newnode->_previous = $refnode->_previous;
+		$newnode->_next = $refnode->_next;
+		$newnode->_parent = $this;
+
+		if($refnode->_previous !== null)
+		{
+			$refnode->_previous->_next = $newnode;
+		}
+		else
+		{
+			$this->_first = $newnode;
+		}
+		if($refnode->_next !== null)
+		{
+			$refnode->_next->_previous = $newnode;
+		}
+		else
+		{
+			$this->_last = $newnode;
+		}
+		$refnode->_parent = $refnode->_next = $refnode->_previous = null;
+		return true;
 	} // end replaceChild();
 
 	/**
 	 * Returns true, if the current node contains any children.
 	 *
-	 * @return Boolean
+	 * @return boolean
 	 */
 	public function hasChildren()
 	{
-		if(!is_array($this->_subnodes))
-		{
-			return false;
-		}
-		return sizeof($this->_subnodes) > 0;
+		return $this->_size > 0;
 	} // end hasChildren();
 
 	/**
 	 * Returns the number of the children.
 	 *
-	 * @return Integer
+	 * @return integer
 	 */
 	public function countChildren()
 	{
-		if(!is_array($this->_subnodes))
-		{
-			return 0;
-		}
-		return sizeof($this->_subnodes);
+		return $this->_size;
 	} // end countChildren();
 
 	/**
-	 * Returns the last child of the node.
+	 * Returns the last child of the node. If there are no child nodes
+	 * in the current node, the method returns NULL.
 	 *
 	 * @return Opt_Xml_Node
 	 */
 	public function getLastChild()
 	{
-		if(!is_array($this->_subnodes))
-		{
-			return NULL;
-		}
-		if(sizeof($this->_subnodes) > 0)
-		{
-			return end($this->_subnodes);
-		}
-		return NULL;
+		return $this->_last;
 	} // end getLastChild();
 
 	/**
-	 * Returns the array containing all the children.
+	 * Returns the first child of the node. If there are no child nodes
+	 * in the current node, the method returns NULL.
 	 *
-	 * @return Array
+	 * @return Opt_Xml_Node
+	 */
+	public function getFirstChild()
+	{
+		return $this->_first;
+	} // end getFirstChild();
+
+	/**
+	 * Returns the array containing all the children. The method guarantees
+	 * the correct element order.
+	 *
+	 * @return array
 	 */
 	public function getChildren()
 	{
-		$cnt = sizeof($this->_subnodes);
-		$result = array();
-		for($i = 0; $i < $cnt; $i++)
+		$array = array();
+		$scan = $this->_first;
+		while($scan !== null)
 		{
-			if(is_object($this->_subnodes[$i]))
-			{
-				$result[] = $this->_subnodes[$i];
-			}
+			$array[] = $scan;
+			$scan = $scan->_next;
 		}
-		return $result;
+		return $array;
 	} // end getChildren();
 
 	/**
-	 * Returns all the descendants of the current node.
+	 * Returns all the descendants of the current node. They are provided
+	 * in the BFS order - the closer descendants come first, then the farther
+	 * ones, then even more farther.
 	 *
-	 * @return Array The list of descendants.
+	 * @return array
 	 */
 	public function getElements()
 	{
-		$queue = array();
-		foreach($this->_subnodes as $item)
+		$queue = new SplQueue;
+		$scan = $this->_first;
+		$list = array();
+		while($scan !== null)
 		{
-			if(is_object($item))
-			{
-				$queue[] = $item;
-			}
+			$queue->enqueue($scan);
+			$list[] = $scan;
+			$scan = $scan->_next;
 		}
-		$result = array();
-		while(sizeof($queue) > 0)
+		while($queue->count() > 0)
 		{
-			$current = array_shift($queue);
-			if($current instanceof Opt_Xml_Node)
+			$item = $queue->dequeue();
+			if($item instanceof Opt_Xml_Scannable)
 			{
-				$result[] = $current;
-			}
-			if($current instanceof Opt_Xml_Scannable)
-			{
-				foreach($current as $subnode)
+				$scan = $item->_first;
+				while($scan !== null)
 				{
-					$queue[] = $subnode;
+					$queue->enqueue($scan);
+					$list[] = $scan;
+					$scan = $scan->_next;
 				}
 			}
 		}
-		return $result;
+		return $list;
 	} // end getElements();
 
 	/**
 	 * Returns all the children or descendants with the specified name.
 	 *
-	 * @param String $name The tag name (without the namespace)
-	 * @param Boolean $recursive Scan the descendants recursively?
-	 * @return Array
+	 * @param string $name The tag name (without the namespace)
+	 * @param boolean $recursive Scan the descendants recursively?
+	 * @return array
 	 */
 	public function getElementsByTagName($name, $recursive = true)
 	{
 		if($recursive)
 		{
-			return $this->_getElementsByTagName($name, '*');
+			return $this->_getElementsByTagName($name, null);
 		}
 
-		if(!is_array($this->_subnodes))
+		$array = array();
+		$scan = $this->_first;
+		while($scan !== null)
 		{
-			return array();
-		}
-		$result = array();
-		foreach($this->_subnodes as $subnode)
-		{
-			if(!$subnode instanceof Opt_Xml_Element)
+			if($scan instanceof Opt_Xml_Element)
 			{
-				continue;
+				if($name == '*' || $scan->getName() == $name)
+				{
+					$array[] = $scan;
+				}
 			}
-
-			if($subnode->getName() == $name || $name == '*')
-			{
-				$result[] = $subnode;
-			}
+			$scan = $scan->_next;
 		}
-		return $result;
+		return $array;
 	} // end getElementsByTagName();
 
 	/**
 	 * Returns all the children or descendants with the specified name
 	 * and namespace.
 	 *
-	 * @param String $namespace The tag namespace
-	 * @param String $name The tag name
-	 * @param Boolean $recursive Scan the descendants recursively?
-	 * @return Array
+	 * @param string $namespace The tag namespace
+	 * @param string $name The tag name
+	 * @param boolean $recursive Scan the descendants recursively?
+	 * @return array
 	 */
 	public function getElementsByTagNameNS($namespace, $name, $recursive = true)
 	{
@@ -415,24 +482,20 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			return $this->_getElementsByTagName($name, $namespace);
 		}
 
-		if(!is_array($this->_subnodes))
+		$array = array();
+		$scan = $this->_first;
+		while($scan !== null)
 		{
-			return array();
-		}
-		$result = array();
-		foreach($this->_subnodes as $subnode)
-		{
-			if(!$subnode instanceof Opt_Xml_Element)
+			if($scan instanceof Opt_Xml_Element)
 			{
-				continue;
+				if(($name == '*' || $scan->getName() == $name) && ($namespace == '*' || $scan->getNamespace() == $namespace))
+				{
+					$array[] = $scan;
+				}
 			}
-
-			if(($subnode->getName() == $name || $name == '*') && ($subnode->getNamespace() == $namespace || $namespace == '*') )
-			{
-				$result[] = $subnode;
-			}
+			$scan = $scan->_next;
 		}
-		return $result;
+		return $array;
 	} // end getElementsByTagNameNS();
 
 	/**
@@ -440,57 +503,13 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	 * Contrary to getElementsByTagNameNS(), the method does not go into
 	 * the matching descendants.
 	 *
-	 * @param String $ns The namespace name
-	 * @param String $name The tag name
-	 * @return Array
+	 * @param string $ns The namespace name
+	 * @param string $name The tag name
+	 * @return array
 	 */
 	public function getElementsExt($ns, $name)
 	{
-		if(!is_array($this->_subnodes))
-		{
-			return array();
-		}
-		// Use the queue to avoid recusive calls in this place.
-		$queue = new SplQueue;
-		foreach($this->_subnodes as $item)
-		{
-			if(is_object($item))
-			{
-				$queue->enqueue($item);
-			}
-		}
-		$result = array();
-		while($queue->count() > 0)
-		{
-			$current = $queue->dequeue();
-			if($current instanceof Opt_Xml_Element)
-			{
-				if(is_null($ns))
-				{
-					if($current->getName() == $name || $name == '*')
-					{
-						$result[] = $current;
-						continue;	// Do not visit the children of the matching node.
-					}
-				}
-				else
-				{
-					if(($current->getName() == $name || $name == '*') && ($current->getNamespace() == $ns || $ns == '*') )
-					{
-						$result[] = $current;
-						continue;	// Do not visit the children of the matching node.
-					}
-				}
-			}
-			if($current instanceof Opt_Xml_Scannable)
-			{
-				foreach($current as $subnode)
-				{
-					$queue->enqueue($subnode);
-				}
-			}
-		}
-		return $result;
+		return $this->_getElementsByTagName($name, $ns, true);
 	} // end getElementsExt();
 
 	/**
@@ -499,7 +518,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	 * it must contain the '*' element representing the new location of
 	 * the rest of the nodes.
 	 *
-	 * @param Array $prototypes The required order.
+	 * @param array $prototypes The required order.
 	 */
 	public function sort(Array $prototypes)
 	{
@@ -509,100 +528,97 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			throw new Opt_APINoWildcard_Exception;
 		}
 		// To create a stable sort.
+		$scan = $this->_first;
+		$array = array();
 		$i = 0;
-		foreach($this->_subnodes as &$node)
+		while($scan !== null)
 		{
-			if($node instanceof Opt_Xml_Buffer)
-			{
-				$node->set('_ssort', $i++);
-			}
+			$array[] = $scan;
+			$scan->set('_ssort', $i++);
+			$scan = $scan->_next;
 		}
 		// Sort!
-		usort($this->_subnodes, array($this, 'sortCmp'));
-		unset($this->_prototypes);
+		usort($array, array($this, 'sortCmp'));
+
+		// Apply new connections.
+		$previous = null;
+		foreach($array as $item)
+		{
+			if($previous === null)
+			{
+				$this->_first = $item;
+				$item->_previous = null;
+			}
+			else
+			{
+				$item->_previous = $previous;
+				$previous->_next = $item;				
+			}
+			$item->_next = null;
+			$this->_last = $item;
+		}
+		$this->_prototypes = null;
 	} // end sort();
 
 	/**
 	 * Moves the specified node to the end of the children list.
 	 *
-	 * @param Integer|Opt_Xml_Node $node The node to be moved.
-	 * @return Boolean
+	 * @param integer|Opt_Xml_Node $node The node to be moved.
+	 * @return boolean
 	 */
 	public function bringToEnd($node)
 	{
-		if(!is_array($this->_subnodes))
+		if(is_integer($node))
+		{
+			$i = 0;
+			$scan = $this->_first;
+			while($scan !== null)
+			{
+				if($i == $node)
+				{
+					$node = $scan;
+					break;
+				}
+				$scan = $scan->_next;
+				$i++;
+			}
+			if(!is_object($node))
+			{
+				return false;
+			}
+		}
+
+		// Check if this is really our child. We cannot exterminate the
+		// children of other nodes.
+		if($node->_parent !== $this)
 		{
 			return false;
 		}
-		if(is_object($node))
+
+		// The border cases...
+		if($this->_last === $node)
 		{
-			$i = 0;
-			$cnt = sizeof($this->_subnodes);
-			while($cnt > 0)
-			{
-				if(isset($this->_subnodes[$i]))
-				{
-					// Information: NEVER compare two nodes using "=="!
-					if($this->_subnodes[$i] === $node)
-					{
-						$this->_subnodes[] = $node;
-						unset($this->_subnodes[$i]);
-						return true;
-					}
-				}
-				$i++;
-			}
+			return true;
 		}
-		else
+		if($this->_first === $node)
 		{
-			if(isset($this->_subnodes[$node]))
-			{
-				$this->_subnodes[] = $this->_subnodes[$node];
-				unset($this->_subnodes[$node]);
-				return true;
-			}
+			$this->_first = $node->_next;
 		}
-		return false;
+
+		// Unlink it.
+		if($node->_previous !== null)
+		{
+			$node->_previous->_next = $node->_next;
+		}
+		if($node->_next !== null)
+		{
+			$node->_next->_previous = $node->_previous;
+		}
+		$this->_last->_next = $node;
+		$node->_previous = $this->_last;
+		$node->_next = null;
+		return true;
 	} // end bringToEnd();
-
-	/**
-	 * Returns the internal subnode array.
-	 *
-	 * @internal
-	 * @return Array
-	 */
-	public function getSubnodeArray()
-	{
-		return $this->_subnodes;
-	} // end getSubnodeArray();
-/*
-	public function clearNode()
-	{
-		$queue = new SplQueue;
-		foreach($this->_subnodes as $subitem)
-		{
-			$queue->enqueue($subitem);
-		}
-		$this->_subnodes = NULL;
-		$buffer = array();
-		while($queue->count() > 0)
-		{
-			$item = $queue->dequeue();
-
-			foreach($item as $subitem)
-			{
-				$queue->enqueue($subitem);
-				$buffer[] = $subitem;
-			}
-			$item->_subnodes = NULL;
-		}
-		unset($buffer);
-	} // end clearNode();
-*/
-	protected function _cloneHandler()
-	{
-		/* null */
-	} // end _cloneHandler();
 
 	/**
 	 * The cloning helper that clones also all the descendants. The cloning algorithm
@@ -618,49 +634,43 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			// In this state, we do not clone the subnodes, because some else node takes
 			// care of it
 			$this->set('__nrc', NULL);
-			$this->_subnodes = NULL;
-			$this->_prototypes = NULL;
-			$this->_i = NULL;
-			$this->_size = 0;
-			$this->_copy = NULL;
+			$this->_first = null;
+			$this->_last = null;
 			$this->_cloneHandler();
 		}
 		else
 		{
-			if(!is_array($this->_subnodes))
-			{
-				$this->_subnodes = NULL;
-				return;
-			}
-			// The main instance of cloning, it makes copies of all the subnodes.
+			// Prepare the recursiveless cloning operation.
+			$this->_cloneHandler();
 			$queue = new SplQueue;
-			foreach($this->_subnodes as $subitem)
+			$scan = $this->_first;
+			while($scan !== null)
 			{
-				if(is_object($subitem))
-				{
-					$queue->enqueue(array($subitem, $this));
-				}
+				$obj = new SplFixedArray(2);
+				$obj[0] = $scan;
+				$obj[1] = $this;
+				$queue->enqueue($obj);
+				$scan = $scan->_next;
 			}
-			$this->_subnodes = NULL;
-			$this->_prototypes = NULL;
-			$this->_i = NULL;
-			$this->_size = 0;
-			$this->_copy = NULL;
+
+			// Main cloning loop
+			$this->_first = null;
+			$this->_last = null;
 			while($queue->count() > 0)
 			{
 				$pair = $queue->dequeue();
 				$pair[0]->set('__nrc', true);
 				$pair[1]->appendChild($clone = clone $pair[0]);
-
-				// Only Opt_Xml_Scannable instances must go deeper.
 				if($pair[0] instanceof Opt_Xml_Scannable)
 				{
-					foreach($pair[0] as $subitem)
+					$scan = $pair[0]->_first;
+					while($scan !== null)
 					{
-						if(is_object($subitem))
-						{
-							$queue->enqueue(array($subitem, $clone));
-						}
+						$obj = new SplFixedArray(2);
+						$obj[0] = $scan;
+						$obj[1] = $clone;
+						$queue->enqueue($obj);
+						$scan = $scan->_next;
 					}
 				}
 			}
@@ -670,37 +680,37 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	/**
 	 * Removes the connections between all the descendants so that they can
 	 * be safely collected by the PHP garbage collector. Remember to use this
-	 * method before you free the last reference to the root node.
+	 * method before you free the last reference to the root node or you will
+	 * get a memory leak.
+	 *
+	 * Although PHP 5.3 provides a cycle detection GC, but it may be disabled
+	 * and furthermore it seems that is still quite buggy and produces some
+	 * memory leaks. Thus, we recommend the manual way of freeing the nodes.
 	 */
 	public function dispose()
 	{
-		// The main instance of cloning, it makes copies of all the subnodes.
 		$queue = new SplQueue;
-		if(is_array($this->_subnodes))
+		$scan = $this->_first;
+		while($scan !== null)
 		{
-			foreach($this->_subnodes as $subitem)
-			{
-				if(is_object($subitem))
-				{
-					$queue->enqueue($subitem);
-				}
-			}
+			$queue->enqueue($scan);
+			$scan = $scan->_next;
 		}
 		while($queue->count() > 0)
 		{
 			$item = $queue->dequeue();
 			if($item instanceof Opt_Xml_Scannable)
 			{
-				foreach($item as $subitem)
+				$scan = $item->_first;
+				while($scan !== null)
 				{
-					if(is_object($subitem))
-					{
-						$queue->enqueue($subitem);
-					}
+					$queue->enqueue($scan);
+					$scan = $scan->_next;
 				}
 			}
 			$item->_dispose();
 		}
+		$this->unmount();
 		$this->_dispose();
 	} // end dispose();
 
@@ -712,68 +722,82 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	protected function _dispose()
 	{
 		parent::_dispose();
-		$this->_subnodes = NULL;
-		$this->_prototypes = NULL;
-		$this->_i = NULL;
-		$this->_size = 0;
-		$this->_copy = NULL;
+		$this->_first = null;
+		$this->_last = null;
 	} // end _dispose();
-	/*
-	 * Iterator interface implementation
-	 */
 
+	/**
+	 * An implementation of the method from the Iterator interface. It
+	 * sets the internal collection pointer to the first element of the
+	 * collection.
+	 */
 	public function rewind()
 	{
-		if(!is_array($this->_subnodes))
-		{
-			$this->_subnodes = array();
-		}
-		ksort($this->_subnodes);
-		$this->_i = 0;
-		end($this->_subnodes);
-		$this->_size = key($this->_subnodes);
-
-		while(!isset($this->_subnodes[$this->_i]) && $this->_i <= $this->_size)
-		{
-			$this->_i++;
-		}
-
-		$this->_copy = $this->_subnodes;
+		$this->_iterator = $this->_first;
+		$this->_position = 0;
 	} // end rewind();
 
+	/**
+	 * An implementation of the method from the Iterator interface. It tests
+	 * whether the current collection pointer is valid and returns it as
+	 * a 'true' or 'false' value.
+	 *
+	 * @return boolean
+	 */
 	public function valid()
 	{
-		if($this->_i <= $this->_size)
-		{
-			return true;
-		}
-		$this->_copy = null;
-		return false;
+		return ($this->_iterator !== null);
 	} // end valid();
 
+	/**
+	 * An implementation of the method from the Iterator interface. Returns
+	 * the element currently visited by the collection pointer. If the pointer
+	 * is invalid, the method returns 'null'.
+	 *
+	 * @return Opt_Xml_Scannable
+	 */
 	public function current()
 	{
-		return $this->_copy[$this->_i];
+		return $this->_iterator;
 	} // end current();
 
+	/**
+	 * An implementation of the method from the Iterator interface. Moves the
+	 * collection pointer to the next element. Please note this method assumes
+	 * that the current pointer is valid.
+	 *
+	 * @throws OutOfBoundsException
+	 */
 	public function next()
 	{
-		do
+		if($this->_iterator === null)
 		{
-			$this->_i++;
+			throw new OutOfBoundsException('Opt_Xml_Scannable has already reached the end of a collection.');
 		}
-		while(!isset($this->_copy[$this->_i]) && $this->_i <= $this->_size);
+		$this->_iterator = $this->_iterator->_next;
+		$this->_position++;
 	} // end next();
 
+	/**
+	 * An implementation of the method from the Iterator interface. Returns
+	 * the key of the current pointer position in a collection.
+	 * 
+	 * @return integer
+	 */
 	public function key()
 	{
-		return $this->_i;
+		return $this->_position;
 	} // end key();
 
-	/*
-	 * Internal methods
+	/**
+	 * The method is used by the sort() method to compare the two nodes. Returns
+	 * the comparison result.
+	 *
+	 * @internal
+	 * @param Opt_Xml_Node $node1 The first node.
+	 * @param Opt_Xml_Node $node2 The second node.
+	 * @return integer
 	 */
-
 	final public function sortCmp($node1, $node2)
 	{
 		$name1 = (string)$node1;
@@ -801,102 +825,81 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		return +1;
 	} // end sortCmp();
 
-	final protected function _getElementsByTagName($name, $ns)
+	/**
+	 * A helper method for non-recursive tree search of the elements with
+	 * the specified name and namespace in order not to implement the
+	 * same algorithm twice. Returns a list of matching elements. If the
+	 * last argument is set to 'true', the method does not visit the descendants
+	 * of matching elements.
+	 *
+	 * @internal
+	 * @param string $name The name to look for
+	 * @param string $ns The namespace to look for
+	 * @param boolean $skipMatching Skip visiting descendants of matching nodes?
+	 * @return array
+	 */
+	final protected function _getElementsByTagName($name, $ns, $skipMatching = false)
 	{
-		if(!is_array($this->_subnodes))
-		{
-			return array();
-		}
-		// Use the queue to avoid recusive calls in this place.
 		$queue = new SplQueue;
-		foreach($this->_subnodes as $item)
+		$scan = $this->_first;
+		$list = array();
+		while($scan !== null)
 		{
-			if(is_object($item))
-			{
-				$queue->enqueue($item);
-			}
+			$queue->enqueue($scan);
+			$scan = $scan->_next;
 		}
-		$result = array();
 		while($queue->count() > 0)
 		{
-			$current = $queue->dequeue();
-			if($current instanceof Opt_Xml_Element)
+			$item = $queue->dequeue();
+
+			// Match the element.
+			if($item instanceof Opt_Xml_Element)
 			{
-				if(is_null($ns))
+				if($ns === null)
 				{
-					if($current->getName() == $name || $name == '*')
+					if($item->getName() == $name || $name == '*')
 					{
-						$result[] = $current;
+						$list[] = $item;
+						if($skipMatching)
+						{
+							continue;
+						}
 					}
 				}
-				else
+				elseif(($item->getName() == $name || $name == '*') && ($item->getNamespace() == $ns || $ns == '*'))
 				{
-
-					if(($current->getName() == $name || $name == '*') && ($current->getNamespace() == $ns || $ns == '*') )
+					$list[] = $item;
+					if($skipMatching)
 					{
-						$result[] = $current;
+						continue;
 					}
 				}
 			}
-			if($current instanceof Opt_Xml_Scannable)
+
+			// If the element may have some children, we need to visit them, too.
+			if($item instanceof Opt_Xml_Scannable)
 			{
-				foreach($current as $subnode)
+				$scan = $item->_first;
+				while($scan !== null)
 				{
-					$queue->enqueue($subnode);
+					$queue->enqueue($scan);
+					$scan = $scan->_next;
 				}
 			}
 		}
-		return $result;
+		return $list;
 	} // end _getElementsByTagName();
 
-	final protected function _appendChild(Opt_Xml_Node $child, $appendOnError)
-	{
-		if($appendOnError)
-		{
-			if(!is_array($this->_subnodes))
-			{
-				return false;
-			}
-			$this->_subnodes[] = $child;
-		}
-		else
-		{
-			throw new Opt_APIInvalidBorders_Exception;
-		}
-	} // end _appendChild();
-
+	/**
+	 * Checks whether the node can be added to this collection. If the specified
+	 * node cannot be inserted into a collection, the method is supposed to
+	 * return 'Opt_APIInvalidNodeType_Exception'
+	 *
+	 * @throws Opt_APIInvalidNodeType_Exception
+	 * @param Opt_Xml_Node $node The node to test
+	 */
 	protected function _testNode(Opt_Xml_Node $node)
 	{
-		// This method tests, whether the specified node can be a child
-		// of the current note. By overwriting this method, we can change
-		// this behavior.
-		return true;
+		/* null */
 	} // end _testNode();
-
-	private function _arrayReduceHoles($array)
-	{
-		$newArray = array();
-		foreach($array as $value)
-		{
-			$newArray[] = $value;
-		}
-		return $newArray;
-	} // end _arrayReduceHoles();
-
-	private function _arrayCreateHole($array, $where)
-	{
-		$newArray = array();
-		$i = 0;
-		foreach($array as $value)
-		{
-			if($i == $where)
-			{
-				$newArray[$i] = null;
-				$i++;
-			}
-			$newArray[$i] = $value;
-			$i++;
-		}
-		return $newArray;
-	} // end _arrayCreateHole();
 } // end Opt_Xml_Scannable;

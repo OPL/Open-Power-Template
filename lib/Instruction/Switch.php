@@ -145,6 +145,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 		$node->rewind();
 		$nextAction = 0;
 		$previous = null;
+		$cbConstruct = array();
 		while($stack->count() != 0)
 		{
 			// This is a finite state machine
@@ -219,10 +220,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 						}
 						$element->next();
 					}
-					if($found === false)
-					{
-						$nextAction = 2;
-					}
+					$found === false and $nextAction = 2;
 					break;
 				// Jump out.
 				case 2:
@@ -258,6 +256,18 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 			{
 				echo $element[0].'<br/>';
 			}
+		}
+
+		// Attempt to compile it as an ordinary PHP switch()
+		if($this->_standardSwitchPossible($container))
+		{
+			$this->_applyStandardSwitch($node, $container);
+		}
+		// The statements are too complex to simulate them with switch()
+		// We must choose a different approach
+		else
+		{
+
 		}
 	} // end createSwitch();
 
@@ -355,5 +365,115 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 
 		return $object;
 	} // end _constructEb();
+
+	/**
+	 * Analyzes the containers to check if we can compile it as an ordinary
+	 * PHP switch() statement.
+	 *
+	 * @internal
+	 * @param array $container The reference to a container with the blocks
+	 */
+	protected function _standardSwitchPossible(array &$container)
+	{
+		// 1st condition - only opt:equals possible
+		foreach($container as $name => &$elements)
+		{
+			if($name != 'opt:equals' && sizeof($elements) > 0)
+			{
+				echo 'failure on '.$name.'<br/>';
+				return false;
+			}
+		}
+
+		// 2nd condition - only tail nesting possible
+		$state = 0;
+		$nesting = 0;
+		foreach($container['opt:equals'] as &$elements)
+		{
+			$elements[0] == 'ib' and $nesting++;
+			$elements[0] == 'eb' and $nesting--;
+
+			echo 'haben '.$elements[0].' with '.$state.': ';
+			switch($state)
+			{
+				case 0:
+					if($elements[0] == 'eb' && $nesting > 0)
+					{
+						echo 'state 1';
+						$state = 1;
+					}
+					break;
+				case 1:
+					if($elements[0] == 'eb' || ($elements[0] == 'cb' && $elements[1] instanceof Opt_Xml_Text && $elements[1]->isWhitespace()))
+					{
+						echo 'state 2';
+						$state = 2;
+					}
+					else
+					{
+						echo 'epic fail';
+						return false;
+					}
+					break;
+				case 2:
+					if($elements[0] == 'eb' && $nesting > 0)
+					{
+						echo 'state 1';
+						$state = 1;
+					}
+					elseif($nesting == 0)
+					{
+						echo 'state 0';
+						$state = 0;
+					}
+					else
+					{
+						echo 'state epic fail';
+						return false;
+					}
+					break;
+			}
+			echo '<br/>';
+		}
+		return true;
+	} // end _standardSwitchPossible();
+
+	/**
+	 * Applies the standard switch to the instruction.
+	 *
+	 * @param Opt_Xml_Node $node The root node
+	 * @param string $test The tested condition
+	 * @param array $container The container with the code blocks
+	 */
+	protected function _applyStandardSwitch(Opt_Xml_Node $node, $test, array &$container)
+	{
+		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' switch('.$test.'){ ');
+		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+
+		$nesting = 0;
+		foreach($container['opt:equals'] as &$elements)
+		{
+			$elements[0] == 'ib' and $nesting++;
+			$elements[0] == 'eb' and $nesting--;
+
+			switch($elements[0])
+			{
+				case 'ib':
+					if(!$elements[1]->hasAttribute('value'))
+					{
+						throw new Opt_AttributeNotDefined_Exception('value', 'opt:equals');
+					}
+					$result = $this->_compiler->parseExpression((string)$elements[1]->getAttribute('value'), null, Opt_Compiler_Class::ESCAPE_OFF);
+					$elements[1]->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' case '.$result['bare'].': ');
+					$this->_process($elements[1]);
+					break;
+				case 'eb':
+					if($nesting == 0)
+					{
+						$elements[1]->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' break; ');
+					}
+			}
+		}
+	} // end _applyStandardSwitch();
 
 } // end Opt_Instruction_Switch;

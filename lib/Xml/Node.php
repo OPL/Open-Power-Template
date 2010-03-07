@@ -20,12 +20,23 @@
  */
 abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 {
-	protected $_type;
 	/**
 	 * The parent of the current node.
 	 * @var Opt_Xml_Node
 	 */
 	protected $_parent = null;
+
+	/**
+	 * The predecessor of the current node.
+	 * @var Opt_Xml_Node
+	 */
+	protected $_previous = null;
+
+	/**
+	 * The successor of the current node.
+	 * @var Opt_Xml_Node
+	 */
+	protected $_next = null;
 
 	/**
 	 * Constructs the new node object.
@@ -64,6 +75,38 @@ abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 	} // end getParent();
 
 	/**
+	 * Returns the predecessor of the current node. If the node does not
+	 * have a predecessor, it returns null.
+	 * @return Opt_Xml_Node
+	 */
+	public function getPrevious()
+	{
+		return $this->_previous;
+	} // end getPrevious();
+
+	/**
+	 * Returns the successor of the current node. If the node does not
+	 * have a successor, it returns null.
+	 * @return Opt_Xml_Node
+	 */
+	public function getNext()
+	{
+		return $this->_next;
+	} // end getNext();
+
+	/**
+	 * If the node is mounted into another location of an OPT tree, it
+	 * umounts it from there.
+	 */
+	public function unmount()
+	{
+		if($this->_parent !== null)
+		{
+			$this->_parent->removeChild($this);
+		}
+	} // end _unmount();
+
+	/**
 	 * Prints the node type.
 	 * @return String
 	 */
@@ -71,6 +114,18 @@ abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 	{
 		return get_class($this);
 	} // end __toString();
+
+	/**
+	 * The handler for the cloning procedure - it should be implemented, if the
+	 * node type requires certain operations to be performed during a recursiveless
+	 * cloning.
+	 */
+	protected function _cloneHandler()
+	{
+		$this->_parent = null;
+		$this->_previous = null;
+		$this->_next = null;
+	} // end _cloneHandler();
 
 	/**
 	 * Prepares the node to be collected by the
@@ -91,7 +146,10 @@ abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 	 */
 	protected function _dispose()
 	{
+		$this->unmount();
 		$this->_parent = null;
+		$this->_previous = null;
+		$this->_next = null;
 		$this->_buffers = null;
 		$this->_args = null;
 	} // end _dispose();

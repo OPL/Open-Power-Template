@@ -55,6 +55,30 @@ class Opt_Xml_Text extends Opt_Xml_Scannable
 	} // end appendData();
 
 	/**
+	 * Returns true if the node contains only static whitespace symbols.
+	 *
+	 * @return boolean
+	 */
+	public function isWhitespace()
+	{
+		foreach($this as $node)
+		{
+			if($node instanceof Opt_Xml_Cdata)
+			{
+				if(!ctype_space((string)$node))
+				{
+					return false;
+				}
+			}
+			elseif($node instanceof Opt_Xml_Expression)
+			{
+				return false;
+			}
+		}
+		return true;
+	} // end isWhitespace();
+
+	/**
 	 * Tests if the specified node can be appended to this node type.
 	 *
 	 * @param Opt_Xml_Node $node The node to test.
