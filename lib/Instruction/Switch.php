@@ -226,13 +226,14 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 				case 2:
 					$element = $stack->pop();
 					$type = $element->get('priv:switch-type');
-					$doExtra = false;
-					if($element->hasChildren() && (!($__tmp = $element->getLastChild()) instanceof Opt_Xml_Element || $__tmp->get('priv:switch-type') !== null))
-					{
-						$doExtra = true;
-					}
 					if($type !== null)
 					{
+						$doExtra = false;
+						if($this->_possibleExtraFinalCb($element))
+						{
+							$doExtra = true;
+						}
+
 						$doExtra and $container[$type][] = $this->_constructCb($element);
 						$container[$type][] = $this->_constructEb($element);
 					}
@@ -261,7 +262,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 		// Attempt to compile it as an ordinary PHP switch()
 		if($this->_standardSwitchPossible($container))
 		{
-			$this->_applyStandardSwitch($node, $container);
+			$this->_applyStandardSwitch($node, $test, $container);
 		}
 		// The statements are too complex to simulate them with switch()
 		// We must choose a different approach
@@ -270,6 +271,31 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 
 		}
 	} // end createSwitch();
+
+	/**
+	 * Test if we should add some terminating Code Block to the container
+	 * before we push there Ending Block.
+	 *
+	 * @param Opt_Xml_Element $popped The popped element
+	 * @return boolean
+	 */
+	protected function _possibleExtraFinalCb(Opt_Xml_Element $popped)
+	{
+		$item = $popped->getLastChild();
+		if($item === null)
+		{
+			return false;
+		}
+		if($item->get('priv:switch-type') !== null)
+		{
+			return false;
+		}
+		if($item instanceof Opt_Xml_Text && $item->isWhitespace() && $item->getPrevious() !== null && $item->getPrevious()->get('priv:switch-type') !== null)
+		{
+			return false;
+		}
+		return true;
+	} // end _possibleExtraFinalCb();
 
 	/**
 	 * Detects a switchable tag.
@@ -459,12 +485,13 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 			switch($elements[0])
 			{
 				case 'ib':
-					if(!$elements[1]->hasAttribute('value'))
+					if(($attr = $elements[1]->getAttribute('value')) === null)
 					{
 						throw new Opt_AttributeNotDefined_Exception('value', 'opt:equals');
 					}
-					$result = $this->_compiler->parseExpression((string)$elements[1]->getAttribute('value'), null, Opt_Compiler_Class::ESCAPE_OFF);
+					$result = $this->_compiler->parseExpression((string)$attr, null, Opt_Compiler_Class::ESCAPE_OFF);
 					$elements[1]->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' case '.$result['bare'].': ');
+					$elements[1]->set('hidden', false);
 					$this->_process($elements[1]);
 					break;
 				case 'eb':

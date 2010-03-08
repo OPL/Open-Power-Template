@@ -206,7 +206,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function _scalarValue($value, $weight)
 	{
 		$array = new SplFixedArray(4);
-		$array[0] = $value;
+		$array[0] = '\''.$value.'\'';
 		$array[1] = $weight;
 		$array[3] = 0;
 
