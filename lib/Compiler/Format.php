@@ -63,7 +63,7 @@ abstract class Opt_Compiler_Format
 	 *
 	 * @param Opt_Class $tpl The main OPT class.
 	 * @param Opt_Compiler_Class $cpl The used template compiler.
-	 * @param String $name optional The format description string.
+	 * @param string $name optional The format description string.
 	 */
 	public function __construct($tpl, $cpl, $name = '')
 	{

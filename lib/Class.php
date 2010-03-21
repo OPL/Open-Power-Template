@@ -269,13 +269,15 @@ class Opt_Class extends Opl_Class
 	 * @var array
 	 */
 	protected $_formats = array(
-		'Scalar' => 'Opt_Format_Scalar',
 		'Array' => 'Opt_Format_Array',
 		'Objective' => 'Opt_Format_Objective',
 		'Global' => 'Opt_Format_Global',
 		'SingleArray' => 'Opt_Format_SingleArray',
 		'StaticGenerator' => 'Opt_Format_StaticGenerator',
-		'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator');
+		'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
+		'SwitchEquals' => 'Opt_Format_SwitchEquals',
+		'SwitchContains' => 'Opt_Format_SwitchContains',
+	);
 	/**
 	 * The extra entities replaced by OPT
 	 * @var array

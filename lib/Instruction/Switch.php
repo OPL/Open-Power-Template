@@ -38,14 +38,39 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	private $_switchable = array('opt:switch' => true);
 
 	/**
+	 * The handler priority.
+	 * @var array
+	 */
+	private $_priority = array();
+
+	/**
+	 * Is the processor initialized?
+	 * @var boolean
+	 */
+	private $_initialized = false;
+
+	/**
+	 * The data for the sort() method.
+	 * @var array
+	 */
+	private $_sort = array();
+
+	/**
+	 * Reverse group information
+	 * @var array
+	 */
+	private $_reverseGroup = array();
+
+	/**
 	 * Configures the instruction processor.
 	 */
 	public function configure()
 	{
 		$this->_addInstructions(array('opt:switch'));
 
-		$this->_handlers['opt:equals'] = array($this, '_handleEquals');
-		$this->_handlers['opt:contains'] = array($this, '_handleContains');
+		$this->addSwitchable('opt:switch');
+		$this->addSwitchHandler('opt:equals', $this->_compiler->createFormat(null, 'SwitchEquals'), 500);
+		$this->addSwitchHandler('opt:contains', $this->_compiler->createFormat(null, 'SwitchContains'), 1000);
 	} // end configure();
 
 	/**
@@ -76,23 +101,57 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 
 	/**
 	 * Adds a tag that is recognized as a beginning of a new switch.
-	 * 
+	 *
 	 * @param string $tagName The switch tag name
 	 */
-	public function addSwitchable($tagName)
+	final public function addSwitchable($tagName)
 	{
 		$this->_switchable[$tagName] = true;
 	} // end addSwitchable();
 
 	/**
 	 * Registers a new switch handler which is able to process various conditions etc.
+	 * The switch cases are handled by ordinary data formats and thus, we must provide
+	 * a data format object here. The data format must implement the 'switch' hook type.
+	 *
+	 * The last argument has two meanings. If it contains an integer number, it defines
+	 * the processing priority of this handler, or in other words - whether it will appear
+	 * earlier or later in the source code (lower values mean earlier occurence). If it
+	 * contains string, the registered tag is grouped with another tag, appearing in its
+	 * condition group and following its rules.
+	 *
+	 * Note that OPT neither checks nor supports grouping with tags that are themselves grouped
+	 * to something other.
+	 *
+	 * Note that the data format must implement the 'switch' hook type.
 	 *
 	 * @param string $tagName The registered tag name
-	 * @param callback $handler The tag name handler callback
+	 * @param Opt_Compiler_Format $dataFormat The data format to handle these requests.
+	 * @param string|integer $groupInfo Group information or the priority.
 	 */
-	public function addSwitchHandler($tagName, $handler)
+	final public function addSwitchHandler($tagName, Opt_Compiler_Format $dataFormat, $groupInfo)
 	{
+		if(!$dataFormat->supports('switch'))
+		{
+			// TODO: Exception here.
+			die('Error');
+		}
 
+		$obj = new SplFixedArray(2);
+		$obj[0] = $dataFormat;
+		$obj[1] = $groupInfo;
+
+		$this->_handlers[$tagName] = $obj;
+
+		if(is_integer($groupInfo))
+		{
+			$this->_priority[$groupInfo] = $tagName;
+			$this->_reverseGroup[$tagName] = array();
+		}
+		else
+		{
+			$this->_reverseGroup[$groupInfo][] = $tagName;
+		}
 	} // end addSwitchHandler();
 
 	/**
@@ -102,11 +161,27 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @throws Opt_ObjectNotExists_Exception
 	 * @param string $tagName The tag name registered for the handler.
 	 */
-	public function removeSwitchHandler($tagName)
+	final public function removeSwitchHandler($tagName)
 	{
+		if($this->_initialized)
+		{
+			// TODO: Exception here...
+			die('Error');
+		}
 		if(!isset($this->_handlers[(string)$tagName]))
 		{
 			throw new Opt_ObjectNotExists_Exception('switch handler', $tagName);
+		}
+		// Remove the data from some extra arrays...
+		if(is_integer($this->_handlers[(string)$tagName][1]))
+		{
+			unset($this->_priority[$this->_handlers[(string)$tagName][1]]);
+			unset($this->_reverseGroup[(string)$tagName]);
+		}
+		else
+		{
+			$id = array_search($this->_reverseGroup[$this->_handlers[(string)$tagName][1]]);
+			unset($this->_reverseGroup[(string)$tagName][$id]);
 		}
 		unset($this->_handlers[(string)$tagName]);
 	} // end removeSwitchHandler();
@@ -117,7 +192,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 *
 	 * @param string $tagName The registered tag name
 	 */
-	public function hasSwitchHandler($tagName)
+	final public function hasSwitchHandler($tagName)
 	{
 		return isset($this->_handlers[(string)$tagName]);
 	} // end hasSwitchHandler();
@@ -130,14 +205,31 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @param Opt_Xml_Node $node The root node that acts as a switch.
 	 * @param string $test The test condition.
 	 */
-	public function createSwitch(Opt_Xml_Node $node, $test)
+	final public function createSwitch(Opt_Xml_Node $node, $test)
 	{
-		// Initialize the containers
-		$containers = array();
-		foreach($this->_handlers as $handler => $callback)
+		// Initialize the processor, if necessary
+		if(!$this->_initialized)
 		{
-			$containers[$handler] = array();
+			ksort($this->_priority);
+
+			$i = 0;
+			foreach($this->_priority as $num => $handlerName)
+			{
+				$this->_sort[$handlerName] = $i++;
+				foreach($this->_reverseGroup[$handlerName] as $subHandler)
+				{
+					$this->_sort[$handlerName] = $i++;
+				}
+			}
+			$this->_sort['*'] = $i;
+			unset($this->_reverseGroup);	// Won't be necessary anymore.
+			$this->_initialized = true;
 		}
+
+		// Initialize the containers and sort the subnodes.
+		$containers = array();
+		$topNodes = array();
+		$node->sort($this->_sort);
 
 		// Collect the subnodes with the recursion to detect the opt:equals and opt:contains tags.
 		$stack = new SplStack;
@@ -145,6 +237,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 		$node->rewind();
 		$nextAction = 0;
 		$previous = null;
+		$previousMeaningful = null;
 		$cbConstruct = array();
 		while($stack->count() != 0)
 		{
@@ -171,8 +264,18 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 						$nextAction = 2;
 						if($element->hasChildren())
 						{
-							($previous !== null && $stack->count() > 2) and $container[$type][] = $this->_constructCb($element);
+							if(!isset($container[$type]))
+							{
+								$container[$type] = array();
+								$topNodes[$type] = array();
+							}
+							($previous !== null && $stack->count() > 2) and $container[$type][] = $this->_constructCb($previousMeaningful);
 							$container[$type][] = $this->_constructIb($element);
+							$previousMeaningful = $element;
+							if($stack->count() == 2)
+							{
+								$topNodes[$type][] = $element;
+							}
 							$lastContainer = $type;
 							$nextAction = 3;
 						}						
@@ -220,7 +323,10 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 						}
 						$element->next();
 					}
-					$found === false and $nextAction = 2;
+					if($found === false)
+					{
+						$nextAction = 2;
+					}
 					break;
 				// Jump out.
 				case 2:
@@ -232,6 +338,12 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 						if($this->_possibleExtraFinalCb($element))
 						{
 							$doExtra = true;
+						}
+
+						if(!isset($container[$type]))
+						{
+							$container[$type] = array();
+							$topNodes[$type] = array();
 						}
 
 						$doExtra and $container[$type][] = $this->_constructCb($element);
@@ -250,15 +362,88 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 					break;
 			}
 		}
-		foreach($container as $type => &$level)
+	/*	foreach($container as $type => &$level)
 		{
 			echo '------level: '.$type.'<br/>';
 			foreach($level as $element)
 			{
-				echo $element[0].'<br/>';
+				echo $element[0].' ('.$element[1]->getAttribute('value').')<br/>';
 			}
-		}
+		}*/
 
+		// Remove remainders
+		$node->removeChildren();
+
+		// OK, it's time for the finale! Ouuuey!!!!
+		// du-du-du dum dum, du-du-du dum dum... xD
+		$iteration = 0;
+		$previous = null;
+		foreach($this->_priority as $handlerName)
+		{
+			// Skip empty containers
+			if(!isset($container[$handlerName]))
+			{
+				continue;
+			}
+
+			$format = $this->_handlers[$handlerName][0];
+			$format->assign('test', $test);
+			$format->assign('container', $container[$handlerName]);
+			$format->action('switch:analyze');
+
+			$typeNode = new Opt_Xml_Element($handlerName.'-type');
+			$typeNode->set('hidden', false);
+			foreach($topNodes[$handlerName] as $element)
+			{
+				$typeNode->appendChild($element);
+			}
+
+			$node->appendChild($typeNode);
+
+			if($iteration == 0)
+			{
+				$typeNode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:enterTestBegin.first'));
+				$typeNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:enterTestEnd.first'));
+			}
+			else
+			{
+				$typeNode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:enterTestBegin.later'));
+				$typeNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:enterTestEnd.later'));
+			}
+
+			
+			$nesting = 0;
+			foreach($container[$handlerName] as &$elements)
+			{
+				$elements[0] == 'ib' and $nesting++;
+				$elements[0] == 'eb' and $nesting--;
+
+				switch($elements[0])
+				{
+					case 'ib':
+			//			echo 'je visite '.$elements[1].' avec '.$elements[1]->getAttribute('value').' ('.$nesting.')<br/>';
+						$params = $format->action('switch:caseAttributes');
+						$this->_extractAttributes($elements[1], $params);
+						$format->assign('attributes', $params);
+						$format->assign('nesting', $nesting);
+						$format->assign('element', $elements[1]);
+
+						$elements[1]->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:caseBefore'));
+						$elements[1]->set('hidden', false);
+						$this->_process($elements[1]);
+						break;
+					case 'eb':
+			//			echo 'je quitte '.$elements[1].' avec '.$elements[1]->getAttribute('value').' ('.$nesting.')<br/>';
+						$format->assign('element', $elements[1]);
+						$format->assign('nesting', $nesting);
+						$elements[1]->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:caseAfter'));
+				}
+			}
+			$typeNode->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:testsBefore'));
+			$typeNode->addBefore(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:testsAfter'));
+			$format->assign('container', null);
+		}
+/*
 		// Attempt to compile it as an ordinary PHP switch()
 		if($this->_standardSwitchPossible($container))
 		{
@@ -268,8 +453,8 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 		// We must choose a different approach
 		else
 		{
-
-		}
+			$this->_applySuperSwitch($node, $test, $container);
+		}*/
 	} // end createSwitch();
 
 	/**
@@ -279,7 +464,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @param Opt_Xml_Element $popped The popped element
 	 * @return boolean
 	 */
-	protected function _possibleExtraFinalCb(Opt_Xml_Element $popped)
+	private function _possibleExtraFinalCb(Opt_Xml_Element $popped)
 	{
 		$item = $popped->getLastChild();
 		if($item === null)
@@ -304,7 +489,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @param Opt_Xml_Element $element The tag to test.
 	 * @return boolean
 	 */
-	protected function _detectSwitchable(Opt_Xml_Element $element)
+	private function _detectSwitchable(Opt_Xml_Element $element)
 	{
 		if(isset($this->_switchable[$element->getXmlName()]))
 		{
@@ -323,7 +508,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @param Opt_Xml_Element $element The element to test
 	 * @return string|null
 	 */
-	protected function _detectCase(Opt_Xml_Element $element)
+	private function _detectCase(Opt_Xml_Element $element)
 	{
 		if(isset($this->_handlers[$element->getXmlName()]))
 		{
@@ -351,7 +536,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @param Opt_Xml_Element $tag The element.
 	 * @return SplFixedArray
 	 */
-	protected function _constructIb($tag)
+	private function _constructIb($tag)
 	{
 		$object = new SplFixedArray(2);
 		$object[0] = 'ib';
@@ -367,7 +552,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @param Opt_Xml_Element $tag The element.
 	 * @return SplFixedArray
 	 */
-	protected function _constructCb($tag)
+	private function _constructCb($tag)
 	{
 		$object = new SplFixedArray(2);
 		$object[0] = 'cb';
@@ -383,7 +568,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * @param Opt_Xml_Element $tag The element.
 	 * @return SplFixedArray
 	 */
-	protected function _constructEb($tag)
+	private function _constructEb($tag)
 	{
 		$object = new SplFixedArray(2);
 		$object[0] = 'eb';
@@ -391,116 +576,4 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 
 		return $object;
 	} // end _constructEb();
-
-	/**
-	 * Analyzes the containers to check if we can compile it as an ordinary
-	 * PHP switch() statement.
-	 *
-	 * @internal
-	 * @param array $container The reference to a container with the blocks
-	 */
-	protected function _standardSwitchPossible(array &$container)
-	{
-		// 1st condition - only opt:equals possible
-		foreach($container as $name => &$elements)
-		{
-			if($name != 'opt:equals' && sizeof($elements) > 0)
-			{
-				echo 'failure on '.$name.'<br/>';
-				return false;
-			}
-		}
-
-		// 2nd condition - only tail nesting possible
-		$state = 0;
-		$nesting = 0;
-		foreach($container['opt:equals'] as &$elements)
-		{
-			$elements[0] == 'ib' and $nesting++;
-			$elements[0] == 'eb' and $nesting--;
-
-			echo 'haben '.$elements[0].' with '.$state.': ';
-			switch($state)
-			{
-				case 0:
-					if($elements[0] == 'eb' && $nesting > 0)
-					{
-						echo 'state 1';
-						$state = 1;
-					}
-					break;
-				case 1:
-					if($elements[0] == 'eb' || ($elements[0] == 'cb' && $elements[1] instanceof Opt_Xml_Text && $elements[1]->isWhitespace()))
-					{
-						echo 'state 2';
-						$state = 2;
-					}
-					else
-					{
-						echo 'epic fail';
-						return false;
-					}
-					break;
-				case 2:
-					if($elements[0] == 'eb' && $nesting > 0)
-					{
-						echo 'state 1';
-						$state = 1;
-					}
-					elseif($nesting == 0)
-					{
-						echo 'state 0';
-						$state = 0;
-					}
-					else
-					{
-						echo 'state epic fail';
-						return false;
-					}
-					break;
-			}
-			echo '<br/>';
-		}
-		return true;
-	} // end _standardSwitchPossible();
-
-	/**
-	 * Applies the standard switch to the instruction.
-	 *
-	 * @param Opt_Xml_Node $node The root node
-	 * @param string $test The tested condition
-	 * @param array $container The container with the code blocks
-	 */
-	protected function _applyStandardSwitch(Opt_Xml_Node $node, $test, array &$container)
-	{
-		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' switch('.$test.'){ ');
-		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } ');
-
-		$nesting = 0;
-		foreach($container['opt:equals'] as &$elements)
-		{
-			$elements[0] == 'ib' and $nesting++;
-			$elements[0] == 'eb' and $nesting--;
-
-			switch($elements[0])
-			{
-				case 'ib':
-					if(($attr = $elements[1]->getAttribute('value')) === null)
-					{
-						throw new Opt_AttributeNotDefined_Exception('value', 'opt:equals');
-					}
-					$result = $this->_compiler->parseExpression((string)$attr, null, Opt_Compiler_Class::ESCAPE_OFF);
-					$elements[1]->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' case '.$result['bare'].': ');
-					$elements[1]->set('hidden', false);
-					$this->_process($elements[1]);
-					break;
-				case 'eb':
-					if($nesting == 0)
-					{
-						$elements[1]->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' break; ');
-					}
-			}
-		}
-	} // end _applyStandardSwitch();
-
 } // end Opt_Instruction_Switch;

@@ -19,6 +19,10 @@
  */
 class Opt_Format_Array extends Opt_Compiler_Format
 {
+	/**
+	 * The list of supported hook types.
+	 * @var array
+	 */
 	protected $_supports = array(
 		'section', 'variable', 'item'
 	);

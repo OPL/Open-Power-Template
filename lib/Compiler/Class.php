@@ -417,10 +417,12 @@ class Opt_Compiler_Class
 	} // end getFormat();
 
 	/**
-	 * Creates a format object for the specified description string.
+	 * Creates a format object for the specified description string which
+	 * identifies the data format that needs to be created. The variable
+	 * name is used for debug purposes only and has no actual meaning.
 	 *
-	 * @param String $variable The variable name (for debug purposes)
-	 * @param String $hc The description string.
+	 * @param string $variable The variable name (for debug purposes)
+	 * @param string $hc The description string.
 	 * @return Opt_Compiler_Format The newly created format object.
 	 */
 	public function createFormat($variable, $hc)
@@ -435,7 +437,7 @@ class Opt_Compiler_Class
 				throw new Opt_FormatNotFound_Exception($variable, $class);
 			}
 			$hcName = $this->_formats[$class];
-			if(!is_null($obj))
+			if($obj !== null)
 			{
 				$obj->decorate($obj2 = new $hcName($this->_tpl, $this));
 				$obj = $obj2;

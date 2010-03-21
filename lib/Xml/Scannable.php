@@ -552,10 +552,11 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			else
 			{
 				$item->_previous = $previous;
-				$previous->_next = $item;				
+				$previous->_next = $item;	
 			}
 			$item->_next = null;
 			$this->_last = $item;
+			$previous = $item;
 		}
 		$this->_prototypes = null;
 	} // end sort();
