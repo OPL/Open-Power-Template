@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Standard.php 297 2010-02-12 14:01:13Z zyxist $
+ * $Id$
  */
 
 /**
@@ -284,18 +284,6 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _compileVariable(array $variable, $type, $weight, $context = 0, $contextInfo = null, $extra = null)
 	{
-		$conversion = '##simplevar_';
-		$defaultFormat = null;
-		if($type == '@')
-		{
-			$conversion = '##var_';
-		}
-
-		$state = array(
-			'further'	=> false,
-			'section'	=> null
-		);
-
 		$answer = new SplFixedArray(4);
 		$answer[3] = 0;
 
@@ -306,6 +294,82 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		{
 			$answer[3] = 1;
 		}
+
+		if($type == '@')
+		{
+			// Local variables must be handled differently.
+			$count = sizeof($variable);
+			$final = $count - 1;
+			$localWeight = 0;
+			$code = '';
+			$path = '';
+			$previous = null;
+			foreach($variable as $id => $item)
+			{
+				$previous = $path;
+				if($path == '')
+				{
+					if(($to = $this->_compiler->convert('##var_'.$item)) != '##var_'.$item)
+					{
+						$code .= $to;
+						continue;
+					}
+					else
+					{
+						$code .= 'self::$_vars';
+					}
+					$localWeight += self::SINGLE_VAR;
+				}
+				if(is_object($item))
+				{
+					$localWeight += $item[1];
+					$code .= '['.$item[0].']';
+				}
+				elseif(ctype_digit($item))
+				{
+					$code .= '['.$item.']';
+					$localWeight += self::CONTAINER_ITEM_WEIGHT;
+				}
+				else
+				{
+					$code .= '[\''.$item.'\']';
+					$localWeight += self::CONTAINER_ITEM_WEIGHT;
+				}
+			}
+
+			switch($context)
+			{
+				case self::CONTEXT_ASSIGN:
+					$code .= ' = '.$contextInfo[0];
+					break;
+				case self::CONTEXT_EXISTS:
+					$code = 'isset('.$code.')';
+					break;
+				case self::CONTEXT_POSTDECREMENT:
+					$code .= '--';
+					break;
+				case self::CONTEXT_POSTINCREMENT:
+					$code .= '++';
+					break;
+				case self::CONTEXT_PREDECREMENT:
+					$code = '--'.$code;
+					break;
+				case self::CONTEXT_PREINCREMENT:
+					$code = '++'.$code;
+					break;
+			}
+			$answer[0] = $code;
+			$answer[1] = $localWeight;
+
+			return $answer;
+		}
+
+		// Now official variables
+		$defaultFormat = null;
+		$state = array(
+			'further'	=> false,
+			'section'	=> null
+		);
 
 		// The variable scanner
 		$proc = null;
@@ -327,7 +391,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			if($path == '')
 			{
 				// Parsing the first element. First, check the conversions.
-				if(($to = $this->_compiler->convert($conversion.$item[0])) != $conversion.$item[0])
+				if(($to = $this->_compiler->convert('##simplevar_'.$item)) != '##simplevar_'.$item)
 				{
 					$item = $to;
 				}

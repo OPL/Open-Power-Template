@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Interface.php 296 2010-02-11 07:54:25Z zyxist $
+ * $Id$
  */
 
 /**

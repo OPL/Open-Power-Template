@@ -429,14 +429,12 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 
 		// Clean the argument information
 		$code = '';
-		$context = $this->_compiler->getContextStack()->top();
 		foreach($info['arguments'] as $name => $type)
 		{
 			if($type >= 0)
 			{
 				$code .= 'unset($__snippet_'.$name.'_'.$type.'); ';
 			}
-			$context->removeVariable($name, '@');
 			$this->_compiler->unsetConversion('##var_'.$name);
 		}
 

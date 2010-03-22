@@ -206,7 +206,7 @@ class Opt_Class extends Opl_Class
 		'Opt_Instruction_Tag', 'Opt_Instruction_Root', 'Opt_Instruction_Prolog',
 		'Opt_Instruction_Dtd', 'Opt_Instruction_Literal', 'Opt_Instruction_Include',
 		'Opt_Instruction_Dynamic', 'Opt_Instruction_Component', 'Opt_Instruction_Block',
-		'Opt_Instruction_Switch'
+		'Opt_Instruction_Switch', 'Opt_Instruction_Procedure'
 	);
 
 	/**

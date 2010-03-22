@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Objective.php 295 2010-02-10 15:54:16Z zyxist $
+ * $Id$
  */
 
 /**

@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Utils.php 297 2010-02-12 14:01:13Z zyxist $
+ * $Id$
  */
 
 /**
