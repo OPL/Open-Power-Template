@@ -114,6 +114,8 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, PHP_EOL.' } } ');
 		$node->set('postprocess', true);
 		$this->_stack->push($args);
+
+		$this->_compiler->set('context', Opt_Compiler_Class::CTX_PROCEDURE);
 		$this->_process($node);
 	} // end _processProcedure();
 
@@ -127,6 +129,7 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 	{
 		$args = $this->_stack->pop();
 
+		$this->_compiler->set('context', Opt_Compiler_Class::CTX_GLOBAL);
 		foreach($args as $name)
 		{
 			$this->_compiler->unsetConversion('##var_'.$name);

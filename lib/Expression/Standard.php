@@ -311,14 +311,14 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				{
 					if(($to = $this->_compiler->convert('##var_'.$item)) != '##var_'.$item)
 					{
-						$code .= $to;
-						continue;
+						$code .= $to;						
 					}
 					else
 					{
-						$code .= 'self::$_vars';
+						$code .= $this->_compiler->getTemplateVarCode($item);
 					}
 					$localWeight += self::SINGLE_VAR;
+					continue;
 				}
 				if(is_object($item))
 				{

@@ -49,7 +49,7 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 	 * Array contains deprecated instructions.
 	 * @var array
 	 */
-	protected $_deprecatedInstructions = array();
+	protected $_deprecatedInstructions = array('opt:insert');
 
 	/**
 	 * Configures the instruction processor.
@@ -58,7 +58,7 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:snippet', 'opt:insert', 'opt:parent'));
+		$this->_addInstructions(array('opt:snippet', 'opt:use', 'opt:parent'));
 		$this->_addAttributes(array('opt:use'));
 		if($this->_tpl->backwardCompatibility)
 		{
@@ -87,34 +87,16 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 	} // end reset();
 
 	/**
-	 * Checks if attribute is deprecated and needs migration.
-	 * @param Opt_Xml_Attribute $attr Attribute to migrate
-	 * @return boolean If attribute needs migration
-	 */
-	public function attributeNeedMigration(Opt_Xml_Attribute $attr)
-	{
-		$name = $attr->getXmlName();
-		if(in_array($name, $this->_deprecatedAttributes))
-		{
-			return true;
-		}
-		return false;
-	} // end attributeNeedMigration();
-
-	/**
-	 * Migrates the opt:if (and its derivatives) attributes.
+	 * Changes opt:insert to opt:use.
 	 * @internal
-	 * @param Opt_Xml_Attribute $attr The recognized attribute.
-	 * @return Opt_Xml_Attribute Migrated attribute
+	 * @param Opt_Xml_Node $node The node to migrate.
+	 * @return Opt_Xml_Node The migrated attribute
 	 */
-	public function migrateAttribute(Opt_Xml_Attribute $attr)
+	public function _migrateInsert(Opt_Xml_Node $node)
 	{
-		/*switch($attr->getName())
-		{
-			// null
-		}*/
-		return $attr;
-	} // end migrateAttribute();
+		$node->setName('use');
+		return $node;
+	} // end _migrateInsert();
 
 	/**
 	 * Processes the opt:use attribute.
@@ -271,11 +253,11 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 	} // end _postprocessParent();
 
 	/**
-	 * Processes the opt:insert element.
+	 * Processes the opt:use element.
 	 * @internal
 	 * @param Opt_Xml_Element $node The found element
 	 */
-	public function _processInsert(Opt_Xml_Element $node)
+	public function _processUse(Opt_Xml_Element $node)
 	{
 		// A support for the dynamically chosen part captured by opt:capture
 		if($node->getAttribute('captured') !== NULL)
@@ -293,6 +275,24 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 			else
 			{
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if(isset(self::$_capture['.$params['captured'].'])){ echo self::$_capture['.$params['captured'].']; } ');
+			}
+		}
+		elseif($node->getAttribute('procedure') !== null)
+		{
+			// Calling the procedure.
+			$params = array(
+				'procedure' => array(0 => self::REQUIRED, self::EXPRESSION),
+				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::EXPRESSION)
+			);
+			$arguments = $this->_extractAttributes($node, $params);
+
+			if(sizeof($arguments) == 0)
+			{
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($this, '.$params['procedure'].', array(null)); ');
+			}
+			else
+			{
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($this, '.$params['procedure'].', array(null, '.implode(',',$arguments).')); ');
 			}
 		}
 		else
@@ -408,14 +408,14 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 				$this->_process($node);
 			}
 		}
-	} // end _processInsert();
+	} // end _processUse();
 
 	/**
-	 * Postprocesses the opt:insert element.
+	 * Postprocesses the opt:use element.
 	 * @internal
 	 * @param Opt_Xml_Element $node The found element.
 	 */
-	public function _postprocessInsert(Opt_Xml_Element $node)
+	public function _postprocessUse(Opt_Xml_Element $node)
 	{
 		// Freeing the fake node, if necessary.
 		$info = $this->_current->pop();
@@ -445,7 +445,7 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 
 		// Restore the original escaping state
 		$this->_compiler->set('escaping', $info['escaping']);
-	} // end _postprocessInsert();
+	} // end _postprocessUse();
 
 	/**
 	 * Returns true, if the snippet with the given name is defined.

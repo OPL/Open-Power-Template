@@ -224,7 +224,7 @@ class Opt_Format_Array extends Opt_Compiler_Format
 				{
 					return 'self::$_global[\''.$item.'\']';
 				}
-				return '$this->_data[\''.$item.'\']';
+				return $this->_compiler->getScriptVarCode($item);
 			case 'variable:item.assign':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
@@ -232,7 +232,7 @@ class Opt_Format_Array extends Opt_Compiler_Format
 				{
 					return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
 				}
-				return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
+				return $this->_compiler->getScriptVarCode($item).'='.$this->_getVar('value');
 			case 'variable:item.preincrement':
 			case 'item:item.preincrement':
 				return '++'.$this->_getVar('code');
