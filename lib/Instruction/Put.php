@@ -32,18 +32,6 @@ class Opt_Instruction_Put extends Opt_Compiler_Processor
 	protected $_nesting = 0;
 
 	/**
-	 * Array contains deprecated attributes.
-	 * @var array
-	 */
-	protected $_deprecatedAttributes = array();
-
-	/**
-	 * Array contains deprecated instructions.
-	 * @var array
-	 */
-	protected $_deprecatedInstructions = array();
-
-	/**
 	 * Configures the instruction processor, registering the tags and
 	 * attributes.
 	 * @internal
@@ -52,52 +40,7 @@ class Opt_Instruction_Put extends Opt_Compiler_Processor
 	{
 		$this->_addInstructions(array('opt:put'));
 		$this->_addAttributes(array('opt:content'));
-		if($this->_tpl->backwardCompatibility)
-		{
-			$this->_addAttributes($this->_deprecatedAttributes);
-			$this->_addInstructions($this->_deprecatedInstructions);
-		}
 	} // end configure();
-
-	/**
-	 * Migrates the opt:put node.
-	 * @internal
-	 * @param Opt_Xml_Node $node The recognized node.
-	 */
-	public function migrateNode(Opt_Xml_Node $node)
-	{
-		$this->_process($node);
-	} // end migrateNode();
-
-	/**
-	 * Checks if attribute is deprecated and needs migration.
-	 * @param Opt_Xml_Attribute $attr Attribute to migrate
-	 * @return boolean If attribute needs migration
-	 */
-	public function attributeNeedMigration(Opt_Xml_Attribute $attr)
-	{
-		$name = $attr->getXmlName();
-		if(in_array($name, $this->_deprecatedAttributes))
-		{
-			return true;
-		}
-		return false;
-	} // end attributeNeedMigration();
-
-	/**
-	 * Migrates the opt:if (and its derivatives) attributes.
-	 * @internal
-	 * @param Opt_Xml_Attribute $attr The recognized attribute.
-	 * @return Opt_Xml_Attribute Migrated attribute
-	 */
-	public function migrateAttribute(Opt_Xml_Attribute $attr)
-	{
-		/*switch($attr->getName())
-		{
-			// null
-		}*/
-		return $attr;
-	} // end migrateAttribute();
 
 	/**
 	 * Processes the opt:put node.
@@ -123,18 +66,60 @@ class Opt_Instruction_Put extends Opt_Compiler_Processor
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		$result = $this->_compiler->compileExpression($attr->getValue(), false, Opt_Compiler_Class::ESCAPE_BOTH);
-		if($result[2] == true)
+		$result = $this->_compiler->parseExpression($attr->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+
+		// Detect the neighbourhood.
+		$prepend = null;
+		$append = null;
+		$display = null;
+		if(($extra = $node->getAttribute('opt:content-prepend')) !== null)
 		{
+			$parsed = $this->_compiler->parseExpression($extra->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+			$prepend = $parsed['bare'];
+		}
+		if(($extra = $node->getAttribute('opt:content-append')) !== null)
+		{
+			$parsed = $this->_compiler->parseExpression($extra->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+			$append = $parsed['bare'];
+		}
+		if(($extra = $node->getAttribute('opt:content-display')) !== null)
+		{
+			$parsed = $this->_compiler->parseExpression($extra->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+			$display = $parsed['bare'];
+		}
+
+		if($result['complexity'] <= 10 || $display !== null)
+		{
+			if($display === null)
+			{
+				$display = $result['bare'];
+			}
+			if($prepend !== null)
+			{
+				$display = $prepend.'.'.$display;
+			}
+			if($append !== null)
+			{
+				$display .= '.'.$append;
+			}
 			// The expression is a single variable that can be handled in a simple way.
-			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, 'if(empty('.$result[3].')){ ');
-			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, '} else { echo '.$result[0].'; } ');
+			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, 'if(empty('.$result['bare'].')){ '.PHP_EOL);
+			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, '} else { '.PHP_EOL.' echo '.$this->_compiler->escape('e', $display).'; } ');
 		}
 		else
 		{
+			$display = '$_cont'.$this->_nesting;
+			if($prepend !== null)
+			{
+				$display = $prepend.'.'.$display;
+			}
+			if($append !== null)
+			{
+				$display .= '.'.$append;
+			}
 			// In more complex expressions, we store the result to a temporary variable.
-			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' $_cont'.$this->_nesting.' = '.$result[0].'; if(empty($_cont'.$this->_nesting.')){ ');
-			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, '} else { echo $_cont'.$this->_nesting.'; } ');
+			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' $_cont'.$this->_nesting.' = '.$result['bare'].'; if(empty($_cont'.$this->_nesting.')){ '.PHP_EOL);
+			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_AFTER, '} else { '.PHP_EOL.' echo '.$this->_compiler->escape('e', $display).'; } ');
 		}
 		$this->_nesting++;
 		$attr->set('postprocess', true);

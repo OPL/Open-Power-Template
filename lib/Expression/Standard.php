@@ -206,7 +206,8 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	public function _scalarValue($value, $weight)
 	{
 		$array = new SplFixedArray(4);
-		$array[0] = '\''.$value.'\'';
+		$array[0] = $value;
+	//	$array[0] = '\''.$value.'\'';
 		$array[1] = $weight;
 		$array[3] = 0;
 
@@ -544,7 +545,14 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _stdOperator($operator, SplFixedArray $expr1, SplFixedArray $expr2, $weight)
 	{
-		$expr1[0] = $expr1[0].$operator.$expr2[0];
+		if($operator == '.')
+		{
+			$expr1[0] = '(string)'.$expr1[0].$operator.'(string)'.$expr2[0];
+		}
+		else
+		{
+			$expr1[0] = $expr1[0].$operator.$expr2[0];
+		}
 		$expr1[1] += $expr2[1] + $weight;
 		$expr1[3] = 0;
 
