@@ -29,9 +29,6 @@ class Opt_Compiler_Class
 	const ESCAPE_OFF = false;
 	const ESCAPE_BOTH = 2;
 
-	const CTX_GLOBAL = 0;
-	const CTX_PROCEDURE = 1;
-
 	// Current compilation
 	protected $_template = NULL;
 	protected $_attr = array();
@@ -559,50 +556,6 @@ class Opt_Compiler_Class
 		return htmlspecialchars($text);
 		return preg_replace_callback('/(\&\#?[a-zA-Z0-9]*\;)|\<|\>|\"|\&/', array($this, '_entitize'), $text);
 	} // end parseSpecialChars();
-
-	/**
-	 * Generates the access to the script template variable according
-	 * to the current context. The method is intended to be used by
-	 * data formats and instruction processors that want to generate
-	 * a code that reads or writes something to Opt_View::$_data, as
-	 * it generates a proper output for procedures.
-	 *
-	 * @param string $name The variable name
-	 * @return string The PHP source code
-	 */
-	public function getScriptVarCode($name)
-	{
-		if($this->get('context') == self::CTX_GLOBAL)
-		{
-			return '$this->_data[\''.(string)$name.'\']';
-		}
-		else
-		{
-			return '$view->'.(string)$name;
-		}
-	} // end getScriptVarCode();
-
-	/**
-	 * Generates the access to the local template variable according
-	 * to the current context. The method is intended to be used by
-	 * data formats and instruction processors that want to generate
-	 * a code that reads or writes something to Opt_View::$_vars, as
-	 * it generates a proper output for procedures.
-	 *
-	 * @param string $name The variable name
-	 * @return string The PHP source code
-	 */
-	public function getTemplateVarCode($name)
-	{
-		if($this->get('context') == self::CTX_GLOBAL)
-		{
-			return 'Opt_View::$_vars[\''.(string)$name.'\']';
-		}
-		else
-		{
-			return '$__localvar_'.(string)$name;
-		}
-	} // end getTemplateVarCode();
 
 	/**
 	 * Returns 'true', if the argument is a valid identifier. An identifier
@@ -1296,7 +1249,6 @@ class Opt_Compiler_Class
 			// Initializing the template launcher
 			$this->set('template', $this->_template = $filename);
 			$this->set('parser', $parserName);
-			$this->set('context', Opt_Compiler_Class::CTX_GLOBAL);
 			$this->set('currentTemplate', $this->_template);
 			array_push(self::$_templates, $filename);
 			$this->_stack = new SplStack;

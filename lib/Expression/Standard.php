@@ -316,7 +316,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 					}
 					else
 					{
-						$code .= $this->_compiler->getTemplateVarCode($item);
+						$code .= '$ctx->_vars[\''.$item.'\']';
 					}
 					$localWeight += self::SINGLE_VAR;
 					continue;

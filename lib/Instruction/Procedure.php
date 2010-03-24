@@ -70,7 +70,7 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 
 		$funcName = '__optFunc_'.$params['name'];
 
-		$code = 'if(!function_exists(\''.$funcName.'\')){ '.PHP_EOL.' function '.$funcName.'(Opt_View $view';
+		$code = 'if(!function_exists(\''.$funcName.'\')){ '.PHP_EOL.' function '.$funcName.'(Opt_InternalContext $ctx';
 
 		$argCounter = 0;
 		$args = array();
@@ -114,8 +114,6 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, PHP_EOL.' } } ');
 		$node->set('postprocess', true);
 		$this->_stack->push($args);
-
-		$this->_compiler->set('context', Opt_Compiler_Class::CTX_PROCEDURE);
 		$this->_process($node);
 	} // end _processProcedure();
 
@@ -128,8 +126,6 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 	public function _postprocessProcedure(Opt_Xml_Element $node)
 	{
 		$args = $this->_stack->pop();
-
-		$this->_compiler->set('context', Opt_Compiler_Class::CTX_GLOBAL);
 		foreach($args as $name)
 		{
 			$this->_compiler->unsetConversion('##var_'.$name);

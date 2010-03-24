@@ -288,11 +288,11 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 
 			if(sizeof($arguments) == 0)
 			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($this, '.$params['procedure'].', array(null)); ');
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($ctx, '.$params['procedure'].', array(null)); ');
 			}
 			else
 			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($this, '.$params['procedure'].', array(null, '.implode(',',$arguments).')); ');
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($ctx, '.$params['procedure'].', array(null, '.implode(',',$arguments).')); ');
 			}
 		}
 		else

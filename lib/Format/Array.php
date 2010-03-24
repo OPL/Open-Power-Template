@@ -222,17 +222,17 @@ class Opt_Format_Array extends Opt_Compiler_Format
 				$item = $this->_getVar('item');
 				if($this->_getVar('global') === true)
 				{
-					return 'self::$_global[\''.$item.'\']';
+					return '$ctx->_global[\''.$item.'\']';
 				}
-				return $this->_compiler->getScriptVarCode($item);
+				return '$ctx->_data[\''.$item.'\']';
 			case 'variable:item.assign':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
 				if($this->_getVar('global') === true)
 				{
-					return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
+					return '$ctx->_global[\''.$item.'\']='.$this->_getVar('value');
 				}
-				return $this->_compiler->getScriptVarCode($item).'='.$this->_getVar('value');
+				return '$ctx->_data[\''.$item.'\']='.$this->_getVar('value');
 			case 'variable:item.preincrement':
 			case 'item:item.preincrement':
 				return '++'.$this->_getVar('code');

@@ -619,11 +619,11 @@ class Opt_Function
 	 * @param string $name The procedure name
 	 * @param array $arguments The list of procedure argument values
 	 */
-	static public function call(Opt_View $view, $name, array $arguments)
+	static public function call(Opt_InternalContext $ctx, $name, array $arguments)
 	{
 		if(function_exists('__optFunc_'.$name))
 		{
-			$arguments[0] = $view;
+			$arguments[0] = $ctx;
 			return call_user_func_array('__optFunc_'.$name, $arguments);
 		}
 		throw new Opt_ObjectNotExists_Exception('template procedure', $name);

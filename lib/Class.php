@@ -1237,6 +1237,12 @@ class Opt_View
 		{
 			$time = microtime(true);
 		}
+
+		$ctx = new Opt_InternalContext;
+		$ctx->_data = &$this->_data;
+		$ctx->_global = &self::$_global;
+		$ctx->_vars = &self::$_vars;
+
 		$cached = false;
 		if($this->_cache !== null)
 		{
@@ -1256,7 +1262,7 @@ class Opt_View
 		if($this->_tpl->compileMode != Opt_Class::CM_PERFORMANCE)
 		{
 			list($compileName, $compileTime) = $this->_preprocess($exception);
-			if(is_null($compileName))
+			if($compileName === null)
 			{
 				return false;
 			}
@@ -1419,3 +1425,32 @@ class Opt_View
 		return time();
 	} // end _compile();
 } // end Opt_View;
+
+/**
+ * The internal execution context that allows the access to the template data
+ * without breaking the view hermetization. The object of this class is not
+ * accessible from the public code, but its properties are public, so that
+ * they can be directly accessed by template procedures.
+ * 
+ * @internal
+ */
+class Opt_InternalContext
+{
+	/**
+	 * The script template data.
+	 * @var array
+	 */
+	public $_data;
+
+	/**
+	 * The local template data.
+	 * @var array
+	 */
+	public $_vars;
+
+	/**
+	 * The global script template data.
+	 * @var array
+	 */
+	public $_global;
+} // end Opt_InternalContext;

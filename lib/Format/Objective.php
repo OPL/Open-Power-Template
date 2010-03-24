@@ -210,22 +210,22 @@
 					$item = $this->_getVar('item');
 					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
 					{
-						return '$this->_data[\''.$item.'\']';
+						return '$ctx->_data[\''.$item.'\']';
 					}
 					else
 					{
-						return 'self::$_global[\''.$item.'\']';
+						return '$ctx->_global[\''.$item.'\']';
 					}
 				case 'variable:assign':
 					$this->_applyVars = false;
 					$item = $this->_getVar('item');
 					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
 					{
-						return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
+						return '$ctx->_data[\''.$item.'\']='.$this->_getVar('value');
 					}
 					else
 					{
-						return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
+						return '$ctx->_global[\''.$item.'\']='.$this->_getVar('value');
 					}
 				case 'item:item':
 					return '->'.$this->_getVar('item');
