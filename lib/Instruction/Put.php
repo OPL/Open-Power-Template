@@ -50,12 +50,12 @@ class Opt_Instruction_Put extends Opt_Compiler_Processor
 	public function processNode(Opt_Xml_Node $node)
 	{
 		$params = array(
-			'value' => array(0 => self::REQUIRED, self::ASSIGN_EXPR)
+			'value' => array(0 => self::REQUIRED, self::EXPRESSION_EXT)
 		);
 		$this->_extractAttributes($node, $params);
 
 		$node->set('single', false);
-		$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' echo '.$params['value'].'; ');
+		$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' echo '.$params['value']['bare'].'; ');
 	} // end processNode();
 
 	/**

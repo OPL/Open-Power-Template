@@ -47,14 +47,14 @@ interface Opt_Component_Interface
 	 * @param string $name The parameter name
 	 * @param mixed $value The parameter value
 	 */
-	public function set($name, $value);
+	public function __set($name, $value);
 	/**
 	 * Returns the component parameter value.
 	 *
 	 * @param string $name The parameter name
 	 * @return mixed
 	 */
-	public function get($name);
+	public function __get($name);
 
 	/**
 	 * Returns true, if the specified parameter is
@@ -63,7 +63,14 @@ interface Opt_Component_Interface
 	 * @param string $name The parameter name.
 	 * @return boolean
 	 */
-	public function defined($name);
+	public function __isset($name);
+
+	/**
+	 * Performs a code injection.
+	 *
+	 * @params Closure $injection The injected closure with the code to execute.
+	 */
+	public function setInjection($injection);
 
 	/**
 	 * Generates and echoes the HTML field represented by

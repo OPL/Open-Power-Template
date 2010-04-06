@@ -61,15 +61,15 @@ class Opt_Instruction_For extends Opt_Instruction_Loop
 	public function processNode(Opt_Xml_Node $node)
 	{
 		$params = array(
-			'begin' => array(0 => self::REQUIRED, self::ASSIGN_EXPR),
-			'while' => array(0 => self::REQUIRED, self::ASSIGN_EXPR),
-			'iterate' => array(0 => self::REQUIRED, self::ASSIGN_EXPR),
+			'begin' => array(0 => self::REQUIRED, self::EXPRESSION_EXT),
+			'while' => array(0 => self::REQUIRED, self::EXPRESSION_EXT),
+			'iterate' => array(0 => self::REQUIRED, self::EXPRESSION_EXT),
 			'separator' => $this->getSeparatorConfig()
 		);
 		$this->_extractAttributes($node, $params);
 		$this->_nesting++;
 
-		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' for('.$params['begin'].'; '.$params['while'].'; '.$params['iterate'].'){ ');
+		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' for('.$params['begin']['bare'].'; '.$params['while']['bare'].'; '.$params['iterate']['bare'].'){ ');
 		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 
 		$this->processSeparator('$__for'.$this->_nesting, $params['separator'], $node);

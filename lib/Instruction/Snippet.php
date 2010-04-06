@@ -281,66 +281,88 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 		{
 			// Calling the procedure.
 			$params = array(
-				'procedure' => array(0 => self::REQUIRED, self::EXPRESSION),
+				'procedure' => array(0 => self::REQUIRED, self::EXPRESSION_EXT),
 				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::EXPRESSION)
 			);
 			$arguments = $this->_extractAttributes($node, $params);
-
-			if(sizeof($arguments) == 0)
-			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($ctx, '.$params['procedure'].', array(null)); ');
-			}
-			else
-			{
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' Opt_Function::call($ctx, '.$params['procedure'].', array(null, '.implode(',',$arguments).')); ');
-			}
+			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $this->_compiler->processor('procedure')->callProcedure($params['procedure'], $arguments));
 		}
 		else
 		{
 			// Snippet insertion
 			$params = array(
 				'snippet' => array(0 => self::REQUIRED, self::ID),
-				'ignoredefault' => array(0 => self::OPTIONAL, self::BOOL, false),
+				'ignore-default' => array(0 => self::OPTIONAL, self::BOOL, false),
 				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::STRING)
 			);
 			$arguments = $this->_extractAttributes($node, $params);
+			$this->useSnippet($node, $params['snippet'], $arguments, $params['ignore-default']);
+			$this->_process($node);
+		}
+	} // end _processUse();
 
-			if($this->isUsed($params['snippet']))
+	/**
+	 * Postprocesses the opt:use element.
+	 * @internal
+	 * @param Opt_Xml_Element $node The found element.
+	 */
+	public function _postprocessUse(Opt_Xml_Element $node)
+	{
+		$this->postuseSnippet($node);
+	} // end _postprocessUse();
+
+	/**
+	 * The public API function allowing to put a snippet into the specified
+	 * node. The programmer is obliged to call _process() method on the node
+	 * with the snippet and terminate it in postprocessing by postuseSnippet().
+	 * @param Opt_Xml_Node $node The node to put the snippet to
+	 * @param string $snippetName The snippet name
+	 * @param array $arguments The snippet arguments
+	 * @param boolean $ignoreDefault Ignore the default content?
+	 * @param boolean $predefinedArguments Are the arguments predefined and do they need parsing?
+	 */
+	public function useSnippet(Opt_Xml_Node $node, $snippetName, array $arguments, $ignoreDefault = false, $predefinedArguments = false)
+	{
+		if($this->isUsed($snippetName))
+		{
+			$data = array($snippetName);
+			foreach($this->_current as $info)
 			{
-				$data = array($params['snippet']);
-				foreach($this->_current as $info)
-				{
-					$data[] = $info['name'];
-				}
-				$err = new Opt_SnippetRecursion_Exception($params['snippet']);
-				throw $err->setData($data);
+				$data[] = $info['name'];
 			}
+			$err = new Opt_SnippetRecursion_Exception($snippetName);
+			throw $err->setData($data);
+		}
 
-			$snippetBlock = array('name' => $params['snippet'], 'arguments' => array());
+		$snippetBlock = array('name' => $snippetName, 'arguments' => array());
 
-			if(in_array($params['snippet'], $this->_current))
+		foreach($this->_current as $it)
+		{
+			if($it == $snippetName)
 			{
-				array_snippet($this->_current, $params['snippet']);
-				$err = new Opt_SnippetRecursion_Exception($params['snippet']);
+				$this->_current->push($snippetName);
+				$err = new Opt_SnippetRecursion_Exception($snippetName);
 				throw $err->setData($this->_current);
 			}
-			if(isset($this->_snippets[$params['snippet']]))
+		}
+		if(isset($this->_snippets[$snippetName]))
+		{
+			// Testing the arguments.
+			$startCode = '';
+			$i = 0;
+			if(!$predefinedArguments)
 			{
-				// Testing the arguments.
-				$startCode = '';
-				$i = 0;
-				foreach($this->_arguments[$params['snippet']] as $name => $suggestedValue)
+				foreach($this->_arguments[$snippetName] as $name => $suggestedValue)
 				{
 					$process = true;
 					if($suggestedValue == 'required' && !isset($arguments[$name]))
 					{
-						throw new Exception('Snippet argument '.$name.' is not defined.');
+						throw new Opt_SnippetArgumentNotDefined_Exception($name, $snippetName);
 					}
 					elseif(!isset($arguments[$name]))
 					{
-						$startCode .= '$__snippet_'.$name.'_'.$i.' = '.$expression['bare'].'; ';
-						$this->_compiler->setConversion('##var_'.$name, '$__snippet_'.$name.'_'.$i);
-						$snippetBlock['arguments'][$name] = $i;
+						$this->_compiler->setConversion('##simplevar_'.$name, $suggestedValue);
+						$snippetBlock['arguments'][$name] = -1;
 						$i++;
 						$process = false;
 					}
@@ -352,70 +374,82 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 						$expression = $this->_compiler->parseExpression($arguments[$name], null, Opt_Compiler_Class::ESCAPE_OFF);
 						if($expression['type'] == Opt_Expression_Interface::SINGLE_VAR)
 						{
-							$this->_compiler->setConversion('##var_'.$name, $expression['bare']);
+							$this->_compiler->setConversion('##rawvar_'.$name, $expression['bare']);
 							$snippetBlock['arguments'][$name] = -1;
 						}
 						else
 						{
 							$startCode .= '$__snippet_'.$name.'_'.$i.' = '.$expression['bare'].'; ';
-							$this->_compiler->setConversion('##var_'.$name, '$__snippet_'.$name.'_'.$i);
+							$this->_compiler->setConversion('##rawvar_'.$name, '$__snippet_'.$name.'_'.$i);
 							$snippetBlock['arguments'][$name] = $i;
 						}
-						$context->useVariable($name, '@', false, $expression['format']);
 						$i++;
 						$process = false;
 					}
 				}
-
-				// OK, now we can deal with the snippet itself.
-				$snippet = &$this->_snippets[$params['snippet']];
-
-				// Move all the stuff to the fake node.
-				if($node->hasChildren() && $params['ignoredefault'] == false)
-				{
-					$newNode = new Opt_Xml_Element('opt:_');
-					$newNode->set('escaping', $this->_compiler->get('escaping'));
-					$newNode->moveChildren($node);
-					$size = sizeof($snippet);
-					$snippet[$size] = $newNode;
-					$snippetBlock['insertSize'] = $size;
-				}
-				// We must do the cleaning for the inserted node.
-				$node->removeChildren();
-
-				// Process the snippets
-				$snippetBlock['escaping'] = $this->_compiler->get('escaping');
-				$this->_compiler->set('escaping', $snippet[0]->get('escaping'));
-
-				foreach($snippet[0] as $subnode)
-				{
-					$node->appendChild(clone $subnode);
-				}
-
-				if(strlen($startCode) > 0)
-				{
-					$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $startCode);
-				}
-
-				$this->_current->snippet($snippetBlock);
-				$this->_process($node);
-				$node->set('insertSnippet', $params['snippet']);
-				$node->set('postprocess', true);
 			}
 			else
 			{
-				// Processing the default content - snippet not found.
-				$this->_process($node);
+				foreach($this->_arguments[$snippetName] as $name => $suggestedValue)
+				{
+					if($suggestedValue == 'required' && !isset($arguments[$name]))
+					{
+						throw new Opt_SnippetArgumentNotDefined_Exception($name, $snippetName);
+					}
+					elseif(!isset($arguments[$name]))
+					{
+						$this->_compiler->setConversion('##rawvar_'.$name, $suggestedValue);
+					}
+					else
+					{
+						$this->_compiler->setConversion('##rawvar_'.$name, $arguments[$name]);
+					}
+					$snippetBlock['arguments'][$name] = -1;
+				}
 			}
+
+			// OK, now we can deal with the snippet itself.
+			$snippet = &$this->_snippets[$snippetName];
+
+			// Move all the stuff to the fake node.
+			if($node->hasChildren() && $ignoreDefault == false)
+			{
+				$newNode = new Opt_Xml_Element('opt:_');
+				$newNode->set('escaping', $this->_compiler->get('escaping'));
+				$newNode->moveChildren($node);
+				$size = sizeof($snippet);
+				$snippet[$size] = $newNode;
+				$snippetBlock['insertSize'] = $size;
+			}
+			// We must do the cleaning for the inserted node.
+			$node->removeChildren();
+
+			// Process the snippets
+			$snippetBlock['escaping'] = $this->_compiler->get('escaping');
+			$this->_compiler->set('escaping', $snippet[0]->get('escaping'));
+
+			foreach($snippet[0] as $subnode)
+			{
+				$node->appendChild(clone $subnode);
+			}
+
+			if(strlen($startCode) > 0)
+			{
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $startCode);
+			}
+
+			$this->_current->push($snippetBlock);
+			$node->set('insertSnippet', $snippetName);
+			$node->set('postprocess', true);
 		}
-	} // end _processUse();
+	} // end useSnippet();
 
 	/**
-	 * Postprocesses the opt:use element.
-	 * @internal
-	 * @param Opt_Xml_Element $node The found element.
+	 * Terminates snippet insertion.
+	 *
+	 * @param Opt_Xml_Node $node
 	 */
-	public function _postprocessUse(Opt_Xml_Element $node)
+	public function postuseSnippet(Opt_Xml_Node $node)
 	{
 		// Freeing the fake node, if necessary.
 		$info = $this->_current->pop();
@@ -435,7 +469,7 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 			{
 				$code .= 'unset($__snippet_'.$name.'_'.$type.'); ';
 			}
-			$this->_compiler->unsetConversion('##var_'.$name);
+			$this->_compiler->unsetConversion('##rawvar_'.$name);
 		}
 
 		if(strlen($code) > 0)
@@ -445,7 +479,23 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 
 		// Restore the original escaping state
 		$this->_compiler->set('escaping', $info['escaping']);
-	} // end _postprocessUse();
+	} // end postuseSnippet();
+
+	/**
+	 * Returns the list of arguments of the specified snippet.
+	 *
+	 * @throws Opt_SnippetNotFound_Exception
+	 * @param string $snippetName The snippet name.
+	 * @return array
+	 */
+	public function getArguments($snippetName)
+	{
+		if(!isset($this->_arguments[$snippetName]))
+		{
+			throw new Opt_SnippetNotFound_Exception($snippetName);
+		}
+		return $this->_arguments[$snippetName];
+	} // end getArguments();
 
 	/**
 	 * Returns true, if the snippet with the given name is defined.
@@ -455,7 +505,7 @@ class Opt_Instruction_Snippet extends Opt_Compiler_Processor
 	public function isSnippet($name)
 	{
 		return isset($this->_snippets[$name]);
-	} // end isMacro();
+	} // end isSnippet();
 
 	/**
 	 * Checks if we have already used the specified dmo[[ry to avoid recursive

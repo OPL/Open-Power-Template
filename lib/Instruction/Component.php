@@ -50,7 +50,7 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:component', 'opt:onEvent', 'opt:display', ));
+		$this->_addInstructions(array('opt:component', 'opt:on-event', 'opt:display', 'opt:inject'));
 		$this->_stack = new SplStack;
 	} // end configure();
 
@@ -86,7 +86,7 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 				$this->_stack->push($params['from']);
 
 				$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Component_Interface){ '.$params['from'].'->setView($this); ';
-				if(!is_null($params['datasource']))
+				if($params['datasource'] !== null)
 				{
 					$mainCode .= $params['from'].'->setDatasource('.$params['datasource'].'); ';
 				}
@@ -96,7 +96,7 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
 				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 				break;
-			case 'onEvent':
+			case 'on-event':
 				if($this->_stack->count() == 0)
 				{
 					throw new Opt_ComponentNotActive_Exception($node->getXmlName());
@@ -137,6 +137,53 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 				}
 				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->display('.$subCode.'); ');
 				break;
+			case 'inject':
+				if($this->_stack->count() == 0)
+				{
+					throw new Opt_ComponentNotActive_Exception($node->getXmlName());
+				}
+				$code = 'function() use($ctx){ ';
+
+				if($node->getAttribute('procedure') !== null)
+				{
+					$params = array(
+						'procedure' => array(self::REQUIRED, self::EXPRESSION_EXT, null)
+					);
+					$this->_extractAttributes($node, $params);
+					$code .= ' $args = func_get_args(); array_unshift($args, $ctx); '.PHP_EOL;
+					$code .= $this->_compiler->processor('procedure')->callProcedure($params['procedure'], '$args', true).PHP_EOL;
+					$code .= '}'.PHP_EOL;
+					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->setInjection('.$code.'); ');
+				}
+				else
+				{
+					// TODO: Implement snippet support!
+					$params = array(
+						'snippet' => array(self::REQUIRED, self::STRING, null)
+					);
+					$this->_extractAttributes($node, $params);
+					$code .= ' $args = func_get_args(); '.PHP_EOL;
+					$snippetArgs = $this->_compiler->processor('snippet')->getArguments($params['snippet']);
+
+					$i = 0;
+					foreach($snippetArgs as $name => &$value)
+					{
+						if($value == 'required')
+						{
+							$code .= 'if(!isset($args['.$i.'])){ throw new Opt_SnippetArgumentNotDefined_Exception(\''.$name.'\', \''.$params['snippet'].'\'); } '.PHP_EOL;
+						}
+						else
+						{
+							$code .= 'if(!isset($args['.$i.'])){ $args['.$i.'] = '.$value.'; } '.PHP_EOL;
+						}
+						$value = '$args['.($i++).']';
+					}
+					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->setInjection('.$code);
+					$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' }); ');
+					$this->_compiler->processor('snippet')->useSnippet($node, $params['snippet'], $snippetArgs, false, true);
+					$this->_process($node);
+				}
+				break;
 		}
 	} // end processNode();
 
@@ -147,11 +194,18 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 	 */
 	public function postprocessNode(Opt_Xml_Node $node)
 	{
-		if(!is_null($attribute = $node->get('_componentTemplate')))
+		if($node->getXmlName() == 'opt:inject')
 		{
-			$this->_compiler->processor('snippet')->postprocessAttribute($node, $attribute);
+			$this->_compiler->processor('snippet')->postuseSnippet($node);
 		}
-		$this->_stack->pop();
+		else
+		{
+			if(($attribute = $node->get('_componentTemplate')) !== null)
+			{
+				$this->_compiler->processor('snippet')->postprocessAttribute($node, $attribute);
+			}
+			$this->_stack->pop();
+		}
 	} // end postprocessNode();
 
 	/**
@@ -208,7 +262,7 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 
 		// Generate the initialization code
 		$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
-		if(!is_null($params['datasource']))
+		if($params['datasource'] !== null)
 		{
 			$mainCode .= $cn.'->setDatasource('.$params['datasource'].'); ';
 		}
@@ -224,7 +278,7 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 	 */
 	public function postprocessComponent(Opt_Xml_Node $node)
 	{
-		if(!is_null($attribute = $node->get('_componentTemplate')))
+		if(($attribute = $node->get('_componentTemplate')) !== null)
 		{
 			$this->_compiler->processor('snippet')->postprocessAttribute($node, $attribute);
 			$node->set('_componentTemplate', NULL);
@@ -252,14 +306,14 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 	{
 		// Common part of the component processing
 		$set2 = array();
-		if(!is_null($params['template']))
+		if($params['template'] !== null)
 		{
 			// Scan for opt:set tags - they may contain some custom arguments.
 			$set2 = $node->getElementsByTagNameNS('opt', 'set');
 
 			// Now a little trick - how to cheat the opt:insert instruction
-			$attribute = new Opt_Xml_Attribute('opt:use', $params['template']);
-			$this->_compiler->processor('snippet')->processAttribute($node, $attribute);
+			$useAttribute = new Opt_Xml_Attribute('opt:use', $params['template']);
+			$this->_compiler->processor('snippet')->processAttribute($node, $useAttribute);
 		}
 
 		// Find all the important component elements
@@ -272,53 +326,44 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 		foreach($everything[0] as $set)
 		{
 			$tagParams = array(
-				'name' => array(self::REQUIRED, self::EXPRESSION),
+				'name' => array(self::REQUIRED, self::EXPRESSION_EXT),
 				'value' => array(self::REQUIRED, self::EXPRESSION)
 			);
 
 			$this->_extractAttributes($set, $tagParams);
-			$code .= $componentVariable.'->set('.$tagParams['name'].', '.$tagParams['value'].'); ';
+			$code .= $componentVariable.'->__set('.$tagParams['name']['bare'].', '.$tagParams['value'].'); ';
 		}
 		foreach($args as $name => $value)
 		{
-			$code .= $componentVariable.'->set(\''.$name.'\', '.$value.'); ';
+			$code .= $componentVariable.'->__set(\''.$name.'\', '.$value.'); ';
 		}
-		// com:* and opt:component-attributes
+		// opt:component-attributes
 		foreach($everything[1] as $wtf)
 		{
-			$id = null;
-			if($wtf->getNamespace() == 'com')
-			{
-				$wtf->setNamespace(NULL);
-				$subCode = ' $out = '.$componentVariable.'->manageAttributes(\''.$wtf->getName().'\', array(';
-			}
-			else
-			{
-				$id = $wtf->getAttribute('opt:component-attributes')->getValue();
-				$subCode = ' $out = '.$componentVariable.'->manageAttributes(\''.$wtf->getName().'#'.$id.'\', array(';
-			}
+			$id = $wtf->getAttribute('opt:component-attributes')->getValue();
+			$subCode = ' $out = '.$componentVariable.'->manageAttributes(\''.$wtf->getName().'#'.$id.'\', array(';
+		//	$wtf->removeAttribute('opt:component-attributes');
 
-
-			foreach($wtf->getAttributes() as $attribute)
-			{
+		//	foreach($wtf->getAttributes() as $attribute)
+	//		{
 				$params = array(
-					'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
+					'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null, 'str')
 				);
 				$vars = $this->_extractAttributes($wtf, $params);
 				foreach($vars as $name => $value)
 				{
 					$subCode .= '\''.$name.'\' => '.$value.',';
 				}
-			}
+	//		}
 			$wtf->removeAttributes();
 			$wtf->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $subCode.')); ');
 			$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, ' if(is_array($out)){ foreach($out as $name=>$value){ echo \' \'.$name.\'="\'.$value.\'"\'; } } ');
 		}
 
 		$node->set('postprocess', true);
-		if(isset($attribute))
+		if(isset($useAttribute))
 		{
-			$node->set('_componentTemplate', $attribute);
+			$node->set('_componentTemplate', $useAttribute);
 		}
 		$this->_process($node);
 		return $code;
@@ -338,7 +383,7 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 		{
 			throw new Opt_SysVariableInvalidUse_Exception('$'.implode('.',$opt), 'components');
 		}
-		return $this->_stack->top().'->get(\''.$opt[2].'\')';
+		return $this->_stack->top().'->'.$opt[2];
 	} // end processSystemVar();
 
 	/**
@@ -374,7 +419,7 @@ class Opt_Instruction_Component extends Opt_Compiler_Processor
 				{
 					$result[$map[$current->getXmlName()]][] = $current;
 				}
-				elseif($current->getNamespace() == 'com' || $current->getAttribute('opt:component-attributes') !== null)
+				elseif($current->getAttribute('opt:component-attributes') !== null)
 				{
 					$result[1][] = $current;
 				}

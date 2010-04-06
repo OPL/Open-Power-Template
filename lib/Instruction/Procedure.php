@@ -68,9 +68,7 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 		);
 		$arguments = $this->_extractAttributes($node, $params);
 
-		$funcName = '__optFunc_'.$params['name'];
-
-		$code = 'if(!function_exists(\''.$funcName.'\')){ '.PHP_EOL.' function '.$funcName.'(Opt_InternalContext $ctx';
+		$code = '$ctx->_procs[\''.$params['name'].'\'] = function(Opt_InternalContext $ctx';
 
 		$argCounter = 0;
 		$args = array();
@@ -111,7 +109,7 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 		}
 		$code .= '){ '.PHP_EOL;
 		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $code);
-		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, PHP_EOL.' } } ');
+		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, PHP_EOL.' }; ');
 		$node->set('postprocess', true);
 		$this->_stack->push($args);
 		$this->_process($node);
@@ -131,4 +129,47 @@ class Opt_Instruction_Procedure extends Opt_Compiler_Processor
 			$this->_compiler->unsetConversion('##var_'.$name);
 		}
 	} // end _postprocessProcedure();
+
+	/**
+	 * Generates a piece of PHP code that calls the specified
+	 * procedure.
+	 *
+	 * @param array $procedureExpression The procedure name expression
+	 * @param array|string $arguments The procedure arguments
+	 * @param bool $callUserFunc Compile as a call_user_func_array() call.
+	 * @return string
+	 */
+	public function callProcedure(array $procedureExpression, $arguments, $callUserFunc = false)
+	{
+		$code = '';
+		if($procedureExpression['complexity'] > 10)
+		{
+			$procedureName = '$__proc';
+			$code = '$__proc = '.$procedureExpression['bare'].'; '.PHP_EOL;
+		}
+		else
+		{
+			$procedureName = $procedureExpression['bare'];
+		}
+
+		$code .= ' if(!isset($ctx->_procs[\''.$procedureName.'\'])){ throw new Opt_ObjectNotExists_Exception(\'template procedure\', '.$procedureName.'); } ';
+
+		if(!$callUserFunc)
+		{
+			$code .= ' $__call = $ctx->_procs[\''.$procedureName.'\']; ';
+			if(sizeof($arguments) == 0)
+			{
+				$code .= ' $__call($ctx); ';
+			}
+			else
+			{
+				$code .= ' $__call($ctx, '.implode(',',$arguments).'); ';
+			}
+		}
+		else
+		{
+			$code .= ' call_user_func_array($ctx->_procs[\''.$procedureName.'\'], '.$arguments.'); ';
+		}
+		return $code;
+	} // end callProcedure();
 } // end Opt_Instruction_Procedure;

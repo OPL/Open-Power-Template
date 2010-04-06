@@ -20,6 +20,11 @@
  */
 class Opt_Instruction_If extends Opt_Compiler_Processor
 {
+	const ALLOW_LONG_IF = 1;
+	const ALLOW_TAG_FORM = 2;
+	const ALLOW_ATTRIBUTE_FORM = 4;
+	const FORCE_ELSE = 8;
+
 	/**
 	 * The instruction processor name - required by the instruction API.
 	 * @internal
@@ -91,10 +96,15 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 		switch($node->getName())
 		{
 			case 'if':
+				if(!$node->hasAttributes())
+				{
+					$this->parseCondition($node, self::ALLOW_TAG_FORM | self::ALLOW_ATTRIBUTE_FORM, array($this,'_localCallback'));
+					return;
+				}
 				$this->_extractAttributes($node, $params);
 				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if('.$params['test'].'){ ');
 				$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } ');
-				$node->sort(array('*' => 0, 'opt:elseif' => 1, 'opt:else' => 2));
+				$node->sort(array('*' => 0, 'opt:else-if' => 1, 'opt:else' => 2));
 				$this->_process($node);
 				break;
 			case 'else-if':
@@ -171,7 +181,7 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 				{
 					$expr = $this->_compiler->compileExpression((string)$attr, false, Opt_Compiler_Class::ESCAPE_OFF);
 
-					$node->addBefore(Opt_Xml_Buffer::TAG_OPENING_BEFORE, ' $_tag_'.$this->_cnt.' = false; if('.$expr[0].'){ $_tag_'.$this->_cnt.' = true; ');
+					$node->addBefore(Opt_Xml_Buffer::TAG_OPENING_BEFORE, ' $_tag_'.$this->_cnt.' = false; if(!('.$expr[0].')){ $_tag_'.$this->_cnt.' = true; ');
 					$node->addAfter(Opt_Xml_Buffer::TAG_OPENING_AFTER, ' } ');
 					$node->addBefore(Opt_Xml_Buffer::TAG_CLOSING_BEFORE, ' if($_tag_'.$this->_cnt.' === true){ ');
 					$node->addAfter(Opt_Xml_Buffer::TAG_CLOSING_AFTER, ' } ');
@@ -207,4 +217,129 @@ class Opt_Instruction_If extends Opt_Compiler_Processor
 		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' if('.$expr[0].'){ ');
 		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 	} // end postprocessAttribute();
+
+	/**
+	 * The public API for the NEW-IF syntax, allowing to use it in other instructions.
+	 *
+	 * @param Opt_Xml_Node $node The scanned node.
+	 * @param integer $flags The parsing flags
+	 * @param callback $conditionCallback The callback for checking every condition.
+	 */
+	public function parseCondition(Opt_Xml_Node $node, $flags, $conditionCallback = null)
+	{
+		$first = true;
+		$else = false;
+		foreach($node as $subnode)
+		{
+			if($flags & self::ALLOW_LONG_IF)
+			{
+				// For long IF-s, we skip the whitespaces only.
+				if($subnode instanceof Opt_Xml_Text && $subnode->isWhitespace())
+				{
+					continue;
+				}
+			}
+			else
+			{
+				// Skip TEXT blocks.
+				if($subnode instanceof Opt_Xml_Text)
+				{
+					continue;
+				}
+			}
+
+			// Parse the tags.
+			if($subnode instanceof Opt_Xml_Element)
+			{
+				// Test the tag forms.
+				if($flags & self::ALLOW_TAG_FORM)
+				{
+					switch($subnode->getXmlName())
+					{
+						case 'opt:condition':
+							$params = array(
+								'test' => array(0 => self::REQUIRED, self::EXPRESSION)
+							);
+							$this->_extractAttributes($subnode, $params);
+							if($first == true)
+							{
+								$subnode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if('.$params['test'].'){ ');
+								$first = false;
+							}
+							else
+							{
+								$subnode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'elseif('.$params['test'].'){ ');
+							}
+							$subnode->addAfter(Opt_Xml_Buffer::TAG_AFTER, '} ');
+							call_user_func($conditionCallback, $subnode);
+							continue;;
+						case 'opt:else':
+							if($first)
+							{
+								throw new Opt_ElseCannotBeFirst_Exception();
+							}
+							if($else)
+							{
+								throw new Opt_InstructionTooManyItems_Exception('opt:else', 'conditional instruction');
+							}
+							$subnode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'else{ ');
+							$subnode->addAfter(Opt_Xml_Buffer::TAG_AFTER, '} ');
+							$else = true;
+							call_user_func($conditionCallback, $subnode);
+							continue;;
+					}
+				}
+				// Now test the attribute forms.
+				if($flags & self::ALLOW_ATTRIBUTE_FORM)
+				{
+					if(($attr = $subnode->getAttribute('opt:condition')) !== null)
+					{
+						$subnode->removeAttribute($attr);
+						$test = $this->_compiler->parseExpression($attr->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+						if($first == true)
+						{
+							$subnode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'if('.$test['bare'].'){ ');
+							$first = false;
+						}
+						else
+						{
+							$subnode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'elseif('.$test['bare'].'){ ');
+						}
+						$subnode->addAfter(Opt_Xml_Buffer::TAG_AFTER, '} ');
+						call_user_func($conditionCallback, $subnode);
+						continue;
+					}
+					elseif(($attr = $subnode->getAttribute('opt:else')) !== null)
+					{
+						$subnode->removeAttribute($attr);
+						if($first)
+						{
+							throw new Opt_ElseCannotBeFirst_Exception();
+						}
+						if($else)
+						{
+							throw new Opt_InstructionTooManyItems_Exception('opt:else', 'conditional instruction');
+						}
+						$subnode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, 'else{ ');
+						$subnode->addAfter(Opt_Xml_Buffer::TAG_AFTER, '} ');
+						$else = true;
+						call_user_func($conditionCallback, $subnode);
+						continue;
+					}
+				}
+				// If we are here, we have a long if.
+			}
+		}
+		if($flags & self::FORCE_ELSE && !$else)
+		{
+			throw new Opt_TagMissing_Exception('opt:else', 'conditional instruction');
+		}
+	} // end parseCondition();
+
+	private function _localCallback(Opt_Xml_Node $subnode)
+	{
+		$subnode->set('hidden', false);
+		$this->_process($subnode);
+	} // end _localCallback();
+
 } // end Opt_Instruction_If;

@@ -61,13 +61,26 @@ class Opt_Instruction_Repeat extends Opt_Instruction_Loop
 	public function processNode(Opt_Xml_Node $node)
 	{
 		$params = array(
-			'times' => array(0 => self::REQUIRED, self::ASSIGN_EXPR),
+			'times' => array(0 => self::REQUIRED, self::EXPRESSION_EXT),
 			'separator' => $this->getSeparatorConfig()
 		);
 		$this->_extractAttributes($node, $params);
 		$this->_nesting++;
 
-		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' for($__r'.$this->_nesting.' = 0; $__r'.$this->_nesting.' < '.$params['times'].'; $__r'.$this->_nesting.'++){ ');
+		// Small optimization
+		$code = '';
+		if($params['times']['complexity'] > 10)
+		{
+			$finalValue = '$__rf'.$this->_nesting;
+			$code = '$__rf'.$this->_nesting.' = '.$params['times']['bare'];
+		}
+		else
+		{
+			$finalValue = $params['times']['bare'];
+		}
+
+		// Putting the code to the buffers
+		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $code.' for($__r'.$this->_nesting.' = 0; $__r'.$this->_nesting.' < '.$finalValue.'; $__r'.$this->_nesting.'++){ ');
 		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 
 		$this->processSeparator('$__rs'.$this->_nesting, $params['separator'], $node);

@@ -347,6 +347,16 @@ class Opt_SectionNotFound_Exception extends Opt_Instruction_Exception
 	protected $_message = '%s: section %s has not been found on the stack.';
 } // end Opt_SectionNotFound_Exception;
 
+class Opt_SnippetNotFound_Exception extends Opt_Instruction_Exception
+{
+	protected $_message = 'The snippet %s has not been found.';
+} // end Opt_SnippetNotFound_Exception;
+
+class Opt_SnippetArgumentNotDefined_Exception extends Opt_Instruction_Exception
+{
+	protected $_message = 'The argument %s of the snippet %s has not been defined.';
+} // end Opt_SnippetArgumentNotDefined_Exception;
+
 class Opt_InstructionInvalidLocation_Exception extends Opt_Instruction_Exception
 {
 	protected $_message = '"%s" must be located within "%s".';
@@ -401,6 +411,16 @@ class Opt_CannotBeNested_Exception extends Opt_Instruction_Exception
 {
 	protected $_message = '%s instruction cannot be nested: %s';
 } // end Opt_CannotBeNested_Exception;
+
+class Opt_ElseCannotBeFirst_Exception extends Opt_Instruction_Exception
+{
+	protected $_message = 'opt:else cannot be the first tag in the condition sequence.';
+} // end Opt_ElseCannotBeFirst_Exception;
+
+class Opt_TagMissing_Exception extends Opt_Instruction_Exception
+{
+	protected $_message = 'Missing required tag "%s" in %s.';
+} // end Opt_TagMissing_Exception;
 
 /*
  * Other exceptions.

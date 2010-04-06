@@ -275,6 +275,7 @@ class Opt_Class extends Opl_Class
 		'SingleArray' => 'Opt_Format_SingleArray',
 		'StaticGenerator' => 'Opt_Format_StaticGenerator',
 		'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
+		'System' => 'Opt_Format_System',
 		'SwitchEquals' => 'Opt_Format_SwitchEquals',
 		'SwitchContains' => 'Opt_Format_SwitchContains',
 	);
@@ -670,7 +671,7 @@ class Opt_View
 	 * Data format information storage
 	 * @var array
 	 */
-	private $_formatInfo = array();
+	private $_formatInfo = array('system' => 'System');
 
 	/**
 	 * Template inheritance storage for the inflectors
@@ -725,6 +726,13 @@ class Opt_View
 	 * @var array
 	 */
 	static private $_vars = array();
+
+	/**
+	 * The template procedures
+	 * @static
+	 * @var array
+	 */
+	static private $_procedures = array();
 
 	/**
 	 * The list of the captured content.
@@ -1242,6 +1250,7 @@ class Opt_View
 		$ctx->_data = &$this->_data;
 		$ctx->_global = &self::$_global;
 		$ctx->_vars = &self::$_vars;
+		$ctx->_procs = &self::$_procedures;
 
 		$cached = false;
 		if($this->_cache !== null)
@@ -1447,6 +1456,12 @@ class Opt_InternalContext
 	 * @var array
 	 */
 	public $_vars;
+
+	/**
+	 * The list of available procedures.
+	 * @var array
+	 */
+	public $_procs;
 
 	/**
 	 * The global script template data.

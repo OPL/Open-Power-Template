@@ -392,12 +392,18 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			if($path == '')
 			{
 				// Parsing the first element. First, check the conversions.
+				$path = $item;
+				$state['first'] = true;
 				if(($to = $this->_compiler->convert('##simplevar_'.$item)) != '##simplevar_'.$item)
 				{
 					$item = $to;
 				}
-				$path = $item;
-				$state['first'] = true;
+				elseif(($to = $this->_compiler->convert('##rawvar_'.$item)) != '##rawvar_'.$item)
+				{
+					// TODO: Add support for different contexts!
+					$code .= $to;
+					continue;
+				}
 			}
 			else
 			{
@@ -478,6 +484,15 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				// Check if the format supports capturing the whole container
 				if($format->property('variable:capture'))
 				{
+					$isDynamic = false;
+					foreach($variable as $id => $item)
+					{
+						if(is_object($item))
+						{
+							$isDynamic = true;
+						}
+					}
+
 					$format->assign('items', $variable);
 					$format->assign('dynamic', $isDynamic);
 					$hook = 'capture';

@@ -27,7 +27,7 @@ class Opt_Compiler_Processor
 	const ID_EMP = 4;
 	const BOOL = 5;
 	const EXPRESSION = 6;
-	const ASSIGN_EXPR = 7;
+	const EXPRESSION_EXT = 7;
 
 	const REQUIRED = 1;
 	const OPTIONAL = 2;
@@ -256,7 +256,7 @@ class Opt_Compiler_Processor
 	 */
 	final protected function _process(Opt_Xml_Node $node)
 	{
-		if(is_null($this->_queue))
+		if($this->_queue === null)
 		{
 			$this->_queue = new SplQueue;
 		}
@@ -361,7 +361,7 @@ class Opt_Compiler_Processor
 				$aname = $name;
 				$ok = true;
 			}
-			elseif(($data[1] == self::EXPRESSION || $data[1] == self::ASSIGN_EXPR) && $this->_tpl->backwardCompatibility == true)
+			elseif(($data[1] == self::EXPRESSION || $data[1] == self::EXPRESSION_EXT) && $this->_tpl->backwardCompatibility == true)
 			{
 				// DEPRECATED: Legacy code for compatibility with OPT 2.0
 				foreach($exprEngines as $eeName => $eeValue)
@@ -393,7 +393,7 @@ class Opt_Compiler_Processor
 				$aname = $name;
 				$ok = true;
 			}
-			elseif(($data[1] == self::EXPRESSION || $data[1] == self::ASSIGN_EXPR) && $this->_tpl->backwardCompatibility == true)
+			elseif(($data[1] == self::EXPRESSION || $data[1] == self::EXPRESSION_EXT) && $this->_tpl->backwardCompatibility == true)
 			{
 				// DEPRECATED: Legacy code for compatibility with OPT 2.0
 				foreach($exprEngines as $eeName => $eeValue)
@@ -423,41 +423,18 @@ class Opt_Compiler_Processor
 		}
 		// The remaining tags must be processed using $unknown rule, however it
 		// must be defined.
-		if(!is_null($unknown))
+		if($unknown !== null)
 		{
 			$type = $unknown[1];
+			$exprType = $unknown[3];
 			foreach($attrList as $name => $attr)
 			{
-				try
+					
+				if($this->_compiler->isNamespace($attr->getNamespace()))
 				{
-					$exprType = null;
-					if(($type == self::EXPRESSION || $type == self::ASSIGN_EXPR) && $this->_tpl->backwardCompatibility == true)
-					{
-						// DEPRECATED: Legacy code for compatibility with OPT 2.0
-						// TODO: Perhaps this should be deleted.
-						$exprType = $unknown[3];
-						foreach($exprEngines as $eeName => $eeValue)
-						{
-							if(isset($attrList[$eeName.':'.$name]))
-							{
-								$name = substr($name, strlen($eeName), strlen($name) - strlen($eeName));
-								$exprType = $eeName;
-
-								// Skip the tag, if this is a special OPT namespace.
-								if($this->_compiler->isNamespace($exprType))
-								{
-									throw new Exception();
-								}
-								break;
-							}
-						}
-					}
-					$return[$name] = $this->_extractAttribute($subitem, $attr, $type, $exprType);
+					continue;
 				}
-				catch(Exception $e)
-				{
-					/* null */
-				}
+				$return[$name] = $this->_extractAttribute($subitem, $attr, $type, $exprType);
 			}
 		}
 		return $return;
@@ -511,7 +488,7 @@ class Opt_Compiler_Processor
 				break;
 			// An OPT expression.
 			case self::EXPRESSION:
-			case self::ASSIGN_EXPR:
+			case self::EXPRESSION_EXT:
 				if(strlen(trim($value)) == 0)
 				{
 					throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
@@ -525,7 +502,11 @@ class Opt_Compiler_Processor
 					$result = $this->_compiler->parseExpression($value, $exprType);
 				}
 
-				if($result['type'] == Opt_Expression_Interface::ASSIGNMENT && $type != self::ASSIGN_EXPR)
+				if($type == self::EXPRESSION_EXT)
+				{
+					return $result;
+				}
+				elseif($result['type'] == Opt_Expression_Interface::ASSIGNMENT)
 				{
 					Opt_ExpressionOptionDisabled_Exception('Assignments', 'compiler requirements');
 				}

@@ -35,7 +35,7 @@ interface Opt_Block_Interface
 	 * @param array $attributes An associative list of block tag attributes.
 	 * @return boolean
 	 */
-	public function onOpen(Array $attributes);
+	public function onOpen(array $attributes);
 
 	/**
 	 * An action performed for block closing tag.
@@ -47,5 +47,5 @@ interface Opt_Block_Interface
 	 * 
 	 * @param array $attributes An associative list of block tag attributes.
 	 */
-	public function onSingle(Array $attributes);
+	public function onSingle(array $attributes);
 } // end Opt_Block_Interface;

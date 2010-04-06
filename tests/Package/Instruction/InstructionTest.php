@@ -60,6 +60,51 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 	public static function dataProvider()
 	{
 		return array(0 =>
+			// BLOCK
+			array('Block/block_basic.txt'),
+			array('Block/block_single.txt'),
+			array('Block/block_arguments.txt'),
+			array('Block/block_single_args.txt'),
+			array('Block/block_static.txt'),
+			array('Block/block_empty.txt'),
+			array('Block/block_nesting.txt'),
+
+			// COMPONENT
+			array('Component/component_basic.txt'),
+			array('Component/component_datasource.txt'),
+			array('Component/component_display.txt'),
+			array('Component/component_display_attr.txt'),
+			array('Component/component_events.txt'),
+			array('Component/component_management.txt'),
+			array('Component/component_multiple.txt'),
+			array('Component/component_defined.txt'),
+			array('Component/component_param_empty.txt'),
+			array('Component/component_skipping_opt.txt'),
+			array('Component/component_inject_procedure.txt'),
+			array('Component/component_inject_snippet.txt'),
+		//	array('Component/component_nesting.txt'),
+
+			// IF
+			array('If/if_basic.txt'),
+			array('If/if_basic_failure.txt'),
+			array('If/if_basic_else.txt'),
+			array('If/if_basic_else_failure.txt'),
+			array('If/if_basic_elseif_first.txt'),
+			array('If/if_basic_elseif.txt'),
+			array('If/if_basic_elseif_failure.txt'),
+			array('If/if_basic_sorting.txt'),
+			array('If/if_basic_sorting_2.txt'),
+			array('If/if_basic_sorting_3.txt'),
+			array('If/if_new_one_condition.txt'),
+			array('If/if_new_more_conditions.txt'),
+			array('If/if_new_no_matching.txt'),
+			array('If/if_new_else.txt'),
+			array('If/if_new_long.txt'),
+			array('If/if_new_attribute.txt'),
+			array('If/if_new_attribute_nocondition.txt'),
+			array('If/if_new_condition_without_if.txt'),
+			array('OmitTag/omit_tag_basic.txt'),
+			/*
 				array('attribute_1.txt'),
 				array('attribute_2.txt'),
 				array('attribute_3.txt'),
@@ -239,6 +284,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 				array('tree_5.txt'),
 				array('tree_6.txt'),
 				array('tree_7.txt'),
+			*/
 		);
 	} // end dataProvider();
 
