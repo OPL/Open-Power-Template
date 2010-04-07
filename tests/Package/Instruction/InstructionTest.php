@@ -100,6 +100,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('If/if_new_no_matching.txt'),
 			array('If/if_new_else.txt'),
 			array('If/if_new_long.txt'),
+			array('If/if_new_long_else.txt'),
 			array('If/if_new_attribute.txt'),
 			array('If/if_new_attribute_nocondition.txt'),
 			array('If/if_new_condition_without_if.txt'),

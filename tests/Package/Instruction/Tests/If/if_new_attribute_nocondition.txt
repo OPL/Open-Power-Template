@@ -22,6 +22,7 @@ and the rest of the code should skip it.
 	<li>No condition</li>
 	<li opt:condition="$ok">Condition 2</li>
 	<li opt:condition="$fail">Condition 3</li>
+        <li>No condition</li>
 	<li opt:else="yes">Other</li>
 </opt:if>
 </ul>
@@ -39,6 +40,7 @@ OUTPUT
 <ul>
 <li>No condition</li>
 <li>Condition 2</li>
+<li>No condition</li>
 </ul>
 >>>>data.php
 $view->assign('ok', true);

@@ -433,5 +433,5 @@ class Opt_NotImplemented_Exception extends Opt_Exception
 
 class Opt_NotSupported_Exception extends Opt_Exception
 {
-	protected $_message = 'The %s is not supported: %d.';
+	protected $_message = 'The %s is not supported: %s.';
 } // end Opt_NotSupported_Exception;
