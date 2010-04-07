@@ -122,7 +122,7 @@ The base template (`base.tpl`):
 	<h1>Title</h1>
 	<opt:insert snippet="content">
 		<p>Some default content here.</p>
-	</opt:snippet>
+	</opt:insert>
 </body>
 </html>
 </opt:root>
