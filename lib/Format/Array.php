@@ -16,6 +16,8 @@
 /**
  * The default data format implementation that
  * treats the containers as PHP arrays.
+ *
+ * @package Formats
  */
 class Opt_Format_Array extends Opt_Compiler_Format
 {
@@ -27,6 +29,12 @@ class Opt_Format_Array extends Opt_Compiler_Format
 		'section', 'variable', 'item'
 	);
 
+	/**
+	 * Data format properties as information for the
+	 * caller.
+	 *
+	 * @var array
+	 */
 	protected $_properties = array(
 		'section:useReference' => true,
 		'section:anyRequests' => 'ancestorNumbers',
@@ -45,11 +53,20 @@ class Opt_Format_Array extends Opt_Compiler_Format
 		'section:variableAssign' => true
 	);
 
+	/**
+	 * A flag for forcing special variables with the current
+	 * element data instead of a direct access to the data array.
+	 * This mode is necessary for manual iteration, i.e. in opt:tree.
+	 *
+	 * @internal
+	 * @var boolean
+	 */
 	protected $_sectionItemVariables = false;
 
 	/**
 	 * Build a PHP code for the specified hook name.
 	 *
+	 * @internal
 	 * @param String $hookName The hook name
 	 * @return String The output PHP code
 	 */
@@ -254,6 +271,12 @@ class Opt_Format_Array extends Opt_Compiler_Format
 		}
 	} // end _build();
 
+	/**
+	 * Implemenetation of different data format actions. Here, we have only
+	 * section:forceItemVariables to control the `_sectionItemVariables` flag.
+	 *
+	 * @param string $name Action name
+	 */
 	public function action($name)
 	{
 		if($name == 'section:forceItemVariables')

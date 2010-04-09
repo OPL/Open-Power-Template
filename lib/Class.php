@@ -91,8 +91,10 @@ interface Opt_Inflector_Interface
 } // end Opt_Inflector_Interface;
 
 /**
- * The main OPT class. Usually, there should exist only
- * one object of this class in the system.
+ * The main OPT class. It manages the configuration, initialization
+ * and plugin loading issues. Usually, there is no need to create more
+ * than one object of this class, and OPT assumes there is only one
+ * object of Opt_Class at given time.
  *
  * @package Public
  */
@@ -171,6 +173,7 @@ class Opt_Class extends Opl_Class
 	public $htmlEntities = true;
 	public $escape = true;
 	public $defaultFormat = 'Array';
+	public $containerFormat = 'Container';
 
 	/**
 	 * The compiler object
@@ -264,7 +267,7 @@ class Opt_Class extends Opl_Class
 		'u' => null
 	);
 	/**
-	 * The list of data formats: assotiative array of pairs:
+	 * The list of data formats: associative array of pairs:
 	 * format name => format class
 	 * @var array
 	 */
@@ -278,6 +281,7 @@ class Opt_Class extends Opl_Class
 		'System' => 'Opt_Format_System',
 		'SwitchEquals' => 'Opt_Format_SwitchEquals',
 		'SwitchContains' => 'Opt_Format_SwitchContains',
+		'Container' => 'Opt_Format_Container'
 	);
 	/**
 	 * The extra entities replaced by OPT

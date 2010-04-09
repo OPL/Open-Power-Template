@@ -13,6 +13,11 @@
  * $Id$
  */
 
+/**
+ * A compiler for `equals` statements in opt:switch instruction.
+ *
+ * @package Formats
+ */
 class Opt_Format_SwitchEquals extends Opt_Compiler_Format
 {
 	/**
@@ -41,6 +46,7 @@ class Opt_Format_SwitchEquals extends Opt_Compiler_Format
 	/**
 	 * Build a PHP code for the specified hook name.
 	 *
+	 * @internal
 	 * @param string $hookName The hook name
 	 * @return string The output PHP code
 	 */

@@ -13,6 +13,11 @@
  * $Id$
  */
 
+/**
+ * A compiler for `contains` statements in opt:switch instruction.
+ *
+ * @package Formats
+ */
 class Opt_Format_SwitchContains extends Opt_Compiler_Format
 {
 	/**
@@ -32,6 +37,14 @@ class Opt_Format_SwitchContains extends Opt_Compiler_Format
 	private $_conditions = '';
 
 	/**
+	 * The list of conditions that need to be tested
+	 * at the end of the current top-level case.
+	 *
+	 * @var SplStack
+	 */
+	private $_topConditions;
+
+	/**
 	 * The switch counter to generate unique variable names.
 	 * @static
 	 * @var integer
@@ -39,8 +52,21 @@ class Opt_Format_SwitchContains extends Opt_Compiler_Format
 	static private $_counter = 0;
 
 	/**
+	 * The stored local switch counter.
+	 * @var integer
+	 */
+	private $_cnt = 0;
+
+	/**
+	 * The local GOTO label generator.
+	 * @var integer
+	 */
+	private $_label = 0;
+
+	/**
 	 * Build a PHP code for the specified hook name.
 	 *
+	 * @internal
 	 * @param string $hookName The hook name
 	 * @return string The output PHP code
 	 */
@@ -50,15 +76,18 @@ class Opt_Format_SwitchContains extends Opt_Compiler_Format
 		{
 			case 'switch:enterTestBegin.first':
 				self::$_counter++;
-				return 'if(Opt_Function::isContainer($__test = '.$this->_getVar('test').')){ ';
+				$this->_cnt = self::$_counter;
+				return 'if(Opt_Function::isContainer($__test_'.$this->_cnt.' = '.$this->_getVar('test').')){ ';
 			case 'switch:enterTestEnd.first':
 				return ' } ';
 			case 'switch:enterTestBegin.later':
-				return 'elseif(Opt_Function::isContainer($__test = '.$this->_getVar('test').')){ ';
+				self::$_counter++;
+				$this->_cnt = self::$_counter;
+				return 'elseif(Opt_Function::isContainer($__test_'.$this->_cnt.' = '.$this->_getVar('test').')){ ';
 			case 'switch:enterTestEnd.later':
 				return ' } ';
 			case 'switch:testsBefore':
-				return 'switch($__test) { ';
+				return 'switch($__test_'.$this->_cnt.') { ';
 			case 'switch:testsAfter':
 				$code = $this->_finalConditions.' } ';
 				$this->_finalConditions = '';
@@ -68,14 +97,21 @@ class Opt_Format_SwitchContains extends Opt_Compiler_Format
 				$element = $this->_getVar('element');
 				$order = $element->get('priv:order');
 
-				$this->_conditions .= ' if(Opt_Function::contains($__test, '.$params['value'].')){ $__state_'.self::$_counter.' = '.$order.'; goto __switchcont_'.self::$_counter.'_'.$order.'; } ';
-				return ' __switcheq_'.self::$_counter.'_'.$order.': ';
+				$format = $this->_compiler->getFormat('#container', true);
+				$format->assign('container', '$__test');
+				$format->assign('list', $params['value']);
+				$format->assign('optimize', false);
+				$condition = $format->get('container:contains');
+
 				if($this->_getVar('nesting') == 1)
 				{
-					return 'case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; ';
+					return 'if('.$condition.'){ ';
 				}
 				else
 				{
+
+					return '__switch_'.$this->_cnt.'_'.$this->_label.'e:';
+
 					// This is an element without a tail recursion. PHP does not support such a case
 					// so we must emulate it with GOTO by jumping to the appropriate label somewhere
 					// deep in the switch.

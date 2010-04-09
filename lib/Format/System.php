@@ -14,6 +14,8 @@
 
 /**
  * The class implementing the $system special variable calls.
+ *
+ * @package Formats
  */
 class Opt_Format_System extends Opt_Compiler_Format
 {
@@ -42,6 +44,7 @@ class Opt_Format_System extends Opt_Compiler_Format
 	/**
 	 * Build a PHP code for the specified hook name.
 	 *
+	 * @internal
 	 * @param String $hookName The hook name
 	 * @return String The output PHP code
 	 */
@@ -66,6 +69,7 @@ class Opt_Format_System extends Opt_Compiler_Format
 
 		if(!is_string($namespace[1]))
 		{
+			// TODO: Error reporting!
 			throw new Exception('Boo boo');
 		}
 

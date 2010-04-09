@@ -14,7 +14,7 @@
 
 /**
  * Processes the Switch instruction.
- * @package Instruction
+ * @package Instructions
  * @subpackage Control
  */
 class Opt_Instruction_Switch extends Opt_Compiler_Processor
@@ -133,8 +133,7 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	{
 		if(!$dataFormat->supports('switch'))
 		{
-			// TODO: Exception here.
-			die('Error');
+			throw new Opt_FormatNotSupported_Exception($dataFormat->getName(), 'switch');
 		}
 
 		$obj = new SplFixedArray(2);
@@ -421,7 +420,6 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 				switch($elements[0])
 				{
 					case 'ib':
-			//			echo 'je visite '.$elements[1].' avec '.$elements[1]->getAttribute('value').' ('.$nesting.')<br/>';
 						$params = $format->action('switch:caseAttributes');
 						$this->_extractAttributes($elements[1], $params);
 						$format->assign('attributes', $params);
@@ -433,7 +431,6 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 						$this->_process($elements[1]);
 						break;
 					case 'eb':
-			//			echo 'je quitte '.$elements[1].' avec '.$elements[1]->getAttribute('value').' ('.$nesting.')<br/>';
 						$format->assign('element', $elements[1]);
 						$format->assign('nesting', $nesting);
 						$elements[1]->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:caseAfter'));
@@ -443,18 +440,6 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 			$typeNode->addBefore(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:testsAfter'));
 			$format->assign('container', null);
 		}
-/*
-		// Attempt to compile it as an ordinary PHP switch()
-		if($this->_standardSwitchPossible($container))
-		{
-			$this->_applyStandardSwitch($node, $test, $container);
-		}
-		// The statements are too complex to simulate them with switch()
-		// We must choose a different approach
-		else
-		{
-			$this->_applySuperSwitch($node, $test, $container);
-		}*/
 	} // end createSwitch();
 
 	/**

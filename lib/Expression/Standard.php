@@ -660,7 +660,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 					$finalExpression = '!Opt_Function::contains($__expru_'.$this->_unique.' = '.$arguments[0][0].', '.$arguments[1][0].') && !Opt_Function::contains($__expru_'.$this->_unique.', '.$arguments[2][0].')';
 					$this->_unique++;
 				}
-				$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
+			//	$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
 				$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
 				break;
 			case 'between':
