@@ -16,6 +16,9 @@
  * The standard OPT expression engine that implements the official
  * expression syntax.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Expressions
  */
 class Opt_Expression_Standard implements Opt_Expression_Interface

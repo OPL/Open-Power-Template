@@ -16,9 +16,12 @@
 /**
  * A compiler for `equals` statements in opt:switch instruction.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Formats
  */
-class Opt_Format_SwitchEquals extends Opt_Compiler_Format
+class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 {
 	/**
 	 * The list of supported hook types.
@@ -139,7 +142,7 @@ class Opt_Format_SwitchEquals extends Opt_Compiler_Format
 		if($name == 'switch:caseAttributes')
 		{
 			return array(
-				'value' => array(0 => Opt_Compiler_Processor::REQUIRED, Opt_Compiler_Processor::EXPRESSION, null, 'parse')
+				'value' => array(0 => Opt_Instruction_Abstract::REQUIRED, Opt_Instruction_Abstract::EXPRESSION, null, 'parse')
 			);
 		}
 		else

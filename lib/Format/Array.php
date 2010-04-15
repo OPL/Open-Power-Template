@@ -17,9 +17,12 @@
  * The default data format implementation that
  * treats the containers as PHP arrays.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Formats
  */
-class Opt_Format_Array extends Opt_Compiler_Format
+class Opt_Format_Array extends Opt_Format_Abstract
 {
 	/**
 	 * The list of supported hook types.

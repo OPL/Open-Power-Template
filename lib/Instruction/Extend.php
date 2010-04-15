@@ -20,10 +20,13 @@
  * particular level. See: Opt_Compiler_Class::_addDependencies() to get
  * more details.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Modules
  */
-class Opt_Instruction_Extend extends Opt_Compiler_Processor
+class Opt_Instruction_Extend extends Opt_Instruction_Abstract
 {
 	/**
 	 * The instruction processor name - required by the instruction API.

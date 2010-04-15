@@ -16,9 +16,12 @@
  * The class provides the interface to create custom instruction
  * processors.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Compiler
  */
-class Opt_Compiler_Processor
+abstract class Opt_Instruction_Abstract
 {
 	// Attribute types
 	const STRING = 1;
@@ -429,7 +432,7 @@ class Opt_Compiler_Processor
 			$exprType = $unknown[3];
 			foreach($attrList as $name => $attr)
 			{
-					
+
 				if($this->_compiler->isNamespace($attr->getNamespace()))
 				{
 					continue;
@@ -513,4 +516,4 @@ class Opt_Compiler_Processor
 				return $result['bare'];
 		}
 	} // end _extractAttribute();
-} // end Opt_Compiler_Processor;
+} // end Opt_Instruction_Abstract;

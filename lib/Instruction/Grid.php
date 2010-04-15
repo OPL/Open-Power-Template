@@ -15,10 +15,13 @@
 /**
  * The processor for opt:grid instruction.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Sections
  */
-class Opt_Instruction_Grid extends Opt_Instruction_BaseSection
+class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 {
 	/**
 	 * The instruction processor name - required by the instruction API.

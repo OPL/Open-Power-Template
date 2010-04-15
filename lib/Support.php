@@ -14,6 +14,10 @@
 
 /**
  * A support class that currently manages the debug console.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 class Opt_Support
 {

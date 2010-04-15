@@ -16,6 +16,9 @@
  * An implementation of the basic code buffer for all XML nodes. The buffer
  * allows to insert some PHP code in different predefined areas.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package XML
  * @abstract
  */

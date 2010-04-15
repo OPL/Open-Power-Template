@@ -15,9 +15,12 @@
 /**
  * The class implementing the $system special variable calls.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Formats
  */
-class Opt_Format_System extends Opt_Compiler_Format
+class Opt_Format_System extends Opt_Format_Abstract
 {
 	/**
 	 * The list of supported types.

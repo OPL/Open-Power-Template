@@ -13,12 +13,17 @@
  */
 
 /**
- * The abstract data format class used to create new data formats.
+ * The abstract data format class used to create new data formats. Note that
+ * this class was named 'Opt_Compiler_Format' in OPT 2.0, but has been renamed
+ * because it was not compatible with the naming convention.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @abstract
- * @package Compiler
+ * @package Formats
  */
-abstract class Opt_Compiler_Format
+abstract class Opt_Format_Abstract
 {
 	private $_vars = array();
 	private $_name = '';
@@ -54,7 +59,7 @@ abstract class Opt_Compiler_Format
 	/**
 	 * The decorated data format object.
 	 *
-	 * @var Opt_Compiler_Format|NULL
+	 * @var Opt_Format_Abstract|NULL
 	 */
 	protected $_decorated;
 
@@ -213,9 +218,9 @@ abstract class Opt_Compiler_Format
 	 * Decorates the specified format object with the current object.
 	 *
 	 * @final
-	 * @param Opt_Compiler_Format $object Format object.
+	 * @param Opt_Format_Abstract $object Format object.
 	 */
-	final public function decorate(Opt_Compiler_Format $object)
+	final public function decorate(Opt_Format_Abstract $object)
 	{
 		$this->_decorated = $object;
 		$this->_decorated->_vars = &$this->_vars;
@@ -278,4 +283,4 @@ abstract class Opt_Compiler_Format
 	 * @return String The PHP code
 	 */
 	abstract protected function _build($hookName);
-} // end Opt_Compiler_Format;
+} // end Opt_Format_Abstract;

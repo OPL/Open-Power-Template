@@ -16,8 +16,11 @@
  * The abstract class that represents the XML nodes which can contain
  * another nodes. It uses the DOM-like API to manage the nodes.
  *
- * @abstract
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package XML
+ * @abstract
  */
 abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 {

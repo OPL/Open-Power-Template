@@ -16,10 +16,20 @@
  * The interface for writing data generators for
  * StaticGenerator and RuntimeGenerator data formats.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Interfaces
  * @subpackage Public
  */
 interface Opt_Generator_Interface
 {
+	/**
+	 * The method should generate the data for the section. The section
+	 * name is guaranteed to be passed in the argument.
+	 *
+	 * @param string $what The section name from the template
+	 * @return mixed
+	 */
 	public function generate($what);
 } // end Opt_Generator_Interface;

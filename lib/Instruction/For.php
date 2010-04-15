@@ -15,10 +15,13 @@
 /**
  * The processor for opt:for instruction.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Control
  */
-class Opt_Instruction_For extends Opt_Instruction_Loop
+class Opt_Instruction_For extends Opt_Instruction_Loop_Abstract
 {
 	/**
 	 * The instruction processor name - required by the instruction API.

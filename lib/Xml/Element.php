@@ -15,6 +15,9 @@
 /**
  * The class represents an XML tag.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package XML
  */
 class Opt_Xml_Element extends Opt_Xml_Scannable

@@ -14,10 +14,14 @@
 
 /**
  * The instruction processor for selectors.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Sections
  */
-class Opt_Instruction_Selector extends Opt_Instruction_BaseSection
+class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 {
 	/**
 	 * The processor name required by the parent.

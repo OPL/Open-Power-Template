@@ -17,10 +17,13 @@
  * DEPENDS on this processor, using its API in order to provide the
  * support for the statically deployed blocks.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Components
  */
-class Opt_Instruction_Block extends Opt_Compiler_Processor
+class Opt_Instruction_Block extends Opt_Instruction_Abstract
 {
 	/**
 	 * The instruction processor name - required by the instruction API.

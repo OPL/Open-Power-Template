@@ -17,6 +17,9 @@
  * is implemented in the HTML parser, we just need to change
  * one flag to 1.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Parsers
  */
 class Opt_Parser_Quirks extends Opt_Parser_Html

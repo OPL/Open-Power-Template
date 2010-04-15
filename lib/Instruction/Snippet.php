@@ -14,10 +14,14 @@
 
 /**
  * The snippet instruction processor.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Snippets
  */
-class Opt_Instruction_Snippet extends Opt_Compiler_Processor
+class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 {
 	/**
 	 * The processor name required by the parent.

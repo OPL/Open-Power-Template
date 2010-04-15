@@ -17,9 +17,12 @@
  * should refer to the global template data, shared across
  * the views.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Formats
  */
-class Opt_Format_Global extends Opt_Compiler_Format
+class Opt_Format_Global extends Opt_Format_Abstract
 {
 	/**
 	 * Notify the decorated format that it should refer

@@ -14,10 +14,14 @@
 
 /**
  * The XML prolog generator.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage XML
  */
-class Opt_Instruction_Prolog extends Opt_Compiler_Processor
+class Opt_Instruction_Prolog extends Opt_Instruction_Abstract
 {
 	/**
 	 * The instruction processor name - required by the instruction API.

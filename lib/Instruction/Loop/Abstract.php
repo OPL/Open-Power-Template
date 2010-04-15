@@ -9,18 +9,21 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
+ * $Id: Loop.php 305 2010-03-04 10:59:24Z zyxist $
  */
 
 /**
  * This abstract class contains various tools useful for loop instructions.
  * Currently it supports separators.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage API
  * @abstract
  */
-abstract class Opt_Instruction_Loop extends Opt_Compiler_Processor
+abstract class Opt_Instruction_Loop_Abstract extends Opt_Instruction_Abstract
 {
 	/**
 	 * Processes the loop separator. The programmer must provide the
@@ -76,4 +79,4 @@ abstract class Opt_Instruction_Loop extends Opt_Compiler_Processor
 	{
 		return array(self::OPTIONAL, self::EXPRESSION, NULL);
 	} // end getSeparatorConfig();
-} // end Opt_Instruction_Loop;
+} // end Opt_Instruction_Loop_Abstract;

@@ -14,7 +14,10 @@
 
 /**
  * The interface for writing caching systems for OPT.
- *
+ * 
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Interfaces
  * @subpackage Public
  */
@@ -42,6 +45,9 @@ interface Opt_Caching_Interface
 /**
  * The interface for writing output systems
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Interfaces
  * @subpackage Public
  */
@@ -65,6 +71,9 @@ interface Opt_Output_Interface
 /**
  * The interface for writing inflectors.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Interfaces
  * @subpackage Public
  */
@@ -96,6 +105,9 @@ interface Opt_Inflector_Interface
  * than one object of this class, and OPT assumes there is only one
  * object of Opt_Class at given time.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Public
  */
 class Opt_Class extends Opl_Class
@@ -346,7 +358,7 @@ class Opt_Class extends Opl_Class
 		{
 			$this->setTranslationInterface(Opl_Registry::get('opl_translate'));
 		}
-		if(Opl_Registry::getState('opl_debug_console') || $this->debugConsole)
+		if(Opl_Registry::getValue('opl_debug_console') || $this->debugConsole)
 		{
 			$this->debugConsole = true;
 			Opt_Support::initDebugConsole($this);
@@ -621,7 +633,7 @@ class Opt_Class extends Opl_Class
 	 */
 	public function __construct()
 	{
-		Opl_Registry::register('opt', $this);
+		Opl_Registry::set('opt', $this);
 	} // end __construct();
 
 	/**
@@ -652,6 +664,9 @@ class Opt_Class extends Opl_Class
 /**
  * The main view class.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Public
  */
 class Opt_View
@@ -1446,6 +1461,9 @@ class Opt_View
  * they can be directly accessed by template procedures.
  * 
  * @internal
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 class Opt_InternalContext
 {

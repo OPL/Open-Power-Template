@@ -14,10 +14,14 @@
 
 /**
  * Processes the procedure instruction.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Modules
  */
-class Opt_Instruction_Procedure extends Opt_Compiler_Processor
+class Opt_Instruction_Procedure extends Opt_Instruction_Abstract
 {
 	/**
 	 * The processor name required by the parent.

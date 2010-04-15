@@ -16,9 +16,12 @@
 /**
  * The data format that represents containers as objects.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Formats
  */
-class Opt_Format_Objective extends Opt_Compiler_Format
+class Opt_Format_Objective extends Opt_Format_Abstract
 {
 	/**
 	 * The list of supported hook types.

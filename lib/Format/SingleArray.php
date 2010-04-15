@@ -17,9 +17,12 @@
  * A modification of the default data format where sub-sections are stored in
  * the elements of the upper-level section.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Formats
  */
-class Opt_Format_SingleArray extends Opt_Format_Array
+class Opt_Format_SingleArray extends Opt_Format_Abstract
 {
 	/**
 	 * Data format properties as information for the

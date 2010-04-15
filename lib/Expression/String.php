@@ -15,6 +15,9 @@
 /**
  * A simple expression engine that treats the input as a string.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Expressions
  */
 class Opt_Expression_String implements Opt_Expression_Interface

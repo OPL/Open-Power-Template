@@ -14,9 +14,13 @@
 
 /**
  * Processes the opt:capture instruction.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  */
-class Opt_Instruction_Capture extends Opt_Compiler_Processor
+class Opt_Instruction_Capture extends Opt_Instruction_Abstract
 {
 	/**
 	 * The instruction processor name - required by the instruction API.

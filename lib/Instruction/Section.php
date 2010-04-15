@@ -14,10 +14,14 @@
 
 /**
  * The processor for the classic sections.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Sections
  */
-class Opt_Instruction_Section extends Opt_Instruction_BaseSection
+class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 {
 	/**
 	 * The processor name - required by the instruction API

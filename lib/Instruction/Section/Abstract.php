@@ -9,18 +9,21 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
+ * $Id: BaseSection.php 305 2010-03-04 10:59:24Z zyxist $
  */
 
 /**
  * This abstract class allows to create custom section instructions.
  * It contains all the shared logic and cooperation subroutines.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage API
  * @abstract
  */
-abstract class Opt_Instruction_BaseSection extends Opt_Instruction_Loop
+abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abstract
 {
 	/**
 	 * The currently available sections and their data.
@@ -631,4 +634,4 @@ abstract class Opt_Instruction_BaseSection extends Opt_Instruction_Loop
 	{
 		return NULL;
 	} // end _processSystemVar();
-} // end Opt_Instruction_BaseSection;
+} // end Opt_Instruction_Section_Abstract;

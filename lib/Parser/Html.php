@@ -15,6 +15,9 @@
 /**
  * This class implements the standard compiler from OPT 2.0.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Parsers
  */
 class Opt_Parser_Html implements Opt_Parser_Interface

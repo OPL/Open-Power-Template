@@ -14,10 +14,14 @@
 
 /**
  * Processes the Switch instruction.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Control
  */
-class Opt_Instruction_Switch extends Opt_Compiler_Processor
+class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 {
 	/**
 	 * The processor name.
@@ -126,10 +130,10 @@ class Opt_Instruction_Switch extends Opt_Compiler_Processor
 	 * Note that the data format must implement the 'switch' hook type.
 	 *
 	 * @param string $tagName The registered tag name
-	 * @param Opt_Compiler_Format $dataFormat The data format to handle these requests.
+	 * @param Opt_Format_Abstract $dataFormat The data format to handle these requests.
 	 * @param string|integer $groupInfo Group information or the priority.
 	 */
-	final public function addSwitchHandler($tagName, Opt_Compiler_Format $dataFormat, $groupInfo)
+	final public function addSwitchHandler($tagName, Opt_Format_Abstract $dataFormat, $groupInfo)
 	{
 		if(!$dataFormat->supports('switch'))
 		{

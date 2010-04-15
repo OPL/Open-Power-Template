@@ -14,10 +14,14 @@
 
 /**
  * Processes the opt:attribute instruction.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage XML
  */
-class Opt_Instruction_Attribute extends Opt_Compiler_Processor
+class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 {
 	// Display the attribute values
 	const ATTR_DISPLAY = 0;

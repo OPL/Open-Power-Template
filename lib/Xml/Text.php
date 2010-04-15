@@ -15,6 +15,9 @@
 /**
  * A container for Opt_Xml_Cdata and Opt_Xml_Expression objects.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package XML
  */
 class Opt_Xml_Text extends Opt_Xml_Scannable

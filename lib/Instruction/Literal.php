@@ -14,11 +14,14 @@
 
 /**
  * The processor for opt:literal instruction.
- * 
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage XML
  */
-class Opt_Instruction_Literal extends Opt_Compiler_Processor
+class Opt_Instruction_Literal extends Opt_Instruction_Abstract
 {
 	/**
 	 * The instruction processor name - required by the instruction API.

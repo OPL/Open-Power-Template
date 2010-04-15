@@ -16,6 +16,9 @@
  * The class provides various utility functions to perform
  * some operations on OPT-XML tree and other elements.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Compiler
  */
 class Opt_Compiler_Utils

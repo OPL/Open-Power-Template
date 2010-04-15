@@ -16,6 +16,9 @@
  * A generic container for the template functions created for
  * the autoloader purporses only.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Public
  */
 class Opt_Function

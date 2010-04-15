@@ -16,6 +16,9 @@
  * This class uses XMLReader to generate the XML tree which is
  * later converted to OPT nodes.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Parsers
  */
 class Opt_Parser_Xml implements Opt_Parser_Interface

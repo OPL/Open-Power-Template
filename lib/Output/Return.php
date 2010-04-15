@@ -16,6 +16,9 @@
  * The class represents the simplest output which returns the results
  * of the executed template back to the script.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Public
  * @subpackage Output
  */

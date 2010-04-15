@@ -15,10 +15,13 @@
 /**
  * The processor for opt:if instruction.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Instructions
  * @subpackage Control
  */
-class Opt_Instruction_If extends Opt_Compiler_Processor
+class Opt_Instruction_If extends Opt_Instruction_Abstract
 {
 	const ALLOW_LONG_IF = 1;
 	const ALLOW_TAG_FORM = 2;

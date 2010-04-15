@@ -19,6 +19,9 @@
  * templates. The compilation MUST NOT be called from the interior
  * of the compiler code - the compiler prevents such actions.
  *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Compiler
  */
 class Opt_Compiler_Class
@@ -251,7 +254,7 @@ class Opt_Compiler_Class
 		// but the user may be happy :). However, don't show this message, if we are in the performance mode.
 		if(!is_writable($tpl->compileDir) && $tpl->_compileMode != Opt_Class::CM_PERFORMANCE)
 		{
-			throw new Opt_FilesystemAccess_Exception('compilation', 'writeable');
+			throw new Opl_Filesystem_Exception('The OPT compilation directory is not writeable.');
 		}
 
 		// If the debug console is active, preload the XML tree classes.
@@ -380,7 +383,7 @@ class Opt_Compiler_Class
 		// Apply the escaping subroutine defined by the modifier.
 		if(!array_key_exists($modifier, $this->_modifiers))
 		{
-			throw new Opt_InvalidExpressionModifier_Exception($modifier, $expression);
+			throw new Opt_Compiler_Exception('Invalid expression modifier "'.$modifier.'" in expression "'.$expression.'"');
 		}
 		if($escape && !empty($this->_modifiers[$modifier]))
 		{
@@ -394,7 +397,7 @@ class Opt_Compiler_Class
 	 *
 	 * @param String $variable The variable identifier.
 	 * @param Boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
-	 * @return Opt_Compiler_Format The format object.
+	 * @return Opt_Format_Abstract The format object.
 	 */
 	public function getFormat($variable, $restore = false)
 	{
@@ -421,9 +424,13 @@ class Opt_Compiler_Class
 	 * identifies the data format that needs to be created. The variable
 	 * name is used for debug purposes only and has no actual meaning.
 	 *
+	 * Note that if the item has been registered with an unknown data format,
+	 * the method throws an exception.
+	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $variable The variable name (for debug purposes)
 	 * @param string $hc The description string.
-	 * @return Opt_Compiler_Format The newly created format object.
+	 * @return Opt_Format_Abstract The newly created format object.
 	 */
 	public function createFormat($variable, $hc)
 	{
@@ -434,7 +441,7 @@ class Opt_Compiler_Class
 		{
 			if(!isset($this->_formats[$class]))
 			{
-				throw new Opt_FormatNotFound_Exception($variable, $class);
+				throw new Opt_Compiler_Exception('The data format "'.$class.'" has not been found for item "'.$variable.'"');
 			}
 			$hcName = $this->_formats[$class];
 			if($obj !== null)
@@ -575,7 +582,7 @@ class Opt_Compiler_Class
 	 * Returns its processor in case of success or NULL.
 	 *
 	 * @param String $tag The tag name (with the namespace)
-	 * @return Opt_Compiler_Processor|NULL The processor that registered this tag.
+	 * @return Opt_Instruction_Abstract|NULL The processor that registered this tag.
 	 */
 	public function isInstruction($tag)
 	{
@@ -683,14 +690,15 @@ class Opt_Compiler_Class
 	 * Returns the processor object with the specified name. If
 	 * the processor does not exist, it generates an exception.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param String $name The processor name
-	 * @return Opt_Compiler_Processor
+	 * @return Opt_Instruction_Abstract
 	 */
 	public function processor($name)
 	{
 		if(!isset($this->_processors[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('processor', $name);
+			throw new Opt_Compiler_Exception('The processor "'.$name.'" has not been found.');
 		}
 		return $this->_processors[$name];
 	} // end processor();
@@ -700,6 +708,7 @@ class Opt_Compiler_Class
 	 * XML tag. If the component class is not registered, it throws
 	 * an exception.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param String $name The component XML tag name.
 	 * @return Opt_Component_Interface
 	 */
@@ -707,7 +716,7 @@ class Opt_Compiler_Class
 	{
 		if(!isset($this->_components[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('component', $name);
+			throw new Opt_Compiler_Exception('The component "'.$name.'" has not been found.');
 		}
 		return $this->_components[$name];
 	} // end component();
@@ -717,6 +726,7 @@ class Opt_Compiler_Class
 	 * XML tag. If the block class is not registered, it throws
 	 * an exception.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param String $name The block XML tag name.
 	 * @return Opt_Block_Interface
 	 */
@@ -724,7 +734,7 @@ class Opt_Compiler_Class
 	{
 		if(!isset($this->_blocks[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('block', $name);
+			throw new Opt_Compiler_Exception('The block "'.$name.'" has not been found.');
 		}
 		return $this->_blocks[$name];
 	} // end block();
@@ -743,16 +753,16 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the processor that registered the specified
 	 * instruction attribute.
-	 *
+	 * 
+	 * @throws Opt_Compiler_Exception
 	 * @param string $name The instruction XML name
-	 * @return Opt_Compiler_Processor
-	 * @throws Opt_ObjectNotExists_Exception
+	 * @return Opt_Instruction_Abstract
 	 */
 	public function getAttribute($name)
 	{
 		if(!isset($this->_attributes[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('instruction attribute', $name);
+			throw new Opt_Compiler_Exception('The instruction attribute "'.$name.'" has not been found.');
 		}
 		return $this->_attributes[$name];
 	} // end getAttribute();
@@ -783,15 +793,15 @@ class Opt_Compiler_Class
 	 * Returns the processor that registered the specified
 	 * instruction.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $name The instruction XML name
-	 * @return Opt_Compiler_Processor
-	 * @throws Opt_ObjectNotExists_Exception
+	 * @return Opt_Instruction_Abstract
 	 */
 	public function getInstruction($name)
 	{
 		if(!isset($this->_instructions[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('instruction', $name);
+			throw new Opt_Compiler_Exception('The instruction "'.$name.'" has not been found.');
 		}
 		return $this->_instructions[$name];
 	} // end getInstruction();
@@ -821,15 +831,15 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the processor object.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $name The processor name
-	 * @return Opt_Compiler_Processor
-	 * @throws Opt_ObjectNotExists_Exception
+	 * @return Opt_Instruction_Abstract
 	 */
 	public function getProcessor($name)
 	{
 		if(!isset($this->_processors[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('processor', $name);
+			throw new Opt_Compiler_Exception('The processor "'.$name.'" has not been found.');
 		}
 		return $this->_processors[$name];
 	} // end getProcessor();
@@ -859,15 +869,15 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the class name of the specified block.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $name The block XML name
 	 * @return string
-	 * @throws Opt_ObjectNotExists_Exception
 	 */
 	public function getBlock($name)
 	{
 		if(!isset($this->_blocks[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('block', $name);
+			throw new Opt_Compiler_Exception('The block "'.$name.'" has not been found.');
 		}
 		return $this->_blocks[$name];
 	} // end getBlock();
@@ -897,15 +907,15 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the class name of the specified component.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $name The component XML name
 	 * @return string
-	 * @throws Opt_ObjectNotExists_Exception
 	 */
 	public function getComponent($name)
 	{
 		if(!isset($this->_components[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('component', $name);
+			throw new Opt_Compiler_Exception('The component "'.$name.'" has not been found.');
 		}
 		return $this->_components[$name];
 	} // end getComponent();
@@ -935,15 +945,15 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the class name of the specified expression engine.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $name The expression engine name
 	 * @return string
-	 * @throws Opt_ObjectNotExists_Exception
 	 */
 	public function getExpressionEngine($name)
 	{
 		if(!isset($this->_exprEngines[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('expression enigne', $name);
+			throw new Opt_Compiler_Exception('The expression engine "'.$name.'" has not been found.');
 		}
 		return $this->_exprEngines[$name];
 	} // end getExpressionEngine();
@@ -974,15 +984,15 @@ class Opt_Compiler_Class
 	 * Returns the specified modifier data. If the modifier
 	 * does not exist, it throws the exception.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param char $name The modifier name
 	 * @return string
-	 * @throws Opt_ObjectNotExists_Exception
 	 */
 	public function getModifier($name)
 	{
 		if(!isset($this->_modifiers[$name]))
 		{
-			throw new Opt_ObjectNotExists_Exception('modifier', $name);
+			throw new Opt_Compiler_Exception('The expression modifier "'.$name.'" has not been found.');
 		}
 		return $this->_modifiers[$name];
 	} // end getModifier();
@@ -1018,14 +1028,15 @@ class Opt_Compiler_Class
 	 * compiled file, so that it could be checked for modifications during
 	 * the execution.
 	 *
+	 * @throws Opt_Compiler_Recursion_Exception
 	 * @param String $template The template file name.
 	 */
 	public function addDependantTemplate($template)
 	{
 		if(in_array($template, $this->_dependencies))
 		{
-			$exception = new Opt_InheritanceRecursion_Exception($template);
-			$exception->setData($this->_dependencies);
+			$exception = new Opt_Compiler_Recursion_Exception('Infinite template inheritance recursion detected in template '.$template);
+			$exception->setStackData($this->_dependencies);
 			throw $exception;
 		}
 
@@ -1104,9 +1115,11 @@ class Opt_Compiler_Class
 	} // end _addDependencies();
 
 	/**
-	 * Closes the XML comment for the commented item.
+	 * Closes the XML comment for the commented item. The invalid XML commenting sequence
+	 * causes an exception to be thrown.
 	 *
 	 * @internal
+	 * @throws Opt_Compiler_Exception
 	 * @param Opt_Xml_Node $item The commented item.
 	 * @param String &$output The reference to the output buffer.
 	 */
@@ -1120,7 +1133,7 @@ class Opt_Compiler_Class
 				// According to the XML grammar, the construct "--->" is not allowed.
 				if(strlen($this->_output) > 0 && $this->_output[strlen($this->_output)-1] == '-')
 				{
-					throw new Opt_XmlComment_Exception('--->');
+					throw new Opt_Compiler_Exception('Invalid XML code: "--->"');
 				}
 
 				$this->_output .= '-->';
@@ -1196,6 +1209,7 @@ class Opt_Compiler_Class
 	 * The compilation launcher. It executes the proper compilation steps
 	 * according to the inheritance rules etc.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $code The source code to be compiled.
 	 * @param string $filename The source template filename.
 	 * @param string $compiledFilename The output template filename.
@@ -1212,7 +1226,7 @@ class Opt_Compiler_Class
 				$this->_parsers[$parserName] = new $parserName;
 				if(!$this->_parsers[$parserName] instanceof Opt_Parser_Interface)
 				{
-					throw new Opt_InvalidParser_Exception($parserName);
+					throw new Opt_Compiler_Exception($parserName.' is not a valid parser name.');
 				}
 			}
 			$parser = $this->_parsers[$parserName];
@@ -1221,7 +1235,7 @@ class Opt_Compiler_Class
 			// We cannot compile two templates at the same time
 			if($this->_template !== null)
 			{
-				throw new Opt_CompilerLocked_Exception($filename, $this->_template);
+				throw new Opt_Compiler_Exception('Cannot compile '.$filename.'. The compiler already compiles '.$this->_template);
 			}
 
 			// Detecting recursive inclusion
@@ -1234,8 +1248,8 @@ class Opt_Compiler_Class
 			{
 				if(in_array($filename, self::$_recursionDetector))
 				{
-					$exception = new Opt_CompilerRecursion_Exception($filename);
-					$exception->setData(self::$_recursionDetector);
+					$exception = new Opt_Compiler_Recursion_Exception('Infinite template recursion detected while compiling '.$filename);
+					$exception->setStackData(self::$_recursionDetector);
 					throw $exception;
 				}
 				self::$_recursionDetector[] = $filename;
@@ -1393,6 +1407,13 @@ class Opt_Compiler_Class
 		}
 		catch(Exception $e)
 		{
+			// If we captured the compiler exception, we could set the
+			// template name to make the error message better.
+			if($e instanceof Opt_Compiler_Exception)
+			{
+				$e->setTemplate($filename);
+			}
+
 			// Free the memory
 			if(isset($tree))
 			{
@@ -1557,6 +1578,7 @@ class Opt_Compiler_Class
 	 *  - bare - the compiled expression
 	 *  - escaped - the escaped expression (no escaping - the same, as bare)
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $expr The expression to parse
 	 * @param string $ee The name of the expression engine
 	 * @param int $escape Whether to use escaping or not.
@@ -1581,7 +1603,7 @@ class Opt_Compiler_Class
 
 		if(!isset($this->_exprEngines[$ee]))
 		{
-			throw new Opt_EngineNotExists_Exception($ee);
+			throw new Opt_Compiler_Exception('The expression engine "'.$ee.'" has not been found.');
 		}
 
 		// The expression modifier must not be tokenized, so we
@@ -1602,7 +1624,7 @@ class Opt_Compiler_Class
 			$this->_expressions[$mode] = new $mode;
 			if(!$this->_expressions[$mode] instanceof Opt_Expression_Interface)
 			{
-				throw new Opt_InvalidExpressionEngine_Exception($mode);
+				throw new Opt_Compiler_Exception($mode.' is not a valid expression engine object.');
 			}
 		}
 		$exprEngine = $this->_expressions[$mode];
@@ -1684,9 +1706,12 @@ class Opt_Compiler_Class
 	} // end _entitize();
 
 	/**
-	 * Smart entity replacement that makes use of
+	 * Smart entity replacement that makes use of... (a year later) errr, and
+	 * where's the rest of the comment? Anyway, if an entity does not exist,
+	 * an exception is thrown.
 	 *
 	 * @internal
+	 * @throws Opt_Compiler_Exception
 	 * @param Array $text Matching string
 	 * @return String Modified text
 	 */
@@ -1713,7 +1738,7 @@ class Opt_Compiler_Class
 				{
 					return $result;
 				}
-				throw new Opt_UnknownEntity_Exception(htmlspecialchars($text[0]));
+				throw new Opt_Compiler_Exception('Unknown entity: '.htmlspecialchars($text[0]));
 		}
 	} // end _entitize();
 } // end Opt_Compiler_Class;

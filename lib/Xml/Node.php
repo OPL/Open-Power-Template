@@ -15,8 +15,11 @@
 /**
  * The abstract XML node class - the base of all the node types.
  *
- * @abstract
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package XML
+ * @abstract
  */
 abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 {
