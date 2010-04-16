@@ -53,6 +53,7 @@ class Opt_Instruction_Dtd extends Opt_Instruction_Abstract
 	/**
 	 * Processes the opt:dtd node.
 	 * @internal
+	 * @throws new Opt_Instruction_Exception
 	 * @param Opt_Xml_Node $node The recognized node.
 	 */
 	public function processNode(Opt_Xml_Node $node)
@@ -63,7 +64,7 @@ class Opt_Instruction_Dtd extends Opt_Instruction_Abstract
 		$this->_extractAttributes($node, $params);
 
 		// TODO: Hmmm... now we have to invent, how to deal with THAT!
-		if(is_null($params['template']))
+		if($params['template'] === null)
 		{
 			Opt_Compiler_Utils::removeCdata($node, false);
 			$this->_process($node);
@@ -101,7 +102,7 @@ class Opt_Instruction_Dtd extends Opt_Instruction_Abstract
 					$dtd = new Opt_Xml_Dtd('<!DOCTYPE html>');
 					break;
 				default:
-					throw new Opt_InvalidValue_Exception('opt:dtd template attribute: '.$params['template']);
+					throw new Opt_Instruction_Exception('opt:dtd error: invalid template name: '.$params['template']);
 			}
 			if(isset($dtd))
 			{

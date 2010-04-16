@@ -13,4 +13,4 @@
  */
 
 // Load the library first! There's our interface!
-Opl_Loader::loadFile('Opt', 'Class.php');
+Opl_Loader::load('Opt_Class');

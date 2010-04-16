@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: ErrorInformation.php 332 2010-04-14 14:24:28Z zyxist $
+ * $Id$
  */
 
 /**

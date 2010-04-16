@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Loop.php 305 2010-03-04 10:59:24Z zyxist $
+ * $Id$
  */
 
 /**
@@ -35,10 +35,10 @@ abstract class Opt_Instruction_Loop_Abstract extends Opt_Instruction_Abstract
 	 * If the node contains too many opt:separator tags, an exception
 	 * is thrown.
 	 *
+	 * @throws Opt_Instruction_Exception
 	 * @param string $varname The internal variable name
 	 * @param string $arg The value of "separator" attribute
 	 * @param Opt_Xml_Scannable $node The node the separator will be added to.
-	 * @throws Opt_InstructionTooManyItems_Exception
 	 */
 	public function processSeparator($varname, $arg, Opt_Xml_Scannable $node)
 	{
@@ -66,7 +66,7 @@ abstract class Opt_Instruction_Loop_Abstract extends Opt_Instruction_Abstract
 				}
 				break;
 			default:
-				throw new Opt_InstructionTooManyItems_Exception('opt:separator', $node->getXmlName(), 'Zero or one');
+				throw new Opt_Instruction_Exception('Too many "opt:separator" elements: zero or one expected.');
 		}
 	} // end processSeparator();
 

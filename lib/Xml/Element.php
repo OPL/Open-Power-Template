@@ -393,7 +393,12 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			$this->_processXml($compiler, false);
 
 			// Look for the processor
-			if(!is_null($processor = $compiler->isInstruction($name)))
+			if($compiler->hasAmbiguous($this->getXmlName()))
+			{
+				$processor = $this->get('priv:ambiguous');
+				$processor->processNode($this);
+			}
+			elseif(($processor = $compiler->isInstruction($name)) !== null)
 			{
 				$processor->processNode($this);
 			}
@@ -450,7 +455,11 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 
 		if($this->get('postprocess'))
 		{
-			if(!is_null($processor = $compiler->isInstruction($this->getXmlName())))
+			if($compiler->hasAmbiguous($this->getXmlName()))
+			{
+				$this->get('priv:ambiguous')->postprocessNode($this);
+			}
+			elseif(($processor = $compiler->isInstruction($this->getXmlName())) !== null)
 			{
 				$processor->postprocessNode($this);
 			}

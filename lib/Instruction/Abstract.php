@@ -19,7 +19,7 @@
  * @author Tomasz Jędrzejewski
  * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
- * @package Compiler
+ * @package Instructions
  */
 abstract class Opt_Instruction_Abstract
 {
@@ -73,6 +73,12 @@ abstract class Opt_Instruction_Abstract
 	 * @var array
 	 */
 	private $_attributes = array();
+	/**
+	 * The list of registered ambiguous tags.
+	 * @internal
+	 * @var array
+	 */
+	private $_ambiguous = array();
 
 	/**
 	 * Creates a new instruction processor for the specified compiler.
@@ -189,8 +195,8 @@ abstract class Opt_Instruction_Abstract
 	 * to that processor. The method must return a valid PHP code that replaces the
 	 * specified call.
 	 *
-	 * @param Array $opt The $system special variable already splitted into array.
-	 * @return String The output PHP code
+	 * @param array $opt The $system special variable already splitted into array.
+	 * @return string The output PHP code
 	 */
 	public function processSystemVar($opt)
 	{
@@ -205,7 +211,7 @@ abstract class Opt_Instruction_Abstract
 	 *
 	 * @final
 	 * @internal
-	 * @return String
+	 * @return string The processor name
 	 */
 	final public function getName()
 	{
@@ -217,7 +223,7 @@ abstract class Opt_Instruction_Abstract
 	 * processed node/attribute.
 	 *
 	 * @internal
-	 * @return SplQueue
+	 * @return SplQueue The queue of nodes to process
 	 */
 	final public function getQueue()
 	{
@@ -227,10 +233,10 @@ abstract class Opt_Instruction_Abstract
 	} // end getQueue();
 
 	/**
-	 * Returns the names of the XML instructions registered by this processor.
+	 * Returns the names of the XML instruction tags registered by this processor.
 	 *
 	 * @final
-	 * @return Array
+	 * @return array The list of registered instruction tags.
 	 */
 	final public function getInstructions()
 	{
@@ -242,7 +248,7 @@ abstract class Opt_Instruction_Abstract
 	 *
 	 * @final
 	 * @internal
-	 * @return Array
+	 * @return array The list of registered instruction attributes.
 	 */
 	final public function getAttributes()
 	{
@@ -250,12 +256,25 @@ abstract class Opt_Instruction_Abstract
 	} // end getAttributes();
 
 	/**
+	 * Returns the names of the XML ambiguous tags registered by this processor and
+	 * their matchings.
+	 *
+	 * @final
+	 * @internal
+	 * @return array The list of registered ambiguous tags.
+	 */
+	final public function getAmbiguous()
+	{
+		return $this->_ambiguous;
+	} // end getAmbiguous();
+
+	/**
 	 * Adds the children of the specified node to the queue of the currently
 	 * parsed element. It allows them to be processed.
 	 *
 	 * @final
 	 * @internal
-	 * @param Opt_Xml_Node $node
+	 * @param Opt_Xml_Node $node The node to process.
 	 */
 	final protected function _process(Opt_Xml_Node $node)
 	{
@@ -277,7 +296,7 @@ abstract class Opt_Instruction_Abstract
 	 * It is intended to be used in configure() method.
 	 *
 	 * @final
-	 * @param String|Array $list The name of a single instruction or list of instructions.
+	 * @param string|array $list The name of a single instruction or list of instructions.
 	 */
 	final protected function _addInstructions($list)
 	{
@@ -296,7 +315,7 @@ abstract class Opt_Instruction_Abstract
 	 * It is intended to be used in configure() method.
 	 *
 	 * @final
-	 * @param String|Array $list The name of a single attribute or list of attributes.
+	 * @param string|array $list The name of a single attribute or list of attributes.
 	 */
 	final protected function _addAttributes($list)
 	{
@@ -311,6 +330,24 @@ abstract class Opt_Instruction_Abstract
 	} // end _addAttributes();
 
 	/**
+	 * Allows to define the ambiguous tags matched by this instruction. An
+	 * ambiguous tag can be handled by different processors, depending on
+	 * their direct or indirect parent. It means that the programmer must also
+	 * specify the parent instruction tag that will be the basis to redirect
+	 * particular nodes to this processor.
+	 *
+	 * @final
+	 * @param array $list The associative list of ambiguous tags and their mappings.
+	 */
+	final protected function _addAmbiguous(array $list)
+	{
+		foreach($list as $item => $matching)
+		{
+			$this->_ambiguous[$item] = $matching;
+		}
+	} // end _addAmbiguous();
+
+	/**
 	 * This helper method is the default instruction attribute handler in OPT.
 	 * It allows to parse the list of attributes using the specified rules.
 	 * The attribute configuration is passed as a second argument by reference,
@@ -322,11 +359,12 @@ abstract class Opt_Instruction_Abstract
 	 * method as a separate array. For details, see the OPT user manual.
 	 *
 	 * @final
+	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Element $subitem The scanned XML element.
-	 * @param Array &$config The reference to the attribute configuration
-	 * @return Array|Null The list of undefined attributes, if "__UNKNOWN__" is set.
+	 * @param array &$config The reference to the attribute configuration
+	 * @return array|Null The list of undefined attributes, if "__UNKNOWN__" is set.
 	 */
-	final protected function _extractAttributes(Opt_Xml_Element $subitem, Array &$config)
+	final protected function _extractAttributes(Opt_Xml_Element $subitem, array &$config)
 	{
 		$required = array();
 		$optional = array();
@@ -444,14 +482,16 @@ abstract class Opt_Instruction_Abstract
 	} // end _extractAttributes();
 
 	/**
-	 * Tries to extract a single attribute, using the specified value type.
+	 * Tries to extract a single attribute, using the specified value type. The validation
+	 * errors are reported as exceptions.
 	 *
 	 * @final
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Element $item The scanned XML element.
 	 * @param Opt_Xml_Attribute $attr The parsed attribute
-	 * @param Int $type The requested value type.
-	 * @return Mixed The extracted attribute value
+	 * @param int $type The requested value type.
+	 * @return mixed The extracted attribute value
 	 */
 	final private function _extractAttribute(Opt_Xml_Element $item, Opt_Xml_Attribute $attr, $type, $exprType = null)
 	{
@@ -468,21 +508,21 @@ abstract class Opt_Instruction_Abstract
 			case self::ID:
 				if(!preg_match('/^[a-zA-Z0-9\_\.]+$/', $value))
 				{
-					throw new Opt_InvalidAttributeType_Exception($attr->getXmlName(), $item->getXmlName(), 'identifier');
+					throw new Opt_Instruction_Exception('Invalid type for the attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().': identifier expected.');
 				}
 				return $value;
 			// A number
 			case self::NUMBER:
 				if(!preg_match('/^\-?([0-9]+\.?[0-9]*)|(0[xX][0-9a-fA-F]+)$/', $value))
 				{
-					throw new Opt_InvalidAttributeType_Exception($attr->getXmlName(), $item->getXmlName(), 'number');
+					throw new Opt_Instruction_Exception('Invalid type for the attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().': numeric value expected.');
 				}
 				return $value;
 			// Boolean value: "yes" or "no"
 			case self::BOOL:
 				if($value != 'yes' && $value != 'no')
 				{
-					throw new Opt_InvalidAttributeType_Exception($attr->getXmlName(), $item->getXmlName(), '"yes" or "no"');
+					throw new Opt_Instruction_Exception('Invalid type for the attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().': "yes" or "no" expected.');
 				}
 				return ($value == 'yes');
 			// A string packed into PHP expression. Can be switched to EXPRESSION.
@@ -494,6 +534,7 @@ abstract class Opt_Instruction_Abstract
 			case self::EXPRESSION_EXT:
 				if(strlen(trim($value)) == 0)
 				{
+					throw new Opt_Instruction_Exception('Yhe attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().' is empty.');
 					throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
 				}
 				if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $value, $found))
@@ -511,7 +552,7 @@ abstract class Opt_Instruction_Abstract
 				}
 				elseif($result['type'] == Opt_Expression_Interface::ASSIGNMENT)
 				{
-					Opt_ExpressionOptionDisabled_Exception('Assignments', 'compiler requirements');
+					throw new Opt_Instruction_Exception('Cannot use assignment operator in expression '.$value);
 				}
 				return $result['bare'];
 		}

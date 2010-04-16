@@ -123,7 +123,9 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 
 	/**
 	 * Processes the opt:attribute instruction tag.
+	 *
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Node $node XML node.
 	 */
 	public function processNode(Opt_Xml_Node $node)
@@ -145,12 +147,12 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 		{
 			if(!$node->getParent() instanceof Opt_Xml_Element)
 			{
-				throw new Opt_InstructionInvalidParent_Exception('opt:attribute', 'printable tag');
+				throw new Opt_Instruction_Exception('opt:attribute error: invalid "opt:attribute" parent: printable tag expected.');
 			}
 			$parentName = $node->getParent()->getXmlName();
 			if(($this->_compiler->isInstruction($parentName) || $this->_compiler->isComponent($parentName) || $this->_compiler->isBlock($parentName)) && $node->getParent()->get('call:attribute-friendly') === null)
 			{
-				throw new Opt_InstructionInvalidParent_Exception('opt:attribute', 'printable tag');
+				throw new Opt_Instruction_Exception('opt:attribute error: invalid "opt:attribute" parent: printable tag expected.');
 			}
 
 			// This is a bit tricky optimization. If the name is constant, there is no need to process it as a variable name.
@@ -246,7 +248,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 				// The ordinary behaviour
 				if($params['value'] === null)
 				{
-					throw new Opt_AttributeNotDefined_Exception('value', $node->getXmlName());
+					throw new Opt_Instruction_Exception('opt:attribute error: missing "opt:attribute" attribute: "value".');
 				}
 				$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$params['value'].'; ');
 			}
@@ -280,7 +282,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 
 		// Add the newly created attribute to the list of dynamic attributes in the parent tag.
 		// If the list does not exist, then create it.
-		if(!is_null($list = $parent->get('call:attribute')))
+		if(($list = $parent->get('call:attribute')) !== null)
 		{
 			array_push($list, $attribute);
 			$parent->set('call:attribute', $list);
@@ -293,7 +295,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 		// Check, if such attribute does not exist...
 		if($parent->getAttribute($attribute->getXmlName()) !== null)
 		{
-			throw new Opt_XmlDuplicatedAttribute_Exception($attribute->getXmlName(), $parent->getXmlName());
+			throw new Opt_Instruction_Exception('opt:attribute error: duplicated attribute in '.$parent->getXmlName().': '.$attribute->getXmlName());
 		}
 
 		$parent->addAttribute($attribute);
@@ -347,6 +349,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 	 * Returns the concatenated elements of opt:value
 	 *
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Element $node The node to scan.
 	 * @param array $params The node parameters.
 	 * @return array
@@ -366,11 +369,11 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 		{
 			if($tag->countChildren() > 1)
 			{
-				throw new Opt_InvalidValue_Exception('opt:value');
+				throw new Opt_Instruction_Exception('opt:attribute error: invalid "opt:value" value: only text allowed.');
 			}
 			if(!($content = $tag->getLastChild()) instanceof Opt_Xml_Text)
 			{
-				throw new Opt_InvalidValue_Exception('opt:value');
+				throw new Opt_Instruction_Exception('opt:attribute error: invalid "opt:value" value: only text allowed.');
 			}
 
 			// Concatenate the tag content into an expression
@@ -394,7 +397,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 			{
 				if($else !== null)
 				{
-					throw new Opt_AttributeNotDefined_Exception('test', 'opt:value');
+					throw new Opt_Instruction_Exception('opt:attribute error: missing "test" attribute in "opt:value".');
 				}
 				$else = $code;
 			}

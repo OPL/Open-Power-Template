@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Opl.php 332 2010-04-14 14:24:28Z zyxist $
+ * $Id$
  */
 
 /**
@@ -54,6 +54,10 @@ class Opt_ErrorHandler_Port implements Opl_ErrorHandler_Port_Interface
 		{
 			case 'Opt_Compiler_Recursion_Exception':
 				return array('template' => array(), 'stack' => array('Recursion stack trace'));
+			case 'Opt_Instruction_Section_Exception':
+				return array('template' => array(), 'stack' => array('Section stack'));
+			case 'Opt_Instruction_Exception':
+				return array('template' => array());
 			case 'Opt_Compiler_Exception':
 				return array('template' => array());
 			default:

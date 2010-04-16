@@ -9,7 +9,7 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: BaseSection.php 305 2010-03-04 10:59:24Z zyxist $
+ * $Id$
  */
 
 /**
@@ -171,9 +171,9 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 				// We must look for opt:show
 				$show = $this->_findShowNode($node);
 
-				if(is_null($show))
+				if($show === null)
 				{
-					throw new Opt_AttributeNotDefined_Exception('name', $node->getXmlName());
+					throw new Opt_Instruction_Section_Exception('Section error: the attribute "name" is not defined in '.$node->getXmlName());
 				}
 
 				$section = $this->_extractSectionAttributes($show, $extraAttributes);
@@ -254,7 +254,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 			$section = self::getSection($section);
 		}
 
-		if(!is_null($node->get('call:use')))
+		if($node->get('call:use') !== null)
 		{
 			$this->_compiler->unsetConversion('##simplevar_'.$node->get('priv:section'));
 		}
@@ -370,7 +370,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		else
 		{
 			// Here we do not need to check, whether the name in opt:show matches the argument.
-			while(!is_null($item = $item->getParent()))
+			while(($item = $item->getParent()) !== null)
 			{
 				if($item instanceof Opt_Xml_Element)
 				{
@@ -427,7 +427,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		// Verify the value of the "order" attribute.
 		if($section['order'] != 'asc' && $section['order'] != 'desc')
 		{
-			throw new Opt_InvalidAttributeType_Exception('order', $node->getXmlName(), '"asc" or "desc"');
+			throw new Opt_Instruction_Section_Exception('Section error: invalid "order" attribute value: "asc" or "desc" expected.');
 		}
 
 		// Determine the parent of the specified section.
@@ -435,7 +435,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		// top-level and active section and link to it. Otherwise we must check if
 		// the chosen section exists and is active.
 		// Note that "parent" is ignored when we set "datasource"
-		if(is_null($section['parent']))
+		if($section['parent'] === null)
 		{
 			if(self::$_stack->count() > 0)
 			{
@@ -444,16 +444,10 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		}
 		elseif($section['parent'] != '')
 		{
-			if(is_null(self::getSection($section['parent'])))
+			if(self::getSection($section['parent']) === null)
 			{
-				$exception = new Opt_SectionNotFound_Exception('parent', $section['parent']);
-				$sections = array();
-				self::$_stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
-				foreach(self::$_stack as $up)
-				{
-					$sections[] = $up;
-				}
-				$exception->setData($sections);
+				$exception = new Opt_Instruction_Section_Exception('Section error: unknown parent section "'.$section['parent'].'".');
+				$exception->setStackData(self::$_stack);
 				throw $exception;
 			}
 		}
@@ -469,22 +463,26 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		$section['format'] = $this->_compiler->getFormat($section['name']);
 		if(!$section['format']->supports('section'))
 		{
-			throw new Opt_FormatNotSupported_Exception($section['format']->getName(), 'section');
+			throw new Opt_Format_Exception('The format '.$section['format']->getName().' does not support "section" type.');
 		}
 	} // end _validateSection();
 
 	/**
-	 * Adds the new section record to the stack.
+	 * Adds the new section record to the stack. If the section with the
+	 * specified name already exists, an exception is thrown.
 	 *
 	 * @static
 	 * @internal
+	 * @throws Opt_Instruction_Section_Exception
 	 * @param Array $info The section record.
 	 */
 	static private function _addSection(Array $info)
 	{
 		if(isset(self::$_sections[$info['name']]))
 		{
-			throw new Opt_SectionExists_Exception('adding section', $info['name']);
+			$exception = new Opt_Instruction_Section_Exception('Section error: The section '.$info['name'].' aready exists.');
+			$exception->setStackData(self::$_stack);
+			throw $exception;
 		}
 		self::$_sections[$info['name']] = $info;
 		self::$_stack->push($info['name']);
@@ -495,20 +493,27 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 * is provided to check, if the order of the closing is
 	 * valid.
 	 *
+	 * If the section does not exist or there is an error in
+	 * the stack structure, the method throws exceptions.
+	 *
 	 * @static
 	 * @internal
+	 * @throws Opt_Instruction_Section_Exception
+	 * @throws Opl_Debug_Exception
 	 * @param String $name The section name.
 	 */
 	static private function _removeSection($name)
 	{
 		if(self::$_stack->count() == 0)
 		{
-			throw new Opt_ObjectNotExists_Exception('section', $name);
+			$exception = new Opt_Instruction_Section_Exception('Section error: unknown section '.$name.'.');
+			$exception->setStackData(self::$_stack);
+			throw $exception;
 		}
 		$name2 = self::$_stack->pop();
 		if($name != $name2)
 		{
-			throw new Opl_Debug_Generic_Exception('OPT: Invalid section name thrown from the stack. Expected: '.$name.'; Actual: '.$name2);
+			throw new Opl_Debug_Exception('OPT: Invalid section name thrown from the stack. Expected: '.$name.'; Actual: '.$name2);
 		}
 		unset(self::$_sections[$name]);
 	} // end _removeSection;
@@ -538,7 +543,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 */
 	protected function _postprocessShow(Opt_Xml_Node $node)
 	{
-		if(!is_null($node->get('priv:initialized')))
+		if($node->get('priv:initialized') !== null)
 		{
 			return;
 		}
@@ -560,6 +565,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 * In the parameters, we must specify the name and the namespace of the
 	 * tags that will be treated as the alternative content tags.
 	 *
+	 * @throws Opt_Instruction_Section_Exception
 	 * @param Opt_Xml_Element $node The section node
 	 * @param String $ns The namespace
 	 * @param String $name The alternative section content tag name
@@ -572,33 +578,36 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		{
 			if(!$node->hasAttributes())
 			{
-				throw new Opt_InstructionTooManyItems_Exception($ns.':'.$name, $node->getXmlName(), 'Zero');
+				throw new Opt_Instruction_Section_Exception('Section error: too many '.$ns.':'.$name.' elements: none expected.');
 			}
 			$node->bringToEnd($else[0]);
 		}
 		elseif(sizeof($else) > 1)
 		{
-			throw new Opt_InstructionTooManyItems_Exception($ns.':'.$name, $node->getXmlName(), 'Zero or one');
+			throw new Opt_Instruction_Section_Exception('Section error: too many '.$ns.':'.$name.' elements: zero or one expected.');
 		}
 	} // end _locateElse();
 
 	/**
 	 * Processes the system variable $sys for the sections.
 	 *
-	 * @param Array $opt The system variable call splitted into separate identifiers.
-	 * @return String The output PHP code.
+	 * @throws Opt_Instruction_Section_Exception
+	 * @param array $opt The system variable call splitted into separate identifiers.
+	 * @return string The output PHP code.
 	 */
 	public function processSystemVar($opt)
 	{
 		if(sizeof($opt) < 4)
 		{
-			throw new Opt_SysVariableLength_Exception('$'.implode('.',$opt), 'short');
+			throw new Opt_Instruction_Section_Exception('Section error: the special variable $'.implode('.', $opt).' is too short: four elements expected.');
 		}
 		// Determine the section
 		$section = self::getSection($opt[2]);
-		if(is_null($section))
+		if($section === null)
 		{
-			throw new Opt_SectionNotFound_Exception('OPT variable $'.implode('.',$opt), $opt[2]);
+			$exception = new Opt_Instruction_Section_Exception('Section error: unknown section '.$opt[2].' in the special variable $'.implode('.', $opt).'.');
+			$exception->setStackData(self::$_stack);
+			throw $exception;
 		}
 		switch($opt[3])
 		{
@@ -616,9 +625,9 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 				return $section['format']->get('section:isExtreme');
 			default:
 				$result = $this->_processSystemVar($opt);
-				if(is_null($result))
+				if($result === null)
 				{
-					throw new Opt_SysVariableUnknown_Exception('$'.implode('.',$opt));
+					throw new Opt_Instruction_Section_Exception('Section error: the special variable $'.implode('.', $opt).' cannot be processed.');
 				}
 				return $result;
 		}
@@ -627,8 +636,9 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	/**
 	 * Allows the sections to handle specific uses of $sys special variable.
 	 *
-	 * @param Array $opt The system variable call splitted into separate identifiers.
-	 * @return String The output PHP code.
+	 * @throws Opt_Instruction_Section_Exception
+	 * @param array $opt The system variable call splitted into separate identifiers.
+	 * @return string The output PHP code.
 	 */
 	protected function _processSystemVar($opt)
 	{

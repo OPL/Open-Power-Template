@@ -68,6 +68,13 @@ class Opt_Compiler_Class
 	 */
 	protected $_attributes = array();
 	/**
+	 * The map of ambiguous tags that may be handled by many different
+	 * processors.
+	 * @internal
+	 * @var array
+	 */
+	protected $_ambiguous = array();
+	/**
 	 * The list of current conversions.
 	 * @internal
 	 * @var array
@@ -225,6 +232,14 @@ class Opt_Compiler_Class
 				foreach($obj->getAttributes() as $item)
 				{
 					$this->_attributes[$item] = $obj;
+				}
+				foreach($obj->getAmbiguous() as $item => $pair)
+				{
+					if(!isset($this->_ambiguous[$item]))
+					{
+						$this->_ambiguous[$item] = array();
+					}
+					$this->_ambiguous[$item][] = $pair;
 				}
 			}
 		}
@@ -816,6 +831,45 @@ class Opt_Compiler_Class
 	{
 		return isset($this->_instructions[$name]);
 	} // end hasInstruction();
+
+	/**
+	 * Returns the list of ambiguous tags registered in
+	 * OPT.
+	 *
+	 * @return array
+	 */
+	public function getAmbiguousList()
+	{
+		return $this->_ambiguous;
+	} // end getAmbiguousList();
+
+	/**
+	 * Returns the map of tags associated with the specified
+	 * ambiguous tag.
+	 *
+	 * @throws Opt_Compiler_Exception
+	 * @param string $name The ambiguous instruction XML name
+	 * @return array
+	 */
+	public function getAmbiguous($name)
+	{
+		if(!isset($this->_ambiguous[$name]))
+		{
+			throw new Opt_Compiler_Exception('The ambiguous tag "'.$name.'" has not been found.');
+		}
+		return $this->_ambiguous[$name];
+	} // end getAmbiguous();
+
+	/**
+	 * Returns true, if the specified instruction exists.
+	 *
+	 * @param string $name The instruction XML name
+	 * @return boolean
+	 */
+	public function hasAmbiguous($name)
+	{
+		return isset($this->_ambiguous[$name]);
+	} // end hasAmbiguous();
 
 	/**
 	 * Returns the list of processors in format
@@ -1445,6 +1499,54 @@ class Opt_Compiler_Class
 		$queue = new SplQueue;
 		$stack = new SplStack;
 
+		// First, we should handle some ambiguous tags...
+		$queue->enqueue($node);
+		$i = 0;
+		while($queue->count() > 0)
+		{
+			$item = $queue->dequeue();
+			if($item instanceof Opt_Xml_Element)
+			{
+				if($this->isNamespace($item->getNamespace()))
+				{
+					if($this->hasAmbiguous($item->getXmlName()))
+					{
+						// We've found an ambiguous tag, now we have to
+						// match it to some parent...
+						$matching = $this->getAmbiguous($item->getXmlName());
+
+						$parent = $item->getParent();
+						
+						while($parent !== null)
+						{
+
+							if($parent instanceof Opt_Xml_Element && in_array($parent->getXmlName(),$matching))
+							{
+								$parent->set('ambiguous:'.$item->getXmlName(), $item);
+								$item->set('priv:ambiguous', $this->getInstruction($parent->getXmlName()));
+								break;
+							}
+							
+							$parent = $parent->getParent();
+						}
+						if($parent === null)
+						{
+							throw new Opt_Compiler_Exception('The OPT tag '.$item->getXmlName().' is not within one of the following tags: '.implode(', ', $matching).'.');
+						}
+					}
+				}
+			}
+
+			if($item instanceof Opt_Xml_Scannable)
+			{
+				foreach($item as $subitem)
+				{
+					$queue->enqueue($subitem);
+				}
+			}
+		}
+
+		// Now the right scan
 		$queue->enqueue($node);
 		while(true)
 		{

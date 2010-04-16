@@ -69,7 +69,9 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 
 	/**
 	 * Processes the opt:component, opt:on-event and opt:display nodes.
+	 * 
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Node $node The recognized node.
 	 */
 	public function processNode(Opt_Xml_Node $node)
@@ -102,7 +104,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			case 'on-event':
 				if($this->_stack->count() == 0)
 				{
-					throw new Opt_ComponentNotActive_Exception($node->getXmlName());
+					throw new Opt_Instruction_Exception('Component error: invalid use of "opt:on-event": no active component.');
 				}
 
 				$tagParams = array(
@@ -118,7 +120,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			case 'display':
 				if($this->_stack->count() == 0)
 				{
-					throw new Opt_ComponentNotActive_Exception($node->getXmlName());
+					throw new Opt_Instruction_Exception('Component error: invalid use of "opt:display": no active component.');
 				}
 				$node->set('hidden', false);
 				$node->removeChildren();
@@ -143,7 +145,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			case 'inject':
 				if($this->_stack->count() == 0)
 				{
-					throw new Opt_ComponentNotActive_Exception($node->getXmlName());
+					throw new Opt_Instruction_Exception('Component error: invalid use of "opt:inject": no active component.');
 				}
 				$code = 'function() use($ctx){ ';
 
@@ -377,6 +379,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 	 * compiled PHP code for the call.
 	 *
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param array $namespace The namespace to parse
 	 * @return string
 	 */
@@ -384,7 +387,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 	{
 		if($this->_stack->count() == 0)
 		{
-			throw new Opt_SysVariableInvalidUse_Exception('$'.implode('.',$opt), 'components');
+			throw new Opt_Instruction_Exception('Component error: invalid use of $'.implode('.',$opt).': no active component.');
 		}
 		return $this->_stack->top().'->'.$opt[2];
 	} // end processSystemVar();

@@ -12,5 +12,15 @@
  * $Id$
  */
 
-// Load the library first! There's our class!
-Opl_Loader::load('Opt_Class');
+/**
+ * The base exception class for Open Power Template instruction
+ * exceptions.
+ *
+ * @author Tomasz Jędrzejewski
+ * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+ * @license http://www.invenzzia.org/license/new-bsd New BSD License
+ */
+class Opt_Instruction_Exception extends Opt_Compiler_Exception
+{
+	/* null */
+} // end Opt_Instruction_Exception;

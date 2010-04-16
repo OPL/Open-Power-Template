@@ -203,7 +203,7 @@ class Opt_Instruction_Block extends Opt_Instruction_Abstract
 	{
 		if($this->_stack->count() == 0)
 		{
-			throw new Opt_SysVariableInvalidUse_Exception('$'.implode('.',$opt), 'blocks');
+			throw new Opt_Instruction_Exception('opt:block error: cannot process $'.implode('.',$opt).': no blocks active.');
 		}
 		return $this->_stack->top().'->get(\''.$opt[2].'\')';
 	} // end processSystemVar();

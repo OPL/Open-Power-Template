@@ -114,7 +114,9 @@ class Opt_Instruction_Capture extends Opt_Instruction_Abstract
 
 	/**
 	 * Processes the opt:capture attribute.
+	 * 
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Node $node The node with the attribute
 	 * @param Opt_Xml_Attribute $attr The recognized attribute.
 	 */
@@ -128,7 +130,7 @@ class Opt_Instruction_Capture extends Opt_Instruction_Abstract
 		}
 		else
 		{
-			throw new Opt_InvalidAttributeType_Exception('opt:capture', 'identifier');
+			throw new Opt_Instruction_Exception('opt:capture error: invalid attribute value: identifier expected.');
 		}
 	} // end processAttribute();
 

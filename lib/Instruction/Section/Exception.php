@@ -13,15 +13,14 @@
  */
 
 /**
- * The base exception class for Open Power Template compiler
- * messages about infinite recursion that need some extra data
- * that could help identifying the problem.
+ * The base exception class for Open Power Template section
+ * exceptions.
  *
  * @author Tomasz Jędrzejewski
  * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
-class Opt_Compiler_Recursion_Exception extends Opt_Exception implements Opl_Exception_Stack_Interface
+class Opt_Instruction_Section_Exception extends Opt_Exception implements Opl_Exception_Stack_Interface
 {
 	/**
 	 * The recursion data
@@ -31,9 +30,9 @@ class Opt_Compiler_Recursion_Exception extends Opt_Exception implements Opl_Exce
 	private $_data;
 
 	/**
-	 * Assigns the recursion data to the exception.
+	 * Assigns the section stack to the exception.
 	 *
-	 * @param array|SplStack $data The recursion data.
+	 * @param array|SplStack $data The section data.
 	 */
 	public function setStackData($data)
 	{
@@ -41,7 +40,7 @@ class Opt_Compiler_Recursion_Exception extends Opt_Exception implements Opl_Exce
 	} // end setStackData();
 
 	/**
-	 * Returns the recursion data.
+	 * Returns the section stack.
 	 *
 	 * @return array|SplStack
 	 */
@@ -49,4 +48,4 @@ class Opt_Compiler_Recursion_Exception extends Opt_Exception implements Opl_Exce
 	{
 		return $this->_data;
 	} // end getStackData();
-} // end Opt_Exception;
+} // end Opt_Instruction_Section_Exception;

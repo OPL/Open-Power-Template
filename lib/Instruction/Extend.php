@@ -62,14 +62,16 @@ class Opt_Instruction_Extend extends Opt_Instruction_Abstract
 
 	/**
 	 * Processes the opt:extend node.
+	 * 
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Node $node The recognized node.
 	 */
 	public function processNode(Opt_Xml_Node $node)
 	{
 		if($node->getParent()->getType() != 'Opt_Xml_Root')
 		{
-			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'ROOT');
+			throw new Opt_Instruction_Exception('opt:extend error: this instruction must be a top-level template node.');
 		}
 
 		$params = array(
@@ -81,12 +83,12 @@ class Opt_Instruction_Extend extends Opt_Instruction_Abstract
 
 		$branches = $this->_extractAttributes($node, $params);
 
-		if(!is_null($params['escaping']))
+		if($params['escaping'] !== null)
 		{
 			$this->_compiler->set('escaping', $params['escaping']);
 		}
 
-		if($params['dynamic'] && !is_null($branch = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
+		if($params['dynamic'] && ($branch = $this->_compiler->inherits($this->_compiler->get('currentTemplate')) !== null))
 		{
 		}
 		elseif(isset($branches[$this->_compiler->get('branch')]))
