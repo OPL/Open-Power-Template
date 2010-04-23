@@ -236,7 +236,6 @@
 			{
 				$this->_compiler->unsetConversion('##simplevar_'.$node->get('priv:section'));
 			}
-
 			self::_removeSection($section['name']);
 		} // end _sectionEnd();
 
@@ -488,6 +487,7 @@
 			{
 				throw new Opl_Debug_Generic_Exception('OPT: Invalid section name thrown from the stack. Expected: '.$name.'; Actual: '.$name2);
 			}
+			self::$_sections[$name]['format']->resetVars();
 			unset(self::$_sections[$name]);
 		} // end _removeSection;
 

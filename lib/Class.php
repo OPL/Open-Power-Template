@@ -1088,7 +1088,7 @@
 		 */
 		public function inherit($source, $destination = null)
 		{
-			if($destination !== null)
+			if($destination === null)
 			{
 				$this->_inheritance[$this->_template] = str_replace(array('/', ':', '\\'), '__', $source);
 				$this->_cplInheritance[$this->_template] = $source;

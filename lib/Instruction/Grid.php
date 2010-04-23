@@ -54,6 +54,7 @@
 			// Link those nodes to this section
 			$itemNode[0]->set('priv:section', $section);
 			$emptyItemNode[0]->set('priv:section', $section);
+			$emptyItemNode[0]->set('priv:section-validity', $section['format']->get('section:valid'));
 			
 			// Code generation			
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '$_'.$section['name'].'_rows = ceil('.$section['format']->get('section:count').' / '.$section['cols'].'); $_'.$section['name'].'_remain = ('.$section['cols'].
@@ -96,7 +97,7 @@
 				throw new Opt_InstructionInvalidLocation_Exception('opt:item', 'opt:grid');
 			}
 			$section = $node->get('priv:section');
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if($_'.$section['name'].'_remain > 0 && !'.$section['format']->get('section:valid').') { for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < $_'.$section['name'].'_remain; $_'.$section['name'].'_k++) { ');
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if($_'.$section['name'].'_remain > 0 && !'.$node->get('priv:section-validity').') { for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < $_'.$section['name'].'_remain; $_'.$section['name'].'_k++) { ');
 			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } } ');
 				
 			$this->_process($node);
@@ -112,6 +113,7 @@
 					$this->_sortSectionContents($node, 'opt', 'gridelse');
 				}
 			}
+			
 		} // end _postprocessGrid();
 		
 		private function _postprocessItem(Opt_Xml_Element $node)
