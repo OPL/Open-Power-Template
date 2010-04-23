@@ -659,6 +659,19 @@ class Opt_Class extends Opl_Class
 			}
 		}
 	} // end __destruct();
+
+	/**
+	 * Frees the memory etc.
+	 */
+	public function dispose()
+	{
+		if($this->_compiler !== null)
+		{
+			$this->_compiler->dispose();
+		}
+		$this->_compiler = null;
+		$this->_tf = null;
+	} // end dispose();
 } // end Opt_Class;
 
 /**

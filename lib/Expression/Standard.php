@@ -134,6 +134,16 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	} // end setCompiler();
 
 	/**
+	 * The method should reset all the object references it possesses.
+	 */
+	public function dispose()
+	{
+		$this->_format = null;
+		$this->_tpl = null;
+		$this->_compiler = null;
+	} // end dispose();
+
+	/**
 	 * Parses the source expressions to the PHP code.
 	 *
 	 * @param string $expression The expression source
@@ -421,7 +431,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				if($state['section'] === null)
 				{
 					// Check if any section with the specified name exists.
-					$sectionName = $this->_compiler->convert($item[0]);
+					$sectionName = $this->_compiler->convert($item);
 
 					if(($section = $proc->getSection($sectionName)) !== null)
 					{
@@ -434,7 +444,8 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 							$hook = 'section:item'.$this->_dfCalls[$context];
 							if(!$section['format']->property($hook))
 							{
-								throw new Opt_OperationNotSupported_Exception($name, $this->_dfCalls[$context]);
+								var_dump($hook);
+								throw new Opt_Format_Exception('The operation '.$hook.' is not supported by format '.$section['format']->getName());
 							}
 							$section['format']->assign('value', $contextInfo[0]);
 							$section['format']->assign('code', $code);
@@ -463,7 +474,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 						$section['format']->assign('code', $code);
 						if(!$section['format']->property($hook))
 						{
-							throw new Opt_OperationNotSupported($name, $this->_dfCalls[$context]);
+							throw new Opt_Format_Exception('The operation '.$hook.' is not supported by format '.$section['format']->getName());
 						}
 					}
 					$code = $section['format']->get($hook);

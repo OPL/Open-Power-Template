@@ -60,8 +60,9 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:if', 'opt:else-if', 'opt:else'));
+		$this->_addInstructions(array('opt:if', 'opt:else-if'));
 		$this->_addAttributes(array('opt:if', 'opt:omit-tag'));
+		$this->_addAmbiguous(array('opt:else' => 'opt:if'));
 		if($this->_tpl->backwardCompatibility)
 		{
 			$this->_addAttributes($this->_deprecatedAttributes);

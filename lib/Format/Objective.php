@@ -84,7 +84,7 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 				else
 				{
 					$this->assign('item', $section['name']);
-					return '$_sect'.$section['name'].'_vals = '.$this->get('variable:main').'; ';
+					return '$_sect'.$section['name'].'_vals = '.$this->get('variable:item').'; ';
 				}
 			// The end of the section loop.
 			case 'section:endLoop':

@@ -134,7 +134,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		{
 			$show = $this->_findShowNode($node, $attr->getValue());
 
-			if(!is_null($show))
+			if($show !== null)
 			{
 				// In this case we can obtain the attributes from opt:show.
 				$section = $this->_extractSectionAttributes($show, $extraAttributes);
@@ -166,36 +166,49 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		}
 		else
 		{
-			if(is_null($node->getAttribute('name')))
+			if($node->get('ambiguous:opt:body') !== null)
 			{
-				// We must look for opt:show
-				$show = $this->_findShowNode($node);
-
-				if($show === null)
-				{
-					throw new Opt_Instruction_Section_Exception('Section error: the attribute "name" is not defined in '.$node->getXmlName());
-				}
-
-				$section = $this->_extractSectionAttributes($show, $extraAttributes);
-				$section['show'] = $show;
-				$section['node'] = $node;
+				// New way with opt:body
+				$section = $this->_extractSectionAttributes($node, $extraAttributes);
+				$section['show'] = $node;
+				$section['node'] = $node->get('ambiguous:opt:body');
 				$section['attribute'] = null;
+				$section['node']->set('priv:section', $section['name']);
 			}
 			else
 			{
-				$section = $this->_extractSectionAttributes($node, $extraAttributes);
-				$section['show'] = null;
-				$section['node'] = $node;
-				$section['attribute'] = null;
+				// Classic way from OPT 2.0
+				if($node->getAttribute('name') === null)
+				{
+					// We must look for opt:show
+					$show = $this->_findShowNode($node);
+
+					if($show === null)
+					{
+						throw new Opt_Instruction_Section_Exception('Section error: the attribute "name" is not defined in '.$node->getXmlName());
+					}
+
+					$section = $this->_extractSectionAttributes($show, $extraAttributes);
+					$section['show'] = $show;
+					$section['node'] = $node;
+					$section['attribute'] = null;
+				}
+				else
+				{
+					$section = $this->_extractSectionAttributes($node, $extraAttributes);
+					$section['show'] = null;
+					$section['node'] = $node;
+					$section['attribute'] = null;
+				}
 			}
 		}
 		$this->_validateSection($section);
 
-		if(is_null($section['show']))
+		if($section['show'] === null)
 		{
 			$this->_createShowCondition($node, $section);
 		}
-		elseif(is_null($section['show']->get('priv:initialized')))
+		elseif($section['show']->get('priv:initialized') === null)
 		{
 			$this->_createShowCondition($section['show'], $section);
 		}
@@ -344,12 +357,12 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 *
 	 * @internal
 	 * @param Opt_Xml_Element $item The current node.
-	 * @param String $name optional The name that opt:show must match.
+	 * @param string $name optional The name that opt:show must match.
 	 * @return Opt_Xml_Element The opt:show node or NULL if not found.
 	 */
 	private function _findShowNode(Opt_Xml_Element $item, $name = null)
 	{
-		if(!is_null($name))
+		if($name !== null)
 		{
 			// The section names must also match!
 			while(!is_null($item = $item->getParent()))
@@ -390,8 +403,8 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 *
 	 * @internal
 	 * @param Opt_Xml_Element $node Parse the attributes from this node.
-	 * @param Array $extraAttributes=NULL Extra section attributes
-	 * @return Array The extracted attributes.
+	 * @param array $extraAttributes=NULL Extra section attributes
+	 * @return array The extracted attributes.
 	 */
 	private function _extractSectionAttributes(Opt_Xml_Element $node, $extraAttributes = NULL)
 	{
@@ -405,7 +418,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		);
 
 		// The instruction may add some extra attributes.
-		if(!is_null($extraAttributes))
+		if($extraAttributes !== null)
 		{
 			$params = array_merge($params, $extraAttributes);
 		}
@@ -420,7 +433,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 * the data format.
 	 *
 	 * @internal
-	 * @param Array &$section The section record.
+	 * @param array &$section The section record.
 	 */
 	private function _validateSection(Array &$section)
 	{
@@ -474,7 +487,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 * @static
 	 * @internal
 	 * @throws Opt_Instruction_Section_Exception
-	 * @param Array $info The section record.
+	 * @param array $info The section record.
 	 */
 	static private function _addSection(Array $info)
 	{
@@ -499,8 +512,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 * @static
 	 * @internal
 	 * @throws Opt_Instruction_Section_Exception
-	 * @throws Opl_Debug_Exception
-	 * @param String $name The section name.
+	 * @param string $name The section name.
 	 */
 	static private function _removeSection($name)
 	{
@@ -513,8 +525,9 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		$name2 = self::$_stack->pop();
 		if($name != $name2)
 		{
-			throw new Opl_Debug_Exception('OPT: Invalid section name thrown from the stack. Expected: '.$name.'; Actual: '.$name2);
+			throw new Opt_Instruction_Section_Exception('OPT: Invalid section name thrown from the stack. Expected: '.$name.'; Actual: '.$name2);
 		}
+		self::$_sections[$name]['format']->resetVars();
 		unset(self::$_sections[$name]);
 	} // end _removeSection;
 

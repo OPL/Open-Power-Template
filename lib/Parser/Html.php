@@ -88,6 +88,15 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	} // end setCompiler();
 
 	/**
+	 * The method should reset all the object references it possesses.
+	 */
+	public function dispose()
+	{
+		$this->_compiler = null;
+		$this->_tpl = null;
+	} // end dispose();
+
+	/**
 	 * Parses the input code and returns the OPT XML tree.
 	 *
 	 * @param String $filename The file name (for debug purposes)

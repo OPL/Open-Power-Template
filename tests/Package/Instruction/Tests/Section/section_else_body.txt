@@ -1,11 +1,15 @@
-The test checks the sectionelse tag.
+The test checks the opt:else tag with opt:body.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:section name="sect">
+<opt:body>
 {$sect.val1},{$sect.val2}
-<opt:sectionelse>NO DATA</opt:sectionelse>
+</opt:body>
+<opt:else>
+NO DATA
+</opt:else>
 </opt:section>
 </opt:root>
 

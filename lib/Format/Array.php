@@ -52,8 +52,9 @@ class Opt_Format_Array extends Opt_Format_Abstract
 		'item:item.postincrement' => true,
 		'item:item.predecrement' => true,
 		'item:item.postdecrement' => true,
-		'section:itemAssign' => false,
-		'section:variableAssign' => true
+		'section:item' => true,
+		'section:item.assign' => true,
+		'section:variable' => true
 	);
 
 	/**
@@ -87,7 +88,7 @@ class Opt_Format_Array extends Opt_Format_Abstract
 				}
 
 				$this->assign('item', $section['name']);
-				$code = '$_sect'.$section['name'].'_vals = &'.$this->get('variable:main');
+				$code = '$_sect'.$section['name'].'_vals = &'.$this->get('variable:item');
 
 				$ancestors = $this->_getVar('requestedData');
 				foreach($ancestors as $i)

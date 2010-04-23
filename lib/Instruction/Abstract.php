@@ -94,6 +94,17 @@ abstract class Opt_Instruction_Abstract
 	} // end __construct();
 
 	/**
+	 * Frees the circular references.
+	 */
+	public function dispose()
+	{
+		$this->reset();
+		$this->_tpl = null;
+		$this->_compiler = null;
+		$this->_queue = null;
+	} // end dispose();
+
+	/**
 	 * Called during the processor initialization. It allows to define
 	 * the list of instructions and attributes supported by this processor.
 	 */
@@ -362,9 +373,10 @@ abstract class Opt_Instruction_Abstract
 	 * @throws Opt_Instruction_Exception
 	 * @param Opt_Xml_Element $subitem The scanned XML element.
 	 * @param array &$config The reference to the attribute configuration
+	 * @param boolean $allowWith Do we look for opt:with special instruction?
 	 * @return array|Null The list of undefined attributes, if "__UNKNOWN__" is set.
 	 */
-	final protected function _extractAttributes(Opt_Xml_Element $subitem, array &$config)
+	final protected function _extractAttributes(Opt_Xml_Element $subitem, array &$config, $allowWith = false)
 	{
 		$required = array();
 		$optional = array();
@@ -392,8 +404,33 @@ abstract class Opt_Instruction_Abstract
 		$config = array();
 		$return = array();
 		$exprEngines = $this->_compiler->getExpressionEngines();
+
+		// Look for opt:with
+		if($allowWith === true)
+		{
+			$extra = $subitem->getElementsByTagName('opt', 'with');
+
+			switch(sizeof($extra))
+			{
+				case 0:
+					$attrList = $subitem->getAttributes(false);
+					break;
+				case 1:
+					$attrList = array_merge(
+						$subitem->getAttributes(false),
+						$extra[0]->getAttributes(false)
+					);
+					break;
+				default:
+					throw new Opt_Instruction_Exception('Too many opt:with elements in '.$subitem->getXmlName());
+			}
+		}
+		else
+		{
+			$attrList = $subitem->getAttributes(false);
+		}
+
 		// Parse required attributes
-		$attrList = $subitem->getAttributes(false);
 		foreach($required as $name => &$data)
 		{
 			$ok = false;

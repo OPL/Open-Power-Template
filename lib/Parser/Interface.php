@@ -31,6 +31,11 @@ interface Opt_Parser_Interface
 	public function setCompiler(Opt_Compiler_Class $compiler);
 
 	/**
+	 * The method should reset all the object references it possesses.
+	 */
+	public function dispose();
+
+	/**
 	 * The role of this method is to parse the specified code and
 	 * return the XML tree to the compiler.
 	 *

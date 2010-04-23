@@ -40,6 +40,14 @@ class Opt_Expression_String implements Opt_Expression_Interface
 	} // end setCompiler();
 
 	/**
+	 * The method should reset all the object references it possesses.
+	 */
+	public function dispose()
+	{
+		$this->_compiler = null;
+	} // end dispose();
+
+	/**
 	 * Parses the source expressions to the PHP code.
 	 *
 	 * @param String $expression The expression source

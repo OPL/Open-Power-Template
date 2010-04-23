@@ -41,13 +41,61 @@ abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 	 */
 	protected $_next = null;
 
+	private $_cntx;
+
+	/**
+	 * OPT-XML object counter for debugging purposes.
+	 * @var integer
+	 */
+	static private $_objCount = 0;
+
+	/**
+	 * OPT-XML object registry
+	 * @var array
+	 */
+	static private $_registry = array();
+
 	/**
 	 * Constructs the new node object.
 	 */
 	public function __construct()
 	{
-		/* null */
+		self::$_objCount++;
+		$this->_cntx = self::$_objCount;
+		self::$_registry[self::$_objCount] = $this;
 	} // end __construct();
+
+	/**
+	 * Destroys the node object.
+	 */
+	public function __destruct()
+	{
+		self::$_objCount--;
+	} // end __destruct();
+
+	/**
+	 * Returns the object counter for debugging purposes.
+	 *
+	 * @internal
+	 * @static
+	 * @return integer The number of currently existing OPT-XML objects.
+	 */
+	static public function getObjectCount()
+	{
+		return self::$_objCount;
+	} // end getObjectCount();
+
+	/**
+	 * Returns the object registry.
+	 *
+	 * @internal
+	 * @static
+	 * @return array
+	 */
+	static public function getObjectRegistry()
+	{
+		 return self::$_registry;
+	} // end getObjectRegistry();
 
 	/**
 	 * Sets the parent of the current node. USE WITH CAUTION!
@@ -149,6 +197,7 @@ abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 	 */
 	protected function _dispose()
 	{
+		unset(self::$_registry[$this->_cntx]);
 		$this->unmount();
 		$this->_parent = null;
 		$this->_previous = null;

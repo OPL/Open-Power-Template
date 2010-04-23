@@ -78,6 +78,23 @@ abstract class Opt_Format_Abstract
 	} // end __construct();
 
 	/**
+	 * Removes the references.
+	 */
+	public function dispose()
+	{
+		$item = $this;
+		while($item !== null)
+		{
+			$item->_tpl = null;
+			$item->_compiler = null;
+			$item->resetVars();
+			$tmp = $item;
+			$item = $item->_decorated;
+			$tmp->_decorated = null;
+		}
+	} // end dispose();
+
+	/**
 	 * Returns the format description string, if it is the top format
 	 * object.
 	 *
@@ -201,8 +218,8 @@ abstract class Opt_Format_Abstract
 					 * segfault occurs, when this exception is captured in the compile() method
 					 * to clean the compiler state).
 					 */
-					die('Opt_APIHookNotDefined_Exception: Invalid hook name: '.$hookName.' in '.get_class($this));
-					throw new Opt_APIHookNotDefined_Exception($hookName, get_class($this));
+				//	die('Opt_APIHookNotDefined_Exception: Invalid hook name: '.$hookName.' in '.get_class($this));
+					throw new Opt_Format_Exception('Invalid hook name: '.$hookName.' in '.get_class($this));
 				}
 			}
 			else

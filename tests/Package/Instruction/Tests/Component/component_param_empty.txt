@@ -17,4 +17,4 @@ FOO
 $view->component = new Extra_Mock_Component;
 
 >>>>expected.txt
-Opt_AttributeEmpty_Exception
+Opt_Instruction_Exception

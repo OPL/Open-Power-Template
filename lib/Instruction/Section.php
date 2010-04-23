@@ -40,7 +40,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 	 * Array contains deprecated instructions.
 	 * @var array
 	 */
-	protected $_deprecatedInstructions = array();
+	protected $_deprecatedInstructions = array('opt:sectionelse', 'opt:showelse');
 
 	/**
 	 * Configures the instruction processor, registering the tags and
@@ -49,8 +49,12 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:section', 'opt:sectionelse', 'opt:show', 'opt:showelse'));
+		$this->_addInstructions(array('opt:section', 'opt:show'));
 		$this->_addAttributes('opt:section');
+		$this->_addAmbiguous(array(
+			'opt:else' => array('opt:section', 'opt:show'),
+			'opt:body' => 'opt:section'
+		));
 		if($this->_tpl->backwardCompatibility)
 		{
 			$this->_addAttributes($this->_deprecatedAttributes);
@@ -108,6 +112,25 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 		$section = $this->_sectionCreate($node);
 		$this->_sectionStart($section);
 
+		if($node->get('ambiguous:opt:body') !== null)
+		{
+			$this->_process($node);
+		}
+		else
+		{
+			$this->_processBody($node);
+		}
+	} // end _processSection();
+
+	/**
+	 * Processes the opt:body tag for opt:section.
+	 * 
+	 * @internal
+	 * @param Opt_Xml_Element $node The recognized node.
+	 */
+	protected function _processBody(Opt_Xml_Element $node)
+	{
+		$section = self::getSection($node->get('priv:section'));
 		$code = $section['format']->get('section:loopBefore');
 		if($section['order'] == 'asc')
 		{
@@ -123,7 +146,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 
 		$node->set('postprocess', true);
 		$this->_process($node);
-	} // end _processSection();
+	} // end _processBody();
 
 	/**
 	 * Finishes the processing of the opt:section tag.
@@ -141,53 +164,69 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 	} // end _postprocessSection();
 
 	/**
-	 * Processes the opt:showelse tag.
+	 * Post-processes the opt:body tag for opt:section.
+	 *
+	 * @internal
+	 * @param Opt_Xml_Element $node The opt:body tag.
+	 */
+	protected function _postprocessBody(Opt_Xml_Element $node)
+	{
+		$this->_postprocessSection($node);
+	} // end _postprocessBody();
+
+	/**
+	 * Processes the opt:else tag for opt:show.
 	 * @internal
 	 * @param Opt_Xml_Element $node The recognized element.
+	 * @param Opt_Xml_Element $parent The parent of recognized element element.
 	 */
-	protected function _processShowelse(Opt_Xml_Element $node)
+	protected function _processShowelse(Opt_Xml_Element $node, Opt_Xml_Element $parent)
 	{
-		$parent = $node->getParent();
-		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:show')
-		{
-			$parent->set('priv:alternative', true);
-			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
-			$this->_process($node);
-		}
-		else
-		{
-			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:show');
-		}
+		$parent->set('priv:alternative', true);
+		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
+		$this->_process($node);
 	} // end _processShowelse();
 
 	/**
-	 * Processes the opt:sectionelse element.
+	 * Processes the opt:else element, both for opt:show and opt:section.
+	 * 
 	 * @internal
 	 * @param Opt_Xml_Element $node The recognized element.
 	 */
-	protected function _processSectionelse(Opt_Xml_Element $node)
+	protected function _processElse(Opt_Xml_Element $node)
 	{
 		$parent = $node->getParent();
 		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:section')
 		{
-			$parent->set('priv:alternative', true);
-
-			$section = self::getSection($parent->get('priv:section'));
-			if(!is_array($section))
+			if($parent->get('ambiguous:opt:body') !== null)
 			{
-				throw new Opt_APINoDataReturned_Exception('Opt_Instruction_BaseSection::getSection', 'processing opt:sectionelse');
+				$this->_processShowelse($node, $parent);
 			}
-			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:endLoop').' } else { ');
+			else
+			{
+				$parent->set('priv:alternative', true);
 
-			$this->_sectionEnd($parent);
+				$section = self::getSection($parent->get('priv:section'));
+				if(!is_array($section))
+				{
+					throw new Opt_Instruction_Section_Exception('API error: Opt_Instruction_BaseSection::getSection cannot find the section data for the given section while processing opt:else.');
+				}
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:endLoop').' } else { ');
 
-			$this->_process($node);
+				$this->_sectionEnd($parent);
+
+				$this->_process($node);
+			}
+		}
+		elseif($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:show')
+		{
+			$this->_processShowelse($node, $parent);
 		}
 		else
 		{
-			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:section');
+			throw new Opt_Instruction_Section_Exception('Invalid parent of opt:else: opt:section or opt:show expected');
 		}
-	} // end _processSectionelse();
+	} // end _processElse();
 
 	/**
 	 * Processes the attribute form of opt:section.

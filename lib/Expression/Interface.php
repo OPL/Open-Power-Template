@@ -37,6 +37,11 @@ interface Opt_Expression_Interface
 	public function setCompiler(Opt_Compiler_Class $compiler);
 
 	/**
+	 * The method should reset all the object references it possesses.
+	 */
+	public function dispose();
+
+	/**
 	 * The role of this method is to parse the expression to the
 	 * corresponding PHP code.
 	 *

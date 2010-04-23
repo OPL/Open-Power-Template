@@ -38,6 +38,7 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Instruction_Snippet
  * @covers Opt_Instruction_Tag
  * @covers Opt_Instruction_Tree
+ * @runTestsInSeparateProcesses
  */
 class Package_Instruction_InstructionTest extends Extra_TestFSBase
 {
@@ -105,6 +106,22 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('If/if_new_attribute_nocondition.txt'),
 			array('If/if_new_condition_without_if.txt'),
 			array('OmitTag/omit_tag_basic.txt'),
+
+			// SECTION
+			array('Section/section_basic.txt'),
+			array('Section/section_else.txt'),
+			array('Section/section_else_body.txt'),
+			array('Section/section_else_multi.txt'),
+			array('Section/section_order.txt'),
+			array('Section/section_auto_relation.txt'),
+			array('Section/section_parent.txt'),
+			array('Section/section_parent_complex.txt'),
+			array('Section/section_parent_complex2.txt'),
+			array('Section/section_datasource.txt'),
+			array('Section/section_datasource_nested.txt'),
+			array('Section/section_if_coop.txt'),
+			array('Section/section_display.txt'),
+			array('Section/section_special_var.txt'),
 			/*
 				array('attribute_1.txt'),
 				array('attribute_2.txt'),
@@ -291,6 +308,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 
  	/**
  	 * @dataProvider dataProvider
+	 * @runInSeparateProcess
  	 */
 	public function testInstructions($testCase)
 	{

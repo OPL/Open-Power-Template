@@ -16,6 +16,12 @@ class Extra_TestFSBase extends Extra_Testcase
 	protected $tpl;
 
 	/**
+	 * The test was...
+	 * @var string
+	 */
+	private $_test;
+
+	/**
 	 * Sets up everything.
 	 */
 	protected function setUp()
@@ -45,7 +51,9 @@ class Extra_TestFSBase extends Extra_Testcase
 	 */
 	protected function tearDown()
 	{
-		Opl_Registry::register('opt', null);
+		$opt = Opl_Registry::get('opt');
+		$opt->dispose();
+		Opl_Registry::set('opt', null);
 		Opt_View::clear();
 		unset($this->tpl);
 	} // end tearDown();
@@ -70,6 +78,7 @@ class Extra_TestFSBase extends Extra_Testcase
 	 */
 	protected function _checkTest($test)
 	{
+		$this->_test = $test;
 		Extra_TestFS::loadFilesystem($test);
 		$view = new Opt_View('test.tpl');
 		if(file_exists('test://data.php'))

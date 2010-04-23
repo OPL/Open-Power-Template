@@ -224,22 +224,34 @@ class Opt_Compiler_Class
 				$obj = new $instructionClass($this, $tpl);
 				$this->_processors[$obj->getName()] = $obj;
 
-				// Add the tags and attributes registered by this processor.
+				// Add the instruction tags registered by this processor.
 				foreach($obj->getInstructions() as $item)
 				{
 					$this->_instructions[$item] = $obj;
 				}
+				// Add the instruction attributes registered by this processor.
 				foreach($obj->getAttributes() as $item)
 				{
 					$this->_attributes[$item] = $obj;
 				}
+				// Add the instruction ambiguous tags registered by this processor.
 				foreach($obj->getAmbiguous() as $item => $pair)
 				{
 					if(!isset($this->_ambiguous[$item]))
 					{
 						$this->_ambiguous[$item] = array();
 					}
-					$this->_ambiguous[$item][] = $pair;
+					if(is_array($pair))
+					{
+						foreach($pair as $subitem)
+						{
+							$this->_ambiguous[$item][] = $subitem;
+						}
+					}
+					else
+					{
+						$this->_ambiguous[$item][] = $pair;
+					}
 				}
 			}
 		}
@@ -256,7 +268,7 @@ class Opt_Compiler_Class
 			$this->_formatInfo = $tpl->_formatInfo;
 			$this->_formats = $tpl->_formats;
 			$this->_tf = $tpl->_tf;
-			$this->_processor = $tpl->_processors;
+			$this->_processors = $tpl->_processors;
 			$this->_instructions = $tpl->_instructions;
 			$this->_attributes = $tpl->_attributes;
 			$this->_charset = $tpl->_charset;
@@ -306,6 +318,49 @@ class Opt_Compiler_Class
 			$this->_processors[$obj->getName()] = $obj;
 		}
 	} // end __clone();
+
+	/**
+	 * Destroys the compiler.
+	 */
+	public function dispose()
+	{
+		foreach($this->_processors as $processor)
+		{
+			$processor->dispose();
+		}
+		foreach($this->_formatObj as $format)
+		{
+			$format->dispose();
+		}
+		foreach($this->_expressions as $expr)
+		{
+			$expr->dispose();
+		}
+		foreach($this->_parsers as $parser)
+		{
+			$parser->dispose();
+		}
+
+		$this->_tpl = null;
+
+		$this->_tpl = null;
+		$this->_namespaces = null;
+		$this->_classes = null;
+		$this->_functions = null;
+		$this->_components = null;
+		$this->_blocks = null;
+		$this->_inheritance = null;
+		$this->_formatInfo = null;
+		$this->_formats = null;
+		$this->_tf = null;
+		$this->_processors = null;
+		$this->_instructions = null;
+		$this->_attributes = null;
+		$this->_charset = null;
+		$this->_entities = null;
+		$this->_exprEngines = null;
+		$this->_modifiers = null;
+	} // end __destruct();
 
 	/*
 	 * General purpose tools and utilities
@@ -1519,14 +1574,12 @@ class Opt_Compiler_Class
 						
 						while($parent !== null)
 						{
-
 							if($parent instanceof Opt_Xml_Element && in_array($parent->getXmlName(),$matching))
 							{
 								$parent->set('ambiguous:'.$item->getXmlName(), $item);
 								$item->set('priv:ambiguous', $this->getInstruction($parent->getXmlName()));
 								break;
-							}
-							
+							}	
 							$parent = $parent->getParent();
 						}
 						if($parent === null)

@@ -1,10 +1,10 @@
-The test checks the cooperation with "display" attribute.
+The test checks the cooperation with "opt:if" attribute.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 START
-<opt:section name="sect" display="$falseVar">
+<opt:section name="sect" opt:if="$falseVar">
 {$sect.val1},{$sect.val2}
 <opt:sectionelse>NO DATA</opt:sectionelse>
 </opt:section>
@@ -16,7 +16,6 @@ OUTPUT
 
 >>>>result.txt
 START
-NO DATA
 STOP
 
 >>>>data.php

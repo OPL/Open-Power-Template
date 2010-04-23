@@ -365,14 +365,6 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 					break;
 			}
 		}
-	/*	foreach($container as $type => &$level)
-		{
-			echo '------level: '.$type.'<br/>';
-			foreach($level as $element)
-			{
-				echo $element[0].' ('.$element[1]->getAttribute('value').')<br/>';
-			}
-		}*/
 
 		// Remove remainders
 		$node->removeChildren();

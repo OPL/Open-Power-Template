@@ -7,8 +7,6 @@
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 
-echo "Loading bootstrap...\n";
-
 $config = parse_ini_file(dirname(__FILE__).'/../paths.ini', true);
 require($config['libraries']['Opl'].'Base.php');
 Opl_Loader::loadPaths($config);
