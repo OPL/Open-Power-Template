@@ -263,7 +263,10 @@
 		{
 			// We have so many recursions... let's do it in the imperative way.
 			$queue = new SplQueue;
-			$queue->enqueue($node);
+			foreach($node as $subnode)
+			{
+				$queue->enqueue($subnode);
+			}
 			$result = array(
 				0 => array(),	// opt:set
 				1 => array(),	// com:*
@@ -283,6 +286,16 @@
 					elseif($current->getNamespace() == 'com' || $current->getAttribute('opt:component-attributes') !== null)
 					{
 						$result[1][] = $current;
+					}
+					
+					// Do not visit the nested components
+					if($current->getXmlName() == 'opt:component' || $this->_compiler->isComponent($current->getXmlName()))
+					{
+						if($queue->count() == 0)
+						{
+							break;
+						}
+						continue;
 					}
 				}
 				foreach($current as $subnode)
