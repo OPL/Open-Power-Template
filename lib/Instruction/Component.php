@@ -407,14 +407,16 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 	{
 		// We have so many recursions... let's do it in the imperative way.
 		$queue = new SplQueue;
-		$queue->enqueue($node);
+		foreach($node as $subnode)
+		{
+			$queue->enqueue($subnode);
+		}
 		$result = array(
 			0 => array(),	// opt:set
 			1 => array(),	// com:*
 		);
 		$map = array('opt:set' => 0);
 
-		// TODO: Add ignoring the nested components!
 		do
 		{
 			$current = $queue->dequeue();
@@ -423,13 +425,24 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			{
 				if(isset($map[$current->getXmlName()]))
 				{
+					
 					$result[$map[$current->getXmlName()]][] = $current;
 				}
 				elseif($current->getAttribute('opt:component-attributes') !== null)
 				{
 					$result[1][] = $current;
 				}
-			}
+				
+				// Do not visit the nested components
+				if($current->getXmlName() == 'opt:component' || $this->_compiler->isComponent($current->getXmlName()))
+				{
+					if($queue->count() == 0)
+					{
+						break;
+					}
+					continue;
+				}
+			}			
 			foreach($current as $subnode)
 			{
 				$queue->enqueue($subnode);

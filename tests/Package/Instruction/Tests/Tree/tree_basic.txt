@@ -1,8 +1,8 @@
-The test checks if the tree works correctly with the other initial depth.
+The test checks the basic opt:tree features.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:tree name="tree">
 <opt:list>
 LIST START:
@@ -36,7 +36,7 @@ LIST END:
 
 >>>>data.php
 $view->tree = array(0 =>
-	array('title' => '1', 'depth' => 6),
-	array('title' => '1.1', 'depth' => 7),
-	array('title' => '1.1.1', 'depth' => 8),
+	array('title' => '1', 'depth' => 0),
+	array('title' => '1.1', 'depth' => 1),
+	array('title' => '1.1.1', 'depth' => 2),
 );

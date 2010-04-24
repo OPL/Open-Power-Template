@@ -36,7 +36,11 @@ class Opt_Instruction_Tree extends Opt_Instruction_Section_Abstract
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:tree', 'opt:treeelse'));
+		$this->_addInstructions('opt:tree');
+		$this->_addAmbiguous(array(
+			'opt:else' => 'opt:tree',
+			'opt:body' => 'opt:tree'
+		));
 	} // end configure();
 
 	/**
@@ -60,21 +64,56 @@ class Opt_Instruction_Tree extends Opt_Instruction_Section_Abstract
 		$section = $this->_sectionCreate($node);
 		$this->_sectionStart($section);
 
+		if($node->get('ambiguous:opt:body') !== null)
+		{
+			$treeElse = $node->get('ambiguous:opt:else');
+			if($treeElse instanceof Opt_Xml_Element && $treeElse->getParent()->getXmlName() != 'opt:tree')
+			{
+				throw new Opt_Instruction_Exception('Invalid opt:else location in opt:tree.');
+			}
+
+			$this->_process($node);
+		}
+		else
+		{
+			$this->_processBody($node);
+		}
+	} // end _processTree();
+
+	/**
+	 * Processes the opt:body node.
+	 * @internal
+	 * @param Opt_Xml_Node $node The instruction node found by the compiler.
+	 */
+	protected function _processBody(Opt_Xml_Element $node)
+	{
+		$section = self::getSection($node->get('priv:section'));
+
 		// Check the tag structure and get the tags.
 		$stList = $node->getElementsByTagNameNS('opt', 'list', false);
 		$stNode = $node->getElementsByTagNameNS('opt', 'node', false);
-		$stTreeElse = $node->getElementsByTagNameNS('opt', 'treeelse', false);
+		$stTreeElse = $node->getElementsByTagNameNS('opt', 'else', false);
 		if(sizeof($stList) != 1)
 		{
-			throw new Opt_InstructionTooManyItems_Exception('opt:list', 'opt:tree', 'Exactly one');
+			throw new Opt_Instruction_Exception('opt:tree error: opt:list missing.');
 		}
 		if(sizeof($stNode) != 1)
 		{
-			throw new Opt_InstructionTooManyItems_Exception('opt:node', 'opt:tree', 'Exactly one');
+			throw new Opt_Instruction_Exception('opt:tree error: opt:node missing.');
 		}
-		if(sizeof($stTreeElse) > 1)
+		if($node->getXmlName() == 'opt:body')
 		{
-			throw new Opt_InstructionTooManyItems_Exception('opt:treeelse', 'opt:tree', 'Zero or one');
+			if(sizeof($stTreeElse) != 0)
+			{
+				throw new Opt_Instruction_Exception('Cannot place opt:else in opt:body.');
+			}
+		}
+		else
+		{
+			if(sizeof($stTreeElse) > 1)
+			{
+				throw new Opt_Instruction_Exception('Too many opt:else in opt:tree: zero or one expected.');
+			}
 		}
 		// Show "opt:list" and "opt:node" tags
 		$stList = $stList[0];
@@ -96,11 +135,11 @@ class Opt_Instruction_Tree extends Opt_Instruction_Section_Abstract
 		$stNodeContent = $stNode->getElementsByTagNameNS('opt', 'content');
 		if(sizeof($stListContent) != 1)
 		{
-			throw new Opt_InstructionTooManyItems_Exception('opt:content', 'opt:list', 'Exactly one');
+			throw new Opt_Instruction_Exception('opt:tree error: opt:content in opt:list missing.');
 		}
 		if(sizeof($stNodeContent) != 1)
 		{
-			throw new Opt_InstructionTooManyItems_Exception('opt:content', 'opt:node', 'Exactly one');
+			throw new Opt_Instruction_Exception('opt:tree error: opt:content in opt:node missing.');
 		}
 		$content = array(
 			'list' => $stListContent[0],
@@ -121,13 +160,13 @@ class Opt_Instruction_Tree extends Opt_Instruction_Section_Abstract
 			{
 				if($tag->getNamespace() == 'opt')
 				{
-					throw new Opt_TreeContent_Exception($tag->getXmlName(), 'opt:'.$id);
+					throw new Opt_Instruction_Exception('opt:tree error: '.$tag->getXmlName().' is a dynamic tag that generates some PHP code.');
 				}
 				foreach($test as $buffer)
 				{
 					if($tag->bufferSize($buffer) > 0)
 					{
-						throw new Opt_TreeContent_Exception($tag->getXmlName(), 'opt:'.$id);
+						throw new Opt_Instruction_Exception('opt:tree error: '.$tag->getXmlName().' is a dynamic tag that generates some PHP code.');
 					}
 				}
 				$tag = $tag->getParent();
@@ -188,7 +227,7 @@ if($_'.$section['name'].'_cmd->count() == 0)
 		}
 		if($_'.$section['name'].'_initDepth > '.$section['format']->get('section:variable').')
 		{
-			throw new Opt_TreeInvalidDepth_Exception('.$section['format']->get('section:variable').', $_'.$section['name'].'_initDepth);
+			throw new Opt_Runtime_Exception(\'The tree element depth is too low: \'.'.$section['format']->get('section:variable').'.\'. It must be greater or equal to the initial depth \'.$_'.$section['name'].'_initDepth.\'.\');
 		}
 		if($_'.$section['name'].'_depth < '.$section['format']->get('section:variable').')
 		{
@@ -236,7 +275,17 @@ switch($cmd)
 		$this->_process($node);
 		$this->_process($stList);
 		$this->_process($stNode);
-	} // end _processTree();
+	} // end _processBody();
+
+	/**
+	 * Postprocesses the opt:body node.
+	 * @internal
+	 * @param Opt_Xml_Element $node The node found by the compiler.
+	 */
+	protected function _postprocessBody(Opt_Xml_Element $node)
+	{
+		$this->_postprocessTree($node);
+	} // end _postprocessBody();
 
 	/**
 	 * Postprocesses the opt:tree node.
@@ -250,7 +299,7 @@ switch($cmd)
 		{
 			if(!$node->get('sectionElse'))
 			{
-				$this->_sortSectionContents($node, 'opt', 'treeelse');
+				$this->_sortSectionContents($node, 'opt', 'else');
 			}
 		}
 		$this->_sectionEnd($node);
@@ -261,7 +310,7 @@ switch($cmd)
 	 * @internal
 	 * @param Opt_Xml_Element $node The instruction node found by the compiler.
 	 */
-	protected function _processTreeelse(Opt_Xml_Element $node)
+	protected function _processElse(Opt_Xml_Element $node)
 	{
 		$parent = $node->getParent();
 		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:tree')
@@ -272,5 +321,5 @@ switch($cmd)
 			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
 			$this->_process($node);
 		}
-	} // end _processTreeelse();
+	} // end _processElse();
 } // end Opt_Instruction_Tree;

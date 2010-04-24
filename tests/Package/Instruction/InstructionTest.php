@@ -83,7 +83,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Component/component_skipping_opt.txt'),
 			array('Component/component_inject_procedure.txt'),
 			array('Component/component_inject_snippet.txt'),
-		//	array('Component/component_nesting.txt'),
+			array('Component/component_nesting.txt'),
 
 			// IF
 			array('If/if_basic.txt'),
@@ -122,6 +122,19 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Section/section_if_coop.txt'),
 			array('Section/section_display.txt'),
 			array('Section/section_special_var.txt'),
+
+			// TREE
+			array('Tree/tree_basic.txt'),
+			array('Tree/tree_complex.txt'),
+			array('Tree/tree_else.txt'),
+			array('Tree/tree_body.txt'),
+			array('Tree/tree_body_else_correct.txt'),
+			array('Tree/tree_body_else_invalid.txt'),
+			array('Tree/tree_else_nested.txt'),
+			array('Tree/tree_list_loop.txt'),
+			array('Tree/tree_node_loop.txt'),
+			array('Tree/tree_different_depth.txt'),
+			array('Tree/tree_depth_error.txt'),
 			/*
 				array('attribute_1.txt'),
 				array('attribute_2.txt'),

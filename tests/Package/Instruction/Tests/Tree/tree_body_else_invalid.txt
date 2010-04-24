@@ -1,22 +1,26 @@
-Check if placing opt:content from opt:list in a loop causes an exception.
+Placing opt:else in opt:body should not be permitted.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:tree name="tree">
+FOE
+<opt:body>
 <opt:list>
-<opt:repeat times="5">
+LIST START:
 <opt:content />
-</opt:repeat>
+LIST END:
 </opt:list>
 <opt:node>
 NODE {$tree.title} START:
 <opt:content />
 NODE {$tree.title} END
 </opt:node>
-<opt:treeelse>NO DATA</opt:treeelse>
+<opt:else>NO DATA</opt:else>
+</opt:body>
+EOF
 </opt:tree>
 </opt:root>
 
 >>>>expected.txt
-Opt_TreeContent_Exception
+Opt_Instruction_Exception

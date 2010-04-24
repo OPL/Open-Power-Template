@@ -36,14 +36,17 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 	private $_compiler;
 
 	/**
-	 * Sets the compiler instance.
+	 * Sets the compiler instance. Note that this compiler can be instantiated
+	 * only if XMLReader PHP extension is installed.
+	 *
+	 * @throws Opl_Dependency_Exception
 	 * @param Opt_Compiler_Class $compiler The compiler object
 	 */
 	public function setCompiler(Opt_Compiler_Class $compiler)
 	{
 		if(!extension_loaded('XMLReader'))
 		{
-			throw new Opt_NotSupported_Exception('XML parser', 'XMLReader extension is not loaded');
+			throw new Opl_Dependency_Exception('XMLReader extension is not loaded', Opl_Dependency_Exception::PHP);
 		}
 		$this->_compiler = $compiler;
 	} // end setCompiler();
@@ -59,6 +62,7 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 	/**
 	 * Parses the input code and returns the OPT XML tree.
 	 *
+	 * @throws Opt_Parser_Exception
 	 * @param String $filename The file name (for debug purposes)
 	 * @param String &$code The code to parse
 	 * @return Opt_Xml_Root
@@ -204,10 +208,14 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 		if(sizeof($errors) > 0)
 		{
 			libxml_clear_errors();
-			foreach($errors as $error)
-			{
-				echo $error->message.' ('.$error->line.')<br/>';
-			}
+			$msg = current($errors);
+
+			throw new Opt_Parser_Exception(
+				$msg->message,
+				'XML',
+				$filename,
+				$msg->line
+			);
 		}
 
 		return $root;

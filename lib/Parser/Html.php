@@ -345,7 +345,7 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 			{
 				$current = $current->getParent();
 			}
-			throw new Opt_UnclosedTag_Exception($current->getXmlName());
+			throw new Opt_Parser_Exception('Unclosed tag: '.$current->getXmlName(), 'HTML', $filename);
 		}
 
 		if($this->_mode == 0 && $this->_tpl->singleRootNode)
