@@ -1,0 +1,75 @@
+Title: pluralize()
+VersionSince: 2.0.5
+Reference: string pluralize(int $number, string $singularForm [, string $pluralForm1, string $pluralForm2 ... ])
+SeeAlso:
+ - guide.i18n
+
+----
+
+Attempts to pluralize the singular form `$singularForm` for the given number `$number`. If the plural forms are not specified, the function asks the installed [translation interface][guide.i18n] for the plural form. Otherwise it matches one of the specified plural forms according to the rules specified in the `$pluralForms` OPT configuration option. By default, the rules for English language are installed.
+
+Sample use:
+
+~~~~
+[xml]
+{@userCount is 0}
+<!-- display: "We have 0 users on our website." -->
+<p>We have {$userCount} {pluralize($userCount, 'user', 'users')} on our website.</p>
+
+{@userCount is 1}
+<!-- display: "We have 1 user on our website." -->
+<p>We have {$userCount} {pluralize($userCount, 'user', 'users')} on our website.</p>
+
+{@userCount is 6}
+<!-- display: "We have 6 users on our website." -->
+<p>We have {$userCount} {pluralize($userCount, 'user', 'users')} on our website.</p>
+~~~~
+
+Plural forms for other languages
+================================
+
+Different languages may handle plural forms differently, i.e. by using different cases. The default behaviour can be easily reprogrammed on the script side through the `$pluralForms` configuration option. The option contains an associative list of PHP expressions matching different cases and the grammar forms to be used. The matching number must be encoded as `%d`. The final element is always taken as the final alternative and is assumed to be true.
+
+Below, we can see an example for Polish language, where for numbers 0 and greater than 4 we have to change the case to genitive:
+
+~~~~
+[php]
+$tpl->pluralForms = array(
+	'%d == 0 || %d > 4' => 2,	// The genitive form will be the third on the argument list
+	'%d == 1' => 0,	// Singular form, the first 
+	'%d' => 1	// In all other cases, use second form
+);
+~~~~
+
+The same sample template, but for Polish laguage:
+
+~~~~
+[xml]
+{@userCount is 0}
+<!-- display: "0 użytkowników." -->
+<p>{$userCount} {pluralize($userCount, 'użytkownik', 'użytkownicy', 'użytkowników')}.</p>
+
+{@userCount is 1}
+<!-- display: "1 użytkownik." -->
+<p>{$userCount} {pluralize($userCount, 'użytkownik', 'użytkownicy', 'użytkowników')}.</p>
+
+{@userCount is 3}
+<!-- display: "3 użytkownicy." -->
+<p>{$userCount} {pluralize($userCount, 'użytkownik', 'użytkownicy', 'użytkowników')}.</p>
+
+{@userCount is 6}
+<!-- display: "6 użytkowników." -->
+<p>{$userCount} {pluralize($userCount, 'użytkownik', 'użytkownicy', 'użytkowników')}.</p>
+~~~~
+
+If the option refers to an undefined form, an exception is thrown.
+
+> [information]
+> On PHP 5.3 the `$pluralForms` may be a closure which returns the number of argument to be used for the given number.
+
+Translation interface
+=====================
+
+On multilingual websites, we do not know the number of available grammar forms for each language that might be implemented. Fortunately, if the plural forms are not specified, `pluralize()` asks the translation interface for the plural form and leaves to the programmer implementing the proper inflection algorithm depending on the currently selected language.
+
+The function expects the translation interface to implement the `pluralize()` method that takes two arguments: the number and the singular form. The `$pluralForms` configuration option is ignored then. Note that the method is not required by `Opl_Translation_Interface` to be implemented. In this case, the function throws an exception.

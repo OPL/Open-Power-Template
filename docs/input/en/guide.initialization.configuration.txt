@@ -113,13 +113,16 @@ Misc. options
 :	Allows to add an extra identifier to the compiled template name.
 
 `moneyFormat`
-:	The default money format used by the `money()` function.
+:	The default money format used by the [money()][syntax.functions.money] function.
 
 `numberDecimals`
-:	The default setting for the first argument of `number()` function.
+:	The default setting for the first argument of [number()][syntax.functions.number] function.
 
 `numberDecPoint`
-:	The default setting for the second argument of `number()` function.
+:	The default setting for the second argument of [number()][syntax.functions.number] function.
 
 `numberThousandSep`
-:	The default setting for the third argument of `number()` function.
+:	The default setting for the third argument of [number()][syntax.functions.number] function.
+
+`pluralForms`
+:	The plural form configuration used by [pluralize()][syntax.functions.pluralize] function.

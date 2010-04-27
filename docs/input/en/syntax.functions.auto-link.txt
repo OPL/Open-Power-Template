@@ -1,0 +1,20 @@
+Title: autoLink()
+VersionSince: 2.0.5
+Reference: string autoLink(string $text, [, string $class = null [, string $target = '_blank']])
+
+----
+
+Turns all URL-s into clickable links in the specified `$text`. The optional arguments are:
+
+# `$class` - the link CSS class.
+# `$target` - the link target (default to `_blank`).
+
+Note that if [HTML escaping][syntax.expressions.escaping] is enabled, you have to turn it off for the function result with the **u:** modifier in order to display it properly:
+
+~~~~
+[xml]
+<p>{u:autoLink($text)}</p>
+~~~~
+
+> [warning]
+> The function performs an automatic HTML escaping before parsing the `$text` argument against URL-s. It is not possible to parse a text that already contains HTML.

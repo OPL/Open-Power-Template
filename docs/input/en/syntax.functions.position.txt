@@ -1,0 +1,17 @@
+Title: position()
+VersionSince: 2.0.5
+Reference: int position(string $haystack, string $needle [, int $offset]])
+
+---
+
+Finds position of the first occurence of `$needle` in `$haystack` string. If the optional `$offset` is provided, the function searches from the specified offset. If the `$needle` is not found, the function returns **NULL**.
+
+Sample use:
+
+~~~~
+[xml]
+<a parse:href="$url">Click here</a>
+<opt:if test="position($url, 'debug') !== null">
+	<p>Warning: the link above switches on the debug mode.</p>
+</opt:if>
+~~~~

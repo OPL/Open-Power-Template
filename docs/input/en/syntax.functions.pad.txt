@@ -1,0 +1,19 @@
+Title: pad()
+VersionSince: 2.0.5
+Reference: mixed pad(mixed $value, int $length [, string $padString, [, string $paddingType]])
+
+----
+
+Pads a string `$value` to a certain length with another string. If the input string length is greater than or equal to `$length`, no padding takes place. Otherwise, the string is padded with `$padSymbol` symbols which are spaces by default. `$paddingType` specifies the padding type:
+
+# `right` - pads on the right (default)
+# `left` - pads on the left.
+# `both` - pads on the both sides.
+
+> [warning]
+> `$padString` can be truncated if the number of padded characters is not evenly divided by the `$padSymbol` length.
+
+<!-- .. -->
+
+> [information]
+> This function can operate also on a container of strings, padding all of them and returning the modified container.

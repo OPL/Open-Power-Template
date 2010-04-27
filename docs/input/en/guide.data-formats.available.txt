@@ -28,6 +28,9 @@ Available formats
 `RuntimeGenerator`
 :	Similar to `StaticGenerator`, but if no generator is provided, it assumes that the script assigned some static data for the sections.
 
+`SplDatastructure`
+:	Section format that iterates through SPL datastructures from PHP 5.3. It is available since OPT 2.0.5.
+
 Array
 =====
 
@@ -166,3 +169,30 @@ RuntimeGenerator
 ================
 
 This data format is an extension to the `StaticGenerator`. It allows to provide the generator optionally. If we do not specify the generator, the sections will look for the ordinary data.
+
+SplDatastructure
+================
+
+PHP 5.3.0 introduced a group of SPL classes implementing various generic data structures. This data format allows section iteration over them, making use of their extra features such as iteration mode. `SplDatastructure` must be decorated with another format to specify the type of each collection element:
+
+~~~~
+[php]
+$list = new SplDoublyLinkedList;
+$list->push('foo');
+$list->push('bar');
+$list->push('joe');
+
+$view->collection = $list;
+// List elements can be arrays or scalar values.
+$view->setFormat('collection', 'SplDatastructure/Array');
+~~~~
+
+The format handles the section `order` attribute in the following manner:
+
+# `order="asc"` - iterates in the default data structure order. I.e. for a queue, it displays elements from the first to the last one, but for a stack - starting from the top.
+# `order="desc"` - iterates in the data structure order opposite to the default. For a queue - from the last to the first one, and for a stack - starting from the bottom.
+
+If the data is not a valid SPL data structure or the specified data structure is empty, OPT skips the section and optionally jumps into the alternative block.
+
+> [information]
+> `SplDatastructure` format is available since Open Power Template 2.0.5.

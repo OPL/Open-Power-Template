@@ -110,6 +110,10 @@
 		public $numberDecimals;
 		public $numberDecPoint;
 		public $numberThousandSep;
+		public $pluralForms = array(
+			'%d == 1' => 0,
+			'%d' => 1
+		);
 
 		// Compiler configuration
 		public $mode = self::XML_MODE;
@@ -154,7 +158,9 @@
 			'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
 			'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
 			'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'containsKey' => 'Opt_Function::containsKey',
-			'cycle' => 'Opt_Function::cycle'
+			'cycle' => 'Opt_Function::cycle', 'autoLink' => 'Opt_Function::autoLink', 'pluralize' => 'Opt_Function::pluralize',
+			'countSubstring' => 'Opt_Function::countSubstring', 'pad' => 'Opt_Function::pad', 'autoLink' => 'Opt_Function::autoLink',
+			'position' => 'strpos'
 		);
 		protected $_classes = array();
 		protected $_components = array();
@@ -165,7 +171,8 @@
 			'SingleArray' => 'Opt_Format_SingleArray',
 			'StaticGenerator' => 'Opt_Format_StaticGenerator',
 			'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
-			'Objective' => 'Opt_Format_Objective');
+			'Objective' => 'Opt_Format_Objective',
+			'SplDatastructure' => 'Opt_Format_SplDatastructure');
 		protected $_entities = array('lb' => '{', 'rb' => '}');
 		protected $_buffers = array();
 

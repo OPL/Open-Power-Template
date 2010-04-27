@@ -196,6 +196,75 @@
 		} // end strip();
 
 		/**
+		 * Pads the string or a container.
+		 *
+		 * @static
+		 * @param string|container $string The string to pad.
+		 * @param int $length The pad length
+		 * @param string $padString The string used for padding.
+		 * @param string $type The padding type.
+		 * @return string|container The modified string.
+		 */
+		static public function pad($string, $length, $padString = ' ', $type = 'right')
+		{
+			if(!is_scalar($padString))
+			{
+				$padString = ' ';
+			}
+			switch((string)$type)
+			{
+				case 'left':
+					$type = STR_PAD_LEFT;
+					break;
+				case 'both':
+					$type = STR_PAD_BOTH;
+					break;
+				default:
+					$type = STR_PAD_RIGHT;
+			}
+			if(self::isContainer($string))
+			{
+				$list = array();
+				foreach($string as $idx => $str)
+				{
+					if(is_scalar($str))
+					{
+						$list[$idx] = str_pad((string)$str, (int)$length, (string)$padString, $type);
+					}
+				}
+				return $list;
+			}
+
+			return str_pad((string)$string, (int)$length, (string)$padString, $type);
+		} // end pad();
+
+		/**
+		 * Counts the occurences of substring in another string.
+		 *
+		 * @static
+		 * @param String|Container $string The source string or the container.
+		 * @param string $searched The searched string
+		 * @return String|Container The modified string.
+		 */
+		static public function countSubstring($string, $searched)
+		{
+			if(self::isContainer($string))
+			{
+				$i = 0;
+				foreach($string as $item)
+				{
+					if(is_string($item))
+					{
+						$i += substr_count($item, $searched);
+					}
+				}
+				return $i;
+			}
+
+			return substr_count($string, $searched);
+		} // end countSubstring();
+
+		/**
 		 * Truncates the string or the container of strings to the specified length.
 		 * If the string was really shortened, appends the $etc to the end of it.
 		 * By default, the function can truncate a string in the middle of a word.
@@ -571,6 +640,96 @@
 			}
 			return '&'.$name.';';
 		} // end entity();
+
+		/**
+		 * Attempts to generate a plural form of the specified string according
+		 * to the language rules and the specified number.
+		 *
+		 * @static
+		 * @throws Opt_Pluralize_Exception
+		 * @param int $number The number to determine the plural form.
+		 * @param string $singularForm The base singular form.
+		 * @param string ... The plural forms (if we do not use the translation interface)
+		 * @return string The grammar form for the specified number
+		 */
+		static public function pluralize($number, $singularForm)
+		{
+			$args = func_get_args();
+			$opt = Opl_Registry::get('opt');
+			if(sizeof($args) == 0)
+			{
+				// Use the translation interface.
+				
+				$tf = $opt->getTranslationInterface();
+
+				if($tf === null || !method_exists($tf, 'pluralize'))
+				{
+					throw new Opt_Pluralize_Exception('the translation interface does not support pluralization.');
+				}
+
+				return $tf->pluralize($number, $singularForm);
+			}
+			else
+			{
+				// Translate on the fly.
+
+				$argument = null;
+				if(is_object($opt->pluralForms) && is_callable($opt->pluralForms))
+				{
+					$closure = $opt->pluralForms;
+					$argument = $closure($number);
+				}
+				else
+				{
+					$last = sizeof($args) - 1;
+					$i = 0;
+					$arg = null;
+					foreach($opt->pluralForms as $expression => $argument)
+					{
+						$arg = $argument;
+						if($i != $last)
+						{
+							eval('$__result = ('.str_replace('%d', $number, $expression).');');
+							if($__result === true)
+							{
+								break;
+							}
+						}
+					}
+				}
+				if(!isset($args[$argument+1]))
+				{
+					throw new Opt_Pluralize_Exception('unknown grammar form number: '.$argument.'.');
+				}
+				return $args[$argument+1];
+			}
+		} // end pluralize();
+
+		/**
+		 * Turns URL-s into clickable links.
+		 *
+		 * @static
+		 * @param string $text The text to parse.
+		 * @param string $class The optional CSS class.
+		 * @param string $target The target.
+		 * @return string The parsed text.
+		 */
+		static public function autoLink($text, $class = null, $target = '_blank')
+		{
+			$extra = '';
+			if($class !== null)
+			{
+				$extra .= ' class="'.(string)htmlspecialchars($class).'"';
+			}
+			if($target !== null)
+			{
+				$extra .= ' target="'.(string)htmlspecialchars($target).'"';
+			}
+			return str_replace(array('<a href="www.', '<a href="ftp.'),
+				array('<a href="http://www.', '<a href="ftp://ftp.'),
+				preg_replace('/(((http|https|ftp|ftps|gopher)\:\/\/)|(www\.)|(ftp\.))([a-zA-Z0-9\_\-]+\@)?(([0-9a-fA-F\:]{6,39})|(([a-zA-Z0-9\-\_]+\.)*[a-zA-Z0-9\-\_]+(\:[0-9]{1,5})?)|(\[[0-9a-fA-F\:]{6,39}\]\:[0-9]{1,5}))(\/[a-zA-Z0-9\_\-\&\;\?\/\.\=\+\#]*)?/is',
+				'<a href="$0"'.$extra.'>$0</a>', htmlspecialchars($text)));
+		} // end autoLink();
 
 		/**
 		 * Builds XML attributes from an array. The function allows to specify the

@@ -1,0 +1,7 @@
+Title: countSubstring()
+VersionSince: 2.0.5
+Reference: int countSubstring(mixed $haystack, string $needle)
+
+----
+
+Counts the occurences of `$needle` in `$haystack`. The haystack can be either a string or a container where the function counts the occurences in all the container elements.
