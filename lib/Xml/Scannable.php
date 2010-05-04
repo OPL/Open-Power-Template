@@ -205,6 +205,16 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		}
 		$this->_size--;
 
+		// Iteration...
+		if($this->_iterator === $node)
+		{
+			$this->_iterator = $node->_previous;
+			if($this->_iterator === null)
+			{
+				$this->_iterator = -1;
+			}
+		}
+
 		// The border cases...
 		if($this->_first === $node)
 		{
@@ -319,6 +329,12 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		{
 			throw new Opt_APIInvalidBorders_Exception;
 		}
+
+		if($this->_iterator === $refnode)
+		{
+			$this->_iterator = $newnode;
+		}
+
 		$newnode->unmount();
 		$newnode->_previous = $refnode->_previous;
 		$newnode->_next = $refnode->_next;
@@ -778,8 +794,16 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		{
 			throw new OutOfBoundsException('Opt_Xml_Scannable has already reached the end of a collection.');
 		}
-		$this->_iterator = $this->_iterator->_next;
-		$this->_position++;
+		if($this->_iterator === -1)
+		{
+			$this->_iterator = $this->_first;
+			$this->_position = 0;
+		}
+		else
+		{
+			$this->_iterator = $this->_iterator->_next;
+			$this->_position++;
+		}
 	} // end next();
 
 	/**

@@ -23,6 +23,10 @@
  */
 class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 {
+	const TAIL_NO = 0;
+	const TAIL_PASSIVE = 1;
+	const TAIL_ACTIVE = 2;
+
 	/**
 	 * The processor name.
 	 * @var string
@@ -74,7 +78,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 
 		$this->addSwitchable('opt:switch');
 		$this->addSwitchHandler('opt:equals', $this->_compiler->createFormat(null, 'SwitchEquals'), 500);
-		$this->addSwitchHandler('opt:contains', $this->_compiler->createFormat(null, 'SwitchContains'), 1000);
+	//	$this->addSwitchHandler('opt:contains', $this->_compiler->createFormat(null, 'SwitchContains'), 1000);
 	} // end configure();
 
 	/**
@@ -214,229 +218,229 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 		if(!$this->_initialized)
 		{
 			ksort($this->_priority);
-
-			$i = 0;
-			foreach($this->_priority as $num => $handlerName)
-			{
-				$this->_sort[$handlerName] = $i++;
-				foreach($this->_reverseGroup[$handlerName] as $subHandler)
-				{
-					$this->_sort[$handlerName] = $i++;
-				}
-			}
-			$this->_sort['*'] = $i;
-			unset($this->_reverseGroup);	// Won't be necessary anymore.
 			$this->_initialized = true;
 		}
-
-		// Initialize the containers and sort the subnodes.
 		$containers = array();
-		$topNodes = array();
-		$node->sort($this->_sort);
-
-		// Collect the subnodes with the recursion to detect the opt:equals and opt:contains tags.
-		$stack = new SplStack;
-		$stack->push($node);
-		$node->rewind();
-		$nextAction = 0;
-		$previous = null;
-		$previousMeaningful = null;
-		$cbConstruct = array();
-		while($stack->count() != 0)
+		foreach($this->_priority as $handler)
 		{
-			// This is a finite state machine
-			switch($nextAction)
-			{
-				// Process the element
-				case 0:
-					$element = $stack->top();
-
-					// Top-level element
-					if($stack->count() == 1)
-					{
-						$nextAction = 3;
-					}
-					// Nested elements
-					elseif($this->_detectSwitchable($element))
-					{
-						$nextAction = 2;
-					}
-					// Switch cases
-					elseif(($type = $element->get('priv:switch-type')) !== null)
-					{
-						$nextAction = 2;
-						if($element->hasChildren())
-						{
-							if(!isset($container[$type]))
-							{
-								$container[$type] = array();
-								$topNodes[$type] = array();
-							}
-							($previous !== null && $stack->count() > 2) and $container[$type][] = $this->_constructCb($previousMeaningful);
-							$container[$type][] = $this->_constructIb($element);
-							$previousMeaningful = $element;
-							if($stack->count() == 2)
-							{
-								$topNodes[$type][] = $element;
-							}
-							$lastContainer = $type;
-							$nextAction = 3;
-						}						
-					}
-					// Others
-					else
-					{
-						$nextAction = 2;
-						if($element->hasChildren())
-						{
-							$nextAction = 3;
-						}
-					}
-					break;
-				// Move to the next element
-				case 1:
-					$element = $stack->top();
-					if(!$jumpIn)
-					{
-						$element->next();
-					}
-					$jumpIn = false;
-					$found = false;
-					while($element->valid())
-					{
-						$item = $element->current();
-						if($item instanceof Opt_Xml_Element)
-						{
-							$type = $this->_detectCase($item);
-							if($stack->count() == 1 && $type === null)
-							{
-								// TODO: Exception here!
-								die('Error');
-							}
-							$item->set('priv:switch-type', $type);
-							$stack->push($item);
-
-							$nextAction = 0;
-							$found = true;
-							break;
-						}
-						else
-						{
-							$previous = $item;
-						}
-						$element->next();
-					}
-					if($found === false)
-					{
-						$nextAction = 2;
-					}
-					break;
-				// Jump out.
-				case 2:
-					$element = $stack->pop();
-					$type = $element->get('priv:switch-type');
-					if($type !== null)
-					{
-						$doExtra = false;
-						if($this->_possibleExtraFinalCb($element))
-						{
-							$doExtra = true;
-						}
-
-						if(!isset($container[$type]))
-						{
-							$container[$type] = array();
-							$topNodes[$type] = array();
-						}
-
-						$doExtra and $container[$type][] = $this->_constructCb($element);
-						$container[$type][] = $this->_constructEb($element);
-					}
-					$previous = $element;
-					$nextAction = 1;
-					break;
-				// Jump in to the first element
-				case 3:
-					$element = $stack->top();
-					$element->rewind();
-					$nextAction = 1;
-					$previous = null;
-					$jumpIn = true;
-					break;
-			}
+			$containers[$handler] = $this->_createSwitchGroup($node, $handler, $this->_handlers[$handler][0]);
+		}
+		// Clear the list
+		$elements = array();
+		foreach($node as $subnodes)
+		{
+			$elements[] = $subnodes;
+		}
+	 
+		$node->removeChildren();
+		foreach($elements as $subnodes)
+		{
+			$subnodes->dispose();
 		}
 
-		// Remove remainders
-		$node->removeChildren();
-
-		// OK, it's time for the finale! Ouuuey!!!!
-		// du-du-du dum dum, du-du-du dum dum... xD
-		$iteration = 0;
-		$previous = null;
-		foreach($this->_priority as $handlerName)
+		// Now build the new tree.
+		$first = true;
+		foreach($containers as $handler => $container)
 		{
-			// Skip empty containers
-			if(!isset($container[$handlerName]))
+			if($container->hasChildren())
 			{
-				continue;
-			}
-
-			$format = $this->_handlers[$handlerName][0];
-			$format->assign('test', $test);
-			$format->assign('container', $container[$handlerName]);
-			$format->action('switch:analyze');
-
-			$typeNode = new Opt_Xml_Element($handlerName.'-type');
-			$typeNode->set('hidden', false);
-			foreach($topNodes[$handlerName] as $element)
-			{
-				$typeNode->appendChild($element);
-			}
-
-			$node->appendChild($typeNode);
-
-			if($iteration == 0)
-			{
-				$typeNode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:enterTestBegin.first'));
-				$typeNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:enterTestEnd.first'));
-			}
-			else
-			{
-				$typeNode->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:enterTestBegin.later'));
-				$typeNode->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:enterTestEnd.later'));
-			}
-
-			
-			$nesting = 0;
-			foreach($container[$handlerName] as &$elements)
-			{
-				$elements[0] == 'ib' and $nesting++;
-				$elements[0] == 'eb' and $nesting--;
-
-				switch($elements[0])
+				$format = $this->_handlers[$handler][0];
+				$format->assign('test', $test);
+				if($first)
 				{
-					case 'ib':
-						$params = $format->action('switch:caseAttributes');
-						$this->_extractAttributes($elements[1], $params);
-						$format->assign('attributes', $params);
-						$format->assign('nesting', $nesting);
-						$format->assign('element', $elements[1]);
+					$container->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:enterTestBegin.first'));
+					$container->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:enterTestEnd.first'));
+				
+					$first = false;
+				}
+				else
+				{
+					$container->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:enterTestBegin.later'));
+					$container->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:enterTestEnd.later'));
+				}
+				$node->appendChild($container);
+				$container->set('hidden', false);
+			}
+		}
+	//	$this->_compiler->_debugPrintNodes($node);
+	} // end createSwitch();
 
-						$elements[1]->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:caseBefore'));
-						$elements[1]->set('hidden', false);
-						$this->_process($elements[1]);
-						break;
-					case 'eb':
-						$format->assign('element', $elements[1]);
-						$format->assign('nesting', $nesting);
-						$elements[1]->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:caseAfter'));
+	/**
+	 * Creates and compiles a single opt:switch group. Note that it generates a
+	 * copy of the tree part that matches the group which is later returned.
+	 *
+	 * @internal
+	 * @throws Opt_Instruction_Exception
+	 * @param Opt_Xml_Node $base The base node
+	 * @param string $group The group to match
+	 * @param Opt_Format_Abstract The format to be used by this group.
+	 * @return Opt_Xml_Node
+	 */
+	private function _createSwitchGroup(Opt_Xml_Node $base, $group, Opt_Format_Abstract $format)
+	{
+		$node = new Opt_Xml_Element('opt:_');
+		$order = 0;
+
+		foreach($base as $subnode)
+		{
+			if($subnode instanceof Opt_Xml_Element)
+			{
+				if(($case = $this->_detectCase($subnode)) === null)
+				{
+					throw new Opt_Instruction_Exception('Invalid opt:switch node: '.$subnode->getXmlElement());
+				}
+				
+				if($case == $group)
+				{
+					// This node matches this particular group, so we can scan it
+					$node->appendChild($clone = clone $subnode);
+
+					$clone->set('priv:switch.parent', null);
+					$clone->set('priv:switch.tail', self::TAIL_ACTIVE);
+					$clone->set('priv:switch.skipOrdering', true);
+
+					$queue = new SplQueue;
+					$stack = new SplStack;
+					$queue->enqueue(array(0 => $clone, null, 0));
+					$scanned = null;
+
+					do
+					{
+						list($item, $parent, $nesting) = $queue->dequeue();
+						
+
+						if($this->_detectCase($item) !== null)
+						{
+							echo 'Xtracted '.(string)$item.' nested to '.$nesting.'<br/>';
+							$stack->push($item);
+							$item->set('priv:switch.parent', $parent);
+							$item->set('priv:switch.order', $order);
+							$item->set('priv:switch.orderList', array($order));
+							$item->set('priv:switch.nesting', $nesting);
+							$params = $format->action('switch:caseAttributes');
+							$this->_extractAttributes($item, $params);
+							$item->set('priv:switch.params', $params);
+							$format->assign('attributes', $params);
+							$format->assign('nesting', $nesting);
+							$format->assign('order', $order++);
+							$format->assign('element', $item);
+							$format->assign('skipOrdering', $item->get('priv:switch.skipOrdering'));
+
+							$item->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:caseBefore'));
+							
+							$item->set('hidden', false);
+							$this->_process($item);
+						}
+						
+						// Strip final whitespaces that would crash tail detection.
+						if($item instanceof Opt_Xml_Element && ($last = $item->getLastChild()) !== null)
+						{
+							if($last instanceof Opt_Xml_Text && $last->isWhitespace())
+							{
+								$item->removeChild($last);
+							}
+						}
+
+						// Now add the children to the processing queue.
+						$prev = null;
+						foreach($item as $subitem)
+						{
+							if($subitem instanceof Opt_Xml_Element && $this->_detectSwitchable($subitem))
+							{
+								continue;
+							}
+
+							if(($case = $this->_detectCase($subitem)) !== null)
+							{
+								// switch node.
+								// if it does not belong to our group, skip it but
+								// leave the contents, as they must be still available
+								// according to the switch case semantics.
+								if($case != $group)
+								{
+									foreach($subitem as $oneMoreSubnode)
+									{
+										$item->insertBefore($oneMoreSubnode, $subitem);
+									}
+									$item->removeChild($subitem);
+									continue;
+								}								
+								$queue->enqueue(array($subitem, $item, $nesting+1));
+
+								// Check tailness.
+								if($subitem->getNext() === null && ($next = $subitem->getParent()) !== null && $this->_detectCase($next) !== null)
+								{
+									$subitem->set('priv:switch.tail', self::TAIL_PASSIVE);
+									if($parent !== null && $parent->get('priv:switch.skipOrdering') === true)
+									{
+										echo 'Setting skipOrdering for '.$subitem->getAttribute('value').'<br/>';
+										$subitem->set('priv:switch.skipOrdering', true);
+									}
+								}
+								else
+								{
+									$subitem->set('priv:switch.tail', self::TAIL_NO);
+								}
+							}
+							else
+							{
+								// Ordinary node
+								$queue->enqueue(array($subitem, $parent, $nesting));
+							}
+						}
+					}
+					while($queue->count() > 0);
+
+					// Now the stack and the reversed BFS - note that it operates on
+					// switch cases only.
+					do
+					{
+						$item = $stack->pop();
+
+				//		if($item->get('priv:switch.tail') !== self::TAIL_PASSIVE)
+				//		{
+							// In case of passive tail nesting, we must pass the order number
+							// to the parent which could need it to close it properly.
+							$parent = $item->get('priv:switch.parent');
+							$list = array();
+							if(is_array($tmp = $item->get('priv:switch.orderList')))
+							{
+								foreach($tmp as $stuff)
+								{
+									$list[] = $stuff;
+								}
+							}
+							if(is_object($parent) && is_array($tmp = $parent->get('priv:switch.orderList')))
+							{
+								foreach($tmp as $stuff)
+								{
+									$list[] = $stuff;
+								}
+							}
+							if(is_object($parent))
+							{
+								$parent->set('priv:switch.orderList', $list);
+							}
+					//	}
+
+						$format->assign('orderList', $item->get('priv:switch.orderList'));
+						$format->assign('tail', $item->get('priv:switch.tail'));
+						$format->assign('attributes', $item->get('priv:switch.params'));
+						$format->assign('nesting', $item->get('priv:switch.nesting'));
+						$format->assign('order', $item->get('priv:switch.order'));
+						$format->assign('element', $item);
+						$item->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:caseAfter'));
+					}
+					while($stack->count() > 0);
 				}
 			}
-			$typeNode->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:testsBefore'));
-			$typeNode->addBefore(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:testsAfter'));
-			$format->assign('container', null);
 		}
-	} // end createSwitch();
+		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:testsBefore'));
+		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:testsAfter'));
+		$node->set('hidden', false);
+
+		return $node;
+	} // end _createSwitchGroup();
 
 	/**
 	 * Test if we should add some terminating Code Block to the container
@@ -486,13 +490,23 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	 * a particular tag.
 	 *
 	 * @internal
-	 * @param Opt_Xml_Element $element The element to test
+	 * @param Opt_Xml_Node $element The element to test
 	 * @return string|null
 	 */
-	private function _detectCase(Opt_Xml_Element $element)
+	private function _detectCase(Opt_Xml_Node $element)
 	{
+		if(! $element instanceof Opt_Xml_Element)
+		{
+			return null;
+		}
+		if($element->get('priv:switch.nextCase') !== null)
+		{
+			return $element->get('priv:switch.nextCase');
+		}
+
 		if(isset($this->_handlers[$element->getXmlName()]))
 		{
+			$element->set('priv:switch.nextCase', $element->getXmlName());
 			return $element->getXmlName();
 		}
 		// Look for an attribute.
@@ -502,10 +516,10 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 			{
 				if(isset($this->_handlers[$attribute->getXmlName()]))
 				{
+					$element->set('priv:switch.nextCase', $attribute->getXmlName());
 					return $attribute->getXmlName();
 				}
 			}
-
 		}
 		return null;
 	} // end _detectCase();

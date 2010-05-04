@@ -75,23 +75,27 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 			case 'switch:caseBefore':
 				$params = $this->_getVar('attributes');
 				$element = $this->_getVar('element');
-				$order = $element->get('priv:order');
-				if($this->_getVar('nesting') == 1)
+				$order = $element->get('priv:switch.order');
+				if($this->_getVar('nesting') == 0)
 				{
-					return 'case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; ';
+					return 'case '.$params['value'].':'.PHP_EOL.' ';
 				}
 				else
 				{
 					// This is an element without a tail recursion. PHP does not support such a case
 					// so we must emulate it with GOTO by jumping to the appropriate label somewhere
 					// deep in the switch.
-					if($element->get('priv:common-break') !== null)
+					if($element->get('priv:switch.tail') === Opt_Instruction_Switch::TAIL_NO)
 					{
 						$this->_finalConditions .= ' case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; goto __switcheq_'.self::$_counter.'_'.$order.';';
 						return ' __switcheq_'.self::$_counter.'_'.$order.': ';
 					}
 					else
 					{
+						if($this->_getVar('skipOrdering') === true)
+						{
+							return 'case '.$params['value'].':'.PHP_EOL;
+						}
 						return 'case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; ';
 					}
 				}
@@ -99,7 +103,7 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 			case 'switch:caseAfter':
 				// We render it only if the switch:analyze action reported it as an occurence
 				// that should generate something
-				if(($orders = $this->_getVar('element')->get('priv:common-break')) !== null)
+				if($this->_getVar('tail') !== Opt_Instruction_Switch::TAIL_PASSIVE)
 				{
 					if($this->_getVar('nesting') == 0)
 					{
@@ -112,7 +116,7 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 						// IF clause and check the state manually once again.
 						$code = ' if(';
 						$first = true;
-						foreach($orders as $order)
+						foreach($this->_getVar('orderList') as $order)
 						{
 							if(!$first)
 							{

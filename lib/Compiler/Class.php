@@ -362,6 +362,55 @@ class Opt_Compiler_Class
 		$this->_modifiers = null;
 	} // end __destruct();
 
+		public function _debugPrintNodes($node)
+		{
+			echo '<ul>';
+
+			foreach($node as $id => $subnode)
+			{
+				if(!is_object($subnode))
+				{
+					echo '<li><font color="red"><strong>Non-object value detected in the node list! Type: '.gettype($subnode).'</strong></font></li>';
+					continue;
+				}
+
+				$hidden = $subnode->get('hidden') ? ' (HIDDEN)' : '';
+				switch($subnode->getType())
+				{
+					case 'Opt_Xml_Cdata':
+						echo '<li>'.$id.': <strong>Character data:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
+						break;
+					case 'Opt_Xml_Comment':
+						echo '<li>'.$id.': <strong>Comment:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
+						break;
+					case 'Opt_Xml_Text':
+						echo '<li>'.$id.': <strong>Text:</strong> ';
+						$this ->_debugPrintNodes($subnode);
+						echo $hidden.'</li>';
+						break;
+					case 'Opt_Xml_Expression':
+						echo '<li>'.$id.': <strong>Expression:</strong> '.$subnode.$hidden.'</li>';
+						break;
+					case 'Opt_Xml_Element':
+						echo '<li>'.$id.': <strong>Element node:</strong> '.$subnode->getXmlName().' (';
+						$args = $subnode->getAttributes();
+						foreach($args as $name => $value)
+						{
+							echo $name.'="'.$value.'" ';
+						}
+						echo ')';
+						if($subnode->get('single') === true)
+						{
+							echo ' single';
+						}
+						$this ->_debugPrintNodes($subnode);
+						echo $hidden.'</li>';
+						break;
+				}
+			}
+			echo '</ul>';
+		} // end _debugPrintNodes();
+
 	/*
 	 * General purpose tools and utilities
 	 */

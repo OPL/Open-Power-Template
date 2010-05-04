@@ -45,7 +45,7 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 	 *
 	 * @var SplStack
 	 */
-	private $_topConditions;
+	private $_finalConditions;
 
 	/**
 	 * The switch counter to generate unique variable names.
@@ -179,65 +179,6 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 			return array(
 				'value' => array(0 => Opt_Instruction_Abstract::REQUIRED, Opt_Instruction_Abstract::EXPRESSION, null, 'parse')
 			);
-		}
-		else
-		// switch:analyze
-		{
-			$state = 0;
-			$order = 0;
-			$orderList = array();
-			$prev = null;
-			$nesting = 0;
-
-			// Find all the tail-recursive combinations, where "break" instruction
-			// is not necessary. For the other ones, grab the information, what
-			// EQUAL blocks it finalizes.
-			foreach($this->_getVar('container') as $elements)
-			{
-				if($elements[0] == 'ib')
-				{
-					$nesting++;
-					$elements[1]->set('priv:order', $order++);
-				}
-				elseif($elements[0] == 'eb')
-				{
-					$nesting--;
-				}
-
-				switch($state)
-				{
-					case 0:
-						if($elements[0] == 'eb')
-						{
-							$orderList[] = $elements[1]->get('priv:order');
-							$prev = $elements[1];
-							$state = 1;
-						}
-						break;
-					case 1:
-						if($elements[0] == 'eb')
-						{
-							$orderList[] = $elements[1]->get('priv:order');
-							$prev = $elements[1];
-							$state = 1;
-						}
-						elseif($elements[0] == 'cb' && $elements[1] instanceof Opt_Xml_Text && $elements[1]->isWhitespace())
-						{
-							$state = 1;
-						}
-						else
-						{
-							$prev->set('priv:common-break', $orderList);
-							$orderList = array();
-							$state = 0;
-						}
-						break;
-				}
-			}
-			if($state == 1)
-			{
-				$prev->set('priv:common-break', $orderList);
-			}
 		}
 	} // end action();
 

@@ -187,7 +187,7 @@ static_value(res)	::= boolean(b).			{	res = $this->_expr->_scalarValue(b, Opt_Ex
 static_value(res)	::= NULL.				{	res = $this->_expr->_scalarValue('null', Opt_Expression_Standard::SCALAR_WEIGHT);	}
 
 string(s)			::= STRING(val).			{ s = val; }
-string(s)			::= IDENTIFIER(val).		{ s = val; }
+string(s)			::= IDENTIFIER(val).		{ s = '\''.val.'\''; }
 
 number(n)			::= NUMBER(val).			{ n =  val; }
 number(n)			::= MINUS NUMBER(val).		{ n = - val; }
