@@ -42,8 +42,8 @@ class Opt_Format_Container extends Opt_Format_Abstract
 	 * Build a PHP code for the specified hook name.
 	 *
 	 * @internal
-	 * @param String $hookName The hook name
-	 * @return String The output PHP code
+	 * @param string $hookName The hook name
+	 * @return string The output PHP code
 	 */
 	protected function _build($hookName)
 	{
@@ -64,6 +64,7 @@ class Opt_Format_Container extends Opt_Format_Abstract
 
 				if(sizeof($list) == 1)
 				{
+					
 					return 'Opt_Function::contains('.$container.', '.$list[0].')';
 				}
 				else

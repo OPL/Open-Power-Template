@@ -55,12 +55,6 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 	static private $_counter = 0;
 
 	/**
-	 * The stored local switch counter.
-	 * @var integer
-	 */
-	private $_cnt = 0;
-
-	/**
 	 * The local GOTO label generator.
 	 * @var integer
 	 */
@@ -78,93 +72,68 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 		switch($hookName)
 		{
 			case 'switch:enterTestBegin.first':
-				self::$_counter++;
-				$this->_cnt = self::$_counter;
-				return 'if(Opt_Function::isContainer($__test_'.$this->_cnt.' = '.$this->_getVar('test').')){ ';
+				return 'if(Opt_Function::isContainer($__test_'.self::$_counter.' = '.$this->_getVar('test').')){ ';
 			case 'switch:enterTestEnd.first':
 				return ' } ';
 			case 'switch:enterTestBegin.later':
-				self::$_counter++;
-				$this->_cnt = self::$_counter;
-				return 'elseif(Opt_Function::isContainer($__test_'.$this->_cnt.' = '.$this->_getVar('test').')){ ';
+				return 'elseif(Opt_Function::isContainer($__test_'.self::$_counter.' = '.$this->_getVar('test').')){ ';
 			case 'switch:enterTestEnd.later':
+				self::$_counter++;
 				return ' } ';
 			case 'switch:testsBefore':
-				return 'switch($__test_'.$this->_cnt.') { ';
+				return '';
 			case 'switch:testsAfter':
-				$code = $this->_finalConditions.' } ';
-				$this->_finalConditions = '';
-				return $code;
+				return '';
 			case 'switch:caseBefore':
 				$params = $this->_getVar('attributes');
 				$element = $this->_getVar('element');
 				$order = $element->get('priv:order');
 
 				$format = $this->_compiler->getFormat('#container', true);
-				$format->assign('container', '$__test');
-				$format->assign('list', $params['value']);
+				$format->assign('container', '$__test_'.self::$_counter);
+				$format->assign('values', $params['value']);
 				$format->assign('optimize', false);
 				$condition = $format->get('container:contains');
 
-				if($this->_getVar('nesting') == 1)
+				if($this->_getVar('nesting') == 0)
 				{
-					return 'if('.$condition.'){ ';
+					return 'if('.$condition.'){ '.PHP_EOL;
 				}
 				else
 				{
-
-					return '__switch_'.$this->_cnt.'_'.$this->_label.'e:';
-
-					// This is an element without a tail recursion. PHP does not support such a case
-					// so we must emulate it with GOTO by jumping to the appropriate label somewhere
-					// deep in the switch.
-					if($element->get('priv:common-break') !== null)
-					{
-						$this->_finalConditions .= ' case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; goto __switcheq_'.self::$_counter.'_'.$order.';';
-						return ' __switcheq_'.self::$_counter.'_'.$order.': ';
-					}
-					else
-					{
-						return 'case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; ';
-					}
+					return '__switch_'.self::$_counter.'_'.$this->_getVar('order').'e:'.PHP_EOL;
 				}
-				return '';
 			case 'switch:caseAfter':
-				// We render it only if the switch:analyze action reported it as an occurence
-				// that should generate something
-				$order = $element->get('priv:order');
-				if(($orders = $this->_getVar('element')->get('priv:common-break')) !== null)
+				if($this->_getVar('nesting') == 0)
 				{
-					if($this->_getVar('nesting') == 0)
-					{
-						$this->_conditions = '__switchconte_'.self::$_counter.'_'.$order.': ';
-						return ' goto _switchconte_'.self::$_counter.'_'.$order.';';
-					}
-					else
-					{
-						// This code processes a place without tail recursion. This case
-						// is not available in pure PHP, so we have to help us a bit with
-						// IF clause and check the state manually once again.
-						$code = ' if(';
-						$first = true;
-						foreach($orders as $order)
-						{
-							if(!$first)
-							{
-								$code .= ' || ';
-							}
-							else
-							{
-								$first = false;
-							}
-							$code .= '$__state_'.self::$_counter.' == '.$order;
-						}
-						return $code.'){ break; }';
-					}
+					return ' }'.PHP_EOL;
 				}
-				return '';
+				else
+				{
+					return '';
+				}
 		}
 	} // end _build();
+
+	public function __set($name, $value)
+	{
+		if($name == '_cnt')
+		{
+			echo 'Setting _cnt to '.$value.'<br/>';
+			$this->_xyz = $value;
+		}
+	}
+
+	public function __get($name)
+	{
+		if($name == '_cnt')
+		{
+			echo 'Reading _cnt as '.$this->_xyz.'<br/>';
+			return $this->_xyz;
+		}
+		echo 'Not _cnt! '.$name.'<br/>';
+		return null;
+	}
 
 	/**
 	 * The format actions.

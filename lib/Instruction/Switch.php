@@ -78,7 +78,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 
 		$this->addSwitchable('opt:switch');
 		$this->addSwitchHandler('opt:equals', $this->_compiler->createFormat(null, 'SwitchEquals'), 500);
-	//	$this->addSwitchHandler('opt:contains', $this->_compiler->createFormat(null, 'SwitchContains'), 1000);
+		$this->addSwitchHandler('opt:contains', $this->_compiler->createFormat(null, 'SwitchContains'), 1000);
 	} // end configure();
 
 	/**
@@ -287,7 +287,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 			{
 				if(($case = $this->_detectCase($subnode)) === null)
 				{
-					throw new Opt_Instruction_Exception('Invalid opt:switch node: '.$subnode->getXmlElement());
+					throw new Opt_Instruction_Exception('Invalid opt:switch node: '.$subnode->getXmlName());
 				}
 				
 				if($case == $group)

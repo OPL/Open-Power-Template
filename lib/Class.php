@@ -802,6 +802,8 @@ class Opt_View
 		$this->_template = $template;
 		$this->_parser = $this->_tpl->parser;
 		$this->_cache = $this->_tpl->getCache();
+
+		$this->_formatInfo['#container'] = $this->_tpl->containerFormat;
 	} // end __construct();
 
 	/**
