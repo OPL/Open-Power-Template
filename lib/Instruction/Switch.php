@@ -311,8 +311,16 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 
 						if($this->_detectCase($item) !== null)
 						{
-							echo 'Xtracted '.(string)$item.' nested to '.$nesting.'<br/>';
 							$stack->push($item);
+
+							// Pass some extra information for formats that use pure switch()
+							// that they can omit various internal indexes and use pure case()
+							// here.
+							if($parent !== null && $item->get('priv:switch.tail') === self::TAIL_PASSIVE && $parent->get('priv:switch.skipOrdering') === true)
+							{
+								$item->set('priv:switch.skipOrdering', true);
+							}
+
 							$item->set('priv:switch.parent', $parent);
 							$item->set('priv:switch.order', $order);
 							$item->set('priv:switch.orderList', array($order));
@@ -320,16 +328,11 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 							$params = $format->action('switch:caseAttributes');
 							$this->_extractAttributes($item, $params);
 							$item->set('priv:switch.params', $params);
-							$format->assign('attributes', $params);
-							$format->assign('nesting', $nesting);
-							$format->assign('order', $order++);
-							$format->assign('element', $item);
-							$format->assign('skipOrdering', $item->get('priv:switch.skipOrdering'));
-
-							$item->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:caseBefore'));
 							
 							$item->set('hidden', false);
 							$this->_process($item);
+
+							$order++;
 						}
 						
 						// Strip final whitespaces that would crash tail detection.
@@ -371,11 +374,6 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 								if($subitem->getNext() === null && ($next = $subitem->getParent()) !== null && $this->_detectCase($next) !== null)
 								{
 									$subitem->set('priv:switch.tail', self::TAIL_PASSIVE);
-									if($parent !== null && $parent->get('priv:switch.skipOrdering') === true)
-									{
-										echo 'Setting skipOrdering for '.$subitem->getAttribute('value').'<br/>';
-										$subitem->set('priv:switch.skipOrdering', true);
-									}
 								}
 								else
 								{
@@ -397,39 +395,45 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 					{
 						$item = $stack->pop();
 
-				//		if($item->get('priv:switch.tail') !== self::TAIL_PASSIVE)
-				//		{
-							// In case of passive tail nesting, we must pass the order number
-							// to the parent which could need it to close it properly.
-							$parent = $item->get('priv:switch.parent');
-							$list = array();
-							if(is_array($tmp = $item->get('priv:switch.orderList')))
+						// We must pass the order number
+						// to the parent which could need it to close it properly.
+						$parent = $item->get('priv:switch.parent');
+						$list = array();
+						if(is_array($tmp = $item->get('priv:switch.orderList')))
+						{
+							foreach($tmp as $stuff)
 							{
-								foreach($tmp as $stuff)
-								{
-									$list[] = $stuff;
-								}
+								$list[] = $stuff;
 							}
-							if(is_object($parent) && is_array($tmp = $parent->get('priv:switch.orderList')))
+						}
+						if(is_object($parent) && is_array($tmp = $parent->get('priv:switch.orderList')))
+						{
+							foreach($tmp as $stuff)
 							{
-								foreach($tmp as $stuff)
-								{
-									$list[] = $stuff;
-								}
+								$list[] = $stuff;
 							}
-							if(is_object($parent))
-							{
-								$parent->set('priv:switch.orderList', $list);
-							}
-					//	}
+						}
+						if(is_object($parent))
+						{
+							$parent->set('priv:switch.orderList', $list);
+						}
 
 						$format->assign('orderList', $item->get('priv:switch.orderList'));
 						$format->assign('tail', $item->get('priv:switch.tail'));
 						$format->assign('attributes', $item->get('priv:switch.params'));
 						$format->assign('nesting', $item->get('priv:switch.nesting'));
 						$format->assign('order', $item->get('priv:switch.order'));
+						$format->assign('skipOrdering', $item->get('priv:switch.skipOrdering'));
+						$format->assign('informed', $item->get('priv:switch.informed'));
 						$format->assign('element', $item);
+						$item->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:caseBefore'));
 						$item->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:caseAfter'));
+
+						// The item may notify parents about something
+						if($parent !== null && $parent->get('priv:switch.informed') === null)
+						{
+							$parent->set('priv:switch.informed', $format->action('switch:inform'));
+						}
 					}
 					while($stack->count() > 0);
 				}
@@ -441,31 +445,6 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 
 		return $node;
 	} // end _createSwitchGroup();
-
-	/**
-	 * Test if we should add some terminating Code Block to the container
-	 * before we push there Ending Block.
-	 *
-	 * @param Opt_Xml_Element $popped The popped element
-	 * @return boolean
-	 */
-	private function _possibleExtraFinalCb(Opt_Xml_Element $popped)
-	{
-		$item = $popped->getLastChild();
-		if($item === null)
-		{
-			return false;
-		}
-		if($item->get('priv:switch-type') !== null)
-		{
-			return false;
-		}
-		if($item instanceof Opt_Xml_Text && $item->isWhitespace() && $item->getPrevious() !== null && $item->getPrevious()->get('priv:switch-type') !== null)
-		{
-			return false;
-		}
-		return true;
-	} // end _possibleExtraFinalCb();
 
 	/**
 	 * Detects a switchable tag.
@@ -523,52 +502,4 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 		}
 		return null;
 	} // end _detectCase();
-
-	/**
-	 * Constructs the "Initialization block" for the containers.
-	 *
-	 * @internal
-	 * @param Opt_Xml_Element $tag The element.
-	 * @return SplFixedArray
-	 */
-	private function _constructIb($tag)
-	{
-		$object = new SplFixedArray(2);
-		$object[0] = 'ib';
-		$object[1] = $tag;
-
-		return $object;
-	} // end _constructIb();
-
-	/**
-	 * Constructs the "Code block" for the containers.
-	 *
-	 * @internal
-	 * @param Opt_Xml_Element $tag The element.
-	 * @return SplFixedArray
-	 */
-	private function _constructCb($tag)
-	{
-		$object = new SplFixedArray(2);
-		$object[0] = 'cb';
-		$object[1] = $tag;
-
-		return $object;
-	} // end _constructCb();
-
-	/**
-	 * Constructs the "Finalization block" for the containers.
-	 *
-	 * @internal
-	 * @param Opt_Xml_Element $tag The element.
-	 * @return SplFixedArray
-	 */
-	private function _constructEb($tag)
-	{
-		$object = new SplFixedArray(2);
-		$object[0] = 'eb';
-		$object[1] = $tag;
-
-		return $object;
-	} // end _constructEb();
 } // end Opt_Instruction_Switch;

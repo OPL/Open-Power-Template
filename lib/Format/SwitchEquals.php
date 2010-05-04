@@ -40,6 +40,21 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 	private $_finalConditions = '';
 
 	/**
+	 * State variable initializer buffer.
+	 *
+	 * @var string
+	 */
+	private $_stateInitializer = '';
+
+	/**
+	 * Returned by switch:inform, allows to inform the parent node
+	 * about something.
+	 *
+	 * @var mixed
+	 */
+	private $_inform = null;
+
+	/**
 	 * The switch counter to generate unique variable names.
 	 * @static
 	 * @var integer
@@ -67,17 +82,24 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 			case 'switch:enterTestEnd.later':
 				return ' } ';
 			case 'switch:testsBefore':
-				return 'switch($__test) { ';
+				$code = $this->_stateInitializer.' switch($__test) { ';
+				$this->_stateInitializer = '';
+				return $code;
 			case 'switch:testsAfter':
 				$code = $this->_finalConditions.' } ';
 				$this->_finalConditions = '';
 				return $code;
 			case 'switch:caseBefore':
+				$this->_inform = null;
 				$params = $this->_getVar('attributes');
 				$element = $this->_getVar('element');
 				$order = $element->get('priv:switch.order');
 				if($this->_getVar('nesting') == 0)
 				{
+					if($this->_getVar('informed') === 1)
+					{
+						return 'case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; ';
+					}
 					return 'case '.$params['value'].':'.PHP_EOL.' ';
 				}
 				else
@@ -87,16 +109,24 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 					// deep in the switch.
 					if($element->get('priv:switch.tail') === Opt_Instruction_Switch::TAIL_NO)
 					{
+						// The information from the bottom must be passed upwards.
+						if($this->_getVar('informed') === 1)
+						{
+							$this->_inform = 1;
+						}
+
 						$this->_finalConditions .= ' case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; goto __switcheq_'.self::$_counter.'_'.$order.';';
 						return ' __switcheq_'.self::$_counter.'_'.$order.': ';
 					}
 					else
 					{
-						if($this->_getVar('skipOrdering') === true)
+						if($this->_getVar('skipOrdering') === true && $this->_getVar('informed') !== 1)
 						{
 							return 'case '.$params['value'].':'.PHP_EOL;
 						}
-						return 'case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; ';
+						$this->_stateInitializer = '$__state_'.self::$_counter.' = false;';
+						$this->_inform = 1;
+						return 'case '.$params['value'].':'.PHP_EOL.' $__state_'.self::$_counter.' = $__state_'.self::$_counter.' ?: '.$order.'; ';
 					}
 				}
 				return '';
@@ -150,63 +180,11 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 			);
 		}
 		else
-		// switch:analyze
 		{
-			$state = 0;
-			$order = 0;
-			$orderList = array();
-			$prev = null;
-			$nesting = 0;
-
-			// Find all the tail-recursive combinations, where "break" instruction
-			// is not necessary. For the other ones, grab the information, what
-			// EQUAL blocks it finalizes.
-			foreach($this->_getVar('container') as $elements)
-			{
-				if($elements[0] == 'ib')
-				{
-					$nesting++;
-					$elements[1]->set('priv:order', $order++);
-				}
-				elseif($elements[0] == 'eb')
-				{
-					$nesting--;
-				}
-
-				switch($state)
-				{
-					case 0:
-						if($elements[0] == 'eb')
-						{
-							$orderList[] = $elements[1]->get('priv:order');
-							$prev = $elements[1];
-							$state = 1;
-						}
-						break;
-					case 1:
-						if($elements[0] == 'eb')
-						{
-							$orderList[] = $elements[1]->get('priv:order');
-							$prev = $elements[1];
-							$state = 1;
-						}
-						elseif($elements[0] == 'cb' && $elements[1] instanceof Opt_Xml_Text && $elements[1]->isWhitespace())
-						{
-							$state = 1;
-						}
-						else
-						{
-							$prev->set('priv:common-break', $orderList);
-							$orderList = array();
-							$state = 0;
-						}
-						break;
-				}
-			}
-			if($state == 1)
-			{
-				$prev->set('priv:common-break', $orderList);
-			}
+			// switch:inform
+			$data = $this->_inform;
+			$this->_inform = null;
+			return $data;
 		}
 	} // end action();
 
