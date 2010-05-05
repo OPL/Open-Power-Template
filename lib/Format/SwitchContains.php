@@ -115,26 +115,6 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 		}
 	} // end _build();
 
-	public function __set($name, $value)
-	{
-		if($name == '_cnt')
-		{
-			echo 'Setting _cnt to '.$value.'<br/>';
-			$this->_xyz = $value;
-		}
-	}
-
-	public function __get($name)
-	{
-		if($name == '_cnt')
-		{
-			echo 'Reading _cnt as '.$this->_xyz.'<br/>';
-			return $this->_xyz;
-		}
-		echo 'Not _cnt! '.$name.'<br/>';
-		return null;
-	}
-
 	/**
 	 * The format actions.
 	 *

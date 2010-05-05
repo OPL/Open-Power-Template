@@ -240,7 +240,9 @@ class Opt_Class extends Opl_Class
 		'absolute' => 'Opt_Function::absolute', 'stddev' => 'Opt_Function::stddev', 'range' => 'Opt_Function::range',
 		'isUrl' => 'Opt_Function::isUrl', 'isImage' => 'Opt_Function::isImage', 'stddev' => 'Opt_Function::stddev',
 		'entity' => 'Opt_Function::entity', 'scalar' => 'is_scalar', 'cycle' => 'Opt_Function::cycle',
-		'containsKey' => 'Opt_Function::containsKey'
+		'containsKey' => 'Opt_Function::containsKey', 'autoLink' => 'Opt_Function::autoLink', 'pluralize' => 'Opt_Function::pluralize',
+		'countSubstring' => 'Opt_Function::countSubstring', 'pad' => 'Opt_Function::pad', 'autoLink' => 'Opt_Function::autoLink',
+		'position' => 'strpos'
 	);
 	/**
 	 * The list of registered classes: assotiative array of pairs:
