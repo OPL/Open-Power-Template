@@ -62,6 +62,12 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	protected $_mode = 0;
 
 	/**
+	 * The compiled file name.
+	 * @var string
+	 */
+	protected $_filename;
+
+	/**
 	 * Sets the compiler instance.
 	 *
 	 * @param Opt_Compiler_Class $compiler The compiler object
@@ -99,12 +105,15 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	/**
 	 * Parses the input code and returns the OPT XML tree.
 	 *
-	 * @param String $filename The file name (for debug purposes)
-	 * @param String &$code The code to parse
+	 * @throws Opt_Parser_Exception
+	 * @param string $filename The file name (for debug purposes)
+	 * @param string &$code The code to parse
 	 * @return Opt_Xml_Root
 	 */
 	public function parse($filename, &$code)
 	{
+		$this->_filename = $filename;
+
 		$current = $tree = new Opt_Xml_Root;
 		$codeSize = strlen($code);
 		$encoding = $this->_tpl->charset;
@@ -121,7 +130,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 
 				if($endProlog === false)
 				{
-					throw new Opt_XmlInvalidProlog_Exception('prolog ending is missing');
+					throw new Opt_Parser_Exception(
+						'Error while parsing XML prolog: prolog ending is missing',
+						'HTML',
+						$filename
+					);
 				}
 				$values = $this->_compileProlog(substr($code, 5, $endProlog - 5));
 				$endProlog += 2;
@@ -165,7 +178,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 				}
 				if($endDoctype == 0)
 				{
-					throw new Opt_XmlInvalidDoctype_Exception('doctype ending is missing');
+					throw new Opt_Parser_Exception(
+						'Error while parsing XML doctype: doctype ending is missing',
+						'HTML',
+						$filename
+					);
 				}
 
 				if(!$this->_tpl->prologRequired)
@@ -248,7 +265,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 				}
 				elseif($subgroups[$i] == '-->')
 				{
-					throw new Opt_XmlInvalidCharacter_Exception('--&gt;');
+					throw new Opt_Parser_Exception(
+						'XML Error: the static text "--&gt;" contains raw special XML characters.',
+						'HTML',
+						$filename
+					);
 				}
 				// Find XML tags
 				preg_match_all($tagExpression, $subgroups[$i], $result, PREG_SET_ORDER);
@@ -292,7 +313,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 						$attributes = $this->_compileAttributes($result[$j][$attributeCell]);
 						if(!is_array($attributes))
 						{
-							throw new Opt_XmlInvalidAttribute_Exception($result[$j][0]);
+							throw new Opt_Parser_Exception(
+								'XML Error: incorrect attribute format in tag: '.$result[$j][0],
+								'HTML',
+								$filename
+							);
 						}
 					}
 					// Recognize the tag type
@@ -311,24 +336,40 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 					{
 						if(sizeof($attributes) > 0)
 						{
-							throw new Opt_XmlInvalidTagStructure_Exception($result[$j][0]);
+							throw new Opt_Parser_Exception(
+								'XML Error: the following tag has an invalid structure: '.$result[$j][0],
+								'HTML',
+								$filename
+							);
 						}
 						if($current instanceof Opt_Xml_Element)
 						{
 							if($current->getXmlName() != $result[$j][4])
 							{
-								throw new Opt_XmlInvalidOrder_Exception($result[$j][4], $current->getXmlName());
+								throw new Opt_Parser_Exception(
+									'XML Error: the following tag has been closed in the incorrect order: '.$result[$j][4].'; expected: '.$current->getXmlName().'.',
+									'HTML',
+									$filename
+								);
 							}
 						}
 						else
 						{
-							throw new Opt_XmlInvalidOrder_Exception($result[$j][4], 'NULL');
+							throw new Opt_Parser_Exception(
+								'XML Error: the following tag has been closed in the incorrect order: '.$result[$j][4].'; expected: NULL.',
+								'HTML',
+								$filename
+							);
 						}
 						$current = $this->_treeJumpOut($current);
 					}
 					else
 					{
-						throw new Opt_XmlInvalidTagStructure_Exception($result[$j][0]);
+						throw new Opt_Parser_Exception(
+							'XML Error: the following tag has an invalid structure: '.$result[$j][0],
+							'HTML',
+							$filename
+						);
 					}
 				}
 				if(strlen($subgroups[$i]) > $offset)
@@ -345,7 +386,7 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 			{
 				$current = $current->getParent();
 			}
-			throw new Opt_Parser_Exception('Unclosed tag: '.$current->getXmlName(), 'HTML', $filename);
+			throw new Opt_Parser_Exception('XML error: unclosed tag: '.$current->getXmlName(), 'HTML', $filename);
 		}
 
 		if($this->_mode == 0 && $this->_tpl->singleRootNode)
@@ -362,7 +403,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 					if($elementFound)
 					{
 						// Oops, there is already another root node!
-						throw new Opt_XmlRootElement_Exception($item->getXmlName());
+						throw new Opt_Parser_Exception(
+							'XML Error: too many root elements in the template: '.$item->getXmlName(),
+							'HTML',
+							$filename
+						);
 					}
 					$elementFound = true;
 				}
@@ -377,8 +422,9 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	 * to the corresponding characters.
 	 *
 	 * @internal
-	 * @param String $attrList The attribute list string
-	 * @return Array The list of attributes with the values.
+	 * @throws Opt_Parser_Exception
+	 * @param string $attrList The attribute list string
+	 * @return array The list of attributes with the values.
 	 */
 	protected function _compileAttributes($attrList)
 	{
@@ -457,7 +503,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 				// stored without the entities.
 				if(isset($result[$name]))
 				{
-					throw new Opt_XmlDuplicatedAttribute_Exception($name, $tagName);
+					throw new Opt_Parser_Exception(
+						'XML Error: duplicated attribute '.$name.' in '.$tagName.'.',
+						'HTML',
+						$this->_filename
+					);
 				}
 				$result[$name] = htmlspecialchars_decode($value);
 			}
@@ -470,8 +520,8 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	 * algorith is the same, as in _compileAttributes().
 	 *
 	 * @internal
-	 * @param String $prolog The prolog string.
-	 * @return Array
+	 * @param string $prolog The prolog string.
+	 * @return array
 	 */
 	protected function _compileProlog($prolog)
 	{
@@ -487,7 +537,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 				// Traverse through a single attribute
 				if(!preg_match($this->_rNameExpression, $match[$i][0]))
 				{
-					throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
+					throw new Opt_Parser_Exception(
+						'Error while parsing XML prolog: invalid attribute format.',
+						'HTML',
+						$this->_filename
+					);
 				}
 
 				$vret = false;
@@ -497,13 +551,21 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 
 				if($i >= $size || $match[$i][0] != '=')
 				{
-					throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
+					throw new Opt_Parser_Exception(
+						'Error while parsing XML prolog: invalid attribute format.',
+						'HTML',
+						$this->_filename
+					);
 				}
 				for($i++; ctype_space($match[$i][0]) && $i < $size; $i++){}
 
 				if($match[$i][0] != '"' && $match[$i][0] != '\'')
 				{
-					throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
+					throw new Opt_Parser_Exception(
+						'Error while parsing XML prolog: invalid attribute format.',
+						'HTML',
+						$this->_filename
+					);
 				}
 				$opening = $match[$i][0];
 				$value = '';
@@ -517,7 +579,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 				}
 				if(!isset($match[$i][0]) || $match[$i][0] != $opening)
 				{
-					throw new Opt_XmlInvalidProlog_Exception('invalid attribute format');
+					throw new Opt_Parser_Exception(
+						'Error while parsing XML prolog: invalid attribute format.',
+						'HTML',
+						$this->_filename
+					);
 				}
 				// If we are here, the attribute is correct. No shit on the way detected.
 				$result[$name] = $value;
@@ -538,7 +604,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 		{
 			if(!preg_match($this->_rEncodingName, $result['encoding']))
 			{
-				throw new Opt_XmlInvalidProlog_Exception('invalid encoding name format');
+				throw new Opt_Parser_Exception(
+					'Error while parsing XML prolog: invalid encoding name format.',
+					'HTML',
+					$this->_filename
+				);
 			}
 			// The encoding should match the value we mentioned in the OPT configuration and sent to the browser.
 			$result['encoding'] = strtolower($result['encoding']);
@@ -557,13 +627,21 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 		{
 			if($result['standalone'] != 'yes' && $result['standalone'] != 'no')
 			{
-				throw new Opt_XmlInvalidProlog_Exception('invalid value for "standalone" attribute: "'.$result['standalone'].'"; expected: "yes", "no".');
+				throw new Opt_Parser_Exception(
+					'Error while parsing XML prolog: invalid value for "standalone" attribute: "'.$result['standalone'].'"; expected: "yes", "no".',
+					'HTML',
+					$this->_filename
+				);
 			}
 			unset($result['standalone']);
 		}
 		if(sizeof($result) > 0)
 		{
-			throw new Opt_XmlInvalidProlog_Exception('invalid attributes in prolog.');
+			throw new Opt_Parser_Exception(
+				'Error while parsing XML prolog: invalid attributes in the prolog.',
+				'HTML',
+				$this->_filename
+			);
 		}
 		return $returnedResult;
 	} // end _compileProlog();
@@ -576,9 +654,10 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	 * Moreover, it replaces the entities with the corresponding characters.
 	 *
 	 * @internal
+	 * @throws Opt_Parser_Exception
 	 * @param Opt_Xml_Node $current The current XML node.
-	 * @param String $text The text block between two tags.
-	 * @param Boolean $noExpressions=false If true, do not look for the expressions.
+	 * @param string $text The text block between two tags.
+	 * @param boolean $noExpressions=false If true, do not look for the expressions.
 	 * @return Opt_Xml_Node The current XML node.
 	 */
 	protected function _treeTextCompile($current, $text, $noExpressions = false)
@@ -587,7 +666,11 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 		// any special characters.
 		if(strcspn($text, '<>') != strlen($text))
 		{
-			throw new Opt_XmlInvalidCharacter_Exception(htmlspecialchars($text));
+			throw new Opt_Parser_Exception(
+				'XML Error: the static text "'.$text.'" contains raw special XML characters.',
+				'HTML',
+				$this->_filename
+			);
 		}
 
 		if($noExpressions)
@@ -627,7 +710,7 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	 *
 	 * @internal
 	 * @param Opt_Xml_Node $current The currently built XML node.
-	 * @param String|Opt_Xml_Node $text The text or the expression node.
+	 * @param string|Opt_Xml_Node $text The text or the expression node.
 	 * @return Opt_Xml_Node The current XML node.
 	 */
 	protected function _treeTextAppend($current, $text)
@@ -668,7 +751,7 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	 * @internal
 	 * @param Opt_Xml_Node $current The current node.
 	 * @param Opt_Xml_Node $node The newly created node.
-	 * @param Boolean $goInto Whether we visit the new node.
+	 * @param boolean $goInto Whether we visit the new node.
 	 * @return Opt_Xml_Node
 	 */
 	protected function _treeNodeAppend($current, $node, $goInto)
@@ -693,7 +776,7 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 	{
 		$parent = $current->getParent();
 
-		if(!is_null($parent))
+		if($parent !== null)
 		{
 			return $parent;
 		}

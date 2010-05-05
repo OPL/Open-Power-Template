@@ -112,7 +112,6 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 			{
 				$current = $optNode;
 			}
-		//	Opl_Debug::write($debug[$reader->nodeType].': '.$reader->name.', '.$reader->value);
 			switch($reader->nodeType)
 			{
 				// XML elements
