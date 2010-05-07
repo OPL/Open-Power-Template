@@ -57,7 +57,7 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 			// The end of the section loop.
 			case 'section:endLoop':
 				$section = $this->_getVar('section');
-				return ' $_sect'.$section['name'].'_i++; } ';
+				return ' $_sect'.$section['name'].'_i++; } if(isset($_sect'.$section['name'].'_default_order)){ try { $_sect'.$section['name'].'_vals->setIteratorMode($_sect'.$section['name'].'_default_order); } catch(RuntimeException $_sect'.$section['name'].'_exception){}} ';
 			// The condition that should test if the section is not empty.
 			case 'section:isNotEmpty':
 				// SPL structures compatible with format: SplDoublyLinkedList, SplStack, SplQueue
@@ -80,7 +80,11 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 				$this->_vals = '$_sect'.$section['name'].'_vals';
 				if($section['order'] == 'desc')
 				{
-					return ' if($_sect'.$section['name'].'_vals instanceof SplDoublyLinkedList){ $_sect'.$section['name'].'_vals->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO|SplDoublyLinkedList::IT_MODE_KEEP); } $_sect'.$section['name'].'_i = 0; ';
+					return 'try	{ $_sect'.$section['name'].'_default_order = $_sect'.$section['name'].'_vals->getIteratorMode(); $_sect'.$section['name'].'_vals->setIteratorMode((~$_sect'.$section['name'].'_default_order & 0x2) | ($_sect'.$section['name'].'_default_order & 0xfffd)); }
+						catch(RuntimeException $_sect'.$section['name'].'_exception){
+							$_sect'.$section['name'].'_tmp = new SplDoublyLinkedList; foreach($_sect'.$section['name'].'_vals as $v){ $_sect'.$section['name'].'_tmp->push($v); } $_sect'.$section['name'].'_tmp->rewind(); $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_tmp;
+							$_sect'.$section['name'].'_vals->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO|SplDoublyLinkedList::IT_MODE_KEEP); unset($_sect'.$section['name'].'_tmp);
+						} $_sect'.$section['name'].'_i = 0; ';
 				}
 				return '';
 			// The default loop for the ascending order.
