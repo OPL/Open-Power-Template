@@ -1,0 +1,29 @@
+SplDatastructure format: sections with SplStack.
+
+>>>>templates/test.tpl
+<opt:root>
+<opt:section name="foo">
+{$foo.item}
+</opt:section>
+<opt:section name="foo" order="desc">
+{$foo.item}
+</opt:section>
+</opt:root>
+
+>>>>data.php
+
+$spl1 = new SplStack;
+$spl1->push(array('item' => 'FOO'));
+$spl1->push(array('item' => 'BAR'));
+
+$view->foo = $spl1;
+$view->setFormat('foo', 'SplDatastructure');
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+BAR
+FOO
+FOO
+BAR
