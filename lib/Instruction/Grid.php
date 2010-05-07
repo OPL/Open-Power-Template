@@ -54,14 +54,15 @@
 			// Link those nodes to this section
 			$itemNode[0]->set('priv:section', $section);
 			$emptyItemNode[0]->set('priv:section', $section);
-			$emptyItemNode[0]->set('priv:section-validity', $section['format']->get('section:valid'));
 			
 			// Code generation			
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '$_'.$section['name'].'_rows = ceil('.$section['format']->get('section:count').' / '.$section['cols'].'); $_'.$section['name'].'_remain = ('.$section['cols'].
 			' - ('.$section['format']->get('section:count').' % '.$section['cols'].')) % '.$section['cols'].'; '.$section['format']->get('section:loopBefore').' '.$section['format']->get('section:reset').' '.
 			' for($_'.$section['name'].'_j = 0; $_'.$section['name'].'_j < $_'.$section['name'].'_rows; $_'.$section['name'].'_j++){ ');
 			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
-			
+
+			$emptyItemNode[0]->set('priv:section-validity', $section['format']->get('section:valid'));
+
 			$this->_process($node);
 		} // end _processGrid();
 		
