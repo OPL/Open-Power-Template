@@ -1,68 +1,36 @@
 <?php
-/*
- *  OPEN POWER LIBS <http://www.invenzzia.org>
+/**
+ * The SPL datastructure format.
  *
- *
- * This file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE. It is also available through
- * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
- *
- * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
- * and other contributors. See website for details.
- *
- * $Id$
+ * @author Amadeusz "megawebmaster" Starzykiewicz
+ * @copyright (c) Invenzzia Group 2010
  */
 
-/**
- * The data format that represents containers as objects.
- *
- * @author Tomasz Jędrzejewski
- * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
- * @license http://www.invenzzia.org/license/new-bsd New BSD License
- * @package Formats
- */
-class Opt_Format_Objective extends Opt_Format_Abstract
+class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 {
-	/**
-	 * The list of supported hook types.
-	 * @var array
-	 */
 	protected $_supports = array(
-		'section', 'variable', 'item'
+		'section'
 	);
 
-	/**
-	 * Data format properties as information for the
-	 * caller.
-	 *
-	 * @var array
-	 */
 	protected $_properties = array(
 		'section:useReference' => true,
 		'section:anyRequests' => null,
 		'section:itemAssign' => false,
-		'section:variableAssign' => true,
+		'section:variableAssign' => false,
 		'variable:useReference' => true,
-		'variable:assign' => true,
-		'item:assign' => true,
+		'variable:assign' => false,
+		'item:assign' => false,
 		'item:useReference' => true,
 	);
 
-	/**
-	 * The name of the element data variable.
-	 *
-	 * @internal
-	 * @var string
-	 */
 	protected $_vals;
 
 	/**
-	 * Build a PHP code for the specified hook name.
-	 *
-	 * @internal
-	 * @param String $hookName The hook name
-	 * @return String The output PHP code
-	 */
+		* Build a PHP code for the specified hook name.
+		*
+		* @param String $hookName The hook name
+		* @return String The output PHP code
+		*/
 	protected function _build($hookName)
 	{
 		switch($hookName)
@@ -71,13 +39,13 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 			case 'section:init':
 				$section = $this->_getVar('section');
 
-				if(!is_null($section['parent']))
+				if(($section['parent']) !== null)
 				{
 					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
 					$parent['format']->assign('item', $section['name']);
 					return '$_sect'.$section['name'].'_vals = '.$parent['format']->get('section:variable').'; ';
 				}
-				elseif(!is_null($section['datasource']))
+				elseif(($section['datasource']) !== null)
 				{
 					return '$_sect'.$section['name'].'_vals = '.$section['datasource'].'; ';
 				}
@@ -88,15 +56,18 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 				}
 			// The end of the section loop.
 			case 'section:endLoop':
-				return ' } ';
+				$section = $this->_getVar('section');
+				return ' $_sect'.$section['name'].'_i++; } ';
 			// The condition that should test if the section is not empty.
 			case 'section:isNotEmpty':
+				// SPL structures compatible with format: SplDoublyLinkedList, SplStack, SplQueue
 				$section = $this->_getVar('section');
-				return 'is_object($_sect'.$section['name'].'_vals) && ($_sect'.$section['name'].'_vals instanceof Traversable) && ($_sect'.$section['name'].'_vals instanceof Countable) && (($_sect'.$section['name'].'_cnt = $_sect'.$section['name'].'_vals->count()) > 0)';
+				return 'if(($_sect'.$section['name'].'_vals instanceof SplDoublyLinkedList || $_sect'.$section['name'].'_vals instanceof SplStack || $_sect'.$section['name'].'_vals instanceof SplQueue) && ($_sect'.$section['name'].'_cnt = $_sect'.$section['name'].'_vals->count())>0)';
 			// The code block after the condition
 			case 'section:started':
 				$section = $this->_getVar('section');
-				return 'if($_sect'.$section['name'].'_vals instanceof IteratorAggregate){ $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_vals->getIterator(); }';
+				return '';
+				//return 'if($_sect'.$section['name'].'_vals instanceof IteratorAggregate){ $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_vals->getIterator(); }';
 			// The code block before the end of the conditional block.
 			case 'section:finished':
 				return '';
@@ -106,24 +77,18 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 			// The code block before entering the loop.
 			case 'section:loopBefore':
 				$section = $this->_getVar('section');
+				$this->_vals = '$_sect'.$section['name'].'_vals';
 				if($section['order'] == 'desc')
 				{
-					$this->_vals = '$_sect'.$section['name'].'_tmp';
-					return ' $_sect'.$section['name'].'_tmp = array(); foreach($_sect'.$section['name'].'_vals as $i => $v){ $_sect'.$section['name'].'_tmp[$i] = $v; } ';
-				}
-				else
-				{
-					$this->_vals = '$_sect'.$section['name'].'_vals';
+					return ' if($_sect'.$section['name'].'_vals instanceof SplDoublyLinkedList){ $_sect'.$section['name'].'_vals->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO|SplDoublyLinkedList::IT_MODE_KEEP); } $_sect'.$section['name'].'_i = 0; ';
 				}
 				return '';
 			// The default loop for the ascending order.
 			case 'section:startAscLoop':
-				$section = $this->_getVar('section');
-				return 'foreach($_sect'.$section['name'].'_vals as $_sect'.$section['name'].'_i => $_sect'.$section['name'].'_v){ ';
 			// The default loop for the descending order.
 			case 'section:startDescLoop':
 				$section = $this->_getVar('section');
-				return 'for($_sect'.$section['nesting'].'_i = $_sect'.$section['name'].'_cnt-1; $_sect'.$section['nesting'].'_i >= 0; $_sect'.$section['nesting'].'_i--){ $_sect'.$section['name'].'_v = '.$this->_vals.'[$_sect'.$section['nesting'].'_i]; ';
+				return 'foreach($_sect'.$section['name'].'_vals as $_sect'.$section['name'].'_v){ ';
 			// Retrieving the whole section item.
 			case 'section:item':
 				$section = $this->_getVar('section');
@@ -135,60 +100,23 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 				{
 					return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:item');
 				}
-				return '$_sect'.$section['name'].'_v->'.$this->_getVar('item');
-			case 'section:variableAssign':
-				$section = $this->_getVar('section');
-				if($this->isDecorating())
-				{
-					return '$_sect'.$section['name'].'_v'.$this->_decorated->get('item:assign');
-				}
-				return '$_sect'.$section['name'].'_v->'.$this->_getVar('item').'='.$this->_getVar('value');
+				return '$_sect'.$section['name'].'_v['.$this->_getVar('item').']';
 			// Resetting the section to the first element.
 			case 'section:reset':
 				$section = $this->_getVar('section');
-				if($section['order'] == 'asc')
-				{
-					return $this->_vals.'->rewind();';
-				}
-				else
-				{
-					return 'end('.$this->_vals.'); $_sect'.$section['name'].'_v = current('.$this->_vals.'); $_sect'.$section['name'].'_i = key('.$this->_vals.'); ';
-				}
-				break;
+				return $this->_vals.'->rewind();';
 			// Moving to the next element.
 			case 'section:next':
 				$section = $this->_getVar('section');
-				if($section['order'] == 'asc')
-				{
-					return $this->_vals.'->next();';
-				}
-				else
-				{
-					return 'prev('.$this->_vals.'); $_sect'.$section['name'].'_i = key('.$this->_vals.');';
-				}
-				break;
+				return $this->_vals.'->next();';
 			// Checking whether the iterator is valid.
 			case 'section:valid':
 				$section = $this->_getVar('section');
-				if($section['order'] == 'asc')
-				{
-					return $this->_vals.'->valid()';
-				}
-				else
-				{
-					return 'isset('.$this->_vals.'[$_sect'.$section['name'].'_i])';
-				}
+				return $this->_vals.'->valid()';
 			// Populate the current element
 			case 'section:populate':
 				$section = $this->_getVar('section');
-				if($section['order'] == 'asc')
-				{
-					return '$_sect'.$section['name'].'_v = '.$this->_vals.'->current(); $_sect'.$section['name'].'_i = '.$this->_vals.'->key();';
-				}
-				else
-				{
-					return '$_sect'.$section['name'].'_v = current('.$this->_vals.'); $_sect'.$section['name'].'_i = key('.$this->_vals.');';
-				}
+				return '$_sect'.$section['name'].'_v = '.$this->_vals.'->current(); $_sect'.$section['name'].'_i = '.$this->_vals.'->key();';
 			// The code that returns the number of items in the section;
 			case 'section:count':
 				$section = $this->_getVar('section');
@@ -240,6 +168,7 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 					return '$ctx->_global[\''.$item.'\']';
 				}
 			case 'variable:assign':
+				// TODO: Add assigning
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
 				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
@@ -251,11 +180,12 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 					return '$ctx->_global[\''.$item.'\']='.$this->_getVar('value');
 				}
 			case 'item:item':
-				return '->'.$this->_getVar('item');
+				return '['.$this->_getVar('item').']';
 			case 'item:assign':
-				return '->'.$this->_getVar('item').'='.$this->_getVar('value');
+				// TODO: Add assigning
+				return '['.$this->_getVar('item').']='.$this->_getVar('value');
 			default:
 				return NULL;
 		}
 	} // end _build();
-} // end Opt_Format_Objective;
+} // end Opt_Format_Spldatastructure;
