@@ -46,10 +46,10 @@ class Opt_Parser_Exception extends Opt_Exception
 	 *
 	 * @param string $message The error message.
 	 * @param string $parser The parser name.
-	 * @param string $filename The template file name.
+	 * @param string $fileName The template file name.
 	 * @param integer $line The template line number.
 	 */
-	public function __construct($message, $parser, $filename, $line = null)
+	public function __construct($message, $parser, $fileName, $line = null)
 	{
 		$this->message = (string)$message;
 		$this->_parserName = (string)$parser;

@@ -384,6 +384,7 @@ class Opt_Class extends Opl_Class
 	 * Note that you may register several add-ons at the same time by passing an
 	 * array as the second argument.
 	 *
+	 * @throws Opt_Exception
 	 * @param int $type The type of registered item(s).
 	 * @param mixed $item The item or a list of items to be registered
 	 * @param mixed $addon = null Used in several types of add-ons
@@ -393,7 +394,7 @@ class Opt_Class extends Opl_Class
 	{
 		if($this->_init)
 		{
-			throw new Opt_Initialization_Exception($this->_init, 'register an item');
+			throw new Opt_Exception('Cannot register an item in OPT: the library has already been initialized.');
 		}
 
 		$map = array(1 => '_instructions', '_namespaces', '_formats', '_components', '_blocks', '_functions', '_classes', '_entities', '_exprEngines', '_modifiers');
@@ -611,9 +612,10 @@ class Opt_Class extends Opl_Class
 	 * the array with two (false) values in case of problems.
 	 *
 	 * @internal
-	 * @param String $filename The template filename
-	 * @param Boolean $exception Do we inform about the problems with exception?
-	 * @return String|Array
+	 * @throws Opl_Filesystem_Exception
+	 * @param string $filename The template filename
+	 * @param boolean $exception Do we inform about the problems with exception?
+	 * @return string|array
 	 */
 	public function _getSource($filename, $exception = true)
 	{
@@ -624,7 +626,7 @@ class Opt_Class extends Opl_Class
 			{
 				return array(false, false);
 			}
-			throw new Opt_TemplateNotFound_Exception($item);
+			throw new Opl_Filesystem_Exception('The specified template: '.$item.' has not been found.');
 		}
 		return file_get_contents($item);
 	} // end _getSource();
@@ -1348,6 +1350,7 @@ class Opt_View
 	 * case of problems, the array contains two NULL values.
 	 *
 	 * @internal
+	 * @throws Opl_Filesystem_Exception
 	 * @param boolean $exception Do we inform about unexisting template with exceptions?
 	 * @return array
 	 */
@@ -1368,7 +1371,7 @@ class Opt_View
 				{
 					return array(NULL, NULL);
 				}
-				throw new Opt_TemplateNotFound_Exception($item);
+				throw new Opl_Filesystem_Exception('The specified template: '.$item.' has not been found.');
 			}
 			$result = file_get_contents($item);
 		}
@@ -1382,7 +1385,7 @@ class Opt_View
 				{
 					return array(NULL, NULL);
 				}
-				throw new Opt_TemplateNotFound_Exception($item);
+				throw new Opl_Filesystem_Exception('The specified template: '.$item.' has not been found.');
 			}
 			if($compileTime === false || $compileTime < $rootTime)
 			{
@@ -1410,9 +1413,9 @@ class Opt_View
 	 *
 	 * Returns true, if one if the templates is newer than the compilation time.
 	 *
-	 * @param Int $compileTime Compiled template creation time.
-	 * @param Array $templates The list of dependencies
-	 * @return Boolean
+	 * @param int $compileTime Compiled template creation time.
+	 * @param array $templates The list of dependencies
+	 * @return boolean
 	 */
 	protected function _massPreprocess($compileTime, $templates)
 	{
@@ -1426,7 +1429,7 @@ class Opt_View
 				$time = @filemtime($templates[$i]);
 				if($time === null)
 				{
-					throw new Opt_TemplateNotFound_Exception($templates[$i]);
+					throw new Opl_Filesystem_Exception('The specified template: '.$templates[$i].' has not been found.');
 				}
 				if($time >= $compileTime)
 				{
