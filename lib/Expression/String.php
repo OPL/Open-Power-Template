@@ -50,11 +50,23 @@ class Opt_Expression_String implements Opt_Expression_Interface
 	/**
 	 * Parses the source expressions to the PHP code.
 	 *
-	 * @param String $expression The expression source
-	 * @return Array
+	 * @param string $expression The expression source
+	 * @return array
 	 */
 	public function parse($expression)
 	{
+		if($expression[0] == '\\')
+		{
+			if(strlen($expression) == 1)
+			{
+				$expression = '';
+			}
+			else
+			{
+				$expression = substr($expression, 1, strlen($expression) - 1);
+			}
+		}
+
 		$expression = '\''.addslashes($expression).'\'';
 		return array('bare' => $expression, 'escaped' => $expression, 'type' => Opt_Expression_Interface::SCALAR);
 	} // end parse();

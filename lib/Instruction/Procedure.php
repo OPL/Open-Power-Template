@@ -156,11 +156,11 @@ class Opt_Instruction_Procedure extends Opt_Instruction_Abstract
 			$procedureName = $procedureExpression['bare'];
 		}
 
-		$code .= ' if(!isset($ctx->_procs[\''.$procedureName.'\'])){ throw new Opt_ObjectNotExists_Exception(\'template procedure\', '.$procedureName.'); } ';
+		$code .= ' if(!isset($ctx->_procs['.$procedureName.'])){ throw new Opt_ObjectNotExists_Exception(\'template procedure\', '.$procedureName.'); } ';
 
 		if(!$callUserFunc)
 		{
-			$code .= ' $__call = $ctx->_procs[\''.$procedureName.'\']; ';
+			$code .= ' $__call = $ctx->_procs['.$procedureName.']; ';
 			if(sizeof($arguments) == 0)
 			{
 				$code .= ' $__call($ctx); ';
@@ -172,7 +172,7 @@ class Opt_Instruction_Procedure extends Opt_Instruction_Abstract
 		}
 		else
 		{
-			$code .= ' call_user_func_array($ctx->_procs[\''.$procedureName.'\'], '.$arguments.'); ';
+			$code .= ' call_user_func_array($ctx->_procs['.$procedureName.'], '.$arguments.'); ';
 		}
 		return $code;
 	} // end callProcedure();

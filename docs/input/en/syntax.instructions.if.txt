@@ -1,4 +1,6 @@
 Title: opt:if
+SeeAlso:
+ - syntax.instructions.switch
 
 ----
 > [warning]
@@ -20,7 +22,7 @@ Suppose we have a community website where the users can publish notes on various
 	<h1>{$note.title}</h1>
 	<p>Date: {$note.date}</p>
 	<opt:if test="$note.www">
-		<p><a parse:href="$note.www">Website</a></p>
+		<p><a href="parse:$note.www">Website</a></p>
 	</opt:if>
 	<p>{$note.body}
 </div>
@@ -42,19 +44,19 @@ In the first place, we can see, how to use `opt:if` to test if a variable is set
 	
 	This text will show, if the condition1 is passed.
 	
-	<opt:elseif test="condition2">
+	<opt:else-if test="condition2">
 		This text will show, if the condition1 fails and condition2 is passed.
-	</opt:elseif>
-	<opt:elseif test="condition3">
+	</opt:else-if>
+	<opt:else-if test="condition3">
 		This text will show, if the condition1 and condition2 fail, but condition3 is passed.
-	</opt:elseif>
+	</opt:else-if>
 	<opt:else>
 		This text will show, if neither of the conditions is passed.
 	</opt:else>
 </opt:if>
 ~~~~
 
-Note that placing `opt:elseif` and `opt:else` in any tag other than `opt:if` causes an error:
+Note that placing `opt:else-if` and `opt:else` in any tag other than `opt:if` causes an error:
 
 ~~~~
 [xml]
@@ -74,5 +76,97 @@ Now we might get back to our example and modify it to display a message about th
 	<opt:else>
 		<p>This is an ordinary note.</p>
 	</opt:else>
+</opt:if>
+~~~~
+
+Alternative syntax
+==================
+
+OPT 2.1 introduced a new syntax variant for `opt:if`. The primary and alternative conditions are not distinguished and provided as a set of `opt:condition` tags:
+
+~~~~
+[xml]
+<opt:if>
+	<opt:condition test="$condition1">The condition 1</opt:condition>
+	<opt:condition test="$condition2">The condition 2</opt:condition>
+	<opt:condition test="$condition3">The condition 3</opt:condition>
+	<opt:else>The final alternative</opt:else>
+</opt:if>
+~~~~
+
+Long ifs
+--------
+
+An unique feature of the new syntax variant and OPT 2.1 in general are so-called **long ifs**. Basically speaking, we can separate two conditions with an ordinary template code that would be always displayed, no matter what condition actually passes.
+
+~~~~
+[xml]
+<opt:if>
+	<p>First static content.</p>
+	
+	<opt:condition test="$condition1">The condition 1</opt:condition>
+	<opt:condition test="$condition2">The condition 2</opt:condition>
+	
+	<p>Second static content.</p>
+	
+	<opt:condition test="$condition3">The condition 3</opt:condition>
+	
+	<p>Third static content.</p>
+	
+	<opt:else>The final alternative</opt:else>
+</opt:if>
+~~~~
+
+If either condition 1 or condition 2 passes, we will see the following result:
+
+~~~~
+[xml]
+<p>First static content.</p>
+The condition 1
+<p>Second static content.</p>
+<p>Third static content.</p>
+~~~~
+
+For third condition, we will see:
+
+~~~~
+[xml]
+<p>First static content.</p>
+<p>Second static content.</p>
+The condition 3
+<p>Third static content.</p>
+~~~~
+
+And for the final alternative:
+
+~~~~
+[xml]
+<p>First static content.</p>
+<p>Second static content.</p>
+<p>Third static content.</p>
+The final alternative
+~~~~
+
+This feature is especially useful for customizing the templates depending on some conditions. Suppose we have two types of users: A and B. On their profile pages, there are some fields that are common, but some other are user-specific. The A-specific fields must be displayed first, then a group of common fields comes in, and finally - the fields of B users:
+
+~~~~
+[xml]
+<opt:if>
+<opt:condition test="$user.type eq 0">
+	<div class="field">
+		<p class="title">A-specific field:</p>
+		<p class="value">{$user.specificValue}</p>
+	</div>	
+</opt:condition>
+	<div class="field">
+		<p class="title">Common field:</p>
+		<p class="value">{$user.commonValue}</p>
+	</div>
+<opt:else>
+	<div class="field">
+		<p class="title">B-specific field:</p>
+		<p class="value">{$user.specificValue}</p>
+	</div>
+</opt:else>
 </opt:if>
 ~~~~

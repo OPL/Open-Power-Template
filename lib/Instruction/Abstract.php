@@ -134,7 +134,11 @@ abstract class Opt_Instruction_Abstract
 	public function migrateNode(Opt_Xml_Node $node)
 	{
 		$name = '_migrate'.ucfirst($node->getName());
-		$this->$name($node);
+		
+		if(method_exists($this, $name))
+		{
+			$this->$name($node);
+		}
 	} // end migrateNode();
 
 	/**
@@ -574,14 +578,14 @@ abstract class Opt_Instruction_Abstract
 					throw new Opt_Instruction_Exception('Yhe attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().' is empty.');
 					throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
 				}
-				if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $value, $found))
-				{
-					$result = $this->_compiler->parseExpression($found[2], $found[1]);
-				}
-				else
-				{
+			//	if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $value, $found))
+			//	{
+			//		$result = $this->_compiler->parseExpression($found[2], $found[1]);
+			//	}
+			//	else
+			//	{
 					$result = $this->_compiler->parseExpression($value, $exprType);
-				}
+			//	}
 
 				if($type == self::EXPRESSION_EXT)
 				{

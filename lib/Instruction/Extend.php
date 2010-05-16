@@ -88,7 +88,7 @@ class Opt_Instruction_Extend extends Opt_Instruction_Abstract
 			$this->_compiler->set('escaping', $params['escaping']);
 		}
 
-		if($params['dynamic'] && ($branch = $this->_compiler->inherits($this->_compiler->get('currentTemplate')) !== null))
+		if($params['dynamic'] && (($branch = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))) !== null))
 		{
 		}
 		elseif(isset($branches[$this->_compiler->get('branch')]))

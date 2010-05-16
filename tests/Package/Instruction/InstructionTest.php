@@ -85,6 +85,25 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Component/component_inject_snippet.txt'),
 			array('Component/component_nesting.txt'),
 
+			// CONTENT
+			array('Content/content_basic.txt'),
+			array('Content/content_complex.txt'),
+			array('Content/content_prepend.txt'),
+			array('Content/content_append.txt'),
+			array('Content/content_display.txt'),
+			array('Content/content_all.txt'),
+
+			// DTD
+			array('Dtd/dtd_custom.txt'),
+			array('Dtd/dtd_multiple.txt'),
+			array('Dtd/dtd_unknown.txt'),
+			array('Dtd/dtd_xhtml10transitional.txt'),
+			array('Dtd/dtd_xhtml10strict.txt'),
+			array('Dtd/dtd_xhtml10frameset.txt'),
+			array('Dtd/dtd_xhtml11.txt'),
+			array('Dtd/dtd_html40.txt'),
+			array('Dtd/dtd_html5.txt'),
+
 			// IF
 			array('If/if_basic.txt'),
 			array('If/if_basic_failure.txt'),
@@ -106,6 +125,20 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('If/if_new_attribute_nocondition.txt'),
 			array('If/if_new_condition_without_if.txt'),
 			array('OmitTag/omit_tag_basic.txt'),
+
+			// PROLOG
+			array('Prolog/prolog_default.txt'),
+			array('Prolog/prolog_in_content.txt'),
+			array('Prolog/prolog_custom_args.txt'),
+			array('Prolog/prolog_dynamic_version.txt'),
+			array('Prolog/prolog_dynamic_standalone.txt'),
+			array('Prolog/prolog_dynamic_encoding.txt'),
+
+			// REPEAT
+			array('Repeat/repeat_basic.txt'),
+			array('Repeat/repeat_separator.txt'),
+			array('Repeat/repeat_separator_2.txt'),
+			array('Repeat/repeat_iterator.txt'),
 
 			// SECTION
 			array('Section/section_basic.txt'),

@@ -417,7 +417,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 		);
 		$map = array('opt:set' => 0);
 
-		do
+		while($queue->count() > 0)
 		{
 			$current = $queue->dequeue();
 
@@ -448,7 +448,6 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 				$queue->enqueue($subnode);
 			}
 		}
-		while($queue->count() > 0);
 		return $result;
 	} // end _find();
 } // end Opt_Instruction_Component;

@@ -1,4 +1,5 @@
 preface
+whats-new
 installation
 installation.standard
 installation.phar

@@ -48,6 +48,10 @@ class Opt_Xml_Comment extends Opt_Xml_Cdata
 		{
 			$this->set('hidden', false);
 		}
+		else
+		{
+			$this->set('hidden', true);
+		}
 	} // end preProcess();
 
 	/**

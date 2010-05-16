@@ -639,9 +639,9 @@ class Opt_Compiler_Class
 	 * array taken as a parameter must be an associative array of pairs
 	 * 'extending' => 'extended' file names.
 	 *
-	 * @param Array $inheritance The list of inheritance rules.
+	 * @param array $inheritance The list of inheritance rules.
 	 */
-	public function setInheritance(Array $inheritance)
+	public function setInheritance(array $inheritance)
 	{
 		$this->_inheritance = $inheritance;
 	} // end setInheritance();
@@ -693,7 +693,7 @@ class Opt_Compiler_Class
 	 */
 	public function isIdentifier($id)
 	{
-		return preg_match($this->_rEncodingName, $id);
+		return preg_match('/[A-Za-z]([A-Za-z0-9.\_]|\-)*/si', $id);
 	} // end isIdentifier();
 
 	/**
@@ -1167,10 +1167,12 @@ class Opt_Compiler_Class
 	} // end hasModifier();
 
 	/**
-	 * Returns the template name that is inherited by the template '$name'
+	 * Returns the template name that is inherited by the template '$name'.
+	 * If there is no dynamic inheritance rule for the specified template,
+	 * it returns NULL.
 	 *
-	 * @param String $name The "current" template file name
-	 * @return String
+	 * @param string $name The "current" template file name
+	 * @return string
 	 */
 	public function inherits($name)
 	{
@@ -1792,17 +1794,14 @@ class Opt_Compiler_Class
 	public function parseExpression($expr, $ee = null, $escape = self::ESCAPE_BOTH, $defaultModifier = false)
 	{
 		// Autodetection of the expression engine
-		if($ee === null)
+		if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $expr, $found))
 		{
-			if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $expr, $found))
-			{
-				$expr = $found[2];
-				$ee = $found[1];
-			}
-			else
-			{
-				$ee = $this->_tpl->expressionEngine;
-			}
+			$expr = $found[2];
+			$ee = $found[1];
+		}
+		elseif($ee === null)
+		{
+			$ee = $this->_tpl->expressionEngine;
 		}
 
 		if(!isset($this->_exprEngines[$ee]))

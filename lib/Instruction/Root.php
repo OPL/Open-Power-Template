@@ -58,7 +58,7 @@ class Opt_Instruction_Root extends Opt_Instruction_Abstract
 	{
 		if($node->getParent()->getType() != 'Opt_Xml_Root')
 		{
-			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'ROOT');
+			throw new Opt_Instruction_Exception('opt:root must be the root tag in the document.');
 		}
 
 		$params = array(

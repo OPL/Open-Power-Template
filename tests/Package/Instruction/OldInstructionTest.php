@@ -39,7 +39,7 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Instruction_Tag
  * @covers Opt_Instruction_Tree
  */
-class Package_Instruction_InstructionTest extends Extra_TestFSBase
+class Package_Instruction_OldInstructionTest extends Extra_TestFSBase
 {
 
 	/**
@@ -48,8 +48,11 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 	 */
 	public function configure(Opt_Class $tpl)
 	{
-		$tpl->parser = 'Opt_Parser_Html';
+		$tpl->parser = Opt_Class::HTML_MODE;
 		$tpl->backwardCompatibility = true;
+		$tpl->printComments = false;
+		$tpl->stripWhitespaces = false;
+		$tpl->prologRequired = true;
 		$tpl->register(Opt_Class::OPT_COMPONENT, 'opt:myComponent', 'Extra_Mock_Component');
 		$tpl->register(Opt_Class::OPT_BLOCK, 'opt:myBlock', 'Extra_Mock_Block');
 	} // end configure();
@@ -102,6 +105,8 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 				array('component_9.txt'),
 				array('component_10.txt'),
 				array('component_11.txt'),
+				array('component_12.txt'),
+				array('component_13.txt'),
 				array('content_1.txt'),
 				array('content_2.txt'),
 				array('dtd_1.txt'),
@@ -111,6 +116,8 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 				array('dtd_5.txt'),
 				array('dtd_6.txt'),
 				array('dtd_7.txt'),
+				array('dtd_8.txt'),
+				array('dtd_9.txt'),
 				array('extend_1.txt'),
 				array('extend_2.txt'),
 				array('extend_3.txt'),
@@ -229,6 +236,8 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 				array('snippet_4.txt'),
 				array('snippet_5.txt'),
 				array('snippet_6.txt'),
+				array('snippet_7.txt'),
+				array('snippet_8.txt'),
 				array('tag_1.txt'),
 				array('tag_2.txt'),
 				array('tag_3.txt'),
@@ -250,6 +259,6 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
  	 */
 	public function testInstructions($testCase)
 	{
-		return $this->_checkTest(dirname(__FILE__).'/Tests/'.$testCase);
+		return $this->_checkTest(dirname(__FILE__).'/OldTests/'.$testCase);
 	} // end testInstructions();
-} // end Package_Instruction_InstructionTest;
+} // end Package_Instruction_OldInstructionTest;

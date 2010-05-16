@@ -2062,7 +2062,7 @@ static public $yy_action = array(
     {
 #line 22 "expression_parser.y"
 
-	throw new Opt_Expression_Exception($TOKEN, $this->_expr->getExpression());
+	throw new Opt_Expression_Exception('Invalid token: '.$TOKEN);
 #line 2053 "expression_parser.php"
     }
 

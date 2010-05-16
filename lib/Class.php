@@ -707,7 +707,7 @@ class Opt_View
 	 * Data format information storage
 	 * @var array
 	 */
-	private $_formatInfo = array('system' => 'System');
+	private $_formatInfo = array('system' => 'System', 'opt' => 'System');
 
 	/**
 	 * Template inheritance storage for the inflectors
@@ -1255,7 +1255,7 @@ class Opt_View
 	 */
 	public function inherit($source, $destination = null)
 	{
-		if($destination !== null)
+		if($destination === null)
 		{
 			$this->_inheritance[$this->_template] = (string)$source;
 		}

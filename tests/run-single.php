@@ -5,7 +5,7 @@
  * we provide our own utility that allows to run and study a single test
  * case that uses the filesystem wrapper.
  *
- * Usage: run.php /directory/something.txt
+ * Usage: run-single.php /directory/something.txt
  */
 
 if($argc != 2 && $argc != 3)

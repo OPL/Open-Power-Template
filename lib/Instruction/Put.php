@@ -70,7 +70,7 @@ class Opt_Instruction_Put extends Opt_Instruction_Abstract
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		$result = $this->_compiler->parseExpression($attr->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+		$result = $this->_compiler->parseExpression($attr->getValue(), 'parse', Opt_Compiler_Class::ESCAPE_OFF);
 
 		// Detect the neighbourhood.
 		$prepend = null;
@@ -78,21 +78,21 @@ class Opt_Instruction_Put extends Opt_Instruction_Abstract
 		$display = null;
 		if(($extra = $node->getAttribute('opt:content-prepend')) !== null)
 		{
-			$parsed = $this->_compiler->parseExpression($extra->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+			$parsed = $this->_compiler->parseExpression($extra->getValue(), 'str', Opt_Compiler_Class::ESCAPE_OFF);
 			$prepend = $parsed['bare'];
 		}
 		if(($extra = $node->getAttribute('opt:content-append')) !== null)
 		{
-			$parsed = $this->_compiler->parseExpression($extra->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+			$parsed = $this->_compiler->parseExpression($extra->getValue(), 'str', Opt_Compiler_Class::ESCAPE_OFF);
 			$append = $parsed['bare'];
 		}
 		if(($extra = $node->getAttribute('opt:content-display')) !== null)
 		{
-			$parsed = $this->_compiler->parseExpression($extra->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+			$parsed = $this->_compiler->parseExpression($extra->getValue(), 'parse', Opt_Compiler_Class::ESCAPE_OFF);
 			$display = $parsed['bare'];
 		}
 
-		if($result['complexity'] <= 10 || $display !== null)
+		if($result['type'] <= Opt_Expression_Interface::SINGLE_VAR || $display !== null)
 		{
 			if($display === null)
 			{

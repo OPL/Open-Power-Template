@@ -99,6 +99,16 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	public function _migrateInsert(Opt_Xml_Node $node)
 	{
 		$node->setName('use');
+
+		if($node->hasAttribute('ignoredefault'))
+		{
+			$attribute = $node->getAttribute('ignoredefault');
+			$attribute->setName('ignore-default');
+
+			$node->removeAttribute('ignoredefault');
+			$node->addAttribute($attribute);
+		}
+
 		return $node;
 	} // end _migrateInsert();
 

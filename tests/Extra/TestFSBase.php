@@ -83,8 +83,6 @@ class Extra_TestFSBase extends Extra_Testcase
 		$view = new Opt_View('test.tpl');
 		if(file_exists('test://data.php'))
 		{
-		//	$code = ;
-		//	echo $code;
 			eval(file_get_contents('test://data.php'));
 		}
 

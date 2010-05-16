@@ -70,15 +70,15 @@ class Opt_Instruction_Prolog extends Opt_Instruction_Abstract
 			$root = $tmp;
 		}
 
-		if(is_null($params['version']))
+		if($params['version'] === null)
 		{
 			$params['version'] = '\'1.0\'';
 		}
-		if(is_null($params['standalone']))
+		if($params['standalone'] === null)
 		{
 			$params['standalone'] = '\'yes\'';
 		}
-		if(is_null($params['encoding']))
+		if($params['encoding'] === null)
 		{
 			unset($params['encoding']);
 		}

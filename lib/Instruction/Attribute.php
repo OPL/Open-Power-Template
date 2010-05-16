@@ -390,7 +390,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 					$code[] = $result[0];
 				}
 			}
-			$code = $this->_compiler->escape(implode('.', $code));
+			$code = $this->_compiler->escape('a', implode('.', $code));
 
 			// Decide, what to do (final alternative or not...)
 			if(($condition = $tag->getAttribute('test')) === null)

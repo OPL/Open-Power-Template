@@ -22,7 +22,7 @@
 }
 
 %syntax_error {
-	throw new Opt_Expression_Exception($TOKEN, $this->_expr->getExpression());
+	throw new Opt_Expression_Exception('Invalid token: '.$TOKEN);
 }
 
 %left	AND.

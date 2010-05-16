@@ -146,37 +146,46 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	/**
 	 * Parses the source expressions to the PHP code.
 	 *
+	 * @throws Opt_Expression_Exception
 	 * @param string $expression The expression source
 	 * @return array
 	 */
 	public function parse($expr)
 	{
-		$this->_unique = 0;
-		$this->_expression = $expr;
-
-		$lexer = new Opt_Expression_Standard_Lexer($expr);
-		$parser = new Opt_Expression_Standard_Parser($this);
-		while ($lexer->yylex())
+		try
 		{
-			if($lexer->token != 'w')
+			$this->_unique = 0;
+			$this->_expression = $expr;
+
+			$lexer = new Opt_Expression_Standard_Lexer($expr);
+			$parser = new Opt_Expression_Standard_Parser($this);
+			while ($lexer->yylex())
 			{
-				$parser->doParse($lexer->token, $lexer->value);
+				if($lexer->token != 'w')
+				{
+					$parser->doParse($lexer->token, $lexer->value);
+				}
 			}
-		}
-		$parser->doParse(0, 0);
+			$parser->doParse(0, 0);
 
-		$exprType = Opt_Expression_Interface::COMPOUND;
-		if($this->_assign == true)
-		{
-			$exprType = Opt_Expression_Interface::ASSIGNMENT;
+			$exprType = Opt_Expression_Interface::COMPOUND;
+			if($this->_assign == true)
+			{
+				$exprType = Opt_Expression_Interface::ASSIGNMENT;
+			}
+			$this->_assign = false;
+			return array(
+				'bare'			=> $this->_compiled,
+				'expression'	=> $this->_compiled,
+				'complexity'	=> $this->_complexity,
+				'type'			=> $exprType
+			);
 		}
-		$this->_assign = false;
-		return array(
-			'bare'			=> $this->_compiled,
-			'expression'	=> $this->_compiled,
-			'complexity'	=> $this->_complexity,
-			'type'			=> $exprType
-		);
+		catch(Opt_Expression_Exception $exception)
+		{
+			$exception->setExpression($expr);
+			throw $exception;
+		}
 	} // end parse();
 
 	/**

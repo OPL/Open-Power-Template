@@ -7,4 +7,4 @@ Strange template - opt:dtd should report an exception.
 </opt:root>
 
 >>>>expected.txt
-Opt_InvalidValue_Exception
+Opt_Instruction_Exception
