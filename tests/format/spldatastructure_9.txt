@@ -1,22 +1,21 @@
-SplDatastructure format and stacks
-
+After iterating in the descending order, the format goes back
+to the previous settings.
 >>>>templates/test.tpl
 <opt:root>
-<opt:section name="foo">
+<opt:section name="foo" order="desc">
 {$foo.item}
 </opt:section>
 NEXT:
-<opt:section name="foo" order="desc">
+<opt:section name="foo">
 {$foo.item}
 </opt:section>
 </opt:root>
 
 >>>>data.php
 
-$spl1 = new SplStack;
+$spl1 = new SplDoublyLinkedList;
 $spl1->push(array('item' => 'FOO'));
 $spl1->push(array('item' => 'BAR'));
-$spl1->push(array('item' => 'JOE'));
 
 $view->foo = $spl1;
 $view->setFormat('foo', 'SplDatastructure');
@@ -25,10 +24,8 @@ $view->setFormat('foo', 'SplDatastructure');
 OUTPUT
 
 >>>>result.txt
-JOE
 BAR
 FOO
 NEXT:
 FOO
 BAR
-JOE

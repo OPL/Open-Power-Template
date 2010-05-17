@@ -77,6 +77,8 @@
 				array('spldatastructure_5.txt'),
 				array('spldatastructure_6.txt'),
 				array('spldatastructure_7.txt'),
+				array('spldatastructure_8.txt'),
+				array('spldatastructure_9.txt'),
 				array('runtimegen_1.txt'),
 				array('singlearray_1.txt'),
 				array('singlearray_2.txt'),

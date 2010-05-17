@@ -1,29 +1,19 @@
-SplDatastructure format: sections with SplQueue.
+SplDatastructure and invalid data
 
 >>>>templates/test.tpl
-<opt:root>
 <opt:section name="foo">
 {$foo.item}
+<opt:sectionelse>EMPTY</opt:sectionelse>
 </opt:section>
-<opt:section name="foo" order="desc">
-{$foo.item}
-</opt:section>
-</opt:root>
 
 >>>>data.php
 
-$spl1 = new SplQueue;
-$spl1->push(array('item' => 'FOO'));
-$spl1->push(array('item' => 'BAR'));
 
-$view->foo = $spl1;
+$view->foo = array('foo' => 'bar');
 $view->setFormat('foo', 'SplDatastructure');
 
 >>>>expected.txt
 OUTPUT
 
 >>>>result.txt
-FOO
-BAR
-BAR
-FOO
+EMPTY

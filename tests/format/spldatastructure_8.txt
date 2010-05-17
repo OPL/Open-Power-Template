@@ -1,4 +1,4 @@
-SplDatastructure format and stacks
+SplDatastructure format and queues
 
 >>>>templates/test.tpl
 <opt:root>
@@ -13,7 +13,7 @@ NEXT:
 
 >>>>data.php
 
-$spl1 = new SplStack;
+$spl1 = new SplQueue;
 $spl1->push(array('item' => 'FOO'));
 $spl1->push(array('item' => 'BAR'));
 $spl1->push(array('item' => 'JOE'));
@@ -25,10 +25,10 @@ $view->setFormat('foo', 'SplDatastructure');
 OUTPUT
 
 >>>>result.txt
-JOE
-BAR
 FOO
+BAR
+JOE
 NEXT:
-FOO
-BAR
 JOE
+BAR
+FOO

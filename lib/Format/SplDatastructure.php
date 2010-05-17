@@ -70,7 +70,7 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 			// The end of the section loop.
 			case 'section:endLoop':
 				$section = $this->_getVar('section');
-				return ' $_sect'.$section['name'].'_i++; } if(isset($_sect'.$section['name'].'_default_order)){ try { $_sect'.$section['name'].'_vals->setIteratorMode($_sect'.$section['name'].'_default_order); } catch(RuntimeException $_sect'.$section['name'].'_exception){}} ';
+				return ' $_sect'.$section['name'].'_i++; } ';
 			// The condition that should test if the section is not empty.
 			case 'section:isNotEmpty':
 				// SPL structures compatible with format: SplDoublyLinkedList, SplStack, SplQueue
@@ -83,6 +83,11 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 				//return 'if($_sect'.$section['name'].'_vals instanceof IteratorAggregate){ $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_vals->getIterator(); }';
 			// The code block before the end of the conditional block.
 			case 'section:finished':
+				$section = $this->_getVar('section');
+				if($section['order'] == 'desc')
+				{
+					return ' $_sect'.$section['name'].'_vals->setIteratorMode($_sect'.$section['name'].'_default_order); ';
+				}
 				return '';
 			// The code block after the conditional block
 			case 'section:done':
@@ -93,10 +98,10 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 				$this->_vals = '$_sect'.$section['name'].'_vals';
 				if($section['order'] == 'desc')
 				{
-					return 'try	{ $_sect'.$section['name'].'_default_order = $_sect'.$section['name'].'_vals->getIteratorMode(); $_sect'.$section['name'].'_vals->setIteratorMode((~$_sect'.$section['name'].'_default_order & 0x2) | ($_sect'.$section['name'].'_default_order & 0xfffd)); }
+					return 'try	{ $_sect'.$section['name'].'_default_order = $_sect'.$section['name'].'_vals->getIteratorMode(); $_sect'.$section['name'].'_vals->setIteratorMode((~$_sect'.$section['name'].'_default_order & SplDoublyLinkedList::IT_MODE_LIFO) | ($_sect'.$section['name'].'_default_order & ~SplDoublyLinkedList::IT_MODE_LIFO)); }
 						catch(RuntimeException $_sect'.$section['name'].'_exception){
-							$_sect'.$section['name'].'_tmp = new SplDoublyLinkedList; foreach($_sect'.$section['name'].'_vals as $v){ $_sect'.$section['name'].'_tmp->push($v); } $_sect'.$section['name'].'_tmp->rewind(); $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_tmp;
-							$_sect'.$section['name'].'_vals->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO|SplDoublyLinkedList::IT_MODE_KEEP); unset($_sect'.$section['name'].'_tmp);
+							$_sect'.$section['name'].'_tmp = new SplDoublyLinkedList; foreach($_sect'.$section['name'].'_vals as $v){ $_sect'.$section['name'].'_tmp->push($v); } $_sect'.$section['name'].'_vals = $_sect'.$section['name'].'_tmp;
+							$_sect'.$section['name'].'_vals->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO); unset($_sect'.$section['name'].'_tmp);
 						} $_sect'.$section['name'].'_i = 0; ';
 				}
 				return '';
