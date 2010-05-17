@@ -82,7 +82,7 @@
 		const PHP_CLASS = 7;
 		const XML_ENTITY = 8;
 	
-		const VERSION = '2.0.4';
+		const VERSION = '2.0.5';
 		const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 	
 		// Directory configuration
