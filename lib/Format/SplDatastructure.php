@@ -22,7 +22,7 @@
 class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 {
 	protected $_supports = array(
-		'section', 'variable', 'item'
+		'section'
 	);
 
 	protected $_properties = array(
@@ -30,10 +30,6 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 		'section:anyRequests' => null,
 		'section:itemAssign' => false,
 		'section:variableAssign' => false,
-		'variable:useReference' => true,
-		'variable:assign' => false,
-		'item:assign' => false,
-		'item:useReference' => true,
 	);
 
 	protected $_vals;
@@ -64,8 +60,14 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 				}
 				else
 				{
-					$this->assign('item', $section['name']);
-					return '$_sect'.$section['name'].'_vals = '.$this->get('variable:main').'; ';
+					if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
+					{
+						return '$_sect'.$section['name'].'_vals = $this->_data[\''.$section['name'].'\']; ';
+					}
+					else
+					{
+						return '$_sect'.$section['name'].'_vals = self::$_global[\''.$section['name'].'\']; ';
+					}
 				}
 			// The end of the section loop.
 			case 'section:endLoop':
@@ -75,7 +77,7 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 			case 'section:isNotEmpty':
 				// SPL structures compatible with format: SplDoublyLinkedList, SplStack, SplQueue
 				$section = $this->_getVar('section');
-				return '($_sect'.$section['name'].'_vals instanceof SplDoublyLinkedList || $_sect'.$section['name'].'_vals instanceof SplStack || $_sect'.$section['name'].'_vals instanceof SplQueue) && ($_sect'.$section['name'].'_cnt = $_sect'.$section['name'].'_vals->count())>0';
+				return '($_sect'.$section['name'].'_vals instanceof SplDoublyLinkedList) && ($_sect'.$section['name'].'_cnt = $_sect'.$section['name'].'_vals->count())>0';
 			// The code block after the condition
 			case 'section:started':
 				$section = $this->_getVar('section');
@@ -143,7 +145,7 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 			// Section item size.
 			case 'section:size':
 				$section = $this->_getVar('section');
-				return '($_sect'.$section['name'].'_v instanceof Countable ? $_sect'.$section['name'].'_v->count() : -1)';
+				return 'count($_sect'.$section['name'].'_v)';
 			// Section iterator.
 			case 'section:iterator':
 				$section = $this->_getVar('section');
@@ -174,35 +176,6 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 			case 'section:isExtreme':
 				$section = $this->_getVar('section');
 				return '(($_sect'.$section['name'].'_i == ($_sect'.$section['name'].'_cnt-1)) || ($_sect'.$section['name'].'_i == 0))';
-			// The variable access.
-			case 'variable:main':
-				$this->_applyVars = false;
-				$item = $this->_getVar('item');
-				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-				{
-					return '$this->_data[\''.$item.'\']';
-				}
-				else
-				{
-					return 'self::$_global[\''.$item.'\']';
-				}
-			case 'variable:assign':
-				// TODO: Add assigning
-				$this->_applyVars = false;
-				$item = $this->_getVar('item');
-				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-				{
-					return '$this->_data[\''.$item.'\']='.$this->_getVar('value');
-				}
-				else
-				{
-					return 'self::$_global[\''.$item.'\']='.$this->_getVar('value');
-				}
-			case 'item:item':
-				return '['.$this->_getVar('item').']';
-			case 'item:assign':
-				// TODO: Add assigning
-				return '['.$this->_getVar('item').']='.$this->_getVar('value');
 			default:
 				return NULL;
 		}

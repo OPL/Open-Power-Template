@@ -48,7 +48,7 @@
 				case 'section:init':
 					$section = $this->_getVar('section');
 
-					if(!is_null($section['parent']))
+					if($section['parent'] !== null)
 					{
 						$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
 						$parent['format']->assign('item', $section['name']);
@@ -173,7 +173,7 @@
 				// Section item size.
 				case 'section:size':
 					$section = $this->_getVar('section');
-					return '($_sect'.$section['name'].'_v instanceof Countable ? $_sect'.$section['name'].'_v->count() : -1)';
+					return 'count($_sect'.$section['name'].'_v)';
 				// Section iterator.
 				case 'section:iterator':
 					$section = $this->_getVar('section');

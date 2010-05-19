@@ -12,7 +12,7 @@
 		Written by <a parse:href="$entries.website" opt:on="$entries.website"><strong>{$entries.author}</strong></a>
 		on {$entries.date}</p>
 
-		<p>{u:nl2br($entries.body)}</p>
+		<p>{u:nl2br(autoLink($entries.body))}</p>
 	</div>
 	<opt:sectionelse>
 		<p class="message">There are no entries in the database now. Add one!</p>

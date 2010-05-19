@@ -52,6 +52,9 @@ div#content div.entry p.header {background: #dddddd; padding: 5px 10px; border-b
 div#content div.entry p.header a {color: #2b536e; font-weight: bold;}
 div#content div.entry p.header a:hover {text-decoration: underline;}
 
+div#content div.entry p a { color: #2b536e; }
+div#content div.entry p a:hover { color: #2b536e; text-decoration: underline; }
+
 div#content h2 {font-size: 14pt; font-weight: bold; margin: 10px 0;}
 div#content p.message {margin: 10px 0;}
 

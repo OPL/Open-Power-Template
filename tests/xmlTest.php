@@ -107,6 +107,7 @@
 				array('namespaces_1.txt'),
 				array('namespaces_2.txt'),
 				array('namespaces_3.txt'),
+				array('xmlns_1.txt'),
 			);
 		} // end correctProvider();
 

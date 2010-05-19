@@ -574,7 +574,7 @@
 			}
 			// Determine the section
 			$section = self::getSection($opt[2]);
-			if(is_null($section))
+			if($section === null)
 			{
 				throw new Opt_SectionNotFound_Exception('OPT variable $'.implode('.',$opt), $opt[2]);
 			}
