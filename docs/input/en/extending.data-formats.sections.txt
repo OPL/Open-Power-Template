@@ -52,7 +52,7 @@ The section instructions require the data format to use the following variable n
 > [error]
 > The code snippets returned by your data formats are obliged to use the variable names mentioned above.
 
-Unsually, the default data formats use also `$_sectSECTIONNAME_i` or `$_sectSECTIONNESTING_i` as an iterator variables, but this is not required.
+Usually, the default data formats use also `$_sectSECTIONNAME_i` or `$_sectSECTIONNESTING_i` as an iterator variables, but this is not required.
 
 > [information]
 > If the `$_sectSECTIONNAME_v` variable is required, OPT executes the `section:forceItemVariables` action to notify the data format about it.
@@ -269,7 +269,7 @@ Iteration snippets
 > [warning]
 > For the descending section order, the snippets above should actually iterate from the last to the first list item!
 
-Unsually, when using the iteration snippets, the section code must make use of the `$_sect'.$section['name'].'_v` mentioned earlier. OPT may request to populate this variable with the current item data, using the `section:populate` snippet. The code below comes from the `Objective` format implementation:
+Usually, when using the iteration snippets, the section code must make use of the `$_sect'.$section['name'].'_v` mentioned earlier. OPT may request to populate this variable with the current item data, using the `section:populate` snippet. The code below comes from the `Objective` format implementation:
 
 ~~~~
 [php]

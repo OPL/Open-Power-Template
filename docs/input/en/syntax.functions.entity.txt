@@ -7,7 +7,7 @@ SeeAlso:
 
 Allows to display an entity in the output document.
 
-Because OPT contains an XML parser, all the entities are parsed on the server-side. Unsually, this is not a bad thing, because the entities have been introduced mostly for the user convenience and the web browser is able to handle both the entities and the original characters. However, in certain situations it may be necessary to send the entity in the browser. We cannot prevent the parser from processing it, so we may use this function to encode it:
+Because OPT contains an XML parser, all the entities are parsed on the server-side. Usually, this is not a bad thing, because the entities have been introduced mostly for the user convenience and the web browser is able to handle both the entities and the original characters. However, in certain situations it may be necessary to send the entity in the browser. We cannot prevent the parser from processing it, so we may use this function to encode it:
 
 ~~~~
 [xml]
