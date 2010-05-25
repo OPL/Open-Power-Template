@@ -325,12 +325,9 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			$final = $count - 1;
 			$localWeight = 0;
 			$code = '';
-			$path = '';
-			$previous = null;
 			foreach($variable as $id => $item)
 			{
-				$previous = $path;
-				if($path == '')
+				if($code == '')
 				{
 					if(($to = $this->_compiler->convert('##var_'.$item)) != '##var_'.$item)
 					{
@@ -363,7 +360,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			switch($context)
 			{
 				case self::CONTEXT_ASSIGN:
-					$code .= ' = '.$contextInfo[0];
+					$code .= '='.$contextInfo[0];
 					break;
 				case self::CONTEXT_EXISTS:
 					$code = 'isset('.$code.')';
@@ -502,7 +499,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				$format = $this->_compiler->getFormat($path, true);
 				if(!$format->supports('variable'))
 				{
-					throw new Opt_FormatNotSupported_Exception($format->getName(), 'variable');
+					throw new Opt_Format_Exception('Variable access is not supported by the format '.$format->getName());
 				}
 				// Check if the format supports capturing the whole container
 				if($format->property('variable:capture'))
@@ -533,7 +530,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 
 					if(!$format->property('variable:'.$hook.$this->_dfCalls[$context]))
 					{
-						throw new Opt_OperationNotSupported_Exception($path, ltrim($this->_dfCalls[$context], '.'));
+						throw new Opt_Format_Exception('Variable '.ltrim($this->_dfCalls[$context], '.').' is not supported by the format '.$format->getName().' in '.$path);
 					}
 				}
 				$code = $format->get('variable:'.$hook.$this->_dfCalls[$context]);
@@ -635,55 +632,32 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		}
 
 		// Select the operator and the action.
+		$containerFormat = $this->_compiler->getFormat('#container', true);
 		switch($operator)
 		{
 			case 'contains':
-				// TODO: Add data format support here.
-				$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
+				$containerFormat->assign('container', $arguments[0][0]);
+				$containerFormat->assign('values', $arguments[1][0]);
+				$containerFormat->assign('optimize', false);
+				$finalExpression = $containerFormat->get('container:contains');
 				$finalWeight = $arguments[0][1] + $arguments[1][1] + $weight;
 				break;
-
 			case 'contains_both':
-				$operator = '&&';
+				$op = '&&';
 			case 'contains_either':
-				// TODO: Add data format support here.
-				// TODO: Simplify and optimize the lookup of multiple values by forcing smarter searching
-				// by the data format.
-
-				$operator = (isset($operator) ? $operator : '||');
-				// Decide if we need an optimization, when the tested first expression is too complex.
-				if($arguments[0][1] < 5)
-				{
-					// OK, this is pretty lightweight, we can duplicate it
-					$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].') '.$operator.' Opt_Function::contains('.$arguments[0][0].', '.$arguments[2][0].')';
-				}
-				else
-				{
-					// This is hard. The result of the first expression should be stored in a
-					// temporary variable in order not to calculate everything twice.
-					$finalExpression = 'Opt_Function::contains($__expru_'.$this->_unique.' = '.$arguments[0][0].', '.$arguments[1][0].') '.$operator.' Opt_Function::contains($__expru_'.$this->_unique.', '.$arguments[2][0].')';
-					$this->_unique++;
-				}
-				$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
+				$containerFormat->assign('container', $arguments[0][0]);
+				$containerFormat->assign('values', array($arguments[1][0], $arguments[2][0]));
+				$containerFormat->assign('optimize', $arguments[0][1] >= 5);
+				$containerFormat->assign('operator', (isset($op) ? $op : '||'));
+				$finalExpression = $containerFormat->get('container:contains');
 				$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
 				break;
 			case 'contains_neither':
-				// TODO: Add data format support here.
-
-				// Decide if we need an optimization, when the tested first expression is too complex.
-				if($arguments[0][1] < 5)
-				{
-					// OK, this is pretty lightweight, we can duplicate it
-					$finalExpression = '!Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].') && !Opt_Function::contains('.$arguments[0][0].', '.$arguments[2][0].')';
-				}
-				else
-				{
-					// This is hard. The result of the first expression should be stored in a
-					// temporary variable in order not to calculate everything twice.
-					$finalExpression = '!Opt_Function::contains($__expru_'.$this->_unique.' = '.$arguments[0][0].', '.$arguments[1][0].') && !Opt_Function::contains($__expru_'.$this->_unique.', '.$arguments[2][0].')';
-					$this->_unique++;
-				}
-			//	$finalExpression = 'Opt_Function::contains('.$arguments[0][0].', '.$arguments[1][0].')';
+				$containerFormat->assign('container', $arguments[0][0]);
+				$containerFormat->assign('values', array($arguments[1][0], $arguments[2][0]));
+				$containerFormat->assign('optimize', $arguments[0][1] >= 5);
+				$containerFormat->assign('operator', '&&');
+				$finalExpression = $containerFormat->get('container:notContains');
 				$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
 				break;
 			case 'between':
@@ -754,8 +728,52 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 					$this->_unique++;
 				}
 				break;
+			case 'is_in':
+				$containerFormat->assign('container', $arguments[1][0]);
+				$containerFormat->assign('values', $arguments[0][0]);
+				$containerFormat->assign('optimize', false);
+				$finalExpression = $containerFormat->get('container:contains');
+				$finalWeight = $arguments[0][1] + $arguments[1][1] + $weight;
+				break;
+			case 'is_not_in':
+				$containerFormat->assign('container', $arguments[1][0]);
+				$containerFormat->assign('values', $arguments[0][0]);
+				$containerFormat->assign('optimize', false);
+				$finalExpression = $containerFormat->get('container:notContains');
+				$finalWeight = $arguments[0][1] + $arguments[1][1] + $weight;
+				break;
+			case 'is_both_in':
+				$op = ' && ';
+			case 'is_either_in':
+				// TODO: Optimize!
+				$containerFormat->assign('container', $arguments[1][0]);
+				$containerFormat->assign('values', $arguments[0][0]);
+				$containerFormat->assign('optimize', false);
+				$finalExpression = $containerFormat->get('container:contains').(isset($op) ? $op : ' || ');
+
+				$containerFormat->assign('container', $arguments[2][0]);
+				$containerFormat->assign('values', $arguments[0][0]);
+				$containerFormat->assign('optimize', false);
+				$finalExpression .= $containerFormat->get('container:contains');
+
+				$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				break;
+			case 'is_neither_in':
+				// TODO: Optimize!
+				$containerFormat->assign('container', $arguments[1][0]);
+				$containerFormat->assign('values', $arguments[0][0]);
+				$containerFormat->assign('optimize', false);
+				$finalExpression = $containerFormat->get('container:notContains').' && ';
+
+				$containerFormat->assign('container', $arguments[2][0]);
+				$containerFormat->assign('values', $arguments[0][0]);
+				$containerFormat->assign('optimize', false);
+				$finalExpression .= $containerFormat->get('container:notContains');
+
+				$finalWeight = $arguments[0][1] + $arguments[1][1] + $arguments[2][1] + $weight;
+				break;
 			default:
-				// TODO: Error here!
+				throw new Opt_Expression_Exception('Unknown operator type: '.$operator);
 		}
 		$arguments[0][0] = $finalExpression;
 		$arguments[0][1] = $finalWeight;
@@ -874,7 +892,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(($name = $this->_compiler->isFunction($functional[0])) === null)
 		{
-			throw new Opt_ItemNotAllowed_Exception('Function', $functional[0]);
+			throw new Opt_Expression_Exception('Function '.$functional[0].' cannot be used in templates.');
 		}
 
 		// Determine the requested argument order.
@@ -883,7 +901,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			$pos = strpos($name, '#', 1);
 			if($pos === false)
 			{
-				throw new Opt_InvalidArgumentFormat_Exception($name, $token);
+				throw new Opt_Expression_Exception('Missing trailing token (#) in the function definition '.$name);
 			}
 			$codes = explode(',', substr($name, 1, $pos - 1));
 			$name = substr($name, $pos+1, strlen($name));
@@ -896,7 +914,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				{
 					if(!isset($data[1]))
 					{
-						throw new Opt_FunctionArgument_Exception($i, $name);
+						throw new Opt_Expression_Exception('Argument '.$i.' is not defined in function '.$name);
 					}
 					$array = new SplFixedArray(2);
 					$array[0] = $data[1];
