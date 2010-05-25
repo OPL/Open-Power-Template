@@ -1797,7 +1797,7 @@ static public $yy_action = array(
     function yy_r37(){
 	if($this->yystack[$this->yyidx + -1]->minor[1] == 0)
 	{
-		$this->_retvalue = $this->_expr->_compileVariable($this->yystack[$this->yyidx + -1]->minor[0][0], $this->yystack[$this->yyidx + -1]->minor[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);
+		$this->_retvalue = $this->_expr->_compileVariable($this->yystack[$this->yyidx + -1]->minor[0][0], $this->yystack[$this->yyidx + -1]->minor[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTINCREMENT, null);
 	}
 	else
 	{

@@ -44,5 +44,5 @@ file_put_contents('../../lib/Expression/Standard/Parser.php', str_replace('<'.'?
 
 
 file_put_contents('../../lib/Expression/Standard/Lexer.php', preg_replace('/throw new Exception\(\'Unexpected input at line\' \. (\$this\-\>_line) \.
-                    \'\: \' \. (\$this\-\>_data\[\$this\-\>_counter\])\)\;/', 'throw new Opt_Expression_Exception($2, $this->_data);', file_get_contents('expression_lexer.php')));
+                    \'\: \' \. (\$this\-\>_data\[\$this\-\>_counter\])\)\;/', 'throw new Opt_Expression_Exception(\'Unexpected input at line \'.\$this->_line.\': \'.\$this->_data[\$this->_counter]);', file_get_contents('expression_lexer.php')));
 echo "\n\nSUCCESS\n\n";

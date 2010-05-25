@@ -64,7 +64,7 @@ class Opt_Format_System extends Opt_Format_Abstract
 		else
 		{
 			$type = substr($hookName, $pos, strlen($hookName) - $pos);
-			$extra = $this->_getVar('code');
+			$extra = $this->_getVar('value');
 		}
 
 		// Select the processor.
@@ -72,8 +72,7 @@ class Opt_Format_System extends Opt_Format_Abstract
 
 		if(!is_string($namespace[1]))
 		{
-			// TODO: Error reporting!
-			throw new Exception('Boo boo');
+			throw new Opt_Format_Exception('Missing instruction selector in the container $'.implode('.', $namespace));
 		}
 
 		$processor = $this->_compiler->getProcessor($namespace[1]);

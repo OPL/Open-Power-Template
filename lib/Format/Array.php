@@ -82,7 +82,7 @@ class Opt_Format_Array extends Opt_Format_Abstract
 			case 'section:init':
 				$section = $this->_getVar('section');
 
-				if(!is_null($section['datasource']))
+				if($section['datasource'] !== null)
 				{
 					return '$_sect'.$section['name'].'_vals = '.$section['datasource'].'; ';
 				}
@@ -254,21 +254,44 @@ class Opt_Format_Array extends Opt_Format_Abstract
 					return '$ctx->_global[\''.$item.'\']='.$this->_getVar('value');
 				}
 				return '$ctx->_data[\''.$item.'\']='.$this->_getVar('value');
+			// VARIABLE PRE- AND POST INDECREMENTATION
 			case 'variable:item.preincrement':
-			case 'item:item.preincrement':
-				return '++'.$this->_getVar('code');
-			case 'variable:item.postincrement':
-			case 'item:item.postincrement':
-				return $this->_getVar('code').'++';
+				$pre = '++';
 			case 'variable:item.predecrement':
-			case 'item:item.predecrement':
-				return '--'.$this->_getVar('code');
+				$pre = (isset($pre) ? '++' : '--');
+				$this->_applyVars = false;
+				$item = $this->_getVar('item');
+				if($this->_getVar('global') === true)
+				{
+					return $pre.'$ctx->_global[\''.$item.'\']';
+				}
+				return $pre.'$ctx->_data[\''.$item.'\']';
+			case 'variable:item.postincrement':
+				$pre = '++';
 			case 'variable:item.postdecrement':
+				$pre = (isset($pre) ? $pre : '--');
+				$this->_applyVars = false;
+				$item = $this->_getVar('item');
+				if($this->_getVar('global') === true)
+				{
+					return '$ctx->_global[\''.$item.'\']'.$pre;
+				}
+				
+				return '$ctx->_data[\''.$item.'\']'.$pre;
+			// ITEM PRE- AND POST INDECREMENTATION
+			case 'item:item.preincrement':
+				$pre = '++';
+			case 'item:item.predecrement':
+				$pre = (isset($pre) ? '++' : '--');
+				return $pre.$this->_getVar('code').'[\''.$this->_getVar('item').'\']';
+			case 'item:item.postincrement':
+				$pre = '++';
 			case 'item:item.postdecrement':
-				return $this->_getVar('code').'--';
+				$pre = (isset($pre) ? '++' : '--');
+				return $this->_getVar('code').'[\''.$this->_getVar('item').'\']'.$pre;
 			case 'item:item':
 				return '[\''.$this->_getVar('item').'\']';
-			case 'item:assign':
+			case 'item:item.assign':
 				return '[\''.$this->_getVar('item').'\']='.$this->_getVar('value');
 			default:
 				return NULL;

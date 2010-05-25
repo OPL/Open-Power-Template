@@ -89,7 +89,7 @@ expr(res)			::= variable(var) INCREMENT.
 {
 	if(var[1] == 0)
 	{
-		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTDECREMENT, null);
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::INCDEC_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_POSTINCREMENT, null);
 	}
 	else
 	{

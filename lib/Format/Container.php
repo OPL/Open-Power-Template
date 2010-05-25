@@ -56,6 +56,11 @@ class Opt_Format_Container extends Opt_Format_Abstract
 				$container = $this->_getVar('container');
 				$list = $this->_getVar('values');
 				$optimize = $this->_getVar('optimize');
+				$operator = $this->_getVar('operator');
+				if(empty($operator))
+				{
+					$operator = '&&';
+				}
 
 				if(is_string($list))
 				{
@@ -96,7 +101,7 @@ class Opt_Format_Container extends Opt_Format_Abstract
 							$item = '!'.$item;
 						}
 					}
-					return implode($list, ' && ');
+					return implode($list, $operator);
 				}
 		}
 	} // end _build();
