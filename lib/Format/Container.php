@@ -69,7 +69,10 @@ class Opt_Format_Container extends Opt_Format_Abstract
 
 				if(sizeof($list) == 1)
 				{
-					
+					if($negate)
+					{
+						return '!Opt_Function::contains('.$container.', '.$list[0].')';
+					}
 					return 'Opt_Function::contains('.$container.', '.$list[0].')';
 				}
 				else

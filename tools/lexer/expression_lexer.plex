@@ -90,9 +90,9 @@ contains_either		= /contains\s+either/
 contains_neither	= /contains\s+neither/
 is_in			= /is\s+in/
 is_not_in		= /is\s+not\s+in/
-is_both_in		= /is\s+in\s+both/
-is_either_in	= /is\s+in\s+either/
-is_neither_in	= /is\s+in\s+neither/
+is_both_in		= /is\s+both\s+in/
+is_either_in	= /is\s+either\s+in/
+is_neither_in	= /is\s+neither\s+in/
 lbracket	= /\(/
 rbracket	= /\)/
 assign		= /\=/

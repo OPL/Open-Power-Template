@@ -179,13 +179,26 @@ class Package_Expression_StandardTest extends Extra_Testcase
 			// Container and compound operator stuff
 			array(true, '$foo contains 1', 'Opt_Function::contains($ctx->_data[\'foo\'], 1)', 0),
 			array(true, '$foo contains both 1 and 2', 'Opt_Function::contains($ctx->_data[\'foo\'], 1)&&Opt_Function::contains($ctx->_data[\'foo\'], 2)', 0),
+			array(true, '$foo contains either 1 or 2', 'Opt_Function::contains($ctx->_data[\'foo\'], 1)||Opt_Function::contains($ctx->_data[\'foo\'], 2)', 0),
+			array(true, '$foo contains neither 1 nor 2', '!Opt_Function::contains($ctx->_data[\'foo\'], 1)&&!Opt_Function::contains($ctx->_data[\'foo\'], 2)', 0),
+
+			array(true, '$foo is between 1 and 5', '1 < $ctx->_data[\'foo\'] && $ctx->_data[\'foo\'] < 5', 0),
+			array(true, '$foo is not between 1 and 5', '1 >= $ctx->_data[\'foo\'] || $ctx->_data[\'foo\'] >= 5', 0),
+			array(true, '$foo is either 1 or 5', '1 == $ctx->_data[\'foo\'] || $ctx->_data[\'foo\'] == 5', 0),
+			array(true, '$foo is neither 1 nor 5', '1 !== $ctx->_data[\'foo\'] && $ctx->_data[\'foo\'] !== 5', 0),
+
+			array(true, '1 is in $foo', 'Opt_Function::contains($ctx->_data[\'foo\'], 1)', 0),
+			array(true, '1 is not in $foo', '!Opt_Function::contains($ctx->_data[\'foo\'], 1)', 0),
+			array(true, '1 is either in $foo or $bar', 'Opt_Function::contains($ctx->_data[\'foo\'], 1) || Opt_Function::contains($ctx->_data[\'bar\'], 1)', 0),
+			array(true, '1 is both in $foo and $bar', 'Opt_Function::contains($ctx->_data[\'foo\'], 1) && Opt_Function::contains($ctx->_data[\'bar\'], 1)', 0),
+			array(true, '1 is neither in $foo nor $bar', '!Opt_Function::contains($ctx->_data[\'foo\'], 1) && !Opt_Function::contains($ctx->_data[\'bar\'], 1)', 0),
 
 			// Assignment stuff
 			array(true, '$a = 5', '$ctx->_data[\'a\']=5', 0),
 			array(true, '@a = 5', '$ctx->_vars[\'a\']=5', 0),
 			array(true, '$a = $b = 5', '$ctx->_data[\'a\']=$ctx->_data[\'b\']=5', 0),
 			array(true, '++$a is 5', '', $exceptionClass),
-			array(true, '$a + $b is $c + $d', '', $exceptionClass),
+			array(true, '$a + $b is $c + $d', '$ctx->_data[\'a\']+$ctx->_data[\'b\']=$ctx->_data[\'c\']+$ctx->_data[\'d\']', 0),
 			array(true, 'foo() is $c + $d', '', $exceptionClass),
 			array(true, '5 is 2', '', $exceptionClass),
 			array(true, '$foo is', '', $exceptionClass),
