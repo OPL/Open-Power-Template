@@ -1,5 +1,4 @@
 Title: XML Prolog and DTD
-VCSKeywords: $Id$
 
 ----
 

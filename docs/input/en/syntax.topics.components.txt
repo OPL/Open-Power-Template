@@ -1,5 +1,4 @@
 Title: Components
-VCSKeywords: $Id$
 SeeAlso:
  - syntax.topics.blocks
  - syntax.instructions.component

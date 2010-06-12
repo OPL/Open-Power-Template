@@ -10,7 +10,6 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
  */
 
  // The format class, where sub-sections are parts of the upper-level section array.

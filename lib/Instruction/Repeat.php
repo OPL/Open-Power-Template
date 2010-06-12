@@ -9,7 +9,6 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
  */
 
 	class Opt_Instruction_Repeat extends Opt_Instruction_Loop

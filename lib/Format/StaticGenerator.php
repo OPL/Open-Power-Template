@@ -10,7 +10,6 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
  */
 
  // A format class that generates the necessary section content on the fly

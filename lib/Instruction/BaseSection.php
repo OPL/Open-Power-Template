@@ -9,7 +9,6 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
  */
 
 	abstract class Opt_Instruction_BaseSection extends Opt_Instruction_Loop
