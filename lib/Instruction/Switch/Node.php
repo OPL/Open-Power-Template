@@ -9,7 +9,6 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Abstract.php 337 2010-04-16 08:31:21Z zyxist $
  */
 
 /**

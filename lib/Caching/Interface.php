@@ -9,7 +9,6 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Class.php 326 2010-04-09 06:43:33Z zyxist $
  */
 
 // Load the library first! There's our interface!

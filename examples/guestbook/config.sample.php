@@ -11,7 +11,6 @@
  * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
  */
 
 /**

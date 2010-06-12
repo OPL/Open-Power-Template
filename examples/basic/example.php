@@ -10,7 +10,6 @@
  * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: index.php 115 2009-05-17 15:20:33Z extremo $
  */
 
 // Load the libraries core

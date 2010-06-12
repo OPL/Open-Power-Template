@@ -1,5 +1,4 @@
 Title: Instructions
-VCSKeywords: $Id$
 
 ----
 

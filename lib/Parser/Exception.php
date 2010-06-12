@@ -9,7 +9,6 @@
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id: Exception.php 325 2010-04-07 15:59:39Z zyxist $
  */
 
 /**

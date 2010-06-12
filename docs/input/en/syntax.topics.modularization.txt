@@ -1,5 +1,4 @@
 Title: Template modularization
-VCSKeywords: $Id$
 SeeAlso:
  - syntax.topics.modularization.inclusion
  - syntax.topics.modularization.inheritance

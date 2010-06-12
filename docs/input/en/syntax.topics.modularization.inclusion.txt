@@ -1,5 +1,4 @@
 Title: Template inclusion
-VCSKeywords: $Id$
 SeeAlso:
  - syntax.topics.modularization
  - syntax.instructions.include

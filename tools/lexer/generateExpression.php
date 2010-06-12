@@ -28,7 +28,6 @@ $comment = <<<'EOF'
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
  *
- * $Id$
  */
 
 /**
