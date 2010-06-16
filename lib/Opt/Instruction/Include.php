@@ -80,11 +80,11 @@ class Opt_Instruction_Include extends Opt_Instruction_Abstract
 
 		if(isset($params['from']))
 		{
-			$section = Opt_Instruction_BaseSection::getSection($params['from']);
+			$section = Opt_Instruction_Section_Abstract::getSection($params['from']);
 
 			if(is_null($section))
 			{
-				throw new Opt_SectionNotFound_Exception('opt:include', $params['from']);
+				throw new Opt_Instruction_Exception('opt:include cannot be integrated with section '.$params['from']);
 			}
 			$section['format']->assign('item', 'view');
 			$view = $section['format']->get('section:variable');
