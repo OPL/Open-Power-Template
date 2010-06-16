@@ -151,7 +151,10 @@ expr(res)			::= variable(var) IS expr(expr).
 		res = $this->_expr->_compilePhpOperation('assign', var[0], expr, Opt_Expression_Standard::ASSIGN_OP_WEIGHT);
 	}
 }
-expr(res)			::= variable(var) EXISTS.				{	res = $this->_expr->_compileVariable(var[0], var[1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_EXISTS, expr);	}
+expr(res)			::= variable(var) EXISTS.
+	{
+		res = $this->_expr->_compileVariable(var[0][0], var[0][1],Opt_Expression_Standard::ASSIGN_OP_WEIGHT, Opt_Expression_Standard::CONTEXT_EXISTS, expr);
+	}
 
 expr(res)			::= CLONE expr(ex).			{	res = $this->_expr->_objective('clone', ex, Opt_Expression_Standard::CLONE_WEIGHT);	}
 
