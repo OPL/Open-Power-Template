@@ -53,7 +53,8 @@ class Opt_Format_Array extends Opt_Format_Abstract
 		'item:item.postdecrement' => true,
 		'section:item' => true,
 		'section:item.assign' => true,
-		'section:variable' => true
+		'section:variable' => true,
+		'section:variable.exists' => true
 	);
 
 	/**
@@ -142,7 +143,7 @@ class Opt_Format_Array extends Opt_Format_Abstract
 				}
 				return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\']';
 			// Retrieving a variable from a section item.
-			case 'section:variableAssign':
+			case 'section:variable.assign':
 				$section = $this->_getVar('section');
 				if($this->_sectionItemVariables)
 				{
@@ -158,6 +159,23 @@ class Opt_Format_Array extends Opt_Format_Abstract
 					return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]'.$this->_decorated->get('item:assign');
 				}
 				return '$_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\']='.$this->_getVar('value');
+			// Hook for "exists" operator
+			case 'section:variable.exists':
+				$section = $this->_getVar('section');
+				if($this->_sectionItemVariables)
+				{
+					if($this->isDecorating())
+					{
+						return 'isset($_sect'.$section['name'].'_v'.$this->_decorated->get('item:item').')';
+					}
+					$section = $this->_getVar('section');
+					return 'isset($_sect'.$section['name'].'_v[\''.$this->_getVar('item').'\'])';
+				}
+				if($this->isDecorating())
+				{
+					return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i]'.$this->_decorated->get('item:item').')';
+				}
+				return 'isset($_sect'.$section['name'].'_vals[$_sect'.$section['nesting'].'_i][\''.$this->_getVar('item').'\'])';
 			// Resetting the section to the first element.
 			case 'section:reset':
 				$section = $this->_getVar('section');
