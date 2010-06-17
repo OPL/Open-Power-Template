@@ -8,7 +8,6 @@
  *
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
- *
  */
 
 /**
@@ -24,7 +23,7 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 {
 	/**
 	 * The expression finding regular expression.
-	 * @var String
+	 * @var string
 	 */
 	private $_rExpressionTag = '/(\{([^\}]*)\})/msi';
 
@@ -62,8 +61,8 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 	 * Parses the input code and returns the OPT XML tree.
 	 *
 	 * @throws Opt_Parser_Exception
-	 * @param String $filename The file name (for debug purposes)
-	 * @param String &$code The code to parse
+	 * @param string $filename The file name (for debug purposes)
+	 * @param string &$code The code to parse
 	 * @return Opt_Xml_Root
 	 */
 	public function parse($filename, &$code)
@@ -159,6 +158,8 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 
 					break;
 				case XMLReader::TEXT:
+				case XMLReader::WHITESPACE:
+				case XMLReader::SIGNIFICANT_WHITESPACE:
 					$this->_treeTextCompile($current, $reader->value);
 					break;
 				case XMLReader::COMMENT:
@@ -181,23 +182,6 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 						$current = $text;
 					}
 					break;
-		/*		case XMLReader::SIGNIFICANT_WHITESPACE:
-					$cdata = new Opt_Xml_Cdata($reader->value);
-					$cdata->set('cdata', true);
-
-					if($current instanceof Opt_Xml_Text)
-					{
-						$current->appendChild($cdata);
-					}
-					else
-					{
-						$text = new Opt_Xml_Text();
-						$text->appendChild($cdata);
-						$current->appendChild($text);
-						$current = $text;
-					}
-					break;
-		 */
 			}
 			$depth = $reader->depth;
 		}
@@ -228,8 +212,8 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 	 *
 	 * @internal
 	 * @param Opt_Xml_Node $current The current XML node.
-	 * @param String $text The text block between two tags.
-	 * @param Boolean $noExpressions=false If true, do not look for the expressions.
+	 * @param string $text The text block between two tags.
+	 * @param boolean $noExpressions=false If true, do not look for the expressions.
 	 * @return Opt_Xml_Node The current XML node.
 	 */
 	protected function _treeTextCompile($current, $text, $noExpressions = false)
@@ -271,7 +255,7 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 	 *
 	 * @internal
 	 * @param Opt_Xml_Node $current The currently built XML node.
-	 * @param String|Opt_Xml_Node $text The text or the expression node.
+	 * @param string|Opt_Xml_Node $text The text or the expression node.
 	 * @return Opt_Xml_Node The current XML node.
 	 */
 	protected function _treeTextAppend($current, $text)
