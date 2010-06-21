@@ -83,13 +83,14 @@ class Opt_Xml_Text extends Opt_Xml_Scannable
 	/**
 	 * Tests if the specified node can be appended to this node type.
 	 *
+	 * @throws Opt_Xml_Exception
 	 * @param Opt_Xml_Node $node The node to test.
 	 */
 	protected function _testNode(Opt_Xml_Node $node)
 	{
 		if($node->getType() != 'Opt_Xml_Expression' && $node->getType() != 'Opt_Xml_Cdata')
 		{
-			throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Text', $node->getType());
+			throw new Opt_Xml_Exception('Invalid node type appended to Opt_Xml_Text: '.$node->getType());
 		}
 	} // end _testNode();
 

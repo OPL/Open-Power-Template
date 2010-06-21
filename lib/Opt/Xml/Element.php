@@ -241,7 +241,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	{
 		if($node->getType() != 'Opt_Xml_Element' && $node->getType() != 'Opt_Xml_Text' && $node->getType() != 'Opt_Xml_Comment')
 		{
-			throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Element', $node->getType());
+			throw new Opt_Xml_Exception('Invalid node type appended to Opt_Xml_Element: '.$node->getType());
 		}
 	} // end _testNode();
 

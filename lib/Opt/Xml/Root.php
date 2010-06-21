@@ -159,7 +159,7 @@ class Opt_Xml_Root extends Opt_Xml_Scannable
 	{
 		if($node->getType() == 'Opt_Xml_Expression' && $node->getType() == 'Opt_Xml_Cdata')
 		{
-			throw new Opt_APIInvalidNodeType_Exception('Opt_Xml_Root', $node->getType());
+			throw new Opt_Xml_Exception('Invalid node type appended to Opt_Xml_Root: '.$node->getType());
 		}
 	} // end _testNode();
 

@@ -169,18 +169,7 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 				case XMLReader::CDATA:
 					$cdata = new Opt_Xml_Cdata($reader->value);
 					$cdata->set('cdata', true);
-
-					if($current instanceof Opt_Xml_Text)
-					{
-						$current->appendChild($cdata);
-					}
-					else
-					{
-						$text = new Opt_Xml_Text();
-						$text->appendChild($cdata);
-						$current->appendChild($text);
-						$current = $text;
-					}
+					$this->_treeTextAppend($current, $cdata);
 					break;
 			}
 			$depth = $reader->depth;

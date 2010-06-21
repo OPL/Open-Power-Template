@@ -103,7 +103,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	 * Note that in case of objective reference node specification, the reference
 	 * node must be a child of the current node. Otherwise, an exception is thrown.
 	 *
-	 * @throws Opt_APIInvalidBorders_Exception
+	 * @throws Opt_Xml_Exception
 	 * @param Opt_Xml_Node $newnode The new node.
 	 * @param integer|Opt_Xml_Node $refnode The reference node.
 	 * @param boolean $appendOnError Do we like to append the node, if $refnode does not exist?
@@ -139,7 +139,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 				{
 					return $this->appendChild($node);
 				}
-				throw new Opt_APIInvalidBorders_Exception;
+				throw new Opt_Xml_Exception('The reference node #'.$refnode.' has not been found.');
 			}
 		}
 
@@ -150,7 +150,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			{
 				return $this->appendChild($node);
 			}
-			throw new Opt_APIInvalidBorders_Exception;
+			throw new Opt_Xml_Exception('The referenced node '.(string)$refnode.' is not a child of the current node '.(string)$this);
 		}
 		$newnode->unmount();
 		if($refnode->_previous !== null)
@@ -536,6 +536,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	 * it must contain the '*' element representing the new location of
 	 * the rest of the nodes.
 	 *
+	 * @throws Opt_Xml_Exception
 	 * @param array $prototypes The required order.
 	 */
 	public function sort(Array $prototypes)
@@ -543,7 +544,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		$this->_prototypes = $prototypes;
 		if(!isset($prototypes['*']))
 		{
-			throw new Opt_APINoWildcard_Exception;
+			throw new Opt_Xml_Exception('Wildcard missing in the sorting definitions for sort() method.');
 		}
 		// To create a stable sort.
 		$scan = $this->_first;
