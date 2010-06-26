@@ -38,13 +38,22 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 	 */
 	protected $_properties = array(
 		'section:useReference' => true,
-		'section:anyRequests' => null,
-		'section:itemAssign' => false,
-		'section:variableAssign' => true,
+		'section:anyRequests' => 'ancestorNumbers',
+		'variable:item.assign' => true,
+		'variable:item.preincrement' => false,
+		'variable:item.postincrement' => false,
+		'variable:item.predecrement' => false,
+		'variable:item.postdecrement' => false,
 		'variable:useReference' => true,
-		'variable:assign' => true,
-		'item:assign' => true,
-		'item:useReference' => true,
+		'item:item.assign' => true,
+		'item:item.preincrement' => true,
+		'item:item.postincrement' => true,
+		'item:item.predecrement' => true,
+		'item:item.postdecrement' => true,
+		'section:item' => true,
+		'section:item.assign' => true,
+		'section:variable' => true,
+		'section:variable.exists' => true
 	);
 
 	/**
@@ -230,25 +239,19 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 			case 'variable:item':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
-				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-				{
-					return '$ctx->_data[\''.$item.'\']';
-				}
-				else
+				if($this->_getVar('global') === true)
 				{
 					return '$ctx->_global[\''.$item.'\']';
 				}
-			case 'variable:assign':
+				return '$ctx->_data[\''.$item.'\']';
+			case 'variable:item.assign':
 				$this->_applyVars = false;
 				$item = $this->_getVar('item');
-				if($this->_getVar('access') == Opt_Class::ACCESS_LOCAL)
-				{
-					return '$ctx->_data[\''.$item.'\']='.$this->_getVar('value');
-				}
-				else
+				if($this->_getVar('global') === true)
 				{
 					return '$ctx->_global[\''.$item.'\']='.$this->_getVar('value');
 				}
+				return '$ctx->_data[\''.$item.'\']='.$this->_getVar('value');
 			case 'item:item':
 				return '->'.$this->_getVar('item');
 			case 'item:assign':
