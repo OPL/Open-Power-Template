@@ -80,7 +80,7 @@ class Opt_Instruction_Root extends Opt_Instruction_Abstract
 			}
 			$this->_compiler->addDependantTemplate($file);
 			$compiler = new Opt_Compiler_Class($this->_compiler);
-			$compiler->compile($this->_tpl->_getSource($file), $file, NULL, $this->_compiler->get('mode'));
+			$compiler->compile($this->_tpl->_getSource($file), $file, NULL, $this->_compiler->get('parser'));
 			$this->_compiler->importDependencies($compiler);
 		}
 		// Escaping control support

@@ -120,10 +120,10 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		if(isset($this->_macros[$attr->getValue()]))
+		if(isset($this->_snippets[$attr->getValue()]))
 		{
-			$this->_current->snippet($attr->getValue());
-			$macro = &$this->_macros[$attr->getValue()];
+			$this->_current->push($attr->getValue());
+			$snippet = &$this->_snippets[$attr->getValue()];
 
 			// Move all the stuff to the fake node.
 			if($node->hasChildren())
@@ -131,18 +131,18 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 				$newNode = new Opt_Xml_Element('opt:_');
 				$newNode->moveChildren($node);
 
-				$size = sizeof($macro);
-				$macro[$size] = $newNode;
+				$size = sizeof($snippet);
+				$snippet[$size] = $newNode;
 
-				$attr->set('macroObj', $macro);
+				$attr->set('snippetObj', $snippet);
 				$attr->set('size', $size);
 			}
 			$node->removeChildren();
 
 			// Process the macros
 			$node->set('escaping', $this->_compiler->get('escaping'));
-			$this->_compiler->set('escaping', $macro[0]->get('escaping'));
-			foreach($macro[0] as $subnode)
+			$this->_compiler->set('escaping', $snippet[0]->get('escaping'));
+			foreach($snippet[0] as $subnode)
 			{
 				$node->appendChild(clone $subnode);
 			}
@@ -160,16 +160,14 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	 */
 	public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		$info = $this->_current->pop();
-
-		// This needs to be fixed.
-		if(isset($info['size']))
+		if($attr->get('size') !== null)
 		{
-			$macro = $info['snippetObj'];
-			unset($macro[$info['size']]);
+			$snippet = $attr->get('snippetObj');
+			unset($snippet[$attr->get('size')]);
 		}
 		// Restore the original escaping state
 		$this->_compiler->set('escaping', $node->get('escaping'));
+		$this->_current->pop();
 	} // end postprocessAttribute();
 
 	/**
