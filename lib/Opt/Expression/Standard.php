@@ -541,7 +541,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			}
 			else
 			{
-				$format = $this->_compiler->getFormat($path, true);
+				$format = $this->_compiler->getFormat($previous, true);
 				$hook = 'item:item';
 				$format->assign('item', $item);
 				if($id == $final)
