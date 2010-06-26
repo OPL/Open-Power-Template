@@ -32,7 +32,7 @@ abstract class Opt_Format_Abstract
 	 *
 	 * @var Array
 	 */
-	protected $_supports;
+	protected $_supports = array();
 
 	/**
 	 * The list of extra format properties.
@@ -236,7 +236,7 @@ abstract class Opt_Format_Abstract
 	 * @final
 	 * @param Opt_Format_Abstract $object Format object.
 	 */
-	final public function decorate(Opt_Format_Abstract $object)
+	public function decorate(Opt_Format_Abstract $object)
 	{
 		$this->_decorated = $object;
 		$this->_decorated->_vars = &$this->_vars;
@@ -288,6 +288,13 @@ abstract class Opt_Format_Abstract
 	 */
 	public function supports($hookType)
 	{
+		if($this->_decorated !== null)
+		{
+			if(in_array($hookType, $this->_decorated->_supports))
+			{
+				return true;
+			}
+		}
 		return in_array($hookType, $this->_supports);
 	} // end supports();
 
