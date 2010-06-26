@@ -656,6 +656,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			$this->set('__nrc', NULL);
 			$this->_first = null;
 			$this->_last = null;
+			$this->_parent = null;
 			$this->_cloneHandler();
 		}
 		else
@@ -676,11 +677,13 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			// Main cloning loop
 			$this->_first = null;
 			$this->_last = null;
+			$this->_parent = null;
 			while($queue->count() > 0)
 			{
 				$pair = $queue->dequeue();
 				$pair[0]->set('__nrc', true);
 				$pair[1]->appendChild($clone = clone $pair[0]);
+				$pair[0]->set('__nrc', false);
 				if($pair[0] instanceof Opt_Xml_Scannable)
 				{
 					$scan = $pair[0]->_first;

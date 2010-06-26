@@ -120,6 +120,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
+		
 		if(isset($this->_snippets[$attr->getValue()]))
 		{
 			$this->_current->push($attr->getValue());
@@ -142,6 +143,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 			// Process the macros
 			$node->set('escaping', $this->_compiler->get('escaping'));
 			$this->_compiler->set('escaping', $snippet[0]->get('escaping'));
+
 			foreach($snippet[0] as $subnode)
 			{
 				$node->appendChild(clone $subnode);

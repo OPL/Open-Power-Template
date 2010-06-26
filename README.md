@@ -21,8 +21,21 @@ Help
 
 + User manuals are available [here](http://static.invenzzia.org/docs/). Note they
   may not describe some changes from 2.1 branch.
-+ [Tutorials]()
++ [Tutorials](http://www.invenzzia.org/en/resources/articles)
++ [Project wiki](http://wiki.invenzzia.org)
++ [Discussion board](http://forums.invenzzia.org)
++ [Bugtracker](http://bugs.invenzzia.org)
 
 
 Authors and license
 -------------------
+
+Open Power Template - Copyright (c) Invenzzia Group 2008-2010
+
+The code was written by:
+
++ Tomasz "Zyx" Jedrzejewski - design, programming, documentation
++ Jacek "eXtreme" Jedrzejewski - testing, minor improvements, debug console
++ Amadeusz "megaweb" Starzykiewicz - additional programming.
+
+The library is available under the terms of [New BSD License](http://www.invenzzia.org/license/new-bsd).
