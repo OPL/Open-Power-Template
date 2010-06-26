@@ -27,8 +27,9 @@ class Opt_Format_Global extends Opt_Format_Abstract
 	 * Notify the decorated format that it should refer
 	 * to the global data.
 	 */
-	protected function _onDecorate()
+	public function decorate(Opt_Format_Abstract $object)
 	{
+		parent::decorate($object);
 		$this->_decorated->assign('global', true);
 	} // end _onDecorate();
 
@@ -42,7 +43,7 @@ class Opt_Format_Global extends Opt_Format_Abstract
 	{
 		if(!$this->isDecorating())
 		{
-			throw new Opt_FormatNotDecorated_Exception('Global');
+			throw new Opt_Format_Exception('Global format must be decorated.');
 		}
 		return NULL;
 	} // end _build();
