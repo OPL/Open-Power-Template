@@ -45,6 +45,7 @@ class Opt_Format_Array extends Opt_Format_Abstract
 		'variable:item.postincrement' => true,
 		'variable:item.predecrement' => true,
 		'variable:item.postdecrement' => true,
+		'variable:item.exists' => true,
 		'variable:useReference' => true,
 		'item:item.assign' => true,
 		'item:item.preincrement' => true,
@@ -295,6 +296,14 @@ class Opt_Format_Array extends Opt_Format_Abstract
 				}
 				
 				return '$ctx->_data[\''.$item.'\']'.$pre;
+			case 'variable:item.exists':
+				$this->_applyVars = false;
+				$item = $this->_getVar('item');
+				if($this->_getVar('global') === true)
+				{
+					return 'isset($ctx->_global[\''.$item.'\'])';
+				}
+				return 'isset($ctx->_data[\''.$item.'\'])';
 			// ITEM PRE- AND POST INDECREMENTATION
 			case 'item:item.preincrement':
 				$pre = '++';

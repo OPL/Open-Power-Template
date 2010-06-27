@@ -44,6 +44,7 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 		'variable:item.postincrement' => false,
 		'variable:item.predecrement' => false,
 		'variable:item.postdecrement' => false,
+		'variable:item.exists' => true,
 		'variable:useReference' => true,
 		'item:item.assign' => true,
 		'item:item.preincrement' => true,
@@ -252,6 +253,14 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 					return '$ctx->_global[\''.$item.'\']='.$this->_getVar('value');
 				}
 				return '$ctx->_data[\''.$item.'\']='.$this->_getVar('value');
+			case 'variable:item.exists':
+				$this->_applyVars = false;
+				$item = $this->_getVar('item');
+				if($this->_getVar('global') === true)
+				{
+					return 'isset($ctx->_global[\''.$item.'\'])';
+				}
+				return 'isset($ctx->_data[\''.$item.'\'])';
 			case 'item:item':
 				return '->'.$this->_getVar('item');
 			case 'item:assign':
