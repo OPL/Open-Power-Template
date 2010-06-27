@@ -21,7 +21,7 @@
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  * @package Formats
  */
-class Opt_Format_SingleArray extends Opt_Format_Abstract
+class Opt_Format_SingleArray extends Opt_Format_Array
 {
 	/**
 	 * Data format properties as information for the
@@ -31,13 +31,23 @@ class Opt_Format_SingleArray extends Opt_Format_Abstract
 	 */
 	protected $_properties = array(
 		'section:useReference' => true,
-		'section:anyRequests' => null,
-		'variable:assign' => true,
+		'section:anyRequests' => 'ancestorNumbers',
+		'variable:item.assign' => true,
+		'variable:item.preincrement' => true,
+		'variable:item.postincrement' => true,
+		'variable:item.predecrement' => true,
+		'variable:item.postdecrement' => true,
+		'variable:item.exists' => true,
 		'variable:useReference' => true,
-		'item:assign' => true,
-		'item:useReference' => true,
-		'section:itemAssign' => false,
-		'section:variableAssign' => true
+		'item:item.assign' => true,
+		'item:item.preincrement' => true,
+		'item:item.postincrement' => true,
+		'item:item.predecrement' => true,
+		'item:item.postdecrement' => true,
+		'section:item' => true,
+		'section:item.assign' => true,
+		'section:variable' => true,
+		'section:variable.exists' => true
 	);
 
 	/**
@@ -55,7 +65,7 @@ class Opt_Format_SingleArray extends Opt_Format_Abstract
 
 			if(!is_null($section['parent']))
 			{
-				$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
+				$parent = Opt_Instruction_Section_Abstract::getSection($section['parent']);
 				$parent['format']->assign('item', $section['name']);
 				if($parent['format']->property('section:useReference'))
 				{
@@ -70,7 +80,7 @@ class Opt_Format_SingleArray extends Opt_Format_Abstract
 			else
 			{
 				$this->assign('item', $section['name']);
-				return '$_sect'.$section['name'].'_vals = &'.$this->get('variable:main').'; ';
+				return '$_sect'.$section['name'].'_vals = &'.$this->get('variable:item').'; ';
 			}
 		}
 		else
