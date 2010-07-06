@@ -18,5 +18,5 @@ OUTPUT
 >>>>result.txt
 OK
 >>>>data.php
-	$view->assign('ok', true);
-	$view->assign('fail', false);
+$view->assign('ok', true);
+$view->assign('fail', false);

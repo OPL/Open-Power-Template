@@ -124,6 +124,9 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('If/if_new_attribute.txt'),
 			array('If/if_new_attribute_nocondition.txt'),
 			array('If/if_new_condition_without_if.txt'),
+			array('If/if_err_parent_elseif.txt'),
+			array('If/if_err_parent_else.txt'),
+			array('If/if_err_else_first.txt'),
 			array('OmitTag/omit_tag_basic.txt'),
 
 			// EXTEND

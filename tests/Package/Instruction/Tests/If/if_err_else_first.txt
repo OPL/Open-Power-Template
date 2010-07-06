@@ -1,0 +1,15 @@
+"opt:else" cannot be first within new if syntax.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:if>
+<opt:else>Other</opt:else>
+<opt:condition test="$ok">Condition 1</opt:condition>
+<opt:condition test="$fail">Condition 2</opt:condition>
+<opt:condition test="$fail">Condition 3</opt:condition>
+</opt:if>
+</opt:root>
+
+>>>>expected.txt
+Opt_Instruction_Exception

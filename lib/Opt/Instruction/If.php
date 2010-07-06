@@ -119,7 +119,7 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 				}
 				else
 				{
-					throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:if');
+					throw new Opt_Instruction_Exception('Invalid parent of opt:else-if: '.$node->getXmlName().', while opt:if was expected.');
 				}
 				break;
 			case 'else':
@@ -130,7 +130,7 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 				}
 				else
 				{
-					throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:if');
+					throw new Opt_Instruction_Exception('Invalid parent of opt:else: '.$node->getXmlName().', while opt:if was expected.');
 				}
 				break;
 		}
@@ -296,11 +296,11 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 						case 'opt:else':
 							if($reallyFirst)
 							{
-								throw new Opt_ElseCannotBeFirst_Exception();
+								throw new Opt_Instruction_Exception('opt:else cannot be specified as the first statement in the conditional instruction.');
 							}
 							if($else)
 							{
-								throw new Opt_InstructionTooManyItems_Exception('opt:else', 'conditional instruction');
+								throw new Opt_Instruction_Exception('Too many opt:else tags in the conditional instruction.');
 							}
 							if(!$first)
 							{
@@ -321,7 +321,15 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 					if(($attr = $subnode->getAttribute('opt:condition')) !== null)
 					{
 						$subnode->removeAttribute($attr);
-						$test = $this->_compiler->parseExpression($attr->getValue(), null, Opt_Compiler_Class::ESCAPE_OFF);
+						// Find the expression engine.
+						$found = $this->_compiler->detectExpressionEngine($attr->getValue(), $this->_compiler->getDefaultExpressionEngine());
+						
+						if($found === null)
+						{
+							throw new Opt_Instruction_Exception('Default expression engine is not defined in opt:condition.');
+						}
+
+						$test = $this->_compiler->parseExpression($found[1], $found[0], Opt_Compiler_Class::ESCAPE_OFF);
 						if($first == true)
 						{
 							// For the long if compilation purposes
@@ -350,11 +358,11 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 						$subnode->removeAttribute($attr);
 						if($reallyFirst)
 						{
-							throw new Opt_ElseCannotBeFirst_Exception();
+							throw new Opt_Instruction_Exception('opt:else cannot be specified as the first statement in the conditional instruction.');
 						}
 						if($else)
 						{
-							throw new Opt_InstructionTooManyItems_Exception('opt:else', 'conditional instruction');
+							throw new Opt_Instruction_Exception('Too many opt:else tags in the conditional instruction.');
 						}
 						if(!$first)
 						{
@@ -376,7 +384,7 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 				{
 					if(!($flags & self::ALLOW_LONG_IF))
 					{
-						throw new Opt_NotSupported_Exception('long if', 'cannot use here');
+						throw new Opt_Instruction_Exception('Cannot use long if feature here.');
 					}
 					// We haven't reached the first node yet.
 					if($firstNode === 0)
@@ -419,7 +427,7 @@ class Opt_Instruction_If extends Opt_Instruction_Abstract
 
 		if($flags & self::FORCE_ELSE && !$else)
 		{
-			throw new Opt_TagMissing_Exception('opt:else', 'conditional instruction');
+			throw new Opt_Instruction_Exception('Missing opt:else in the conditional instruction.');
 		}
 		$this->_cnt++;
 	} // end parseCondition();

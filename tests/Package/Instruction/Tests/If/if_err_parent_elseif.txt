@@ -1,0 +1,14 @@
+Test checks, if the If processor throws an exception, if opt:else-if is
+used in the invalid context.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!-- Print "OK" -->
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+
+<opt:else-if test="$ok"></opt:else-if>
+
+</opt:root>
+
+>>>>expected.txt
+Opt_Instruction_Exception
