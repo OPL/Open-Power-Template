@@ -1,8 +1,8 @@
-Check the branches - case 2: the branch is set and we must follow it.
+Check the branches - case 1: the branch is not set.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended1.tpl" branch="branch1.tpl">
+<opt:extend file="extended1.tpl" branch="branch1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE1
 </opt:snippet>
@@ -10,7 +10,7 @@ FOO-VALUE1
 
 >>>>templates/extended1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended2.tpl">
+<opt:extend file="extended2.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE2
 </opt:snippet>
@@ -21,19 +21,19 @@ GOO-VALUE2
 
 >>>>templates/extended2.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 BEGIN
-<opt:insert snippet="foo" />
-<opt:insert snippet="goo" />
+<opt:use snippet="foo" />
+<opt:use snippet="goo" />
 END
 </opt:root>
 
 >>>>templates/branch1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 BEGIN-BRANCH
-<opt:insert snippet="foo" />
-<opt:insert snippet="goo" />
+<opt:use snippet="foo" />
+<opt:use snippet="goo" />
 END-BRANCH
 </opt:root>
 
@@ -41,9 +41,7 @@ END-BRANCH
 OUTPUT
 
 >>>>result.txt
-BEGIN-BRANCH
+BEGIN
 FOO-VALUE1
-END-BRANCH
-
->>>>data.php
-$view->setBranch('branch');
+GOO-VALUE2
+END

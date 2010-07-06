@@ -2,7 +2,7 @@ Check the detection of infinite recursion.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended1.tpl">
+<opt:extend file="extended1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE1
 </opt:snippet>
@@ -10,11 +10,11 @@ FOO-VALUE1
 
 >>>>templates/extended1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="test.tpl">
+<opt:extend file="test.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE2
 </opt:snippet>
 </opt:extend>
 
 >>>>expected.txt
-Opt_InheritanceRecursion_Exception
+Opt_Compiler_Recursion_Exception

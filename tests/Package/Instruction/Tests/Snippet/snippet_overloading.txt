@@ -2,11 +2,11 @@ Check whether the snippets are overloaded properly according to the template inh
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">Foo</opt:snippet>
 <opt:snippet name="foo">Bar</opt:snippet>
 <opt:snippet name="foo">Joe</opt:snippet>
-<opt:insert snippet="foo" />
+<opt:use snippet="foo" />
 </opt:root>
 
 >>>>expected.txt

@@ -1,0 +1,28 @@
+Checks, how opt:parent works.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:extend file="base.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:snippet name="example">
+<opt:parent />
+
+</opt:snippet>
+</opt:extend>
+
+>>>>templates/base.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:use snippet="example">
+<foo />
+</opt:use>
+<opt:use snippet="example" />
+</opt:root>
+
+>>>>data.php
+$this->tpl->prologRequired = false;
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<foo />

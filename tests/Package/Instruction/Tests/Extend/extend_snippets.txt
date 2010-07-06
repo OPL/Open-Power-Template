@@ -2,14 +2,14 @@ Check if extending snippets work.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="content_snippet">
+<opt:extend file="content_snippet" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 SNIPPET-VALUE
 </opt:snippet>
 
 <opt:snippet name="content_snippet">
 BEGIN
-<opt:insert snippet="foo"/>
+<opt:use snippet="foo"/>
 END
 </opt:snippet>
 </opt:extend>

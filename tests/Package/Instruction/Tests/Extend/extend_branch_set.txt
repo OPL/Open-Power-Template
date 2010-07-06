@@ -1,8 +1,8 @@
-Check more compound inheritance chains.
+Check the branches - case 2: the branch is set and we must follow it.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended1.tpl">
+<opt:extend file="extended1.tpl" branch="branch1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE1
 </opt:snippet>
@@ -10,7 +10,7 @@ FOO-VALUE1
 
 >>>>templates/extended1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended2.tpl" dynamic="yes">
+<opt:extend file="extended2.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE2
 </opt:snippet>
@@ -21,30 +21,29 @@ GOO-VALUE2
 
 >>>>templates/extended2.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 BEGIN
-<opt:insert snippet="foo" />
-<opt:insert snippet="goo" />
+<opt:use snippet="foo" />
+<opt:use snippet="goo" />
 END
 </opt:root>
 
->>>>templates/dynamic2.tpl
+>>>>templates/branch1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
-BEGIN-DYNAMIC
-<opt:insert snippet="foo" />
-<opt:insert snippet="goo" />
-END-DYNAMIC
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+BEGIN-BRANCH
+<opt:use snippet="foo" />
+<opt:use snippet="goo" />
+END-BRANCH
 </opt:root>
 
 >>>>expected.txt
 OUTPUT
 
 >>>>result.txt
-BEGIN-DYNAMIC
+BEGIN-BRANCH
 FOO-VALUE1
-GOO-VALUE2
-END-DYNAMIC
+END-BRANCH
 
 >>>>data.php
-$view->inherit('extended1.tpl', 'dynamic2.tpl');
+$view->setBranch('branch');

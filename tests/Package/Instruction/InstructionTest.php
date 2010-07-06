@@ -126,6 +126,21 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('If/if_new_condition_without_if.txt'),
 			array('OmitTag/omit_tag_basic.txt'),
 
+			// EXTEND
+
+			array('Extend/extend_basic.txt'),
+			array('Extend/extend_compound.txt'),
+			array('Extend/extend_parent.txt'),
+			array('Extend/extend_infinite.txt'),
+			array('Extend/extend_branch_not_set.txt'),
+			array('Extend/extend_branch_set.txt'),
+			array('Extend/extend_branch_set_partially.txt'),
+			array('Extend/extend_dynamic.txt'),
+			array('Extend/extend_dynamic_not_used.txt'),
+			array('Extend/extend_snippets.txt'),
+			array('Extend/extend_compound_2.txt'),
+			array('Extend/extend_bug61.txt'),
+
 			// PROLOG
 			array('Prolog/prolog_default.txt'),
 			array('Prolog/prolog_in_content.txt'),
@@ -155,6 +170,16 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Section/section_if_coop.txt'),
 			array('Section/section_display.txt'),
 			array('Section/section_special_var.txt'),
+
+			// SNIPPET
+			array('Snippet/snippet_basic.txt'),
+			array('Snippet/snippet_dynamic.txt'),
+			array('Snippet/snippet_overloading.txt'),
+			array('Snippet/snippet_overloading_parent.txt'),
+			array('Snippet/snippet_infinite.txt'),
+			array('Snippet/snippet_parent.txt'),
+			array('Snippet/snippet_bug144.txt'),
+			array('Snippet/snippet_bug144_part2.txt'),
 
 			// TREE
 			array('Tree/tree_basic.txt'),

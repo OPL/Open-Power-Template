@@ -1,19 +1,22 @@
-Bug #144.
+An extension to the bug #144.
 
 >>>>templates/test.tpl
 <?xml version="1.0" ?>
-<opt:extend file="extended1.tpl">
+<opt:extend file="extended1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="html">
 <opt:parent/>
 Some content.
+</opt:snippet>
+
+<opt:snippet name="html">
+<opt:attribute name="lang" value="pl" />
 </opt:snippet>
 </opt:extend>
 
 >>>>templates/extended1.tpl
 <?xml version="1.0" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <html opt:use="html">
-<opt:attribute name="lang" value="pl" />
 </html>
 </opt:root>
 

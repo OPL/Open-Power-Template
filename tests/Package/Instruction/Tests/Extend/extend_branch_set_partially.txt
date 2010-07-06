@@ -2,7 +2,7 @@ Check the branches - case 3: the branch is set, but some templates do not have i
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended1.tpl" branch="branch1.tpl">
+<opt:extend file="extended1.tpl" branch="branch1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE1
 <opt:parent/>
@@ -11,7 +11,7 @@ FOO-VALUE1
 
 >>>>templates/extended1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended2.tpl">
+<opt:extend file="extended2.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE2
 </opt:snippet>
@@ -22,16 +22,16 @@ GOO-VALUE2
 
 >>>>templates/extended2.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 BEGIN
-<opt:insert snippet="foo" />
-<opt:insert snippet="goo" />
+<opt:use snippet="foo" />
+<opt:use snippet="goo" />
 END
 </opt:root>
 
 >>>>templates/branch1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended2.tpl">
+<opt:extend file="extended2.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 FOO-VALUE2-BRANCH
 </opt:snippet>

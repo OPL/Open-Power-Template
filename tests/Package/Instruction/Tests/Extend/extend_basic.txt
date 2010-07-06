@@ -1,8 +1,8 @@
-The dynamic inheritance is allowed, but we do not use it.
+Check the basic inheritance features.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:extend file="extended1.tpl" dynamic="yes">
+<opt:extend file="extended1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="foo">
 SNIPPET-VALUE
 </opt:snippet>
@@ -10,18 +10,10 @@ SNIPPET-VALUE
 
 >>>>templates/extended1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 BEGIN
-<opt:insert snippet="foo" />
+<opt:use snippet="foo" />
 END
-</opt:root>
-
->>>>templates/dynamic1.tpl
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
-BEGIN-DYNAMIC
-<opt:insert snippet="foo" />
-END-DYNAMIC
 </opt:root>
 
 >>>>expected.txt
