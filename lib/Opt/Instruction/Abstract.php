@@ -473,7 +473,7 @@ abstract class Opt_Instruction_Abstract
 			}
 			if(!$ok)
 			{
-				throw new Opt_AttributeNotDefined_Exception($name, $subitem->getXmlName());
+				throw new Opt_Instruction_Exception('Attribute '.$name.' is not defined in '.$subitem->getXmlName());
 			}
 
 			$config[$name] = $this->_extractAttribute($subitem, $attrList[$aname], $data[1], $data[3]);
@@ -508,7 +508,7 @@ abstract class Opt_Instruction_Abstract
 				// We can't use isset() because the default data might be "NULL"
 				if(!array_key_exists(2, $data))
 				{
-					throw new Opt_APIMissingDefaultValue_Exception($name, $subitem->getXmlName());
+					throw new Opl_Api_Exception('OPT API error: missing default value for '.$name.' attribute definition in '.$subitem->getXmlName());
 				}
 				$config[$name] = $data[2];
 				continue;
@@ -589,7 +589,7 @@ abstract class Opt_Instruction_Abstract
 			case self::EXPRESSION_EXT:
 				if(strlen(trim($value)) == 0)
 				{
-					throw new Opt_Instruction_Exception('Yhe attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().' is empty.');
+					throw new Opt_Instruction_Exception('The attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().' is empty.');
 					throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
 				}
 			//	if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $value, $found))
@@ -598,7 +598,12 @@ abstract class Opt_Instruction_Abstract
 			//	}
 			//	else
 			//	{
-					$result = $this->_compiler->parseExpression($value, $exprType);
+				$found = $this->_compiler->detectExpressionEngine($value, $exprType);
+				if($found === null)
+				{
+					$found = array($this->_tpl->expressionEngine, $value);
+				}
+				$result = $this->_compiler->parseExpression($found[1], $found[0]);
 			//	}
 
 				if($type == self::EXPRESSION_EXT)

@@ -20,6 +20,14 @@ class Extra_Mock_Expression implements Opt_Expression_Interface
 	} // end setCompiler();
 
 	/**
+	 * Does nothing.
+	 */
+	public function dispose()
+	{
+
+	} // end dispose();
+
+	/**
 	 * The role of this method is to parse the expression to the
 	 * corresponding PHP code.
 	 *
@@ -30,8 +38,8 @@ class Extra_Mock_Expression implements Opt_Expression_Interface
 	{
 		if(preg_match('/^\#\#(.+)$/', $expression, $found))
 		{
-			return array('bare' => '$this->_data[\''.$found[1].'\']', 'type' => Opt_Compiler_Class::COMPOUND);
+			return array('bare' => '$this->_data[\''.$found[1].'\']', 'type' => Opt_Expression_Interface::COMPOUND);
 		}
-		return array('bare' => '0', 'type' => Opt_Compiler_Class::SCALAR);
+		return array('bare' => '0', 'type' => Opt_Expression_Interface::SCALAR);
 	} // end parse();
 } // end Extra_Mock_Expression;

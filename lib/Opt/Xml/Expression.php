@@ -93,7 +93,13 @@ class Opt_Xml_Expression extends Opt_Xml_Node
 		// Empty expressions will be caught by the try... catch.
 		try
 		{
-			$result = $compiler->parseExpression((string)$this);
+			$found = $compiler->detectExpressionEngine((string)$this, $compiler->getDefaultExpressionEngine());
+			if($found === null)
+			{
+				throw new Opt_Xml_Exception('Default expression engine for curly bracket expressions is not defined.');
+			}
+
+			$result = $compiler->parseExpression($found[1], $found[0]);
 			switch($result['type'])
 			{
 				case Opt_Expression_Interface::ASSIGNMENT:

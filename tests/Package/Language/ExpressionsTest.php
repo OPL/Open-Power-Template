@@ -31,6 +31,7 @@ class Package_Language_ExpressionsTest extends Extra_TestFSBase
 		{
 			$tpl->parser = 'Opt_Parser_Xml';
 		}
+		$tpl->sourceDir = array('file' => 'test://templates/', 'stream' => 'test://templates/');
 		$tpl->register(Opt_Class::EXPR_ENGINE, 'test', 'Extra_Mock_Expression');
 	} // end configure();
 
@@ -42,16 +43,17 @@ class Package_Language_ExpressionsTest extends Extra_TestFSBase
 	public static function dataProvider()
 	{
 		return array(0 =>
-			array('instruction_1.txt'),
-			array('newattr_1.txt'),
-			array('newattr_2.txt'),
-			array('newattr_3.txt'),
-			array('text_1.txt'),
-			array('text_2.txt'),
-			array('oldattr_1.txt'),
-			array('oldattr_2.txt'),
-			array('oldinstruction_1.txt'),
-			array('oldinstruction_2.txt'),
+			array('instruction_basic.txt'),
+			array('instruction_duplicated.txt'),
+			array('newattr_parse.txt'),
+			array('newattr_str.txt'),
+			array('newattr_null.txt'),
+			array('text_parse.txt'),
+			array('text_str.txt'),
+		//	array('oldattr_1.txt'),
+		//	array('oldattr_2.txt'),
+		//	array('oldinstruction_1.txt'),
+		//	array('oldinstruction_2.txt'),
 		);
 	} // end dataProvider();
 

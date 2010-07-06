@@ -1,0 +1,23 @@
+The original implementation of expression engines caused the engine to be
+discovered twice. It was especially problematic with opt:include and streams.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root>
+<opt:include file="str:stream:included.tpl" />
+</opt:root>
+
+>>>>templates/included.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root>
+INCLUDED.
+</opt:root>
+
+>>>>data.php
+
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+INCLUDED.

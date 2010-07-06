@@ -1755,8 +1755,20 @@ class Opt_Compiler_Class
 	 */
 	public function compileAttribute(Opt_Xml_Attribute $attr)
 	{
-		$value = $attr->getValue();
-
+		$found = $this->detectExpressionEngine($attr->getValue());
+		if($found !== null)
+		{
+			if($found[0] == 'null')
+			{
+				$attr->setValue($found[1]);
+			}
+			else
+			{
+				$result = $this->parseExpression($found[1], $found[0], self::ESCAPE_ON, $this->_tpl->attributeModifier);
+				$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$result['escaped'].'; ');
+			}
+		}
+/*
 		if(preg_match('/^([a-zA-Z0-9\_]+)\:([^\:].*)$/', $value, $found))
 		{
 			switch($found[1])
@@ -1770,11 +1782,47 @@ class Opt_Compiler_Class
 						$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$result['escaped'].'; ');
 					break;
 				case null:
-						$attr->setValue($found[2]);
+						
 					break;
 			}
 		}
+*/
 	} // end compileAttribute();
+
+	/**
+	 * Returns the name of the default expression engine.
+	 *
+	 * @return string
+	 */
+	public function getDefaultExpressionEngine()
+	{
+		return $this->_tpl->expressionEngine;
+	} // end getDefaultExpressionEngine();
+
+	/**
+	 * Detects the expression engine to use for parsing the expression. The
+	 * method returns an array of two elements. The first one is the name
+	 * of the detected expression engine and the second one is the
+	 * expression after detection. If the detection fails, NULL value
+	 * is returned.
+	 *
+	 * @param string $expr The expression string
+	 * @param string $suggested Suggested default expression engine.
+	 * @return array
+	 */
+	public function detectExpressionEngine($expr, $suggested = null)
+	{
+		// Autodetection of the expression engine
+		if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $expr, $found))
+		{
+			return array($found[1], $found[2]);
+		}
+		elseif($suggested !== null)
+		{
+			return array($suggested, $expr);
+		}
+		return null;
+	} // end detectExpressionEngine();
 
 	/**
 	 * Executes the expression parsing and applies extra stuff, such as escaping on it.
@@ -1785,24 +1833,13 @@ class Opt_Compiler_Class
 	 *
 	 * @throws Opt_Compiler_Exception
 	 * @param string $expr The expression to parse
-	 * @param string $ee The name of the expression engine
+	 * @param string $ee The name of the expression engine to use.
 	 * @param int $escape Whether to use escaping or not.
 	 * @param char $defaultModifier The default escaper for this expression.
 	 * @return array
 	 */
 	public function parseExpression($expr, $ee = null, $escape = self::ESCAPE_BOTH, $defaultModifier = false)
 	{
-		// Autodetection of the expression engine
-		if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $expr, $found))
-		{
-			$expr = $found[2];
-			$ee = $found[1];
-		}
-		elseif($ee === null)
-		{
-			$ee = $this->_tpl->expressionEngine;
-		}
-
 		if(!isset($this->_exprEngines[$ee]))
 		{
 			throw new Opt_Compiler_Exception('The expression engine "'.$ee.'" has not been found.');
@@ -1860,7 +1897,7 @@ class Opt_Compiler_Class
 			$expression['escaping'] = false;
 		}
 		return $expression;
-	} // end parseExpression();
+	} // end _parseExpression();
 
 	/**
 	 * An alias for parseExpression() left for backward compatibility with OPT 2.0.
