@@ -26,4 +26,36 @@ The details concerning OPT instructions will be explained later.
 
 If you are familiar with PHP expression system, you should have no problems with understanding the OPT one. We did not reinvent the wheel, but simply used the existing conventions and patterns in order to make it more readable. Most of the rules and techniques that applied in PHP, are also available in OPT and all you have to do is to pay attention on the operator symbols which may differ.
 
-Open Power Template provides a built-in expression lexer that parses the expressions and reports the errors. If the expression is invalid, the compiler will generate an exception during the compilation which looks like this: `Unexpected token OPCODE_XXX (xxx) in expression (expression)`. It informs that the compiler came across the specified token (we see the type: `OPCODE_XXX` and the exact value), but it must not be used in that place. Moreover, it shows the full expression so that you could locate it in the template.
+Open Power Template provides a built-in expression parser that parses the expressions and reports the errors. If the expression is invalid, the compiler will generate an exception during the compilation which looks like this: `Unexpected token OPCODE_XXX (xxx) in expression (expression)`. It informs that the compiler came across the specified token (we see the type: `OPCODE_XXX` and the exact value), but it must not be used in that place. Moreover, it shows the full expression so that you could locate it in the template.
+
+OPT expressions and JavaScript
+==============================
+
+A common problem among many beginning OPT programmers is how to generate some JavaScript code, using the values from OPT variables. As we already know, OPT expressions are very similar to PHP, so generally we can use exactly the same techniques, like in embedding some SQL code within PHP. Below, we can see an example:
+
+~~~~
+[xml]
+<div parse:onclick="'javascript:someFunction(\''~$optVariable~'\');'">
+...
+</div>
+~~~~
+
+Tilde is the string concatenation operator in OPT. The JavaScript code is enclosed within quotes as a string, and we concatenate the OPT variable value to it. Once we execute such template, we will get a correct JavaScript code.
+
+In order to generate bigger blocks of JavaScript code within `<script>` tag, we must use [opt:literal][syntax.instructions.literal] instruction. You can find more examples in the documentation page of this instruction.
+
+Forward compatibility notes
+===========================
+
+The current way of handling expressions within XML disallows using it in attributes that already have a namespace. This problem is going to be fixed in the incoming Open Power Template 2.1 version, however - it requires to break the backward compatibility. In the new version, the expression engine will be selected within the attribute value:
+
+~~~~
+[xml]
+<!-- OPT 2.0 -->
+<div parse:class="$foo"> ... </div>
+
+<!-- OPT 2.1 -->
+<div class="parse:$foo"> ... </div>
+~~~~
+
+In order to simplify the migration, the new version will be equipped with the migration module which will allow either to compile the old code from OPT 2.0 or convert the existing templates to the newer syntax automatically.

@@ -77,12 +77,15 @@ The section elements do not have to be containers, but also simple scalar values
 Data formats
 ============
 
-Of course, if the section operates on some real data, they must have a format. Usually, the template engines require you to deal with it on the template side, which is not convenient and decreases the portability. As you have probably noticed, we have said nothing about the formats in the already presented examples. This is one of the unique section features - they are fully format-independent. It is only the programmer and the PHP script issue and the template designer does not have to know, what the data really are. Notice that such code is much easier to read and portable. We can simply copy huge parts of one template, paste them in totally different place and they will simply adapt to the new location.
+As you have probably noticed, we have not said anything so far about the accompanying PHP code that would generate some useful data for our sections, and the data must have some certain structure in order to be readable. This is not a mistake. In other template engines, the loop data layout is left up to the programmer who must deal with it on the template side, or forced by the particular instruction. However, in Open Power Template the sections do not have any single "PHP representation". Their exact behaviour after the compilation depends on the selected data format.
 
-> [important]
-> The format independence is one of the most important section features. As a template designer, you only mark, how should *some elements* containing *some kind of data* look like. The exact implementation is chosen during the compilation according to the information provided by the PHP script.
+Data formats are a unique feature of OPT. They are responsible for the very high level of abstraction presented by OPT instructions. 
+While writing templates, you do not have to worry about the implementation issues. Instead, if you want to populate your section with objects, you choose `Objective` data format for it, and if you want arrays, you choose either `Array` or `SingleArray`. The compiler will do the rest and make the section support objects or arrays. The result is much more portable and simpler to maintain. Notice that the data format change does not affect the template code. All you have to do is to change the format within the script and recompile the templates.
 
-Note that sections have nothing to do with the actual iteration process over the data structure. They do not put any constraints on the data structure type, element indexation or order resolving which are treated as an internal issue of the used data format. In the templates, you should never make assumptions about the sections that rely on such technical details.
+Let's sum up. The data format independence is one of the most important section features. They do not have any specific PHP representation. As a template designer, you only mark, how should *some elements* containing *some kind of data* look like. The script and the compiler does the rest.
+
+> [information]
+> In order to get to know, how to populate sections with some PHP data, please take a look at the chapter about [data formats][guide.data-formats].
 
 Nested sections
 ===============
@@ -272,12 +275,12 @@ $sys special variable extensions
 
 Using the `$sys.section.sectionName` special variable, you can get some extra information about the specified section. The available values are:
 
-1. `$sys.section.sectionName.count` - returns the number of the elements in the section.
-2. `$sys.section.sectionName.size` - returns the current section element size.
-3. `$sys.section.sectionName.iterator` - the current element index (warning: it may vary among various data formats!)
-4. `$sys.section.sectionName.first` - **true** if the current element is the first section element.
-5. `$sys.section.sectionName.last` - **true** if the current element is the last section element.
-6. `$sys.section.sectionName.extreme` - **true** if the current element is the first or the last section element.
+1. `$system.section.sectionName.count` - returns the number of the elements in the section.
+2. `$system.section.sectionName.size` - returns the current section element size.
+3. `$system.section.sectionName.iterator` - the current element index (warning: it may vary among various data formats!)
+4. `$system.section.sectionName.first` - **true** if the current element is the first section element.
+5. `$system.section.sectionName.last` - **true** if the current element is the last section element.
+6. `$system.section.sectionName.extreme` - **true** if the current element is the first or the last section element.
 
 Some section types might define also additional values.
 
