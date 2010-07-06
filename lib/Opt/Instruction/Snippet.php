@@ -120,7 +120,6 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		
 		if(isset($this->_snippets[$attr->getValue()]))
 		{
 			$this->_current->push($attr->getValue());
@@ -190,7 +189,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 		{
 			if($this->_arguments[$params['name']] != $arguments)
 			{
-				throw new Exception('Invalid snippet arguments');
+				throw new Opt_Instruction_Exception('Invalid snippet arguments in snippet '.$params['name']);
 			}
 		}
 		else
@@ -343,8 +342,8 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 			{
 				$data[] = $info['name'];
 			}
-			$err = new Opt_SnippetRecursion_Exception($snippetName);
-			throw $err->setData($data);
+			$err = new Opt_Compiler_Recursion_Exception('Infinite snippet recursion detected in '.$snippetName);
+			throw $err->setStackData($data);
 		}
 
 		$snippetBlock = array('name' => $snippetName, 'arguments' => array());
@@ -370,7 +369,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 					$process = true;
 					if($suggestedValue == 'required' && !isset($arguments[$name]))
 					{
-						throw new Opt_SnippetArgumentNotDefined_Exception($name, $snippetName);
+						throw new Opt_Instruction_Exception('Required snippet argument '.$name.' is not defined in '.$snippetName);
 					}
 					elseif(!isset($arguments[$name]))
 					{
@@ -407,7 +406,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 				{
 					if($suggestedValue == 'required' && !isset($arguments[$name]))
 					{
-						throw new Opt_SnippetArgumentNotDefined_Exception($name, $snippetName);
+						throw new Opt_Instruction_Exception('Required snippet argument '.$name.' is not defined in '.$snippetName);
 					}
 					elseif(!isset($arguments[$name]))
 					{
