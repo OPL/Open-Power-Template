@@ -12,4 +12,4 @@
  */
 
 // Load the library first! There's our class!
-Opl_Loader::load('Opt_Class');
+spl_autoload_call('Opt_Class');

@@ -287,15 +287,15 @@ class Opt_Compiler_Class
 		// Without it, the debug console would show crazy things about the memory usage.
 		if($this->_tpl->debugConsole && !class_exists('Opt_Xml_Root'))
 		{
-			Opl_Loader::load('Opt_Xml_Root');
-			Opl_Loader::load('Opt_Xml_Text');
-			Opl_Loader::load('Opt_Xml_Cdata');
-			Opl_Loader::load('Opt_Xml_Element');
-			Opl_Loader::load('Opt_Xml_Attribute');
-			Opl_Loader::load('Opt_Xml_Expression');
-			Opl_Loader::load('Opt_Xml_Prolog');
-			Opl_Loader::load('Opt_Xml_Dtd');
-			Opl_Loader::load('Opt_Format_Array');
+			spl_autoload_call('Opt_Xml_Root');
+			spl_autoload_call('Opt_Xml_Text');
+			spl_autoload_call('Opt_Xml_Cdata');
+			spl_autoload_call('Opt_Xml_Element');
+			spl_autoload_call('Opt_Xml_Attribute');
+			spl_autoload_call('Opt_Xml_Expression');
+			spl_autoload_call('Opt_Xml_Prolog');
+			spl_autoload_call('Opt_Xml_Dtd');
+			spl_autoload_call('Opt_Format_Array');
 		}
 	} // end __construct();
 

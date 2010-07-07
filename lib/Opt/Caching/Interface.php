@@ -12,4 +12,4 @@
  */
 
 // Load the library first! There's our interface!
-Opl_Loader::loadFile('Opt', 'Class.php');
+spl_autoload_call('Opt_Class');
