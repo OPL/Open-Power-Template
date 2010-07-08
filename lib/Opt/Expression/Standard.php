@@ -964,7 +964,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowObjects)
 		{
-			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+			throw new Opt_Runtime_Exception('Direct object access is disabled by the configuration.');
 		}
 
 		$variable = $this->_compileVariable($variable[0], $variable[1], 0);
