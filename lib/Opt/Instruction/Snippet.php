@@ -343,7 +343,8 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 				$data[] = $info['name'];
 			}
 			$err = new Opt_Compiler_Recursion_Exception('Infinite snippet recursion detected in '.$snippetName);
-			throw $err->setStackData($data);
+			$err->setStackData($data);
+			throw $err;
 		}
 
 		$snippetBlock = array('name' => $snippetName, 'arguments' => array());
