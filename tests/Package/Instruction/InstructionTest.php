@@ -36,6 +36,7 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Instruction_Section
  * @covers Opt_Instruction_Selector
  * @covers Opt_Instruction_Snippet
+ * @covers Opt_Instruction_Switch
  * @covers Opt_Instruction_Tag
  * @covers Opt_Instruction_Tree
  * @runTestsInSeparateProcesses
@@ -62,7 +63,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 	{
 		return array(0 =>
 			// BLOCK
-			array('Block/block_basic.txt'),
+/*			array('Block/block_basic.txt'),
 			array('Block/block_single.txt'),
 			array('Block/block_arguments.txt'),
 			array('Block/block_single_args.txt'),
@@ -183,9 +184,15 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Snippet/snippet_parent.txt'),
 			array('Snippet/snippet_bug144.txt'),
 			array('Snippet/snippet_bug144_part2.txt'),
+*/
+			// SWITCH
+			array('Switch/switch_equals_basic.txt'),
+			array('Switch/switch_equals_default.txt'),
+			array('Switch/switch_else.txt'),
+			array('Switch/switch_equals_nested_tail.txt'),
 
 			// TREE
-			array('Tree/tree_basic.txt'),
+/*			array('Tree/tree_basic.txt'),
 			array('Tree/tree_complex.txt'),
 			array('Tree/tree_else.txt'),
 			array('Tree/tree_body.txt'),
@@ -195,7 +202,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Tree/tree_list_loop.txt'),
 			array('Tree/tree_node_loop.txt'),
 			array('Tree/tree_different_depth.txt'),
-			array('Tree/tree_depth_error.txt'),
+			array('Tree/tree_depth_error.txt'),*/
 			/*
 				array('attribute_1.txt'),
 				array('attribute_2.txt'),

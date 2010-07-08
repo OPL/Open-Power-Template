@@ -2,7 +2,7 @@ Testing the opt:switch instruction: "break" equivalents.
 
 >>>>templates/test.tpl
 <?xml version="1.0" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 
 <!-- first switch -->
 <opt:switch test="$value1">

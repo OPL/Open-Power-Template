@@ -74,6 +74,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	public function configure()
 	{
 		$this->_addInstructions(array('opt:switch'));
+		$this->_addAmbiguous(array('opt:else' => 'opt:switch'));
 
 		$this->addSwitchable('opt:switch');
 		$this->addSwitchHandler('opt:equals', $this->_compiler->createFormat(null, 'SwitchEquals'), 500);
@@ -132,6 +133,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	 *
 	 * Note that the data format must implement the 'switch' hook type.
 	 *
+	 * @throws Opt_Format_Exception
 	 * @param string $tagName The registered tag name
 	 * @param Opt_Format_Abstract $dataFormat The data format to handle these requests.
 	 * @param string|integer $groupInfo Group information or the priority.
@@ -140,7 +142,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	{
 		if(!$dataFormat->supports('switch'))
 		{
-			throw new Opt_FormatNotSupported_Exception($dataFormat->getName(), 'switch');
+			throw new Opt_Format_Exception($dataFormat->getName().' does not support the "switch" feature.');
 		}
 
 		$obj = new SplFixedArray(2);
@@ -164,19 +166,18 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	 * Removes an existing switch handler. If the handler is not found, it throws
 	 * an exception.
 	 *
-	 * @throws Opt_ObjectNotExists_Exception
+	 * @throws Opl_Api_Exception
 	 * @param string $tagName The tag name registered for the handler.
 	 */
 	final public function removeSwitchHandler($tagName)
 	{
 		if($this->_initialized)
 		{
-			// TODO: Exception here...
-			die('Error');
+			throw new Opl_Api_Exception('Cannot remove the "'.$tagName.'" switch handler: Switch processor already initialized.');
 		}
 		if(!isset($this->_handlers[(string)$tagName]))
 		{
-			throw new Opt_ObjectNotExists_Exception('switch handler', $tagName);
+			throw new Opl_Api_Exception('The switch handler '.$tagName.' does not exist.');
 		}
 		// Remove the data from some extra arrays...
 		if(is_integer($this->_handlers[(string)$tagName][1]))
@@ -213,6 +214,18 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	 */
 	final public function createSwitch(Opt_Xml_Node $node, $test)
 	{
+		// Find opt:else, if it is available
+		$results = $node->getElementsByTagNameNS('opt', 'else', false);
+
+		if(sizeof($results) == 1)
+		{
+			$node->removeChild($results[0]);
+		}
+		elseif(sizeof($results) > 1)
+		{
+			throw new Opt_Instruction_Exception('Too many opt:else elements in the Switch statement: zero or one allowed.');
+		}
+
 		// Initialize the processor, if necessary
 		if(!$this->_initialized)
 		{
@@ -260,6 +273,15 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 				$node->appendChild($container);
 				$container->set('hidden', false);
 			}
+		}
+		// Append opt:else
+		if(sizeof($results) == 1)
+		{
+			$results[0]->set('hidden', false);
+			$results[0]->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' else { ');
+			$results[0]->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+			$node->appendChild($results[0]);
+			$this->_process($results[0]);
 		}
 	//	$this->_compiler->_debugPrintNodes($node);
 	} // end createSwitch();

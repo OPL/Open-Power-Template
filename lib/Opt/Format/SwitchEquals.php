@@ -46,6 +46,12 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 	private $_stateInitializer = '';
 
 	/**
+	 * The default statement.
+	 * @var boolean
+	 */
+	private $_default = false;
+
+	/**
 	 * Returned by switch:inform, allows to inform the parent node
 	 * about something.
 	 *
@@ -87,10 +93,53 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 			case 'switch:testsAfter':
 				$code = $this->_finalConditions.' } ';
 				$this->_finalConditions = '';
+				$this->_default = false;
 				return $code;
 			case 'switch:caseBefore':
 				$this->_inform = null;
 				$params = $this->_getVar('attributes');
+
+				if($params['value'] === null)
+				{
+					// Default statement
+					if($this->_default !== false)
+					{
+						throw new Opt_Format_Exception('Default statement for opt:switch equals has already been defined.');
+					}
+					$this->_default = true;
+					if($this->_getVar('nesting') == 0)
+					{
+						return 'default:'.PHP_EOL.' ';
+					}
+					else
+					{
+						// This is an element without a tail recursion. PHP does not support such a case
+						// so we must emulate it with GOTO by jumping to the appropriate label somewhere
+						// deep in the switch.
+						if($element->get('priv:switch.tail') === Opt_Instruction_Switch::TAIL_NO)
+						{
+							// The information from the bottom must be passed upwards.
+							if($this->_getVar('informed') === 1)
+							{
+								$this->_inform = 1;
+							}
+
+							$this->_finalConditions .= ' default:'.PHP_EOL.' $__state_'.self::$_counter.' = '.$order.'; goto __switcheq_'.self::$_counter.'_'.$order.';';
+							return ' __switcheq_'.self::$_counter.'_'.$order.': ';
+						}
+						else
+						{
+							if($this->_getVar('skipOrdering') === true && $this->_getVar('informed') !== 1)
+							{
+								return 'default:'.PHP_EOL;
+							}
+							$this->_stateInitializer = '$__state_'.self::$_counter.' = false;';
+							$this->_inform = 1;
+							return 'default:'.PHP_EOL.' $__state_'.self::$_counter.' = $__state_'.self::$_counter.' ?: '.$order.'; ';
+						}
+					}
+				}
+
 				$element = $this->_getVar('element');
 				$order = $element->get('priv:switch.order');
 				if($this->_getVar('nesting') == 0)
@@ -175,7 +224,7 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 		if($name == 'switch:caseAttributes')
 		{
 			return array(
-				'value' => array(0 => Opt_Instruction_Abstract::REQUIRED, Opt_Instruction_Abstract::EXPRESSION, null, 'parse')
+				'value' => array(0 => Opt_Instruction_Abstract::OPTIONAL, Opt_Instruction_Abstract::EXPRESSION, null, 'parse')
 			);
 		}
 		else
