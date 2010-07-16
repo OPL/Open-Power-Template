@@ -47,13 +47,13 @@ class Opt_Format_RuntimeGenerator extends Opt_Format_Abstract
 			$section = $this->_getVar('section');
 
 			// Choose the data source.
-			if(!is_null($section['parent']))
+			if($section['parent'] !== null)
 			{
-				$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
+				$parent = Opt_Instruction_Section_Abstract::getSection($section['parent']);
 				$parent['format']->assign('item', $section['name']);
 				$ds = $parent['format']->get('section:variable');
 			}
-			elseif(!is_null($section['datasource']))
+			elseif($section['datasource'] !== null)
 			{
 				$ds = $section['datasource'];
 			}
@@ -65,7 +65,7 @@ class Opt_Format_RuntimeGenerator extends Opt_Format_Abstract
 
 			if(!is_object($this->_decorated))
 			{
-				throw new Opt_FormatNotDecorated_Exception('StaticGenerator');
+				throw new Opt_Format_Exception('StaticGenerator format must be decorated.');
 			}
 			$ref = ($this->_decorated->property('section:useReference') ? ' & ' : '');
 

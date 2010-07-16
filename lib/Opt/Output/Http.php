@@ -167,6 +167,7 @@ class Opt_Output_Http implements Opt_Output_Interface
 		if($this->_tpl->contentNegotiation)
 		{
 			// This part of the code requires OPC!
+			// TODO: Replace with non-singleton OPC
 			$visit = Opc_Visit::getInstance();
 			if($contentType == self::XHTML)
 			{
@@ -268,7 +269,7 @@ class Opt_Output_Http implements Opt_Output_Interface
 		}
 		elseif($this->_parser == 'Html' || $this->_parser == 'Xml')
 		{
-			throw new Opt_OutputOverloaded_Exception;
+			throw new Opt_Output_Exception('The HTTP output is overloaded: an HTML or XML template has already been sent.', 'HTTP');
 		}
 		return $view->_parse($this, true);
 	} // end output();
