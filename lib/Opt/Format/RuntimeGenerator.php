@@ -50,7 +50,7 @@ class Opt_Format_RuntimeGenerator extends Opt_Format_Abstract
 			if($section['parent'] !== null)
 			{
 				$parent = Opt_Instruction_Section_Abstract::getSection($section['parent']);
-				$parent['format']->assign('item', $section['name']);
+				$parent['format']->assign('item', $section['from']);
 				$ds = $parent['format']->get('section:variable');
 			}
 			elseif($section['datasource'] !== null)

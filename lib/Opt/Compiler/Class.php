@@ -1758,7 +1758,7 @@ class Opt_Compiler_Class
 		$found = $this->detectExpressionEngine($attr->getValue());
 		if($found !== null)
 		{
-			if($found[0] == 'null')
+			if($found[0] == 'null' || $found[0] == 'http' || $found[0] == 'https')
 			{
 				$attr->setValue($found[1]);
 			}
