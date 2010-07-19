@@ -451,7 +451,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 						$item->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:caseAfter'));
 
 						// The item may notify parents about something
-						if($parent !== null && $parent->get('priv:switch.informed') === null)
+						if($parent !== null /* && $parent->get('priv:switch.informed') === null */)
 						{
 							$parent->set('priv:switch.informed', $format->action('switch:inform'));
 						}
