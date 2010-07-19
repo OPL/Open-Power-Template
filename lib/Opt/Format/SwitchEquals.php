@@ -227,6 +227,10 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 				'value' => array(0 => Opt_Instruction_Abstract::OPTIONAL, Opt_Instruction_Abstract::EXPRESSION, null, 'parse')
 			);
 		}
+		elseif($name == 'switch:processAttribute')
+		{
+			return 'value';
+		}
 		else
 		{
 			// switch:inform

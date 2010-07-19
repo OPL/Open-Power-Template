@@ -79,7 +79,7 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 			case 'switch:enterTestBegin.first':
 				return 'if(Opt_Function::isContainer($__test_'.self::$_counter.' = '.$this->_getVar('test').')){ ';
 			case 'switch:enterTestEnd.first':
-				return '__switch_'.self::$_counter.'_end: } ';
+				return '__switch_'.(self::$_counter++).'_end: } ';
 			case 'switch:enterTestBegin.later':
 				return 'elseif(Opt_Function::isContainer($__test_'.self::$_counter.' = '.$this->_getVar('test').')){ ';
 			case 'switch:enterTestEnd.later':
@@ -157,6 +157,10 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 			return array(
 				'value' => array(0 => Opt_Instruction_Abstract::REQUIRED, Opt_Instruction_Abstract::EXPRESSION, null, 'parse')
 			);
+		}
+		elseif($name == 'switch:processAttribute')
+		{
+			return 'value';
 		}
 		else
 		{

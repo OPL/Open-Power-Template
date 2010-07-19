@@ -330,7 +330,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 						list($item, $parent, $nesting) = $queue->dequeue();
 						
 
-						if($this->_detectCase($item) !== null)
+						if(($subcase = $this->_detectCase($item)) !== null)
 						{
 							$stack->push($item);
 
@@ -346,8 +346,15 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 							$item->set('priv:switch.order', $order);
 							$item->set('priv:switch.orderList', array($order));
 							$item->set('priv:switch.nesting', $nesting);
-							$params = $format->action('switch:caseAttributes');
-							$this->_extractAttributes($item, $params);
+							if($item->get('priv:switch.caseType') == 'attribute')
+							{
+								$params[$format->action('switch:processAttribute')] = $item->getAttribute($subcase)->getValue();
+							}
+							else
+							{
+								$params = $format->action('switch:caseAttributes');
+								$this->_extractAttributes($item, $params);
+							}
 							$item->set('priv:switch.params', $params);
 							
 							$item->set('hidden', false);
@@ -507,6 +514,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 		if(isset($this->_handlers[$element->getXmlName()]))
 		{
 			$element->set('priv:switch.nextCase', $element->getXmlName());
+			$element->set('priv:switch.caseType', 'element');
 			return $element->getXmlName();
 		}
 		// Look for an attribute.
@@ -517,6 +525,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 				if(isset($this->_handlers[$attribute->getXmlName()]))
 				{
 					$element->set('priv:switch.nextCase', $attribute->getXmlName());
+					$element->set('priv:switch.caseType', 'attribute');
 					return $attribute->getXmlName();
 				}
 			}
