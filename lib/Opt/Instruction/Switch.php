@@ -322,14 +322,13 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 
 					$queue = new SplQueue;
 					$stack = new SplStack;
-					$queue->enqueue(array(0 => $clone, null, 0));
+					$queue->enqueue(array(0 => $clone, null, null, 0));
 					$scanned = null;
 
 					do
 					{
-						list($item, $parent, $nesting) = $queue->dequeue();
+						list($item, $parent, $switchParent, $nesting) = $queue->dequeue();
 						
-
 						if(($subcase = $this->_detectCase($item)) !== null)
 						{
 							$stack->push($item);
@@ -342,7 +341,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 								$item->set('priv:switch.skipOrdering', true);
 							}
 
-							$item->set('priv:switch.parent', $parent);
+							$item->set('priv:switch.parent', $switchParent);
 							$item->set('priv:switch.order', $order);
 							$item->set('priv:switch.orderList', array($order));
 							$item->set('priv:switch.nesting', $nesting);
@@ -396,7 +395,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 									$item->removeChild($subitem);
 									continue;
 								}								
-								$queue->enqueue(array($subitem, $item, $nesting+1));
+								$queue->enqueue(array($subitem, $item, ($subcase !== null ? $item : $switchParent), $nesting+1));
 
 								// Check tailness.
 								if($subitem->getNext() === null && ($next = $subitem->getParent()) !== null && $this->_detectCase($next) !== null)
@@ -411,7 +410,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 							else
 							{
 								// Ordinary node
-								$queue->enqueue(array($subitem, $parent, $nesting));
+								$queue->enqueue(array($subitem, $parent, ($subcase !== null ? $item : $switchParent), $nesting));
 							}
 						}
 					}
