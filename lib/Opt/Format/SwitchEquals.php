@@ -31,6 +31,16 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 	);
 
 	/**
+	 * Data format properties as information for the
+	 * caller.
+	 *
+	 * @var array
+	 */
+	protected $_properties = array(
+		'switch:longCase' => false
+	);
+
+	/**
 	 * The list of conditions that need to be tested
 	 * at the end.
 	 *

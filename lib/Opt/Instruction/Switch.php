@@ -301,25 +301,44 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	{
 		$node = new Opt_Xml_Element('opt:_');
 		$order = 0;
+		$topLevel = null;
+		$nonCase = false;
 
 		foreach($base as $subnode)
 		{
 			if($subnode instanceof Opt_Xml_Element)
 			{
+				// Check if the top-level node is actually a switch case
 				if(($case = $this->_detectCase($subnode)) === null)
 				{
-					throw new Opt_Instruction_Exception('Invalid opt:switch node: '.$subnode->getXmlName());
+					// Accept non-case nodes on the top level only if the data format accepts it.
+					if($format->property('switch:longCase') === true)
+					{
+						$nonCase = true;
+					}
+					elseif($topLevel === null)
+					{
+						$topLevel = $subnode->getXmlName();
+						continue;
+					}
+					else
+					{
+						continue;
+					}
 				}
 				
-				if($case == $group)
+				if($case == $group || $nonCase == true)
 				{
 					// This node matches this particular group, so we can scan it
 					$node->appendChild($clone = clone $subnode);
 
-					$clone->set('priv:switch.parent', null);
-					$clone->set('priv:switch.tail', self::TAIL_ACTIVE);
-					$clone->set('priv:switch.skipOrdering', true);
-
+					if(!$nonCase)
+					{
+						$clone->set('priv:switch.parent', null);
+						$clone->set('priv:switch.tail', self::TAIL_ACTIVE);
+						$clone->set('priv:switch.skipOrdering', true);
+					}
+					$nonCase = false;
 					$queue = new SplQueue;
 					$stack = new SplStack;
 					$queue->enqueue(array(0 => $clone, null, null, 0));
@@ -328,7 +347,8 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 					do
 					{
 						list($item, $parent, $switchParent, $nesting) = $queue->dequeue();
-						
+						$item->set('hidden', false);
+
 						if(($subcase = $this->_detectCase($item)) !== null)
 						{
 							$stack->push($item);
@@ -355,13 +375,11 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 								$this->_extractAttributes($item, $params);
 							}
 							$item->set('priv:switch.params', $params);
-							
-							$item->set('hidden', false);
 							$this->_process($item);
 
 							$order++;
 						}
-						
+
 						// Strip final whitespaces that would crash tail detection.
 						if($item instanceof Opt_Xml_Element && ($last = $item->getLastChild()) !== null)
 						{
@@ -394,7 +412,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 									}
 									$item->removeChild($subitem);
 									continue;
-								}								
+								}
 								$queue->enqueue(array($subitem, $item, ($subcase !== null ? $item : $switchParent), $nesting+1));
 
 								// Check tailness.
@@ -418,7 +436,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 
 					// Now the stack and the reversed BFS - note that it operates on
 					// switch cases only.
-					do
+					while($stack->count() > 0)
 					{
 						$item = $stack->pop();
 
@@ -462,13 +480,17 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 							$parent->set('priv:switch.informed', $format->action('switch:inform'));
 						}
 					}
-					while($stack->count() > 0);
 				}
 			}
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:testsBefore'));
 		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:testsAfter'));
 		$node->set('hidden', false);
+
+		if($node->hasChildren() && $topLevel !== null)
+		{
+			throw new Opt_Instruction_Exception('Invalid opt:switch element: '.$topLevel);
+		}
 
 		return $node;
 	} // end _createSwitchGroup();
