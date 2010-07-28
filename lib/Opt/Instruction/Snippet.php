@@ -308,6 +308,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 				'__UNKNOWN__' => array(0 => self::OPTIONAL, self::STRING)
 			);
 			$arguments = $this->_extractAttributes($node, $params);
+
 			$this->useSnippet($node, $params['snippet'], $arguments, $params['ignore-default']);
 			$this->_process($node);
 		}
