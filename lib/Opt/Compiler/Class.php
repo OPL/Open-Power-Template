@@ -523,13 +523,18 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the format object for the specified variable.
 	 *
-	 * @param String $variable The variable identifier.
-	 * @param Boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
+	 * @param string $variable The variable identifier.
+	 * @param boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
+	 * @param string $defaultFormat The optional default data format used, if the variable is not defined.
 	 * @return Opt_Format_Abstract The format object.
 	 */
-	public function getFormat($variable, $restore = false)
+	public function getFormat($variable, $restore = false, $defaultFormat = null)
 	{
-		$hc = $this->_tpl->defaultFormat;
+		if($defaultFormat === null)
+		{
+			$defaultFormat = $this->_tpl->defaultFormat;
+		}
+		$hc = $defaultFormat;
 		if(isset($this->_formatInfo[$variable]))
 		{
 			$hc = $this->_formatInfo[$variable];
