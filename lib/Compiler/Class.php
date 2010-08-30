@@ -178,8 +178,8 @@
 			if($tpl->unicodeNames)
 			{
 				// Register unicode name regular expressions
-				$this->_rOpeningChar = '(\p{Lu}|\p{Ll}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Nl}|\_|\:)';
-				$this->_rNameChar = '(\p{Lu}|\p{Ll}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Nl}|\p{Mc}|\p{Me}|\p{Mn}|\p{Lm}|\p{Nd}|\_|\:|\.|\-)';
+				$this->_rOpeningChar = '[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Nl}\_\:]';
+				$this->_rNameChar = '[\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Nl}\p{Mc}\p{Me}\p{Mn}\p{Nd}\_\:\.\-]';
 				$this->_rModifiers = 'msiu';
 			}
 			
