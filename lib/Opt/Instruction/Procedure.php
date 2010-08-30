@@ -155,7 +155,7 @@ class Opt_Instruction_Procedure extends Opt_Instruction_Abstract
 			$procedureName = $procedureExpression['bare'];
 		}
 
-		$code .= ' if(!isset($ctx->_procs['.$procedureName.'])){ throw new Opt_ObjectNotExists_Exception(\'template procedure\', '.$procedureName.'); } ';
+		$code .= ' if(!isset($ctx->_procs['.$procedureName.'])){ throw new Opt_Runtime_Exception(\'The template procedure '.$procedureName.' does not exist.\'); } ';
 
 		if(!$callUserFunc)
 		{
