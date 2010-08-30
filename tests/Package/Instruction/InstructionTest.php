@@ -63,7 +63,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 	{
 		return array(0 =>
 			// BLOCK
-/*			array('Block/block_basic.txt'),
+			array('Block/block_basic.txt'),
 			array('Block/block_single.txt'),
 			array('Block/block_arguments.txt'),
 			array('Block/block_single_args.txt'),
@@ -145,6 +145,14 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Extend/extend_compound_2.txt'),
 			array('Extend/extend_bug61.txt'),
 
+			// PROCEDURE
+			array('Procedure/procedure_basic.txt'),
+			array('Procedure/procedure_missing.txt'),
+			array('Procedure/procedure_dynamic.txt'),
+			array('Procedure/procedure_variables.txt'),
+			array('Procedure/procedure_arguments_required_ok.txt'),
+			array('Procedure/procedure_arguments_required_missing.txt'),
+
 			// PROLOG
 			array('Prolog/prolog_default.txt'),
 			array('Prolog/prolog_in_content.txt'),
@@ -184,7 +192,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Snippet/snippet_parent.txt'),
 			array('Snippet/snippet_bug144.txt'),
 			array('Snippet/snippet_bug144_part2.txt'),
-*/
+
 			// SWITCH
 			array('Switch/switch_equals_basic.txt'),
 			array('Switch/switch_equals_default.txt'),
@@ -196,7 +204,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Switch/switch_contains_nested.txt'),
 
 			// TREE
-/*			array('Tree/tree_basic.txt'),
+			array('Tree/tree_basic.txt'),
 			array('Tree/tree_complex.txt'),
 			array('Tree/tree_else.txt'),
 			array('Tree/tree_body.txt'),
@@ -206,7 +214,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Tree/tree_list_loop.txt'),
 			array('Tree/tree_node_loop.txt'),
 			array('Tree/tree_different_depth.txt'),
-			array('Tree/tree_depth_error.txt'),*/
+			array('Tree/tree_depth_error.txt'),
 			/*
 				array('attribute_1.txt'),
 				array('attribute_2.txt'),
