@@ -149,7 +149,6 @@ class Opt_Class extends Opl_Class
 	public $contentType = 0;
 	public $gzipCompression = true;
 	public $headerBuffering = false;
-	public $contentNegotiation = false;
 	public $errorReporting = self::ERR_STANDARD;
 	public $stdStream = 'file';
 	public $debugConsole = false;
