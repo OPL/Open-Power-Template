@@ -3,7 +3,7 @@ Check the opt:include "view" attribute. It should parse an external view.
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- Include a view -->
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 Foo
 <opt:include view="$view" />
 </opt:root>
@@ -11,7 +11,7 @@ Foo
 >>>>templates/included.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- Included file -->
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 Bar
 </opt:root>
 

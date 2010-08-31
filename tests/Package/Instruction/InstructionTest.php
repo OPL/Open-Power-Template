@@ -130,6 +130,17 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('If/if_err_else_first.txt'),
 			array('OmitTag/omit_tag_basic.txt'),
 
+			// INCLUDE
+			array('Include/include_file.txt'),
+			array('Include/include_view.txt'),
+			array('Include/include_from.txt'),
+			array('Include/include_scope.txt'),
+			array('Include/include_scope_2.txt'),
+			array('Include/include_import_value.txt'),
+			array('Include/include_import_format.txt'),
+			array('Include/include_args.txt'),
+			array('Include/include_invalid.txt'),
+
 			// EXTEND
 
 			array('Extend/extend_basic.txt'),

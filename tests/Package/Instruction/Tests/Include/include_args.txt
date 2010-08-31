@@ -3,7 +3,7 @@ The variable "variable2" must be imported to the included view.
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- Include a file -->
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 Foo{$variable1}{$variable2}
 <opt:include view="$view" variable2="$variable2"/>
 </opt:root>
@@ -11,7 +11,7 @@ Foo{$variable1}{$variable2}
 >>>>templates/included.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- Include a file -->
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 Bar{$variable1}{$variable2}
 </opt:root>
 

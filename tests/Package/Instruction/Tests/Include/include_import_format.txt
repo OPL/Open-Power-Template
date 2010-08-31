@@ -1,18 +1,18 @@
-In both of the views the variable should have the same value, as the variables are imported.
+In addition to import a value, a data format should be imported, too.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- Include a file -->
-<opt:root>
-Foo{$variable}
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+Foo{$variable.bar}
 <opt:include file="included.tpl" import="yes" />
 </opt:root>
 
 >>>>templates/included.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- Include a file -->
-<opt:root>
-Bar{$variable}
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+Bar{$variable.bar}
 </opt:root>
 
 >>>>expected.txt
@@ -21,4 +21,7 @@ OUTPUT
 >>>>result.txt
 FooABarA
 >>>>data.php
-$view->variable = 'A';
+$obj = new stdClass;
+$obj->bar = 'A';
+$view->variable = $obj;
+$view->setFormat('variable', 'Objective');
