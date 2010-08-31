@@ -41,6 +41,12 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 	);
 
 	/**
+	 * The things that need to be done before we enter the tests.
+	 * @var string
+	 */
+	private $_testsBefore = '';
+
+	/**
 	 * The list of conditions that need to be tested
 	 * at the end.
 	 *
@@ -95,7 +101,7 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 			case 'switch:enterTestEnd.later':
 				return '__switch_'.(self::$_counter++).'_end:  } ';
 			case 'switch:testsBefore':
-				return '';
+				return $this->_testsBefore;
 			case 'switch:testsAfter':
 				return '';
 			case 'switch:caseBefore':
@@ -107,7 +113,18 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 				$format->assign('container', '$__test_'.self::$_counter);
 				$format->assign('values', $params['value']);
 				$format->assign('optimize', false);
-				$condition = $format->get('container:contains');
+
+				$prepender = $this->_getVar('prepender');
+				if($prepender !== null)
+				{
+					$this->_testsBefore .= ' '.$prepender.'->setCaseResult('.$format->get('container:contains').');'.PHP_EOL;
+				
+					$condition = $prepender.'->isPassed('.($this->_getVar('order')+1).')';
+				}
+				else
+				{
+					$condition = $format->get('container:contains');
+				}
 
 				if($this->_getVar('nesting') == 0)
 				{
