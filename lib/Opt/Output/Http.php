@@ -209,6 +209,12 @@ class Opt_Output_Http implements Opt_Output_Interface
 		}
 		else
 		{
+			// Just in case of malformed headers.
+			if(!isset($_SERVER['HTTP_ACCEPT']))
+			{
+				$_SERVER['HTTP_ACCEPT'] = '';
+			}
+
 			// No content-negotiation. Do the basic checks only.
 			if($contentType == self::XHTML || $contentType == self::FORCED_XHTML)
 			{
