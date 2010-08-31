@@ -152,6 +152,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 
 				$section = array(
 					'name' => $attr->getValue(),
+					'from' => $attr->getValue(),
 					'order' => 'asc',
 					'parent' => NULL,
 					'datasource' => NULL,
@@ -239,7 +240,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 			{
 				$parent = '<em>Datasource</em>';
 			}
-			elseif(!is_null($section['parent']))
+			elseif($section['parent'] !== null)
 			{
 				$parent = $section['parent'];
 			}
@@ -409,11 +410,12 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	{
 		$params = array(
 			'name' => array(0 => self::REQUIRED, self::ID),
-			'parent' => array(0 => self::OPTIONAL, self::ID_EMP, NULL),
-			'datasource' => array(0 => self::OPTIONAL, self::EXPRESSION, NULL),
+			'from' => array(0 => self::OPTIONAL, self::ID, null),
+			'parent' => array(0 => self::OPTIONAL, self::ID_EMP, null),
+			'datasource' => array(0 => self::OPTIONAL, self::EXPRESSION, null),
 			'order' => array(0 => self::OPTIONAL, self::ID, 'asc'),
-			'display' => array(0 => self::OPTIONAL, self::EXPRESSION, NULL),
-			'separator' => array(0 => self::OPTIONAL, self::EXPRESSION, NULL),
+			'display' => array(0 => self::OPTIONAL, self::EXPRESSION, null),
+			'separator' => array(0 => self::OPTIONAL, self::EXPRESSION, null),
 		);
 
 		// The instruction may add some extra attributes.
@@ -423,6 +425,11 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		}
 
 		$this->_extractAttributes($node, $params);
+
+		if($params['from'] === null)
+		{
+			$params['from'] = $params['name'];
+		}
 
 		return $params;
 	} // end _extractSectionAttributes();

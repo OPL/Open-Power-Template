@@ -66,7 +66,7 @@ class Opt_Format_SingleArray extends Opt_Format_Array
 			if(!is_null($section['parent']))
 			{
 				$parent = Opt_Instruction_Section_Abstract::getSection($section['parent']);
-				$parent['format']->assign('item', $section['name']);
+				$parent['format']->assign('item', $section['from']);
 				if($parent['format']->property('section:useReference'))
 				{
 					return '$_sect'.$section['name'].'_vals = &'.$parent['format']->get('section:variable').'; ';

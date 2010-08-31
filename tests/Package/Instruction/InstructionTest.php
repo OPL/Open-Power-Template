@@ -189,6 +189,8 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Section/section_parent.txt'),
 			array('Section/section_parent_complex.txt'),
 			array('Section/section_parent_complex2.txt'),
+			array('Section/section_from.txt'),
+			array('Section/section_from_dataformat.txt'),
 			array('Section/section_datasource.txt'),
 			array('Section/section_datasource_nested.txt'),
 			array('Section/section_if_coop.txt'),

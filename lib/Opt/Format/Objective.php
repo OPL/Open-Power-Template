@@ -82,8 +82,8 @@ class Opt_Format_Objective extends Opt_Format_Abstract
 
 				if(!is_null($section['parent']))
 				{
-					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
-					$parent['format']->assign('item', $section['name']);
+					$parent = Opt_Instruction_Section_Abstract::getSection($section['parent']);
+					$parent['format']->assign('item', $section['from']);
 					return '$_sect'.$section['name'].'_vals = '.$parent['format']->get('section:variable').'; ';
 				}
 				elseif(!is_null($section['datasource']))

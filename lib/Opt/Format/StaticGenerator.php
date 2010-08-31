@@ -50,7 +50,7 @@ class Opt_Format_StaticGenerator extends Opt_Format_Abstract
 			if(!is_null($section['parent']))
 			{
 				$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
-				$parent['format']->assign('item', $section['name']);
+				$parent['format']->assign('item', $section['from']);
 				$ds = $parent['format']->get('section:variable');
 			}
 			elseif(!is_null($section['datasource']))
@@ -59,7 +59,7 @@ class Opt_Format_StaticGenerator extends Opt_Format_Abstract
 			}
 			else
 			{
-				$this->assign('item', $section['name']);
+				$this->assign('item', $section['from']);
 				$ds = $this->get('variable:main');
 			}
 
