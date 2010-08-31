@@ -108,11 +108,11 @@ class Opt_Instruction_Include extends Opt_Instruction_Abstract
 		{
 			if(isset($params['file']))
 			{
-				$codeBegin .= $view.'->_data = $this->_data; ';
+				$codeBegin .= $view.'->_data = $this->_data; '.$view.'->_formatInfo = $this->_formatInfo; ';
 			}
 			else
 			{
-				$codeBegin .= $view.'->_data = array_merge('.$view.'->_data, $this->_data); ';
+				$codeBegin .= $view.'->_data = array_merge('.$view.'->_data, $this->_data); '.$view.'->_formatInfo = array_merge('.$view.'->_formatInfo, $this->_formatInfo); ';
 			}
 		}
 		foreach($vars as $name => $value)
