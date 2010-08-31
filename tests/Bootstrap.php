@@ -8,7 +8,7 @@
  */
 
 $config = parse_ini_file(dirname(__FILE__).'/../paths.ini', true);
-require($config['Opl'].'Opl/Base.php');
+require($config['Opl'].'Opl/Loader.php');
 
 $loader = new Opl_Loader('_');
 $loader->addLibrary('Opl', $config['Opl']);
