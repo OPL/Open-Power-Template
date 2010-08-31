@@ -78,7 +78,7 @@ class Package_Expression_StandardTest extends Extra_Testcase
 	{
 		$exceptionClass = 'Opt_Expression_Exception';
 		return array(
-/*			array(false, '\'foo\'', '\'foo\'', 0),
+			array(false, '\'foo\'', '\'foo\'', 0),
 			array(false, '42', '42', 0),
 			array(false, '$foo', '$ctx->_data[\'foo\']', 0),
 			array(false, '$2foo', '', $exceptionClass),
@@ -181,7 +181,7 @@ class Package_Expression_StandardTest extends Extra_Testcase
 			array(true, '$foo contains both 1 and 2', 'Opt_Function::contains($ctx->_data[\'foo\'], 1)&&Opt_Function::contains($ctx->_data[\'foo\'], 2)', 0),
 			array(true, '$foo contains either 1 or 2', 'Opt_Function::contains($ctx->_data[\'foo\'], 1)||Opt_Function::contains($ctx->_data[\'foo\'], 2)', 0),
 			array(true, '$foo contains neither 1 nor 2', '!Opt_Function::contains($ctx->_data[\'foo\'], 1)&&!Opt_Function::contains($ctx->_data[\'foo\'], 2)', 0),
-//*/
+
 			array(true, '$foo is between 1 and 5', '1 < $ctx->_data[\'foo\'] && $ctx->_data[\'foo\'] < 5', 0),
 			array(true, '$foo is not between 1 and 5', '1 >= $ctx->_data[\'foo\'] || $ctx->_data[\'foo\'] >= 5', 0),
 			array(true, '$foo is either 1 or 5', '1 == $ctx->_data[\'foo\'] || $ctx->_data[\'foo\'] == 5', 0),
@@ -227,7 +227,7 @@ class Package_Expression_StandardTest extends Extra_Testcase
 			array(false, '\':\'', '\':\'', 0),
 			array(false, 'e::method()', 'e::method()', 0),
 			array(false, 'u::method()', 'u::method()', 0),
-			array(false, 'a::method()', 'a::method()', 0),//*/
+			array(false, 'a::method()', 'a::method()', 0),
 		);
 	} // end dataProvider();
 
