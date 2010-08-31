@@ -109,19 +109,30 @@ class Opt_Runtime_Prepender
 	 * Registers a new case result. The cases should be provided in the order they
 	 * will be tested, as the method enumerates them automatically.
 	 *
+	 * @param integer $caseNum The case number
 	 * @param boolean $result The case result.
 	 */
-	public function setCaseResult($result)
+	public function setCaseResult($caseNum, $result)
 	{
-		$this->_cases[$this->_case] = (boolean)$result;
+		$this->_cases[$caseNum] = (boolean)$result;
 
-		if($result == true)
+		if($result == true && $caseNum > $this->_lastValid)
 		{
-			$this->_lastValid = $this->_case;
+			$this->_lastValid = $caseNum;
 		}
 
 		$this->_case++;
 	} // end setCaseResult();
+
+	/**
+	 * Returns true, if the specified case had a satisfactory condition.
+	 *
+	 * @return boolean
+	 */
+	public function isPassed($caseNum)
+	{
+		return $this->_cases[$caseNum];
+	} // end startPassing();
 
 	/**
 	 * Returns true, if the specified case had a satisfactory condition.
@@ -131,7 +142,7 @@ class Opt_Runtime_Prepender
 	 *
 	 * @return boolean
 	 */
-	public function isPassed($caseNum)
+	public function startPassing($caseNum)
 	{
 		if($this->_cases[$caseNum])
 		{
@@ -151,7 +162,7 @@ class Opt_Runtime_Prepender
 			return true;
 		}
 		return false;
-	} // end isPassed();
+	} // end startPassing();
 
 	/**
 	 * This method should be called at the end of the specified case together with
@@ -164,7 +175,6 @@ class Opt_Runtime_Prepender
 	{
 		if($this->_cases[$caseNum])
 		{
-			$this->_i++;
 			if($this->_i == 0 && isset($this->_appends['first']))
 			{
 				$this->_run($this->_appends['first']);
