@@ -182,6 +182,12 @@
 			}
 			else
 			{
+				// Just in case of malformed headers.
+				if(!isset($_SERVER['HTTP_ACCEPT']))
+				{
+					$_SERVER['HTTP_ACCEPT'] = '';
+				}
+
 				// No content-negotiation. Do the basic checks only.
 				if($contentType == self::XHTML || $contentType == self::FORCED_XHTML)
 				{
