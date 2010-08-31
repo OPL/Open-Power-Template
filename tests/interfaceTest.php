@@ -537,6 +537,25 @@
 		} // end testContentNegotiation2();
 
 		/**
+		 * @covers Opt_Output_Http
+		 */
+		public function testMalformedHeaders()
+		{
+			unset($_SERVER['HTTP_ACCEPT']);
+			$visit = Opc_Visit::getInstance();
+			$visit->mimeTypes = null;
+
+			$tpl = new Opt_Class;
+			$tpl->headerBuffering = true;
+			$tpl->contentNegotiation = false;
+
+			$output = new Opt_Output_Http;
+			$output->setContentType(Opt_Output_Http::XHTML);
+			$headers = $output->getHeaders();
+			$this->assertEquals('text/html;charset=utf-8', $headers['Content-type']);
+		} // end testMalformedHeaders();
+
+		/**
 		 * @covers Opt_View
 		 */
 		public function testViewGettersSetters()
