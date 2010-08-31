@@ -1,0 +1,11 @@
+An exception should be thrown, if none of the required attributes is set.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!-- Include a file -->
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:include />
+</opt:root>
+
+>>>>expected.txt
+Opt_Instruction_Exception

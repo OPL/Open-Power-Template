@@ -71,7 +71,7 @@ class Opt_Instruction_Include extends Opt_Instruction_Abstract
 		// Conditional attribute control.
 		if(!isset($params['from']) && !isset($params['file']) && !isset($params['view']))
 		{
-			throw new Opt_IncludeNoAttributes($node->getXmlName());
+			throw new Opt_Instruction_Exception($node->getXmlName().' does not contain any of the attributes: "from", "file", "view".');
 		}
 		// Possible section integration
 		$codeBegin = '';

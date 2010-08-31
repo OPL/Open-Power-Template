@@ -140,6 +140,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Include/include_import_format.txt'),
 			array('Include/include_args.txt'),
 			array('Include/include_invalid.txt'),
+			array('Include/include_missing_attr.txt'),
 
 			// EXTEND
 
