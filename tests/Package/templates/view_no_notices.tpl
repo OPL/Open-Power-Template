@@ -1,4 +1,4 @@
 <?xml version="1.0" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 {$thisVarDoesNotExist}
 </opt:root>

@@ -50,7 +50,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::__construct
-	 * @expectedException Opt_InvalidOptionValue_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testConstructorShouldThrowException()
 	{
@@ -101,7 +101,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::addStream
-	 * @expectedException Opt_ObjectExists_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testAddExistingStream()
 	{
@@ -115,7 +115,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::getStream
-	 * @expectedException Opt_ObjectNotExists_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testGetStreamThrowsException()
 	{
@@ -143,7 +143,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::removeStream
-	 * @expectedException Opt_ObjectNotExists_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testRemoveStreamThrowsException()
 	{
@@ -169,7 +169,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::getSourcePath
-	 * @expectedException Opt_NotSupported_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testGetSourcePathDoesNotAllowRelativePathsDefault()
 	{
@@ -183,7 +183,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::getSourcePath
-	 * @expectedException Opt_ObjectNotExists_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testGetSourcePathDefaultStreamMissing()
 	{
@@ -224,7 +224,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::getSourcePath
-	 * @expectedException Opt_NotSupported_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testGetSourcePathDoesNotAllowRelativePaths()
 	{
@@ -239,7 +239,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 
 	/**
 	 * @covers Opt_Inflector_Standard::getSourcePath
-	 * @expectedException Opt_ObjectNotExists_Exception
+	 * @expectedException Opt_Inflector_Exception
 	 */
 	public function testGetSourcePathStreamMissing()
 	{
@@ -275,7 +275,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 		$mock->stdStream = 'file';
 		$inflector = new Opt_Inflector_Standard($mock);
 
-		$this->assertEquals('test__a__b__c.tpl.php', $inflector->getCompiledPath('test/a:b\\c.tpl', array()));
+		$this->assertEquals('test_a_b_c.tpl.php', $inflector->getCompiledPath('test/a:b\\c.tpl', array()));
 	} // end testGetCompiledPathReplacesDangerousSymbols();
 
 	/**
@@ -289,7 +289,7 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 		$mock->compileId = 'foo';
 		$inflector = new Opt_Inflector_Standard($mock);
 
-		$this->assertEquals('foo_test__a__b__c.tpl.php', $inflector->getCompiledPath('test/a:b\\c.tpl', array()));
+		$this->assertEquals('foo_test_a_b_c.tpl.php', $inflector->getCompiledPath('test/a:b\\c.tpl', array()));
 	} // end testGetCompiledPathPrependsCompileId();
 
 	/**
@@ -302,6 +302,6 @@ class Package_Inflector_StandardTest extends Extra_Testcase
 		$mock->stdStream = 'file';
 		$inflector = new Opt_Inflector_Standard($mock);
 
-		$this->assertEquals('bar.tpl/foo.tpl/test__a__b__c.tpl.php', $inflector->getCompiledPath('test/a:b\\c.tpl', array('foo.tpl', 'bar.tpl')));
+		$this->assertEquals('bar.tpl/foo.tpl/test_a_b_c.tpl.php', $inflector->getCompiledPath('test/a:b\\c.tpl', array('foo.tpl', 'bar.tpl')));
 	} // end testGetCompiledPathBuildsPathForInheritance();
 } // end Package_Inflector_StandardTest;

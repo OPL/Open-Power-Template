@@ -12,10 +12,7 @@ require_once('./Extra/TestFSBase.php');
 
 /**
  * @covers Opt_Compiler_Class
- * @covers Opt_Compiler_Format
- * @covers Opt_Compiler_Processor
  * @covers Opt_Instruction_Attribute
- * @covers Opt_Instruction_BaseSection
  * @covers Opt_Instruction_Block
  * @covers Opt_Instruction_Capture
  * @covers Opt_Instruction_Component
@@ -28,7 +25,6 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Instruction_If
  * @covers Opt_Instruction_Include
  * @covers Opt_Instruction_Literal
- * @covers Opt_Instruction_Loop
  * @covers Opt_Instruction_Prolog
  * @covers Opt_Instruction_Put
  * @covers Opt_Instruction_Repeat
