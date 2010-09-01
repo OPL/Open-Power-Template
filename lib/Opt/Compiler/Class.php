@@ -1831,11 +1831,11 @@ class Opt_Compiler_Class
 		$found = $this->detectExpressionEngine($attr->getValue());
 		if($found !== null)
 		{
-			if($found[0] == 'null' || $found[0] == 'http' || $found[0] == 'https')
+			if($found[0] == 'null')
 			{
 				$attr->setValue($found[1]);
 			}
-			else
+			elseif($found[0] != 'http' && $found[0] != 'https')
 			{
 				$result = $this->parseExpression($found[1], $found[0], self::ESCAPE_ON, $this->_tpl->attributeModifier);
 				$attr->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, 'echo '.$result['escaped'].'; ');
