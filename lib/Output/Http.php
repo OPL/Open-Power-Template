@@ -250,6 +250,8 @@
 			{
 				throw new Opt_OutputOverloaded_Exception;
 			}
-			return $view->_parse($this, true);
+			$result = $view->_parse($this, true);
+			ob_end_flush();
+			return $result;
 		} // end output();
 	} // end Opt_Output_Http;

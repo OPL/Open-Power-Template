@@ -361,8 +361,8 @@
 		 * to tell us, whether another part of the script opened the requested
 		 * buffer.
 		 *
-		 * @param String $buffer The buffer name
-		 * @param Boolean $state The new buffer state: true to open, false to close.
+		 * @param string $buffer The buffer name
+		 * @param boolean $state The new buffer state: true to open, false to close.
 		 */
 		public function setBufferState($buffer, $state)
 		{
@@ -527,10 +527,6 @@
 		 */
 		public function __destruct()
 		{
-			while(ob_get_level() > 0)
-			{
-				ob_end_flush();
-			}
 			if($this->debugConsole)
 			{
 				try
