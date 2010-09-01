@@ -297,6 +297,8 @@ class Opt_Output_Http implements Opt_Output_Interface
 		{
 			throw new Opt_Output_Exception('The HTTP output is overloaded: an HTML or XML template has already been sent.', 'HTTP');
 		}
-		return $view->_parse($this, true);
+		$result = $view->_parse($this, true);
+		ob_end_flush();
+		return $result;
 	} // end output();
 } // end Opt_Output_Http;
