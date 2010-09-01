@@ -8,6 +8,7 @@ Check the isImage() function.
 <opt:if test="isImage('foo.gif')">IMAGE<opt:else>NOT IMAGE</opt:else></opt:if>
 <opt:if test="isImage('foo.svg')">IMAGE<opt:else>NOT IMAGE</opt:else></opt:if>
 <opt:if test="isImage('foo.bmp')">IMAGE<opt:else>NOT IMAGE</opt:else></opt:if>
+<opt:if test="isImage('foo.jpeg')">IMAGE<opt:else>NOT IMAGE</opt:else></opt:if>
 <opt:if test="isImage('http://www.example.com/image.png')">IMAGE<opt:else>NOT IMAGE</opt:else></opt:if>
 <opt:if test="isImage('bogus')">IMAGE<opt:else>NOT IMAGE</opt:else></opt:if>
 </opt:root>
@@ -16,6 +17,7 @@ Check the isImage() function.
 OUTPUT
 
 >>>>result.txt
+IMAGE
 IMAGE
 IMAGE
 IMAGE
