@@ -55,36 +55,53 @@ class Opt_Instruction_Root extends Opt_Instruction_Abstract
 	 */
 	public function processNode(Opt_Xml_Node $node)
 	{
-		if($node->getParent()->getType() != 'Opt_Xml_Root')
+		$parent = $node->getParent();
+		if($parent->getType() != 'Opt_Xml_Root')
 		{
 			throw new Opt_Instruction_Exception('opt:root must be the root tag in the document.');
 		}
 
 		$params = array(
 			'escaping' => array(0 => self::OPTIONAL, self::BOOL, NULL),
-			'include' => array(0 => self::OPTIONAL, self::STRING, NULL),
 			'dynamic' => array(0 => self::OPTIONAL, self::BOOL, false),
 		);
 		$this->_extractAttributes($node, $params);
 
 		// Compile-time inclusion support
-		if(!is_null($params['include']))
+		if($parent->get('preprocess') === null)
 		{
-			$file = $params['include'];
-			if($params['dynamic'])
+		//	echo 'FIND LOAD...'.PHP_EOL;
+			$loads = $node->getElementsByTagNameNS('opt', 'load', false);
+			$templates = array();
+			if(sizeof($loads) > 0)
 			{
-				if(is_null($file = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
+				foreach($loads as $load)
 				{
-					$file = $params['include'];
+					$loadParams = array(
+						'template' => array(0 => self::REQUIRED, self::STRING)
+					);
+					$this->_extractAttributes($load, $loadParams);
+					$templates[] = $loadParams['template'];
 				}
 			}
-			$this->_compiler->addDependantTemplate($file);
-			$compiler = new Opt_Compiler_Class($this->_compiler);
-			$compiler->compile($this->_tpl->_getSource($file), $file, NULL, $this->_compiler->get('parser'));
-			$this->_compiler->importDependencies($compiler);
+			if($params['dynamic'])
+			{
+				if(null !== ($file = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
+				{
+					$templates[] = $file;
+				}
+			}
+			// If there are some templates to load, break the current execution.
+			if(sizeof($templates) > 0)
+			{
+			//	echo 'STORING...'.PHP_EOL;
+				$parent->set('preprocess', $templates);
+				return;
+			}
 		}
+
 		// Escaping control support
-		if(!is_null($params['escaping']))
+		if($params['escaping'] !== null)
 		{
 			$this->_compiler->set('escaping', $params['escaping']);
 		}

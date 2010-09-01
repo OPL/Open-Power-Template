@@ -68,9 +68,36 @@ class Opt_Instruction_Extend extends Opt_Instruction_Abstract
 	 */
 	public function processNode(Opt_Xml_Node $node)
 	{
-		if($node->getParent()->getType() != 'Opt_Xml_Root')
+		$parent = $node->getParent();
+		if($parent->getType() != 'Opt_Xml_Root')
 		{
 			throw new Opt_Instruction_Exception('opt:extend error: this instruction must be a top-level template node.');
+		}
+
+		// Compile-time inclusion support
+		if($parent->get('preprocess') === null)
+		{
+		//	echo 'FIND LOAD...'.PHP_EOL;
+			$loads = $node->getElementsByTagNameNS('opt', 'load', false);
+			$templates = array();
+			if(sizeof($loads) > 0)
+			{
+				foreach($loads as $load)
+				{
+					$loadParams = array(
+						'template' => array(0 => self::REQUIRED, self::STRING)
+					);
+					$this->_extractAttributes($load, $loadParams);
+					$templates[] = $loadParams['template'];
+				}
+			}
+			// If there are some templates to load, break the current execution.
+			if(sizeof($templates) > 0)
+			{
+			//	echo 'STORING...'.PHP_EOL;
+				$parent->set('preprocess', $templates);
+				return;
+			}
 		}
 
 		$params = array(
