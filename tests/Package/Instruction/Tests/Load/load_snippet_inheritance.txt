@@ -1,0 +1,47 @@
+Test, what happens, if an opt:extend snippet template will load another opt:extend snippet
+template?
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:extend file="main" xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:load template="extending.tpl" />
+
+<opt:snippet name="main">
+MAIN
+<opt:use snippet="loaded" />
+<opt:use snippet="extending" />
+END MAIN
+</opt:snippet>
+
+</opt:extend>
+
+>>>>templates/extending.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:extend file="loaded.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
+
+<opt:snippet name="extending">
+EXTENDING
+</opt:snippet>
+
+</opt:extend>
+
+>>>>templates/loaded.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:extend file="submain" xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:snippet name="loaded">
+LOADED
+</opt:snippet>
+
+<opt:snippet name="submain">
+SUBMAIN
+</opt:snippet>
+</opt:extend>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+MAIN
+LOADED
+EXTENDING
+END MAIN

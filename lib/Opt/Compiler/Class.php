@@ -1538,7 +1538,7 @@ class Opt_Compiler_Class
 					$this->set('escape', NULL);
 
 					// This tree will not be necessary anymore
-					if($stackSize > 1 || $finalSnippet !== null)
+					if($stackSize > 1)
 					{
 						$tree->dispose();
 						unset($tree);
@@ -1551,6 +1551,12 @@ class Opt_Compiler_Class
 							$executionQueue->enqueue($extend);
 							$tree->dispose();
 							unset($tree);
+						}
+						elseif(($snippet = $tree->get('snippet')) !== null)
+						{
+							$tree->dispose();
+							unset($tree);
+							$finalSnippet = $snippet;
 						}
 					}
 				}

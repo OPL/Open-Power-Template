@@ -44,6 +44,7 @@ class Package_Instruction_LoadTest extends Extra_TestFSBase
 			array('Load/load_nested.txt'),
 			array('Load/load_inheritance.txt'),
 			array('Load/load_extend.txt'),
+			array('Load/load_snippet_inheritance.txt'),
 		);
 	} // end dataProvider();
 
