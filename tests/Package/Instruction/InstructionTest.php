@@ -156,6 +156,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Extend/extend_snippets.txt'),
 			array('Extend/extend_compound_2.txt'),
 			array('Extend/extend_bug61.txt'),
+			array('Extend/extend_include.txt'),
 
 			// PROCEDURE
 			array('Procedure/procedure_basic.txt'),

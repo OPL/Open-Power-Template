@@ -12,6 +12,7 @@ require_once('./Extra/TestFSBase.php');
 
 /**
  * @covers Opt_Function
+ * @runTestsInSeparateProcesses
  */
 class Package_FunctionTest extends Extra_TestFSBase
 {

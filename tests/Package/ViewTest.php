@@ -9,6 +9,7 @@
 
 /**
  * @covers Opt_View
+ * @runTestsInSeparateProcesses
  */
 class Package_ViewTest extends Extra_Testcase
 {

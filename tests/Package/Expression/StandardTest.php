@@ -10,7 +10,7 @@
 /**
  * @covers Opt_Expression_Interface
  * @covers Opt_Expression_Standard
- *
+ * @runTestsInSeparateProcesses
  */
 class Package_Expression_StandardTest extends Extra_Testcase
 {
