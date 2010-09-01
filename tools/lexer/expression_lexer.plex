@@ -74,10 +74,10 @@ div		= #\/#
 mod		= #\%#
 exp		= #\^#
 not		= #\!#
-eq		= #\=\=#
 eqt		= #\=\=\=#
+eq		= #\=\=#
+neqt	= #\!\=\=#
 neq		= #\!\=#
-neqt	= #\!\=#
 dot		= /\./
 concat	= /\~/
 is_between		= /is\s+between/

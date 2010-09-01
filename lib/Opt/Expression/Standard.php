@@ -151,6 +151,15 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function parse($expr)
 	{
+		if($expr == '')
+		{
+			return array(
+				'bare'			=> '\'\'',
+				'expression'	=> '\'\'',
+				'complexity'	=> 0,
+				'type'			=> Opt_Expression_Interface::SCALAR
+			);
+		}
 		try
 		{
 			$this->_unique = 0;

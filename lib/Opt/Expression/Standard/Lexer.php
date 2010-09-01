@@ -137,7 +137,7 @@ class Opt_Expression_Standard_Lexer
         if ($this->_counter >= strlen($this->_data)) {
             return false; // end of input
         }
-        $yy_global_pattern = "/^(\\s+)|^((\\+\\+|--))|^(\\+)|^(-)|^(\\*)|^(\/)|^(%)|^(\\^)|^(!)|^(==)|^(===)|^(!=)|^(!=)|^(~)|^(is\\s+between)|^(is\\s+not\\s+between)|^(is\\s+either)|^(is\\s+neither)|^(contains\\s+both)|^(contains\\s+either)|^(contains\\s+neither)|^(is\\s+in)|^(is\\s+not\\s+in)|^(is\\s+both\\s+in)|^(is\\s+either\\s+in)|^(is\\s+neither\\s+in)|^(\\$)|^(@)|^(\\.)|^(=)|^(\\()|^(\\))|^(<)|^(>)|^(\\[)|^(\\])|^(::)|^(,)|^(:)|^([a-zA-Z_][a-zA-Z0-9_]*)|^('[^'\\\\]*(?:\\\\.[^'\\\\]*)*')|^(`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`)|^([0-9]+\\.?[0-9]*)|^(0[xX][0-9a-fA-F]+)/";
+        $yy_global_pattern = "/^(\\s+)|^((\\+\\+|--))|^(\\+)|^(-)|^(\\*)|^(\/)|^(%)|^(\\^)|^(!)|^(==)|^(===)|^(!=)|^(!==)|^(~)|^(is\\s+between)|^(is\\s+not\\s+between)|^(is\\s+either)|^(is\\s+neither)|^(contains\\s+both)|^(contains\\s+either)|^(contains\\s+neither)|^(is\\s+in)|^(is\\s+not\\s+in)|^(is\\s+both\\s+in)|^(is\\s+either\\s+in)|^(is\\s+neither\\s+in)|^(\\$)|^(@)|^(\\.)|^(=)|^(\\()|^(\\))|^(<)|^(>)|^(\\[)|^(\\])|^(::)|^(,)|^(:)|^([a-zA-Z_][a-zA-Z0-9_]*)|^('[^'\\\\]*(?:\\\\.[^'\\\\]*)*')|^(`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`)|^([0-9]+\\.?[0-9]*)|^(0[xX][0-9a-fA-F]+)/";
 
         do {
             if (preg_match($yy_global_pattern, substr($this->_data, $this->_counter), $yymatches)) {
