@@ -185,10 +185,10 @@ class Package_Xml_ScannableTest extends Extra_Testcase
 	} // end testInsertBeforeAtLastPlace();
 
 	/**
-	 * @expectedException Opt_APIInvalidBorders_Exception
+	 * @expectedException Opt_Xml_Exception
 	 * @covers Opt_Xml_Scannable::insertBefore
 	 */
-	public function testInsertBeforeThrowsExceptionsOnINvalidRefNodesNumeric()
+	public function testInsertBeforeThrowsExceptionsOnInvalidRefNodesNumeric()
 	{
 		$mock = array(0 =>
 			$this->getMock('Opt_Xml_Node', $this->_mocked),
@@ -201,7 +201,7 @@ class Package_Xml_ScannableTest extends Extra_Testcase
 	} // end testInsertBeforeThrowsExceptionsOnINvalidRefNodesNumeric();
 
 	/**
-	 * @expectedException Opt_APIInvalidBorders_Exception
+	 * @expectedException Opt_Xml_Exception
 	 * @covers Opt_Xml_Scannable::insertBefore
 	 */
 	public function testInsertBeforeThrowsExceptionsOnINvalidRefNodesParent()

@@ -315,7 +315,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			// Scan for opt:set tags - they may contain some custom arguments.
 			$set2 = $node->getElementsByTagNameNS('opt', 'set');
 
-			// Now a little trick - how to cheat the opt:insert instruction
+			// Now a little trick - how to cheat the opt:use instruction
 			$useAttribute = new Opt_Xml_Attribute('opt:use', $params['template']);
 			$this->_compiler->processor('snippet')->processAttribute($node, $useAttribute);
 		}

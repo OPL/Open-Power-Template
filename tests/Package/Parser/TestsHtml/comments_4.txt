@@ -10,4 +10,4 @@ Check the unpaired comment closure.
 $this->tpl->printComments = true;
 
 >>>>expected.txt
-Opt_XmlInvalidCharacter_Exception
+Opt_Parser_Exception

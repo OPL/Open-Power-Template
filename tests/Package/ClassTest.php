@@ -122,7 +122,7 @@ class Package_ClassTest extends Extra_Testcase
 
 			$this->_tpl->register(Opt_Class::PHP_CLASS, 'foo', 'bar');
 		}
-		catch(Opt_Initialization_Exception $exception)
+		catch(Opt_Exception $exception)
 		{
 			return true;
 		}

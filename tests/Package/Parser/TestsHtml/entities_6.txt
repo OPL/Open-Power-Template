@@ -11,4 +11,4 @@ Check whether the exception is thrown, if there is a non-recognized entity.
 $this->tpl->htmlEntities=false; // be sure that HTML entities are not registered
 
 >>>>expected.txt
-Opt_UnknownEntity_Exception
+Opt_Compiler_Exception
