@@ -147,6 +147,8 @@
 		{
 			$view = new Opt_View('sample.tpl');
 
+			ob_start();
+
 			$output = new Opt_Output_Http;
 			$output->render($view);
 			$this->assertEquals('ORIGINAL', $this->stripWs(ob_get_clean()));
