@@ -502,8 +502,9 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 				// stored without the entities.
 				if(isset($result[$name]))
 				{
+					// TODO: Instead of $result{$name] we should show tag name!
 					throw new Opt_Parser_Exception(
-						'XML Error: duplicated attribute '.$name.' in '.$tagName.'.',
+						'XML Error: duplicated attribute '.$name.' in '.$result[$name].'.',
 						'HTML',
 						$this->_filename
 					);

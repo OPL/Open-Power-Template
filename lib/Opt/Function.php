@@ -640,7 +640,7 @@ class Opt_Function
 	{
 		if(!preg_match('/^(([a-zA-Z\_\:]{1}[a-zA-Z0-9\_\:\-\.]*)|(\#((x[a-fA-F0-9]+)|([0-9]+))))$/', $name))
 		{
-			throw new Opt_InvalidEntityName_Exception($name);
+			throw new Opt_Exception('Invalid entity name: '.$name);
 		}
 		return '&'.$name.';';
 	} // end entity();

@@ -8,4 +8,4 @@ Check invalid closing tag order.
 </table>
 
 >>>>expected.txt
-Opt_XmlInvalidOrder_Exception
+Opt_Parser_Exception

@@ -7,4 +7,4 @@ Test if the single tag detection works.
 $this->tpl->prologRequired = false;
 
 >>>>expected.txt
-Opt_XmlRootElement_Exception
+Opt_Parser_Exception
