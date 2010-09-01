@@ -1,0 +1,36 @@
+Testing the nested "opt:load" instruction with "opt:root".
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:load template="loaded.tpl" />
+FOO
+<opt:use snippet="loaded" />
+BAR
+</opt:root>
+
+>>>>templates/loaded.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:load template="subloaded.tpl" />
+<opt:snippet name="loaded">
+LOADED
+<opt:use snippet="subloaded" />
+</opt:snippet>
+</opt:root>
+>>>>templates/subloaded.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:snippet name="subloaded">
+SUBLOADED
+</opt:snippet>
+</opt:root>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+FOO
+LOADED
+SUBLOADED
+BAR

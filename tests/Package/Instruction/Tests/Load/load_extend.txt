@@ -1,19 +1,20 @@
-Does the inheritance interferes with some compiler systems used with opt:root include?
+Does the inheritance interferes with some compiler systems used with opt:load?
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <opt:extend file="extended1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:load template="included.tpl" />
 <opt:snippet name="extending">
+<opt:use snippet="included" />
 EXTENDING SNIPPET
 </opt:snippet>
 </opt:extend>
 
 >>>>templates/extended1.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root include="included.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 BEGIN
-<opt:insert snippet="included" />
-<opt:insert snippet="extending" />
+<opt:use snippet="extending" />
 END
 </opt:root>
 

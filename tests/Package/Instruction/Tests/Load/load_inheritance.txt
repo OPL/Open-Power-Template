@@ -1,0 +1,36 @@
+Does the inheritance interferes with some compiler systems used with opt:load?
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:extend file="extended1.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:snippet name="extending">
+EXTENDING SNIPPET
+</opt:snippet>
+</opt:extend>
+
+>>>>templates/extended1.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:load template="included.tpl" />
+BEGIN
+<opt:use snippet="included" />
+<opt:use snippet="extending" />
+END
+</opt:root>
+
+>>>>templates/included.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:snippet name="included">
+INCLUDED SNIPPET
+</opt:snippet>
+</opt:root>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+BEGIN
+INCLUDED SNIPPET
+EXTENDING SNIPPET
+END

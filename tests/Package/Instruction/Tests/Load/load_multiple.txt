@@ -1,0 +1,37 @@
+Testing the multiple "opt:load" instructions with "opt:root".
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:load template="loaded1.tpl" />
+<opt:load template="loaded2.tpl" />
+FOO
+<opt:use snippet="loaded1" />
+<opt:use snippet="loaded2" />
+BAR
+</opt:root>
+
+>>>>templates/loaded1.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:snippet name="loaded1">
+LOADED1
+</opt:snippet>
+</opt:root>
+
+>>>>templates/loaded2.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:snippet name="loaded2">
+LOADED2
+</opt:snippet>
+</opt:root>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+FOO
+LOADED1
+LOADED2
+BAR

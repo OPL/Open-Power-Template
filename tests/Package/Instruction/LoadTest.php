@@ -1,6 +1,6 @@
 <?php
 /**
- * The tests for opt:extend instruction.
+ * The tests for opt:load instruction.
  *
  * @author Tomasz "Zyx" Jędrzejewski
  * @copyright Copyright (c) 2009 Invenzzia Group
@@ -14,10 +14,11 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Compiler_Class
  * @covers Opt_Compiler_Format
  * @covers Opt_Compiler_Processor
+ * @covers Opt_Instruction_Root
  * @covers Opt_Instruction_Extend
  * @runTestsInSeparateProcesses
  */
-class Package_Instruction_ExtendTest extends Extra_TestFSBase
+class Package_Instruction_LoadTest extends Extra_TestFSBase
 {
 
 	/**
@@ -38,18 +39,11 @@ class Package_Instruction_ExtendTest extends Extra_TestFSBase
 	public static function dataProvider()
 	{
 		return array(0 =>
-			array('Extend/extend_basic.txt'),
-			array('Extend/extend_compound.txt'),
-			array('Extend/extend_parent.txt'),
-			array('Extend/extend_infinite.txt'),
-			array('Extend/extend_branch_not_set.txt'),
-			array('Extend/extend_branch_set.txt'),
-			array('Extend/extend_branch_set_partially.txt'),
-			array('Extend/extend_dynamic.txt'),
-			array('Extend/extend_dynamic_not_used.txt'),
-			array('Extend/extend_snippets.txt'),
-			array('Extend/extend_compound_2.txt'),
-			array('Extend/extend_bug61.txt')
+			array('Load/load_root.txt'),
+			array('Load/load_multiple.txt'),
+			array('Load/load_nested.txt'),
+			array('Load/load_inheritance.txt'),
+			array('Load/load_extend.txt'),
 		);
 	} // end dataProvider();
 
@@ -61,4 +55,4 @@ class Package_Instruction_ExtendTest extends Extra_TestFSBase
 	{
 		return $this->_checkTest(dirname(__FILE__).'/Tests/'.$testCase);
 	} // end testInstructions();
-} // end Package_Instruction_ExtendTest;
+} // end Package_Instruction_LoadTest;
