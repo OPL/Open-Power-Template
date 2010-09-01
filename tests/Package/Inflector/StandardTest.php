@@ -9,6 +9,7 @@
 
 /**
  * @covers Opt_Inflector_Standard
+ * @runTestsInSeparateProcesses
  */
 class Package_Inflector_StandardTest extends Extra_Testcase
 {

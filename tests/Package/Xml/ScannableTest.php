@@ -9,6 +9,7 @@
 
 /**
  * @covers Opt_Xml_Scannable
+ * @runTestsInSeparateProcesses
  */
 class Package_Xml_ScannableTest extends Extra_Testcase
 {

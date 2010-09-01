@@ -20,7 +20,7 @@ class Package_Expression_AllTests extends PHPUnit_Framework_TestSuite
 	 */
 	public static function suite()
 	{
-		$suite = new Package_AllTests('Package_Expression');
+		$suite = new Package_Expression_AllTests('Package_Expression');
 		$suite->addTestSuite('Package_Expression_StandardTest');
 
 		return $suite;

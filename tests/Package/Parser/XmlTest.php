@@ -13,6 +13,7 @@ require_once('./Extra/TestFSBase.php');
 /**
  * @covers Opt_Compiler_Class
  * @covers Opt_Parser_Xml
+ * @runTestsInSeparateProcesses
  */
 class Package_Parser_XmlTest extends Extra_TestFSBase
 {

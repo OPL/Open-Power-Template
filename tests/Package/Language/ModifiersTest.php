@@ -12,6 +12,7 @@ require_once('./Extra/TestFSBase.php');
 
 /**
  * @covers Opt_Compiler_Class
+ * @runTestsInSeparateProcesses
  */
 class Package_Language_ModifiersTest extends Extra_TestFSBase
 {

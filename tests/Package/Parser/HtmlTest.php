@@ -13,6 +13,7 @@ require_once('./Extra/TestFSBase.php');
 /**
  * @covers Opt_Compiler_Class
  * @covers Opt_Parser_Html
+ * @runTestsInSeparateProcesses
  */
 class Package_Parser_HtmlTest extends Extra_TestFSBase
 {
@@ -26,7 +27,7 @@ class Package_Parser_HtmlTest extends Extra_TestFSBase
 		$tpl->parser = 'Opt_Parser_Html';
 		$tpl->useExpressionNamespaces = false;
 		$tpl->register(Opt_Class::OPT_NAMESPACE, 'ns1');
-		$tpl->register(Opt_Class::PHP_FUNCTION, 'ecf', 'Package_Parser_HtmlTest::testEcf');
+		$tpl->register(Opt_Class::PHP_FUNCTION, 'ecf', 'Package_Parser_HtmlTest::ecf');
 	} // end configure();
 
 	/**
@@ -97,10 +98,10 @@ class Package_Parser_HtmlTest extends Extra_TestFSBase
 	 * This function is necessary to complete the entitiy tests.
 	 *
 	 * @static
-	 * @param String $text The text.
-	 * @return String "OK" if the entities were replaced with the corresponding characters.
+	 * @param string $text The text.
+	 * @return string "OK" if the entities were replaced with the corresponding characters.
 	 */
-	static public function testEcf($text = null)
+	static public function ecf($text = null)
 	{
 		if($text == '<>&')
 		{

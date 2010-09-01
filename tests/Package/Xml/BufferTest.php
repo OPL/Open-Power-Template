@@ -9,6 +9,7 @@
 
 /**
  * @covers Opt_Xml_Buffer
+ * @runTestsInSeparateProcesses
  */
 class Package_Xml_BufferTest extends Extra_Testcase
 {

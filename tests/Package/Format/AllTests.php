@@ -7,7 +7,7 @@
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 
-class Package_AllTests extends PHPUnit_Framework_TestSuite
+class Package_Format_AllTests extends PHPUnit_Framework_TestSuite
 {
 
 	/**
@@ -17,7 +17,7 @@ class Package_AllTests extends PHPUnit_Framework_TestSuite
 	 */
 	public static function suite()
 	{
-		$suite = new Package_AllTests('Package_Format');
+		$suite = new Package_Format_AllTests('Package_Format');
 	//	$suite->addTestSuite('Package_Format_ObjectiveTest');
 	//	$suite->addTestSuite('Package_Format_SplDatastructureTest');
 	//	$suite->addTestSuite('Package_Format_StaticGeneratorTest');

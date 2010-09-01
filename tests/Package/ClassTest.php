@@ -102,12 +102,12 @@ class Package_ClassTest extends Extra_Testcase
 	 * @covers Opt_Class::setup
 	 * @covers Opt_Class::setInflector
 	 */
-	public function testSetupCDoesNotCreateInitializedInflector()
+	public function testSetupDoesNotCreateInitializedInflector()
 	{
 		$this->_tpl->setInflector($obj = $this->getMock('Opt_Inflector_Interface'));
 		$this->_tpl->setup();
 		$this->assertSame($obj, $this->_tpl->getInflector());
-	} // end testSetupCreatesInflector();
+	} // end testSetupDoesNotCreateInitializedInflector();
 
 	/**
 	 * @covers Opt_Class::register
