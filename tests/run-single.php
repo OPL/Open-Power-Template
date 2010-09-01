@@ -77,7 +77,7 @@ class test
 			$expected = trim($expected);
 			try
 			{
-				$out->render($view);
+				echo $out->render($view);
 			}
 			catch(Opt_Exception $e)
 			{
