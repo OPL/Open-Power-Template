@@ -34,7 +34,6 @@ class Opt_Compiler_Class
 	// Current compilation
 	protected $_template = NULL;
 	protected $_attr = array();
-	protected $_stack = NULL;
 	protected $_node = NULL;
 
 	protected $_output = NULL;
@@ -1440,49 +1439,172 @@ class Opt_Compiler_Class
 			// Initializing the template launcher
 			$this->set('template', $this->_template = $filename);
 			$this->set('parser', $parserName);
-			$this->set('currentTemplate', $this->_template);
-			array_push(self::$_templates, $filename);
-			$this->_stack = new SplStack;
+		//	$this->set('currentTemplate', $this->_template);
+		//	array_push(self::$_templates, $filename);
+		//	$this->_stack = new SplStack;
 			$i = 0;
-			$extend = $filename;
+			$finalSnippet = null;
 
 			$memory = 0;
+
+			// The queued templates to be processed.
+			$executionQueue = new SplQueue;
+			$executionQueue->enqueue($filename);
+
+			// These templates requested another templates to
+			// be processed first, so they must be reexecuted
+			// later.
+			$restoreStack = new SplStack;
+
+			// The inheritance loop
+			while($executionQueue->count() > 0)
+			{
+				// Grab the template code
+				$compiledFile = $executionQueue->dequeue();
+				$this->set('currentTemplate', $compiledFile);
+				if($compiledFile != $filename)
+				{
+					$this->addDependantTemplate($compiledFile);
+					$processedCode = $this->_tpl->_getSource($compiledFile);
+				}
+				else
+				{
+					$processedCode = $code;
+				}
+
+				// Memory calculations...
+				if($this->_tpl->debugConsole)
+				{
+					$initial = memory_get_usage();
+				}
+
+				// Now the first stage - parsing.
+				$tree = $parser->parse($compiledFile, $processedCode);
+				unset($processedCode);
+
+				// Migrate to OPT 2.1, if necessary
+				if($this->_tpl->backwardCompatibility)
+				{
+					$this->_migrate($tree);
+				}
+
+				// Process the tree
+				$this->_stage2($tree);
+
+				// The template may have requested preprocessing another file first.
+				if(($templates = $tree->get('preprocess')) !== null)
+				{
+					foreach($templates as $preprocessed)
+					{
+						$executionQueue->enqueue($preprocessed);
+					}
+					$restoreStack->push($tree);
+					continue;
+				}
+				else
+				{
+					$this->set('escape', NULL);
+				}
+
+				// Or simply set the next template to process.
+				if(($extend = $tree->get('extend')) !== null)
+				{
+					$executionQueue->enqueue($extend);
+					$tree->dispose();
+					unset($tree);
+				}
+
+				// Or maybe the finishing tree will be a snippet?
+				if(($snippet = $tree->get('snippet')) !== null)
+				{
+					$tree->dispose();
+					unset($tree);
+					$finalSnippet = $snippet;
+				}
+			}
+
+			// Now clean up the stack
+			while(($stackSize = $restoreStack->count()) > 0)
+			{
+				$tree = $restoreStack->pop();
+				// Process it once more
+				$this->_stage2($tree);
+				$this->set('escape', NULL);
+
+				// This tree will not be necessary anymore
+				if($stackSize > 1 || $finalSnippet !== null)
+				{
+					$tree->dispose();
+					unset($tree);
+				}
+			}
+
+			// If the snippet was requested, change it into a root node.
+			if($finalSnippet !== null)
+			{
+				$tree = new Opt_Xml_Root;
+				$this->processor('snippet')->useSnippet($tree, $finalSnippet);
+				$this->processor('snippet')->postuseSnippet($tree);
+				$this->_stage2($tree, true);
+			}
+
+			// OK, now $tree variable should point to the root tree, obtained
+			// in one of three ways:
+			//  1. Within the queue loop
+			//  2. The last tree processed in the stack loop
+			//  3. Built from a snippet
+			// Now we must register the dependant templates in the tree.
+			if(sizeof($this->_dependencies) > 0)
+			{
+				$this->_addDependencies($tree);
+			}
+
+			if($this->_tpl->debugConsole)
+			{
+				Opt_Support::addCompiledTemplate($this->_template, $memory);
+			}
+
+/*
 
 			// The inheritance loop
 			do
 			{
-				// Stage 1 - code compilation
+				$executed = $executionQueue->dequeue();
 				if($this->_tpl->debugConsole)
 				{
 					$initial = memory_get_usage();
-					$tree = $parser->parse($extend, $code);
-					// Migration stage - only if backwards compatibility is on
-					if($this->_tpl->backwardCompatibility)
+				}
+
+				// Stage 1 - code compilation
+				$tree = $parser->parse($extend, $code);
+				unset($code);
+				// Migration stage - only if backward compatibility is on
+				if($this->_tpl->backwardCompatibility)
+				{
+					$this->_migrate($tree);
+				}
+				// Stage 2 - PHP tree processing
+				$this->_stage2($tree);
+					
+				// If the template requested preprocessing another template, enqueue it.
+				if(($templates = $tree->get('preprocess')) !== null)
+				{
+					foreach($templates as $preprocessed)
 					{
-						$tree = $this->_migrate($tree);
+						$executionQueue->enqueue($preprocessed);
 					}
-					// Stage 2 - PHP tree processing
-					$this->_stack = null;
-					$this->_stage2($tree);
-					$this->set('escape', NULL);
-					unset($this->_stack);
-					$memory += (memory_get_usage() - $initial);
-					unset($code);
+					$restoreStack->push($tree);
+					continue;
 				}
 				else
 				{
-					$tree = $parser->parse($extend, $code);
-					unset($code);
-					// Migration stage - only if backward compatibility is on
-					if($this->_tpl->backwardCompatibility)
-					{
-						$this->_migrate($tree);
-					}
-					// Stage 2 - PHP tree processing
-					$this->_stack = array();
-					$this->_stage2($tree);
 					$this->set('escape', NULL);
-					unset($this->_stack);
+				}
+
+				// Calculate the memory
+				if($this->_tpl->debugConsole)
+				{
+					$memory += (memory_get_usage() - $initial);
 				}
 
 
@@ -1531,7 +1653,7 @@ class Opt_Compiler_Class
 			{
 				Opt_Support::addCompiledTemplate($this->_template, $memory);
 			}
-
+*/
 			// Stage 3 - linking the last tree
 			if($compiledFilename !== null)
 			{
