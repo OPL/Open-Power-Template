@@ -27,6 +27,9 @@
 		require('./includes/testBlock.php');
 	}
 
+	/**
+	 * @runTestsInSeparateProcesses
+	 */
 	class instructionTest extends PHPUnit_Framework_TestCase
 	{
 		protected $tpl;
@@ -122,6 +125,7 @@
 				array('extend_10.txt'),
 				array('extend_11.txt'),
 				array('extend_12.txt'),
+				array('extend_13.txt'),
 				array('for_1.txt'),
 				array('for_2.txt'),
 				array('for_3.txt'),
