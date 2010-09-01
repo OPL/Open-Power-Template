@@ -1,0 +1,11 @@
+Check the required procedure arguments, if they are missing.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:procedure name="foo" requiredArg="required">I am a procedure: {@requiredArg}</opt:procedure>
+<opt:use procedure="foo" />
+</opt:root>
+
+>>>>expected.txt
+Opt_Runtime_Exception

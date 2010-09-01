@@ -9,7 +9,6 @@
  *
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
- *
  */
 
 /**
@@ -88,7 +87,7 @@ class Opt_Format_Array extends Opt_Format_Abstract
 					return '$_sect'.$section['name'].'_vals = '.$section['datasource'].'; ';
 				}
 
-				$this->assign('item', $section['name']);
+				$this->assign('item', $section['from']);
 				$code = '$_sect'.$section['name'].'_vals = &'.$this->get('variable:item');
 
 				$ancestors = $this->_getVar('requestedData');

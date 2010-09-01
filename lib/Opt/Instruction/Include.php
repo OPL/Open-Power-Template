@@ -71,7 +71,7 @@ class Opt_Instruction_Include extends Opt_Instruction_Abstract
 		// Conditional attribute control.
 		if(!isset($params['from']) && !isset($params['file']) && !isset($params['view']))
 		{
-			throw new Opt_IncludeNoAttributes($node->getXmlName());
+			throw new Opt_Instruction_Exception($node->getXmlName().' does not contain any of the attributes: "from", "file", "view".');
 		}
 		// Possible section integration
 		$codeBegin = '';
@@ -108,11 +108,11 @@ class Opt_Instruction_Include extends Opt_Instruction_Abstract
 		{
 			if(isset($params['file']))
 			{
-				$codeBegin .= $view.'->_data = $this->_data; ';
+				$codeBegin .= $view.'->_data = $this->_data; '.$view.'->_formatInfo = $this->_formatInfo; ';
 			}
 			else
 			{
-				$codeBegin .= $view.'->_data = array_merge('.$view.'->_data, $this->_data); ';
+				$codeBegin .= $view.'->_data = array_merge('.$view.'->_data, $this->_data); '.$view.'->_formatInfo = array_merge('.$view.'->_formatInfo, $this->_formatInfo); ';
 			}
 		}
 		foreach($vars as $name => $value)

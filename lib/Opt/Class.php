@@ -149,7 +149,6 @@ class Opt_Class extends Opl_Class
 	public $contentType = 0;
 	public $gzipCompression = true;
 	public $headerBuffering = false;
-	public $contentNegotiation = false;
 	public $errorReporting = self::ERR_STANDARD;
 	public $stdStream = 'file';
 	public $debugConsole = false;
@@ -185,6 +184,7 @@ class Opt_Class extends Opl_Class
 	public $escape = true;
 	public $defaultFormat = 'Array';
 	public $containerFormat = 'Container';
+	public $treeFormat = 'DepthTree';
 
 	/**
 	 * The compiler object
@@ -294,7 +294,9 @@ class Opt_Class extends Opl_Class
 		'System' => 'Opt_Format_System',
 		'SwitchEquals' => 'Opt_Format_SwitchEquals',
 		'SwitchContains' => 'Opt_Format_SwitchContains',
-		'Container' => 'Opt_Format_Container'
+		'Container' => 'Opt_Format_Container',
+		'DepthTree' => 'Opt_Format_DepthTree',
+		'NestedTree' => 'Opt_Format_NestedTree'
 	);
 	/**
 	 * The extra entities replaced by OPT

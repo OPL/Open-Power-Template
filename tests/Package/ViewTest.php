@@ -47,7 +47,7 @@ class Package_ViewTest extends Extra_Testcase
 	 */
 	protected function tearDown()
 	{
-		Opl_Registry::register('opt', null);
+		Opl_Registry::set('opt', null);
 		unset($this->_tpl);
 	} // end tearDown();
 

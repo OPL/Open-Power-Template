@@ -1,4 +1,4 @@
-Testing the opt:switch instruction: "break" equivalents.
+Testing the opt:switch instruction: nesting.
 
 >>>>templates/test.tpl
 <?xml version="1.0" ?>
@@ -11,6 +11,7 @@ Foo
 <opt:equals value="bar">
 Bar
 </opt:equals>
+Joe
 </opt:equals>
 </opt:switch>
 
@@ -21,6 +22,7 @@ Foo
 <opt:equals value="bar">
 Bar
 </opt:equals>
+Joe
 </opt:equals>
 </opt:switch>
 
@@ -36,4 +38,5 @@ OUTPUT
 >>>>result.txt
 Foo
 Bar
+Joe
 Bar

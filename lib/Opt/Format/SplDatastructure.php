@@ -42,7 +42,7 @@ class Opt_Format_SplDatastructure extends Opt_Format_SingleArray
 				if(($section['parent']) !== null)
 				{
 					$parent = Opt_Instruction_BaseSection::getSection($section['parent']);
-					$parent['format']->assign('item', $section['name']);
+					$parent['format']->assign('item', $section['from']);
 					return '$_sect'.$section['name'].'_vals = '.$parent['format']->get('section:variable').'; ';
 				}
 				elseif(($section['datasource']) !== null)

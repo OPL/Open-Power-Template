@@ -10,4 +10,4 @@ The ---> ending should not be available in XML according to the syntax.
 $this->tpl->printComments = true;
 
 >>>>expected.txt
-Opt_XmlComment_Exception
+Opt_Compiler_Exception

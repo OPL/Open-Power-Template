@@ -181,6 +181,12 @@ class Opt_Compiler_Class
 	 */
 	protected $_inheritance;
 
+	/**
+	 * Was the compiler cloned?
+	 * @var boolean
+	 */
+	protected $_cloned = false;
+
 	// Help fields
 	private $_charset = null;
 	private $_translationConversion = null;
@@ -256,6 +262,7 @@ class Opt_Compiler_Class
 		}
 		elseif($tpl instanceof Opt_Compiler_Class)
 		{
+			$this->_cloned = true;
 			// Simply import the data structures from that compiler.
 			$this->_tpl = $tpl->_tpl;
 			$this->_namespaces = $tpl->_namespaces;
@@ -323,21 +330,24 @@ class Opt_Compiler_Class
 	 */
 	public function dispose()
 	{
-		foreach($this->_processors as $processor)
+		if(!$this->_cloned)
 		{
-			$processor->dispose();
-		}
-		foreach($this->_formatObj as $format)
-		{
-			$format->dispose();
-		}
-		foreach($this->_expressions as $expr)
-		{
-			$expr->dispose();
-		}
-		foreach($this->_parsers as $parser)
-		{
-			$parser->dispose();
+			foreach($this->_processors as $processor)
+			{
+				$processor->dispose();
+			}
+			foreach($this->_formatObj as $format)
+			{
+				$format->dispose();
+			}
+			foreach($this->_expressions as $expr)
+			{
+				$expr->dispose();
+			}
+			foreach($this->_parsers as $parser)
+			{
+				$parser->dispose();
+			}
 		}
 
 		$this->_tpl = null;
@@ -513,13 +523,18 @@ class Opt_Compiler_Class
 	/**
 	 * Returns the format object for the specified variable.
 	 *
-	 * @param String $variable The variable identifier.
-	 * @param Boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
+	 * @param string $variable The variable identifier.
+	 * @param boolean $restore optional Whether to load a previously created format object (false) or to create a new one.
+	 * @param string $defaultFormat The optional default data format used, if the variable is not defined.
 	 * @return Opt_Format_Abstract The format object.
 	 */
-	public function getFormat($variable, $restore = false)
+	public function getFormat($variable, $restore = false, $defaultFormat = null)
 	{
-		$hc = $this->_tpl->defaultFormat;
+		if($defaultFormat === null)
+		{
+			$defaultFormat = $this->_tpl->defaultFormat;
+		}
+		$hc = $defaultFormat;
 		if(isset($this->_formatInfo[$variable]))
 		{
 			$hc = $this->_formatInfo[$variable];
@@ -1415,9 +1430,12 @@ class Opt_Compiler_Class
 				$weFree = false;
 			}
 			// Cleaning up the processors
-			foreach($this->_processors as $proc)
+			if(!$this->_cloned)
 			{
-				$proc->reset();
+				foreach($this->_processors as $proc)
+				{
+					$proc->reset();
+				}
 			}
 			// Initializing the template launcher
 			$this->set('template', $this->_template = $filename);
@@ -1758,7 +1776,7 @@ class Opt_Compiler_Class
 		$found = $this->detectExpressionEngine($attr->getValue());
 		if($found !== null)
 		{
-			if($found[0] == 'null')
+			if($found[0] == 'null' || $found[0] == 'http' || $found[0] == 'https')
 			{
 				$attr->setValue($found[1]);
 			}

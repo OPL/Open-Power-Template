@@ -1,0 +1,67 @@
+Testing the opt:switch instruction with the "Contains" handler and nested
+cases.
+
+>>>>templates/test.tpl
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+
+<!-- first switch -->
+<opt:switch test="$values1">
+<opt:contains value="str:foo">FOO</opt:contains>
+<opt:contains value="str:bar">
+BAR START
+<opt:contains value="str:joe">JOE</opt:contains>
+<opt:contains value="str:goo">GOO</opt:contains>
+BAR END
+</opt:contains>
+<opt:contains value="str:moo">MOO</opt:contains>
+</opt:switch>
+
+<!-- second switch -->
+<opt:switch test="$values2">
+<opt:contains value="str:foo">FOO</opt:contains>
+<opt:contains value="str:bar">
+BAR START
+<opt:contains value="str:joe">JOE</opt:contains>
+<opt:contains value="str:goo">GOO</opt:contains>
+BAR END
+</opt:contains>
+<opt:contains value="str:moo">MOO</opt:contains>
+</opt:switch>
+
+<!-- third switch -->
+<opt:switch test="$values3">
+<opt:contains value="str:foo">FOO</opt:contains>
+<opt:contains value="str:bar">
+BAR START
+<opt:contains value="str:joe">JOE</opt:contains>
+<opt:contains value="str:goo">GOO</opt:contains>
+BAR END
+</opt:contains>
+<opt:contains value="str:moo">MOO</opt:contains>
+</opt:switch>
+
+</opt:root>
+
+>>>>data.php
+$view->values1 = array('foo', 'bar', 'moo');
+$view->values2 = array('bar', 'joe');
+$view->values3 = array('foo', 'goo', 'moo');
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+FOO
+BAR START
+JOE
+GOO
+BAR END
+MOO
+BAR START
+JOE
+GOO
+BAR END
+FOO
+GOO
+MOO

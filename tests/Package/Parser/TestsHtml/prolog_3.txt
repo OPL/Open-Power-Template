@@ -10,4 +10,4 @@ foo
 $this->tpl->prologRequired = true;
 
 >>>>expected.txt
-Opt_XmlInvalidCharacter_Exception
+Opt_Parser_Exception

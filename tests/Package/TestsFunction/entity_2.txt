@@ -7,4 +7,4 @@ Check the entity() function features.
 </opt:root>
 
 >>>>expected.txt
-Opt_InvalidEntityName_Exception
+Opt_Exception

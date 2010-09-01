@@ -12,10 +12,7 @@ require_once('./Extra/TestFSBase.php');
 
 /**
  * @covers Opt_Compiler_Class
- * @covers Opt_Compiler_Format
- * @covers Opt_Compiler_Processor
  * @covers Opt_Instruction_Attribute
- * @covers Opt_Instruction_BaseSection
  * @covers Opt_Instruction_Block
  * @covers Opt_Instruction_Capture
  * @covers Opt_Instruction_Component
@@ -28,7 +25,6 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Instruction_If
  * @covers Opt_Instruction_Include
  * @covers Opt_Instruction_Literal
- * @covers Opt_Instruction_Loop
  * @covers Opt_Instruction_Prolog
  * @covers Opt_Instruction_Put
  * @covers Opt_Instruction_Repeat
@@ -63,7 +59,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 	{
 		return array(0 =>
 			// BLOCK
-/*			array('Block/block_basic.txt'),
+			array('Block/block_basic.txt'),
 			array('Block/block_single.txt'),
 			array('Block/block_arguments.txt'),
 			array('Block/block_single_args.txt'),
@@ -130,6 +126,18 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('If/if_err_else_first.txt'),
 			array('OmitTag/omit_tag_basic.txt'),
 
+			// INCLUDE
+			array('Include/include_file.txt'),
+			array('Include/include_view.txt'),
+			array('Include/include_from.txt'),
+			array('Include/include_scope.txt'),
+			array('Include/include_scope_2.txt'),
+			array('Include/include_import_value.txt'),
+			array('Include/include_import_format.txt'),
+			array('Include/include_args.txt'),
+			array('Include/include_invalid.txt'),
+			array('Include/include_missing_attr.txt'),
+
 			// EXTEND
 
 			array('Extend/extend_basic.txt'),
@@ -144,6 +152,14 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Extend/extend_snippets.txt'),
 			array('Extend/extend_compound_2.txt'),
 			array('Extend/extend_bug61.txt'),
+
+			// PROCEDURE
+			array('Procedure/procedure_basic.txt'),
+			array('Procedure/procedure_missing.txt'),
+			array('Procedure/procedure_dynamic.txt'),
+			array('Procedure/procedure_variables.txt'),
+			array('Procedure/procedure_arguments_required_ok.txt'),
+			array('Procedure/procedure_arguments_required_missing.txt'),
 
 			// PROLOG
 			array('Prolog/prolog_default.txt'),
@@ -169,6 +185,8 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Section/section_parent.txt'),
 			array('Section/section_parent_complex.txt'),
 			array('Section/section_parent_complex2.txt'),
+			array('Section/section_from.txt'),
+			array('Section/section_from_dataformat.txt'),
 			array('Section/section_datasource.txt'),
 			array('Section/section_datasource_nested.txt'),
 			array('Section/section_if_coop.txt'),
@@ -184,15 +202,19 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Snippet/snippet_parent.txt'),
 			array('Snippet/snippet_bug144.txt'),
 			array('Snippet/snippet_bug144_part2.txt'),
-*/
+
 			// SWITCH
 			array('Switch/switch_equals_basic.txt'),
 			array('Switch/switch_equals_default.txt'),
 			array('Switch/switch_else.txt'),
 			array('Switch/switch_equals_nested_tail.txt'),
+			array('Switch/switch_equals_nested.txt'),
+			array('Switch/switch_equals_subswitch.txt'),
+			array('Switch/switch_contains_basic.txt'),
+			array('Switch/switch_contains_nested.txt'),
 
 			// TREE
-/*			array('Tree/tree_basic.txt'),
+			array('Tree/tree_basic.txt'),
 			array('Tree/tree_complex.txt'),
 			array('Tree/tree_else.txt'),
 			array('Tree/tree_body.txt'),
@@ -202,7 +224,7 @@ class Package_Instruction_InstructionTest extends Extra_TestFSBase
 			array('Tree/tree_list_loop.txt'),
 			array('Tree/tree_node_loop.txt'),
 			array('Tree/tree_different_depth.txt'),
-			array('Tree/tree_depth_error.txt'),*/
+			array('Tree/tree_depth_error.txt'),
 			/*
 				array('attribute_1.txt'),
 				array('attribute_2.txt'),

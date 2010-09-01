@@ -1,0 +1,10 @@
+An exception should be thrown, if the procedure does not exist.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:use procedure="foo" />
+</opt:root>
+
+>>>>expected.txt
+Opt_Runtime_Exception

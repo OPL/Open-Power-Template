@@ -34,7 +34,7 @@ class test
 		$tpl->sourceDir = 'test://templates/';
 		$tpl->compileDir = CPL_DIR;
 		$tpl->compileMode = Opt_Class::CM_REBUILD;
-		$tpl->parser = Opt_Class::HTML_MODE;
+		$tpl->parser = Opt_Class::XML_MODE;
 		$tpl->stripWhitespaces = false;
 		$tpl->prologRequired = true;
 		$tpl->setup();

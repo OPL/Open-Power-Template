@@ -4,7 +4,7 @@ view.
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!-- Include a view -->
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 Foo
 <opt:include view="$view">
 Sorry

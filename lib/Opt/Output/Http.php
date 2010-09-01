@@ -42,6 +42,12 @@ class Opt_Output_Http implements Opt_Output_Interface
 	protected $_parser;
 
 	/**
+	 * The visit object.
+	 * @var Opc_Visit
+	 */
+	protected $_visit;
+
+	/**
 	 * The list of buffered headers.
 	 * @var array
 	 */
@@ -71,9 +77,26 @@ class Opt_Output_Http implements Opt_Output_Interface
 		return 'HTTP';
 	} // end getName();
 
-	/*
-	 * Header management
+	/**
+	 * Sets the OPC Visit object, which enables the content negotiation
+	 * feature.
+	 *
+	 * @param Opc_Visit $visit The visit object.
 	 */
+	public function setVisit(Opc_Visit $visit)
+	{
+		$this->_visit = $visit;
+	} // end setVisit();
+
+	/**
+	 * Returns the currently used visit object.
+	 *
+	 * @return Opc_Visit
+	 */
+	public function getVisit()
+	{
+		return $this->_visit;
+	} // end getVisit();
 
 	/**
 	 * Sets a HTTP header and secures it by removing the new line characters.
@@ -164,16 +187,13 @@ class Opt_Output_Http implements Opt_Output_Interface
 			self::TXT => 'text/plain'
 		);
 
-		if($this->_tpl->contentNegotiation)
+		if($this->_visit !== null)
 		{
-			// This part of the code requires OPC!
-			// TODO: Replace with non-singleton OPC
-			$visit = Opc_Visit::getInstance();
 			if($contentType == self::XHTML)
 			{
 				// Choose XHTML or HTML depending on their priority
 				$contentType = 'text/html';
-				foreach($visit->mimeTypes as $type)
+				foreach($this->_visit->mimeTypes as $type)
 				{
 					if($type == 'application/xhtml+xml' || $type == 'text/html')
 					{
@@ -186,7 +206,7 @@ class Opt_Output_Http implements Opt_Output_Interface
 			{
 				// Choose XHTML, if the browser accepts it.
 				$contentType = 'text/html';
-				if(in_array('application/xhtml+xml',$visit->mimeTypes))
+				if(in_array('application/xhtml+xml', $this->_visit->mimeTypes))
 				{
 					$contentType = 'application/xhtml+xml';
 				}
@@ -200,7 +220,7 @@ class Opt_Output_Http implements Opt_Output_Interface
 					$contentType = $replacements[$replacements];
 				}
 
-				if(!in_array($contentType, $visit->mimeTypes))
+				if(!in_array($contentType, $this->_visit->mimeTypes))
 				{
 					$contentType = 'application/octet-stream';
 				}
@@ -209,6 +229,12 @@ class Opt_Output_Http implements Opt_Output_Interface
 		}
 		else
 		{
+			// Just in case of malformed headers.
+			if(!isset($_SERVER['HTTP_ACCEPT']))
+			{
+				$_SERVER['HTTP_ACCEPT'] = '';
+			}
+
 			// No content-negotiation. Do the basic checks only.
 			if($contentType == self::XHTML || $contentType == self::FORCED_XHTML)
 			{

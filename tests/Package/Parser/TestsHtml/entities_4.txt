@@ -3,14 +3,17 @@ to the corresponding characters.
 
 >>>>templates/test.tpl
 <?xml version="1.0" ?>
-<foo parse:bar="ecf('&lt;&gt;&amp;')">
+<div parse:class="ecf('&lt;&gt;&amp;')">
 Text
-</foo>
+</div>
+
+>>>>data.php
+$this->tpl->backwardCompatibility = true;
 
 >>>>expected.txt
 OUTPUT
 
 >>>>result.txt
-<foo bar="OK">
+<div class="OK">
 Text
-</foo>
+</div>

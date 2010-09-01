@@ -34,7 +34,7 @@ class Package_ClassTest extends Extra_Testcase
 	 */
 	protected function tearDown()
 	{
-		Opl_Registry::register('opt', null);
+		Opl_Registry::set('opt', null);
 		unset($this->_tpl);
 	} // end tearDown();
 
@@ -46,8 +46,8 @@ class Package_ClassTest extends Extra_Testcase
 		$this->_tpl->sourceDir = 'php://memory';
 		$this->_tpl->compileDir = 'php://memory';
 
-		Opl_Registry::register('opl_translate', null);
-		Opl_Registry::register('opl_translate', $obj = $this->getMock('Opl_Translation_Interface'));
+		Opl_Registry::set('opl_translate', null);
+		Opl_Registry::set('opl_translate', $obj = $this->getMock('Opl_Translation_Interface'));
 		$this->_tpl->setup();
 
 		$this->assertSame($obj, $this->_tpl->getTranslationInterface());		
@@ -62,13 +62,13 @@ class Package_ClassTest extends Extra_Testcase
 		$this->_tpl->compileDir = 'php://memory';
 		$this->_tpl->debugConsole = false;
 
-		Opl_Registry::setState('opl_debug_console', true);
+		Opl_Registry::setValue('opl_debug_console', true);
 
 		$this->_tpl->setup();
 
 		$this->assertTrue($this->_tpl->debugConsole);
 		$this->_tpl->debugConsole = false;
-		Opl_Registry::setState('opl_debug_console', false);
+		Opl_Registry::setValue('opl_debug_console', false);
 	} // end testSetupEnablesDebugMode();
 
 	/**
@@ -121,7 +121,7 @@ class Package_ClassTest extends Extra_Testcase
 
 			$this->_tpl->register(Opt_Class::PHP_CLASS, 'foo', 'bar');
 		}
-		catch(Opt_Initialization_Exception $exception)
+		catch(Opt_Exception $exception)
 		{
 			return true;
 		}

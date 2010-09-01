@@ -602,7 +602,7 @@ class Opt_Function
 				// Try to obtain the file extension
 				if(($id = strrpos($result['path'], '.')) !== false)
 				{
-					if(in_array(substr($result['path'], $id+1, 3), array('jpg', 'png', 'gif', 'svg', 'bmp')))
+					if(in_array(substr($result['path'], $id+1, 3), array('jpg', 'png', 'gif', 'svg', 'bmp')) || in_array(substr($result['path'], $id+1, 4), array('jpeg')))
 					{
 						return true;
 					}
@@ -640,7 +640,7 @@ class Opt_Function
 	{
 		if(!preg_match('/^(([a-zA-Z\_\:]{1}[a-zA-Z0-9\_\:\-\.]*)|(\#((x[a-fA-F0-9]+)|([0-9]+))))$/', $name))
 		{
-			throw new Opt_InvalidEntityName_Exception($name);
+			throw new Opt_Exception('Invalid entity name: '.$name);
 		}
 		return '&'.$name.';';
 	} // end entity();

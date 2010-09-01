@@ -301,36 +301,55 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	{
 		$node = new Opt_Xml_Element('opt:_');
 		$order = 0;
+		$topLevel = null;
+		$nonCase = false;
 
 		foreach($base as $subnode)
 		{
 			if($subnode instanceof Opt_Xml_Element)
 			{
+				// Check if the top-level node is actually a switch case
 				if(($case = $this->_detectCase($subnode)) === null)
 				{
-					throw new Opt_Instruction_Exception('Invalid opt:switch node: '.$subnode->getXmlName());
+					// Accept non-case nodes on the top level only if the data format accepts it.
+					if($format->property('switch:longCase') === true)
+					{
+						$nonCase = true;
+					}
+					elseif($topLevel === null)
+					{
+						$topLevel = $subnode->getXmlName();
+						continue;
+					}
+					else
+					{
+						continue;
+					}
 				}
 				
-				if($case == $group)
+				if($case == $group || $nonCase == true)
 				{
 					// This node matches this particular group, so we can scan it
 					$node->appendChild($clone = clone $subnode);
 
-					$clone->set('priv:switch.parent', null);
-					$clone->set('priv:switch.tail', self::TAIL_ACTIVE);
-					$clone->set('priv:switch.skipOrdering', true);
-
+					if(!$nonCase)
+					{
+						$clone->set('priv:switch.parent', null);
+						$clone->set('priv:switch.tail', self::TAIL_ACTIVE);
+						$clone->set('priv:switch.skipOrdering', true);
+					}
+					$nonCase = false;
 					$queue = new SplQueue;
 					$stack = new SplStack;
-					$queue->enqueue(array(0 => $clone, null, 0));
+					$queue->enqueue(array(0 => $clone, null, null, 0));
 					$scanned = null;
 
 					do
 					{
-						list($item, $parent, $nesting) = $queue->dequeue();
-						
+						list($item, $parent, $switchParent, $nesting) = $queue->dequeue();
+						$item->set('hidden', false);
 
-						if($this->_detectCase($item) !== null)
+						if(($subcase = $this->_detectCase($item)) !== null)
 						{
 							$stack->push($item);
 
@@ -342,20 +361,25 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 								$item->set('priv:switch.skipOrdering', true);
 							}
 
-							$item->set('priv:switch.parent', $parent);
+							$item->set('priv:switch.parent', $switchParent);
 							$item->set('priv:switch.order', $order);
 							$item->set('priv:switch.orderList', array($order));
 							$item->set('priv:switch.nesting', $nesting);
-							$params = $format->action('switch:caseAttributes');
-							$this->_extractAttributes($item, $params);
+							if($item->get('priv:switch.caseType') == 'attribute')
+							{
+								$params[$format->action('switch:processAttribute')] = $item->getAttribute($subcase)->getValue();
+							}
+							else
+							{
+								$params = $format->action('switch:caseAttributes');
+								$this->_extractAttributes($item, $params);
+							}
 							$item->set('priv:switch.params', $params);
-							
-							$item->set('hidden', false);
 							$this->_process($item);
 
 							$order++;
 						}
-						
+
 						// Strip final whitespaces that would crash tail detection.
 						if($item instanceof Opt_Xml_Element && ($last = $item->getLastChild()) !== null)
 						{
@@ -388,8 +412,8 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 									}
 									$item->removeChild($subitem);
 									continue;
-								}								
-								$queue->enqueue(array($subitem, $item, $nesting+1));
+								}
+								$queue->enqueue(array($subitem, $item, ($subcase !== null ? $item : $switchParent), $nesting+1));
 
 								// Check tailness.
 								if($subitem->getNext() === null && ($next = $subitem->getParent()) !== null && $this->_detectCase($next) !== null)
@@ -404,7 +428,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 							else
 							{
 								// Ordinary node
-								$queue->enqueue(array($subitem, $parent, $nesting));
+								$queue->enqueue(array($subitem, $parent, ($subcase !== null ? $item : $switchParent), $nesting));
 							}
 						}
 					}
@@ -412,7 +436,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 
 					// Now the stack and the reversed BFS - note that it operates on
 					// switch cases only.
-					do
+					while($stack->count() > 0)
 					{
 						$item = $stack->pop();
 
@@ -451,18 +475,22 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 						$item->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:caseAfter'));
 
 						// The item may notify parents about something
-						if($parent !== null && $parent->get('priv:switch.informed') === null)
+						if($parent !== null /* && $parent->get('priv:switch.informed') === null */)
 						{
 							$parent->set('priv:switch.informed', $format->action('switch:inform'));
 						}
 					}
-					while($stack->count() > 0);
 				}
 			}
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('switch:testsBefore'));
 		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $format->get('switch:testsAfter'));
 		$node->set('hidden', false);
+
+		if($node->hasChildren() && $topLevel !== null)
+		{
+			throw new Opt_Instruction_Exception('Invalid opt:switch element: '.$topLevel);
+		}
 
 		return $node;
 	} // end _createSwitchGroup();
@@ -507,6 +535,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 		if(isset($this->_handlers[$element->getXmlName()]))
 		{
 			$element->set('priv:switch.nextCase', $element->getXmlName());
+			$element->set('priv:switch.caseType', 'element');
 			return $element->getXmlName();
 		}
 		// Look for an attribute.
@@ -517,6 +546,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 				if(isset($this->_handlers[$attribute->getXmlName()]))
 				{
 					$element->set('priv:switch.nextCase', $attribute->getXmlName());
+					$element->set('priv:switch.caseType', 'attribute');
 					return $attribute->getXmlName();
 				}
 			}

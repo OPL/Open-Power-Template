@@ -12,6 +12,7 @@ require_once('ViewTest.php');
 require_once('FunctionTest.php');
 require_once dirname(__FILE__).'/Parser/AllTests.php';
 require_once dirname(__FILE__).'/Inflector/AllTests.php';
+require_once dirname(__FILE__).'/Format/AllTests.php';
 require_once dirname(__FILE__).'/Xml/AllTests.php';
 require_once dirname(__FILE__).'/Instruction/AllTests.php';
 require_once dirname(__FILE__).'/Expression/AllTests.php';
@@ -35,6 +36,8 @@ class Package_AllTests extends PHPUnit_Framework_TestSuite
 		$suite->addTestSuite(Package_Parser_AllTests::suite());
 		$suite->addTestSuite(Package_Inflector_AllTests::suite());
 		$suite->addTestSuite(Package_Xml_AllTests::suite());
+
+		$suite->addTestSuite(Package_Format_AllTests::suite());
 
 		$suite->addTestSuite(Package_Instruction_AllTests::suite());
 		$suite->addTestSuite(Package_Expression_AllTests::suite());

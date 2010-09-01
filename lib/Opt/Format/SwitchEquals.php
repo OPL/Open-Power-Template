@@ -31,6 +31,16 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 	);
 
 	/**
+	 * Data format properties as information for the
+	 * caller.
+	 *
+	 * @var array
+	 */
+	protected $_properties = array(
+		'switch:longCase' => false
+	);
+
+	/**
 	 * The list of conditions that need to be tested
 	 * at the end.
 	 *
@@ -226,6 +236,10 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 			return array(
 				'value' => array(0 => Opt_Instruction_Abstract::OPTIONAL, Opt_Instruction_Abstract::EXPRESSION, null, 'parse')
 			);
+		}
+		elseif($name == 'switch:processAttribute')
+		{
+			return 'value';
 		}
 		else
 		{

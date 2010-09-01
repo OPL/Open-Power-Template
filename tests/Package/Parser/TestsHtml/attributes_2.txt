@@ -9,4 +9,4 @@ Check the correctness of attribute parsing.
 $this->tpl->prologRequired = false;
 
 >>>>expected.txt
-Opt_XmlInvalidAttribute_Exception
+Opt_Parser_Exception

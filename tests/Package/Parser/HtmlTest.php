@@ -100,7 +100,7 @@ class Package_Parser_HtmlTest extends Extra_TestFSBase
 	 * @param String $text The text.
 	 * @return String "OK" if the entities were replaced with the corresponding characters.
 	 */
-	static public function testEcf($text)
+	static public function testEcf($text = null)
 	{
 		if($text == '<>&')
 		{
