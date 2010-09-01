@@ -1407,7 +1407,7 @@
 				$this->set('mode', $mode);
 				$this->set('currentTemplate', $this->_template);
 				array_push(self::$_templates, $filename);
-				$this->_stack = new SplStack;
+			//	$this->_stack = new SplStack;
 				$i = 0;
 				$extend = $filename;
 
@@ -1422,10 +1422,10 @@
 						$initial = memory_get_usage();
 						$tree = $this->_stage1($code, $extend, $mode);
 						// Stage 2 - PHP tree processing
-						$this->_stack = array();
+				//		$this->_stack = array();
 						$this->_stage2($tree);
 						$this->set('escape', NULL);
-						unset($this->_stack);
+				//		unset($this->_stack);
 						$memory += (memory_get_usage() - $initial);
 						unset($code);
 					}
@@ -1434,10 +1434,10 @@
 						$tree = $this->_stage1($code, $extend, $mode);
 						unset($code);
 						// Stage 2 - PHP tree processing
-						$this->_stack = array();
+				//		$this->_stack = array();
 						$this->_stage2($tree);
 						$this->set('escape', NULL);
-						unset($this->_stack);
+				//		unset($this->_stack);
 					}
 
 
