@@ -27,7 +27,7 @@ class Opt_Xml_Cdata extends Opt_Xml_Node
 	/**
 	 * Constructs a new Opt_Xml_Cdata node.
 	 *
-	 * @param String $cdata The initial text.
+	 * @param string $cdata The initial text.
 	 */
 	public function __construct($cdata)
 	{

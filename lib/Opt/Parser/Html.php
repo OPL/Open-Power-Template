@@ -258,6 +258,15 @@ class Opt_Parser_Html implements Opt_Parser_Interface
 					}
 					else
 					{
+						// Avoid -- in HTML comments, according to the standard.
+						if(strpos($subgroups[$i], '--') !== false)
+						{
+							throw new Opt_Parser_Exception(
+								'The string "--" must not occur within comments.',
+								'HTML',
+								$filename
+							);
+						}
 						$commentNode->appendData($subgroups[$i]);
 					}
 					continue;

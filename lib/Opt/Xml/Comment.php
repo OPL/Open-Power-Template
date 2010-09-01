@@ -31,7 +31,7 @@ class Opt_Xml_Comment extends Opt_Xml_Cdata
 	{
 		if(strpos($text, '--') !== false)
 		{
-			throw new Opt_XmlComment_Exception('--');
+			throw new Opt_Parser_Exception('The string "--" must not occur within comments.');
 		}
 		return true;
 	} // end _validate();
