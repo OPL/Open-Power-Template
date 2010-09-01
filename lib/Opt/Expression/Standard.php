@@ -926,6 +926,8 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 				}
 				$i++;
 			}
+			// Do not remove this ksort() or you will fuck the argument order management.
+			ksort($newArgs);
 			$functional[1] = $newArgs;
 		}
 		// Parse the argument list.
