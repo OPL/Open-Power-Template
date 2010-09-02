@@ -41,6 +41,12 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 	);
 
 	/**
+	 * The things that need to be done before we enter the tests.
+	 * @var string
+	 */
+	private $_testsBefore = '';
+
+	/**
 	 * The list of conditions that need to be tested
 	 * at the end.
 	 *
@@ -95,7 +101,7 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 			case 'switch:enterTestEnd.later':
 				return '__switch_'.(self::$_counter++).'_end:  } ';
 			case 'switch:testsBefore':
-				return '';
+				return $this->_testsBefore;
 			case 'switch:testsAfter':
 				return '';
 			case 'switch:caseBefore':
@@ -107,12 +113,23 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 				$format->assign('container', '$__test_'.self::$_counter);
 				$format->assign('values', $params['value']);
 				$format->assign('optimize', false);
-				$condition = $format->get('container:contains');
+
+				$prepender = $this->_getVar('prepender');
+				if($prepender !== null)
+				{
+					$this->_testsBefore .= ' '.$prepender.'->setCaseResult('.($this->_getVar('order')+1).','.$format->get('container:contains').');'.PHP_EOL;
+				
+					$condition = $prepender.'->isPassed('.($this->_getVar('order')+1).')';
+				}
+				else
+				{
+					$condition = $format->get('container:contains');
+				}
 
 				if($this->_getVar('nesting') == 0)
 				{
 					$this->_previous = $this->_getVar('nesting');
-					return 'if('.$condition.'){ '.PHP_EOL;
+					return 'if('.$condition.'){ '.PHP_EOL.($prepender !== null ? $prepender.'->startPassing('.($this->_getVar('order')+1).')' : '');
 				}
 				else
 				{
@@ -121,7 +138,7 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 						$this->_conditions = '';
 					}
 
-					$conditionCode =' if('.$condition.'){ $__ctrl_'.self::$_counter.' = '.$this->_getVar('order').'; goto __switch_'.self::$_counter.'_'.$this->_getVar('order').'c; }'.PHP_EOL;
+					$conditionCode = ' if('.$condition.'){ $__ctrl_'.self::$_counter.' = '.$this->_getVar('order').'; goto __switch_'.self::$_counter.'_'.$this->_getVar('order').'c; }'.PHP_EOL;
 					
 					if(($informed = $this->_getVar('informed')) !== null)
 					{
@@ -135,12 +152,13 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 					$this->_conditions = $conditionCode.$this->_conditions;
 
 					$this->_previous = $this->_getVar('nesting');
-					return '__switch_'.self::$_counter.'_'.$this->_getVar('order').'c:'.PHP_EOL;
+					return '__switch_'.self::$_counter.'_'.$this->_getVar('order').'c:'.PHP_EOL.($prepender !== null ? $prepender.'->startPassing('.($this->_getVar('order')+1).')' : '');
 				}
 			case 'switch:caseAfter':
+				$prepender = $this->_getVar('prepender');
 				if($this->_getVar('nesting') == 0)
 				{
-					$result = ' }'.PHP_EOL;
+					$result = ($prepender !== null ? $prepender.'->endPassing('.($this->_getVar('order')+1).');' : '').' }'.PHP_EOL;
 					if(($informed = $this->_getVar('informed')) !== null)
 					{
 						$result .= ' else { '.$informed.' } '.PHP_EOL;
@@ -149,7 +167,7 @@ class Opt_Format_SwitchContains extends Opt_Format_Abstract
 				}
 				else
 				{
-					return ' if($__ctrl_'.self::$_counter.' == '.$this->_getVar('order').'){ goto __switch_'.self::$_counter.'_'.$this->_getVar('order').'ce; }';
+					return ($prepender !== null ? $prepender.'->endPassing('.($this->_getVar('order')+1).');' : '').' if($__ctrl_'.self::$_counter.' == '.$this->_getVar('order').'){ goto __switch_'.self::$_counter.'_'.$this->_getVar('order').'ce; }';
 				}
 		}
 	} // end _build();

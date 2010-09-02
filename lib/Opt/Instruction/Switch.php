@@ -57,6 +57,12 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	private $_initialized = false;
 
 	/**
+	 * The switch iterator.
+	 * @var integer
+	 */
+	private $_switchIterator = 0;
+
+	/**
 	 * The data for the sort() method.
 	 * @var array
 	 */
@@ -74,7 +80,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	public function configure()
 	{
 		$this->_addInstructions(array('opt:switch'));
-		$this->_addAmbiguous(array('opt:else' => 'opt:switch'));
+		$this->_addAmbiguous(array('opt:else' => 'opt:switch', 'opt:prepend' => 'opt:switch', 'opt:append' => 'opt:switch'));
 
 		$this->addSwitchable('opt:switch');
 		$this->addSwitchHandler('opt:equals', $this->_compiler->createFormat(null, 'SwitchEquals'), 500);
@@ -214,6 +220,9 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	 */
 	final public function createSwitch(Opt_Xml_Node $node, $test)
 	{
+		// Sort the nodes.
+		$node->sort(array('opt:prepend' => 0, 'opt:append' => 1, '*' => 2, 'opt:else' => 3));
+
 		// Find opt:else, if it is available
 		$results = $node->getElementsByTagNameNS('opt', 'else', false);
 
@@ -226,6 +235,9 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 			throw new Opt_Instruction_Exception('Too many opt:else elements in the Switch statement: zero or one allowed.');
 		}
 
+		// Find opt:prepend and opt:append blocks
+		$prependInfo = $this->_compilePrepend($node);
+
 		// Initialize the processor, if necessary
 		if(!$this->_initialized)
 		{
@@ -235,6 +247,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 		$containers = array();
 		foreach($this->_priority as $handler)
 		{
+			$this->_handlers[$handler][0]->assign('prepender', $prependInfo);
 			$containers[$handler] = $this->_createSwitchGroup($node, $handler, $this->_handlers[$handler][0]);
 		}
 		// Clear the list
@@ -553,4 +566,66 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 		}
 		return null;
 	} // end _detectCase();
+
+	protected function _compilePrepend(Opt_Xml_Element $node)
+	{
+		$prepends = $node->getElementsByTagNameNS('opt', 'prepend', false);
+		$appends = $node->getElementsByTagNameNS('opt', 'append', false);
+
+		if(sizeof($prepends) == 0 && sizeof($appends) == 0)
+		{
+			return null;
+		}
+		$i = $this->_switchIterator++;
+
+		$code = ' $__switch_'.$i.'_pp = new Opt_Runtime_Prepender($ctx); ';
+
+		// First, compile the opt:prepend blocks
+		foreach($prepends as $prepend)
+		{
+			$params = array(
+				'to' => array(0 => self::REQUIRED, self::ID),
+			);
+			$this->_extractAttributes($prepend, $params);
+			
+			if($params['to'] != 'first' && $params['to'] != 'last' && !ctype_digit($params['to']))
+			{
+				throw new Opt_Instruction_Exception('Invalid argument value for opt:prepend: '.$params['to']);
+			}
+
+			if($params['to'] == 'first' || $params['to'] == 'last')
+			{
+				$params['to'] = '\''.$params['to'].'\'';
+			}
+
+			$prepend->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' $__switch_'.$i.'_pp->registerPrepend('.$params['to'].', function($ctx){ ');
+			$prepend->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' }); ');
+		}
+
+		// Now opt:append
+		foreach($appends as $append)
+		{
+			$params = array(
+				'to' => array(0 => self::REQUIRED, self::ID),
+			);
+			$this->_extractAttributes($append, $params);
+
+			if($params['to'] != 'first' && $params['to'] != 'last' && !ctype_digit($params['to']))
+			{
+				throw new Opt_Instruction_Exception('Invalid argument value for opt:append: '.$params['to']);
+			}
+
+			if($params['to'] == 'first' || $params['to'] == 'last')
+			{
+				$params['to'] = '\''.$params['to'].'\'';
+			}
+
+			$append->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' $__switch_'.$i.'_pp->registerAppend('.$params['to'].', function($ctx){ ');
+			$append->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' }); ');
+		}
+
+		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
+
+		return '$__switch_'.$i.'_pp';
+	} // end _compilePrepend();
 } // end Opt_Instruction_Switch;
