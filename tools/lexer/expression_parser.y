@@ -35,11 +35,11 @@
 %left	CONTAINS CONTAINS_EITHER CONTAINS_NEITHER CONTAINS_BOTH.
 %left	IS_IN IS_NOT_IN.
 %left	IS_IN_EITHER IS_IN_NEITHER IS_IN_BOTH.
+%left	ASSIGN.
 %left	ADD SUB MINUS CONCAT.
 %left	MUL DIV MOD.
 %left	COLON.
 %right	EXP NOT.
-%right	ASSIGN.
 %right	INCREMENT DECREMENT.
 
 // warning: in case of strange errors while parsing something with this grammar
