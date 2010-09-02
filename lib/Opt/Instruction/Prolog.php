@@ -75,7 +75,7 @@ class Opt_Instruction_Prolog extends Opt_Instruction_Abstract
 		}
 		if($params['standalone'] === null)
 		{
-			$params['standalone'] = '\'yes\'';
+			$params['standalone'] = '\'no\'';
 		}
 		if($params['encoding'] === null)
 		{
