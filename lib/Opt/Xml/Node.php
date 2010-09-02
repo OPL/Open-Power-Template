@@ -206,6 +206,21 @@ abstract class Opt_Xml_Node extends Opt_Xml_Buffer
 	} // end _dispose();
 
 	/**
+	 * The basic cloning subroutine for nodes that do not have children.
+	 */
+	public function __clone()
+	{
+		if($this->get('__nrc') === true)
+		{
+			$this->set('__nrc', NULL);
+			$this->_parent = null;
+			$this->_previous = null;
+			$this->_next = null;
+			$this->_cloneHandler();
+		}
+	} // end __clone();
+
+	/**
 	 * This function is executed by the compiler during the second compilation stage,
 	 * processing.
 	 */

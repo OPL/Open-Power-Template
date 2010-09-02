@@ -78,6 +78,10 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		// empty array if needed.
 		$this->_testNode($child);
 
+		if($child->_parent !== null)
+		{
+			var_dump(spl_object_hash($child->_parent));
+		}
 		$child->unmount();
 		if($this->_last === null)
 		{
@@ -662,7 +666,6 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		else
 		{
 			// Prepare the recursiveless cloning operation.
-			$this->_cloneHandler();
 			$queue = new SplQueue;
 			$scan = $this->_first;
 			while($scan !== null)
@@ -678,9 +681,11 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			$this->_first = null;
 			$this->_last = null;
 			$this->_parent = null;
+			$this->_cloneHandler();
 			while($queue->count() > 0)
 			{
 				$pair = $queue->dequeue();
+
 				$pair[0]->set('__nrc', true);
 				$pair[1]->appendChild($clone = clone $pair[0]);
 				$pair[0]->set('__nrc', false);
