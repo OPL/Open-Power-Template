@@ -282,9 +282,10 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 	 */
 	public function postprocessComponent(Opt_Xml_Node $node)
 	{
-		if(($attribute = $node->get('_componentTemplate')) !== null)
+		if($node->get('_componentTemplate') === true)
 		{
-			$this->_compiler->processor('snippet')->postprocessAttribute($node, $attribute);
+			$this->_compiler->processor('snippet')->postuseSnippet($node);
+		//	$this->_compiler->processor('snippet')->postprocessAttribute($node, $attribute);
 			$node->set('_componentTemplate', NULL);
 		}
 		$this->_stack->pop();
@@ -316,8 +317,10 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			$set2 = $node->getElementsByTagNameNS('opt', 'set');
 
 			// Now a little trick - how to cheat the opt:use instruction
-			$useAttribute = new Opt_Xml_Attribute('opt:use', $params['template']);
-			$this->_compiler->processor('snippet')->processAttribute($node, $useAttribute);
+			$this->_compiler->processor('snippet')->useSnippet($node, $params['template'], array());
+			$node->set('_componentTemplate', true);
+		//	$useAttribute = new Opt_Xml_Attribute('opt:use', $params['template']);
+		//	$this->_compiler->processor('snippet')->processAttribute($node, $useAttribute);
 		}
 
 		// Find all the important component elements
