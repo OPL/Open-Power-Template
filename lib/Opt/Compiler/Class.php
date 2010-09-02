@@ -392,7 +392,7 @@ class Opt_Compiler_Class
 						echo '<li>'.$id.': <strong>Comment:</strong> '.htmlspecialchars($subnode).$hidden.'</li>';
 						break;
 					case 'Opt_Xml_Text':
-						echo '<li>'.$id.': <strong>Text:</strong> ';
+						echo '<li>'.$id.' ('.spl_object_hash($subnode).'): <strong>Text:</strong> ';
 						$this ->_debugPrintNodes($subnode);
 						echo $hidden.'</li>';
 						break;

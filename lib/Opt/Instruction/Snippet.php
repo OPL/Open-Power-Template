@@ -209,10 +209,13 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 
 			$this->_snippets[$params['name']][] = $node;
 		}
+		$node->unmount();
+		/*
 		if($node->getParent()->removeChild($node) == 0)
 		{
 			throw new Opl_Debug_Exception();
 		}
+		 */
 		// Remember the template state of escaping for this snippet.
 		// This is necessary to make per-template escaping work with
 		// the inheritance.

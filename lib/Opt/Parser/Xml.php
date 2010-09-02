@@ -110,6 +110,7 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 			{
 				$current = $optNode;
 			}
+	//		echo $debug[$reader->nodeType].'<br/>';
 			switch($reader->nodeType)
 			{
 				// XML elements
@@ -160,6 +161,7 @@ class Opt_Parser_Xml implements Opt_Parser_Interface
 				case XMLReader::TEXT:
 				case XMLReader::WHITESPACE:
 				case XMLReader::SIGNIFICANT_WHITESPACE:
+				//	echo 'Loading whitespace '.sizeof($reader->value).'<br/>';
 					$this->_treeTextCompile($current, $reader->value);
 					break;
 				case XMLReader::COMMENT:
