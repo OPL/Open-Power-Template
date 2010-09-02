@@ -111,7 +111,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 		$section = $this->_sectionCreate($node);
 		$this->_sectionStart($section);
 
-		if($node->get('ambiguous:opt:body') !== null)
+		if($node->hasAmbiguousDescendant('opt:body'))
 		{
 			$this->_process($node);
 		}
@@ -154,6 +154,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 	 */
 	protected function _postprocessSection(Opt_Xml_Element $node)
 	{
+		
 		$section = self::getSection($node->get('priv:section'));
 		if(!$node->get('priv:alternative'))
 		{
@@ -197,7 +198,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 		$parent = $node->getParent();
 		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:section')
 		{
-			if($parent->get('ambiguous:opt:body') !== null)
+			if($parent->hasAmbiguousDescendant('opt:body'))
 			{
 				$this->_processShowelse($node, $parent);
 			}

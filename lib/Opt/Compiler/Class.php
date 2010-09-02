@@ -1699,10 +1699,11 @@ class Opt_Compiler_Class
 						{
 							if($parent instanceof Opt_Xml_Element && in_array($parent->getXmlName(),$matching))
 							{
-								$parent->set('ambiguous:'.$item->getXmlName(), $item);
+								$parent->addAmbiguousDescendant($item);
+					//			$parent->set('ambiguous:'.$item->getXmlName(), $item);
 								$item->set('priv:ambiguous', $this->getInstruction($parent->getXmlName()));
 								break;
-							}	
+							}
 							$parent = $parent->getParent();
 						}
 						if($parent === null)

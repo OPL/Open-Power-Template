@@ -71,10 +71,10 @@ class Opt_Instruction_Foreach extends Opt_Instruction_Loop_Abstract
 	protected function _processForeach(Opt_Xml_Element $node)
 	{
 		// First, we must check, what type of foreach we have to deal with...
-		if($node->get('ambiguous:opt:body') !== null)
+		if($node->hasAmbiguousDescendant('opt:body'))
 		{
 			$cond = $node;
-			$body = $node->get('ambiguous:opt:body');
+			$body = $node->getAmbiguousDescendant('opt:body');
 		}
 		else
 		{

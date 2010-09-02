@@ -8,7 +8,6 @@
  *
  * Copyright (c) Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
- *
  */
 
 /**
@@ -166,12 +165,12 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 		}
 		else
 		{
-			if($node->get('ambiguous:opt:body') !== null)
+			if($node->hasAmbiguousDescendant('opt:body'))
 			{
 				// New way with opt:body
 				$section = $this->_extractSectionAttributes($node, $extraAttributes);
 				$section['show'] = $node;
-				$section['node'] = $node->get('ambiguous:opt:body');
+				$section['node'] = $node->getAmbiguousDescendant('opt:body');
 				$section['attribute'] = null;
 				$section['node']->set('priv:section', $section['name']);
 			}

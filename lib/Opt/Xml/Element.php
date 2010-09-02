@@ -21,17 +21,44 @@
  */
 class Opt_Xml_Element extends Opt_Xml_Scannable
 {
+	/**
+	 * The name of the element.
+	 * @var string
+	 */
 	protected $_name;
+	/**
+	 * The namespace of the element.
+	 * @var string
+	 */
 	protected $_namespace;
+	/**
+	 * List of element attributes.
+	 * @var array
+	 */
 	protected $_attributes;
-
+	/**
+	 * The list of OPT attributes that need to be post-processed.
+	 * @var array
+	 */
 	protected $_postprocess = null;
+	/**
+	 * If this element is ambiguous, here there will be the ancestor element
+	 * it is matched to.
+	 * @var Opt_Xml_Element
+	 */
+	protected $_ambiguousAncestor = null;
+
+	/**
+	 * The list of ambiguous descendant elements.
+	 * @var array
+	 */
+	protected $_ambiguousDescendants = array();
 
 	/**
 	 * Creates a new XML tag with the specified name. The accepted
 	 * name format is 'name' or 'namespace:name'.
 	 *
-	 * @param String $name The tag name.
+	 * @param string $name The tag name.
 	 */
 	public function __construct($name)
 	{
@@ -43,7 +70,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	 * Sets the name for the tag. The accepted format is 'name' or
 	 * 'namespace:name'.
 	 *
-	 * @param String $name The tag name.
+	 * @param string $name The tag name.
 	 */
 	public function setName($name)
 	{
@@ -62,7 +89,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * Sets the namespace for the tag.
 	 *
-	 * @param String $namespace The namespace name.
+	 * @param string $namespace The namespace name.
 	 */
 	public function setNamespace($namespace)
 	{
@@ -71,7 +98,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 
 	/**
 	 * Returns the tag name (without the namespace).
-	 * @return String
+	 * @return string
 	 */
 	public function getName()
 	{
@@ -80,7 +107,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 
 	/**
 	 * Returns the tag namespace name.
-	 * @return String
+	 * @return string
 	 */
 	public function getNamespace()
 	{
@@ -90,7 +117,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * Returns the tag name (with the namespace, if possible)
 	 *
-	 * @return String
+	 * @return string
 	 */
 	public function getXmlName()
 	{
@@ -104,7 +131,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * Returns the list of attribute objects.
 	 *
-	 * @return Array
+	 * @return array
 	 */
 	public function getAttributes()
 	{
@@ -118,7 +145,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * Returns the attribute with the specified name.
 	 *
-	 * @param String $xmlName The XML name of the attribute (with the namespace)
+	 * @param string $xmlName The XML name of the attribute (with the namespace)
 	 * @return Opt_Xml_Attribute
 	 */
 	public function getAttribute($xmlName)
@@ -152,8 +179,8 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	 * Removes the specified attribute identified either by the object
 	 * or by the XML name.
 	 *
-	 * @param String|Opt_Xml_Attribute $refNode The attribute to be removed
-	 * @return Boolean
+	 * @param string|Opt_Xml_Attribute $refNode The attribute to be removed
+	 * @return boolean
 	 */
 	public function removeAttribute($refNode)
 	{
@@ -194,7 +221,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * Returns 'true', if the tag contains attributes.
 	 *
-	 * @return Boolean
+	 * @return boolean
 	 */
 	public function hasAttributes()
 	{
@@ -206,8 +233,68 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	} // end hasAttributes();
 
 	/**
+	 * Sets the ancestor element whose this element is ambiguous for.
+	 *
+	 * @param Opt_Xml_Element $element The ancestor element.
+	 */
+	public function setAmbiguousAncestor(Opt_Xml_Element $element)
+	{
+		$this->_ambiguousAncestor = $element;
+	} // end setAmbiguousAncestor();
+
+	/**
+	 * Returns the ancestor element whose this element is ambiguous for.
+	 *
+	 * @return Opt_Xml_Element
+	 */
+	public function getAmbiguousAncestor()
+	{
+		return $this->_ambiguousAncestor;
+	} // end getAmbiguousAncestor();
+
+	/**
+	 * Registers a new ambiguous descendant. The method automatically
+	 * sets the correct ancestor in the registered node.
+	 *
+	 * @param Opt_Xml_Element $element The ambiguous descendant.
+	 */
+	public function addAmbiguousDescendant(Opt_Xml_Element $element)
+	{
+		$this->_ambiguousDescendants[$element->getXmlName()] = $element;
+		$element->setAmbiguousAncestor($this);
+	} // end addAmbiguousDescendant();
+
+	/**
+	 * Returns the ambiguous descendant with the specified name. If the
+	 * descendant does not exist, it returns null.
+	 *
+	 * @param string $name The XML element name
+	 * @return Opt_Xml_Element
+	 */
+	public function getAmbiguousDescendant($name)
+	{
+		if(!isset($this->_ambiguousDescendants[$name]))
+		{
+			return null;
+		}
+		return $this->_ambiguousDescendants[$name];
+	} // end getAmbiguousDescendant();
+
+	/**
+	 * Checks if the ambiguous descendant with the specified name
+	 * already exists.
+	 *
+	 * @param string $name The XML element name
+	 * @return boolean
+	 */
+	public function hasAmbiguousDescendant($name)
+	{
+		return isset($this->_ambiguousDescendants[$name]);
+	} // end hasAmbiguousDescendant();
+
+	/**
 	 * Returns the XML tag name.
-	 * @return String
+	 * @return string
 	 */
 	public function __toString()
 	{
@@ -227,6 +314,20 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			foreach($this->_attributes as $name => $attribute)
 			{
 				$this->_attributes[$name] = clone $attribute;
+			}
+		}
+
+		// Handle ambiguous nodes, because the references no longer
+		// point to the place they should.
+		if($this->_ambiguousAncestor !== null)
+		{
+			$this->_ambiguousAncestor->addAmbiguousDescendant($this);
+		}
+		if(sizeof($this->_ambiguousDescendants) > 0)
+		{
+			foreach($this->_ambiguousDescendants as $descendant)
+			{
+				$descendant->setAmbiguousAncestor($this);
 			}
 		}
 	} // end _cloneHandler();
@@ -592,7 +693,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	 *
 	 * @internal
 	 * @param Opt_Compiler_Class $compiler The compiler.
-	 * @param Boolean $specialNs Do we recognize special namespaces?
+	 * @param boolean $specialNs Do we recognize special namespaces?
 	 */
 	protected function _processXml(Opt_Compiler_Class $compiler, $specialNs = true)
 	{
@@ -648,7 +749,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	 *
 	 * @internal
 	 * @param Opt_Xml_Element $subitem The XML element.
-	 * @return String
+	 * @return string
 	 */
 	protected function _linkAttributes()
 	{

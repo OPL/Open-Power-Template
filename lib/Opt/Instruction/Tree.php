@@ -63,9 +63,9 @@ class Opt_Instruction_Tree extends Opt_Instruction_Section_Abstract
 		$section = $this->_sectionCreate($node);
 		$this->_sectionStart($section);
 
-		if($node->get('ambiguous:opt:body') !== null)
+		if($node->hasAmbiguousDescendant('opt:body'))
 		{
-			$treeElse = $node->get('ambiguous:opt:else');
+			$treeElse = $node->getAmbiguousDescendant('opt:else');
 			if($treeElse instanceof Opt_Xml_Element && $treeElse->getParent()->getXmlName() != 'opt:tree')
 			{
 				throw new Opt_Instruction_Exception('Invalid opt:else location in opt:tree.');
