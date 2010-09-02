@@ -26,7 +26,7 @@
 </div>
 
 <div id="footer">
-	<p>Copyright {u:entity('copy')} <a href="http://www.invenzzia.org">Invenzzia Group</a> 2009</p>
+	<p>Copyright {u:entity('copy')} <a href="http://www.invenzzia.org">Invenzzia Group</a> {range('2009')}</p>
 	<p>Distributed under <a href="http://www.invenzzia.org/license/new-bsd">New BSD License</a></p>
 </div>
 </body>
