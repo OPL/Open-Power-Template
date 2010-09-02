@@ -1,2 +1,0 @@
-<<?php echo '?'; ?>xml version="<?php echo '1.0'; ?>" standalone="<?php echo 'yes'; ?>" ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html><head><title>Open Power Template 2 - Basic example</title></head><body><h1>Open Power Template 2 - basic example</h1><p>This example shows, how to run Open Power Template and process the templates with this templating engine. We can also display a template variable:</p><p><?php echo htmlspecialchars($ctx->_data['hello']);   ?></p></body></html>
