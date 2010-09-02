@@ -134,6 +134,6 @@ class Opt_Xml_Prolog
 				$code .= $name.'="'.$value.'" ';
 			}
 		}
-		return $code.'?>';
+		return $code.'?>'.PHP_EOL;
 	} // end getProlog();
 } // end Opt_Xml_Prolog;
