@@ -38,4 +38,6 @@ The code was written by:
 + Jacek "eXtreme" Jedrzejewski - testing, minor improvements, debug console
 + Amadeusz "megaweb" Starzykiewicz - additional programming.
 
+Contributors: krecik
+
 The library is available under the terms of [New BSD License](http://www.invenzzia.org/license/new-bsd).
