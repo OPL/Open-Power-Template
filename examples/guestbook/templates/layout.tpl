@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<opt:root include="snippets.tpl">
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:load template="snippets.tpl" />
 <opt:prolog />
-<opt:dtd template="xhtml10transitional" />
+<opt:dtd template="xhtml10strict" />
 {@formInvalidFieldRowClass is 'error'} <!-- for form displaying -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl" lang="pl">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>{$title} - Sample guestbook</title>
-	<link rel="stylesheet" parse:href="$global.baseHref~'design/design.css'" type="text/css" />
+	<link rel="stylesheet" href="parse:$global.baseHref~'design/design.css'" type="text/css" />
 	<!--[if IE 6]>
-	<link rel="stylesheet" parse:href="$global.baseHref~'/design/ie6.css'" type="text/css" />
+	<link rel="stylesheet" href="parse:$global.baseHref~'/design/ie6.css'" type="text/css" />
 	<![endif]-->
 </head>
 <body>
@@ -19,13 +20,13 @@
 </div>
 
 <div id="content">
-	<opt:insert snippet="content">
+	<opt:use snippet="content">
 	<p class="error">We are sorry, but there is nothing to be displayed.</p>
-	</opt:insert>
+	</opt:use>
 </div>
 
 <div id="footer">
-	<p>Copyright &copy; <a href="http://www.invenzzia.org">Invenzzia Group</a> 2009</p>
+	<p>Copyright {u:entity('copy')} <a href="http://www.invenzzia.org">Invenzzia Group</a> 2009</p>
 	<p>Distributed under <a href="http://www.invenzzia.org/license/new-bsd">New BSD License</a></p>
 </div>
 </body>

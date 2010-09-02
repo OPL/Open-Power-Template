@@ -1,21 +1,21 @@
 <?xml version="1.0" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 	<opt:snippet name="fieldLayout">
-	<com:div>
-		<opt:onEvent name="error">
+	<div opt:component-attributes="default">
+		<opt:on-event name="error">
 		<p class="error">{$errorMessage}</p>
-		</opt:onEvent>
+		</opt:on-event>
 		
-		<label parse:for="'form_'~$system.component.name~'_id'">
+		<label for="parse:'form_'~$system.component.name~'_id'">
 			{$system.component.title}
-			<opt:onEvent name="isRequired">
+		<opt:on-event name="isRequired">
 			<strong>*</strong>
-		</opt:onEvent>
+		</opt:on-event>
 		</label>
 		
 
 		<opt:display />
 		<p opt:if="$system.component.description" class="desc">{$system.component.description}</p>
-	</com:div>
+	</div>
 	</opt:snippet>
 </opt:root>

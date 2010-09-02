@@ -1,15 +1,13 @@
 <?php
 /*
  *  OPEN POWER LIBS EXAMPLES <http://www.invenzzia.org>
- *  ===================================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) 2008-2010 Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
- *
  */
 
 /**
@@ -20,10 +18,10 @@
 /**
  * An exception class.
  */
-class Opl_NoFormDefined_Exception extends Opl_Exception
+class Opl_Form_Exception extends Opl_Exception
 {
-	protected $_message = 'No form defined for the component %s.';
-} // end Opl_NoFormDefined_Exception;
+	/* null */
+} // end Opl_Form_Exception;
 
 /**
  * The class represents a base component. The other components simply
@@ -36,7 +34,7 @@ abstract class BaseComponent implements Opt_Component_Interface
 {
 	/**
 	 * The component parameter list
-	 * @var Array
+	 * @var array
 	 */
 	protected $_params = array();
 
@@ -55,7 +53,7 @@ abstract class BaseComponent implements Opt_Component_Interface
 	/**
 	 * Constructs the component with the specified name.
 	 *
-	 * @param String $name The name of the newly created component.
+	 * @param string $name The name of the newly created component.
 	 */
 	public function __construct($name = '')
 	{
@@ -76,14 +74,14 @@ abstract class BaseComponent implements Opt_Component_Interface
 
 		if(!is_object($this->_form))
 		{
-			throw new Opl_NoFormDefined_Exception(get_class($this).':'.$this->_params['name']);
+			throw new Opl_Form_Exception('The form '.get_class($this).':'.$this->_params['name'].' is not defined.');
 		}
 	} // end setView();
 
 	/**
 	 * This is unused.
 	 *
-	 * @param Mixed &$data The datasource
+	 * @param mixed &$data The datasource
 	 */
 	public function setDatasource($data)
 	{
@@ -93,20 +91,20 @@ abstract class BaseComponent implements Opt_Component_Interface
 	/**
 	 * Sets the value of a component parameter.
 	 *
-	 * @param String $name The parameter name
-	 * @param Mixed $value The parameter value
+	 * @param string $name The parameter name
+	 * @param mixed $value The parameter value
 	 */
-	public function set($name, $value)
+	public function __set($name, $value)
 	{
 		$this->_params[$name] = $value;
-	} // end set();
+	} // end __set();
 
 	/**
 	 * Returns the component parameter value.
-	 * @param String $name The parameter name.
-	 * @return Mixed
+	 * @param string $name The parameter name.
+	 * @return mixed
 	 */
-	public function get($name)
+	public function __get($name)
 	{
 		if($name == 'id')
 		{
@@ -117,18 +115,29 @@ abstract class BaseComponent implements Opt_Component_Interface
 			return null;
 		}
 		return $this->_params[$name];
-	} // end get();
+	} // end __get();
 
 	/**
 	 * Checks if the parameter is defined.
 	 *
-	 * @param String $name The parameter name.
-	 * @return Boolean
+	 * @param string $name The parameter name.
+	 * @return boolean
 	 */
-	public function defined($name)
+	public function __isset($name)
 	{
 		return isset($this->_params[$name]);
-	} // end defined();
+	} // end __isset();
+
+	/**
+	 * This method allows OPT to inject template procedures that may
+	 * be used to render the component.
+	 *
+	 * @param Closure $injection The injected procedure
+	 */
+	public function setInjection($injection)
+	{
+		/* empty */
+	} // end setInjection();
 
 	/**
 	 * Allows to perform the attribute modifications to certain HTML

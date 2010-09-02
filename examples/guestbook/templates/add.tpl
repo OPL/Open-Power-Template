@@ -1,26 +1,26 @@
 <?xml version="1.0" ?>
-<opt:extend file="layout.tpl">
+<opt:extend file="layout.tpl" xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="content">
-	<form parse:action="$form.action" method="post">
+	<form action="parse:$form.action" method="post">
 	<fieldset>
 		<legend>New entry</legend>
 
 		<opt:input name="author" template="fieldLayout">
-			<opt:set str:name="title" str:value="Your name" />
+			<opt:set name="str:title" value="str:Your name" />
 		</opt:input>
 
 		<opt:input name="email" template="fieldLayout">
-			<opt:set str:name="title" str:value="Your e-mail" />
-			<opt:set str:name="description" str:value="Will not be published" />
+			<opt:set name="str:title" value="str:Your e-mail" />
+			<opt:set name="str:description" value="str:Will not be published" />
 		</opt:input>
 
 		<opt:input name="website" template="fieldLayout">
-			<opt:set str:name="title" str:value="Website" />
-			<opt:set str:name="description" str:value="Begin with http://" />
+			<opt:set name="str:title" value="str:Website" />
+			<opt:set name="str:description" value="str:Begin with http://" />
 		</opt:input>
 
 		<opt:textarea name="body" template="fieldLayout">
-			<opt:set str:name="title" str:value="Message" />
+			<opt:set name="str:title" value="str:Message" />
 		</opt:textarea>
 
 		<div><input type="submit" class="inputSubmit" value="Send!" /></div>

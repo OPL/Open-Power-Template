@@ -1,16 +1,13 @@
 <?php
 /*
- *
  *  OPEN POWER LIBS EXAMPLES <http://www.invenzzia.org>
- *  ===================================================
  *
  * This file is subject to the new BSD license that is bundled
  * with this package in the file LICENSE. It is also available through
  * WWW at this URL: <http://www.invenzzia.org/license/new-bsd>
  *
- * Copyright (c) 2008 Invenzzia Group <http://www.invenzzia.org>
+ * Copyright (c) 2008-2010 Invenzzia Group <http://www.invenzzia.org>
  * and other contributors. See website for details.
- *
  */
 
 /**
@@ -19,13 +16,15 @@
  */
 date_default_timezone_set('Europe/Warsaw');
 
-$config = parse_ini_file('../../paths.ini', true);
-require($config['libraries']['Opl'].'Base.php');
-Opl_Loader::loadPaths($config);
-Opl_Loader::setCheckFileExists(false);
-Opl_Loader::register();
+$config = parse_ini_file(dirname(__FILE__).'/../paths.ini', true);
+require($config['Opl'].'Opl/Loader.php');
 
-Opl_Registry::setState('opl_extended_errors', true);
+$loader = new Opl_Loader('_');
+$loader->addLibrary('Opl', $config['Opl']);
+$loader->addLibrary('Opt', $config['Opt']);
+$loader->register();
+
+Opl_Registry::setValue('opl_extended_errors', true);
 
 if(!file_exists('./config.php'))
 {
@@ -68,21 +67,16 @@ try
 
 	// Render the returned view to the browser.
 	$output = new Opt_Output_Http;
-	$output->setContentType(Opt_Output_Http::XHTML, 'utf-8');
+	$output->setContentType(Opt_Output_Http::HTML, 'utf-8');
 	$output->render($view);
-
 }
 catch(PDOException $exception)
 {
 	die('PDO Exception occured: '.$exception->getMessage());
 }
-catch(Opt_Exception $exception)
-{
-	$handler = new Opt_ErrorHandler;
-	$handler->display($exception);
-}
 catch(Opl_Exception $exception)
 {
 	$handler = new Opl_ErrorHandler;
+	Opt_ErrorHandler_Port::register($handler);
 	$handler->display($exception);
 }
