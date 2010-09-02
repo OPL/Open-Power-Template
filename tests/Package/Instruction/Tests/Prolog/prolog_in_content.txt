@@ -13,6 +13,6 @@ foo
 OUTPUT
 
 >>>>result.txt
-<?xml version="1.0" standalone="yes" ?>
+<?xml version="1.0" standalone="no" ?>
 foo
 foo

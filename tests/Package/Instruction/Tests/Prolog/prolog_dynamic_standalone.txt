@@ -13,9 +13,9 @@ foo
 OUTPUT
 
 >>>>data.php
-$view->assign('fff', 'no');
+$view->assign('fff', 'yes');
 
 >>>>result.txt
-<?xml version="1.0" standalone="no" ?>
+<?xml version="1.0" standalone="yes" ?>
 foo
 foo
