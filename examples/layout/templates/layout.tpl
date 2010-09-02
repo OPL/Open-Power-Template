@@ -1,22 +1,22 @@
 <?xml version="1.0" ?>
-<opt:root>
-	<opt:prolog />
-	<opt:dtd template="xhtml10transitional" />
-<html>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+	<opt:prolog standalone="no" />
+	<opt:dtd template="xhtml10strict" />
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>OPT Layout example</title>
 
 	<!-- an example, how to use opt:selector to create a dynamic CSS chooser -->
 	<opt:selector name="css">
-		<opt:standard>
+		<opt:equals value="standard">
 			<link rel="stylesheet" href="main.css" type="text/css" media="screen" />
 			<link rel="stylesheet" href="text.css" type="text/css" media="screen" />
-		</opt:standard>
-		<opt:printable>
+		</opt:equals>
+		<opt:equals value="printable">
 			<link rel="stylesheet" href="printable.css" type="text/css" media="print" />
-		</opt:printable>
+		</opt:equals>
 		<opt:default>
-			<link rel="stylesheet" parse:href="$css.file" type="text/css" />
+			<link rel="stylesheet" href="parse:$css.file" type="text/css" />
 		</opt:default>
 	</opt:selector>
 </head>
@@ -42,7 +42,7 @@
 	</opt:section>
 </div>
 <div id="footer">
-	<p>Copyright &copy; Invenzzia Group 2009</p>
+	<p>Copyright {u:entity('copy')} Invenzzia Group 2009</p>
 </div>
 </body>
 </html>

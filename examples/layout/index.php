@@ -12,12 +12,14 @@
  *
  */
 
-// Load the libraries core
-$config = parse_ini_file('../../paths.ini', true);
-require($config['libraries']['Opl'].'Base.php');
-Opl_Loader::loadPaths($config);
-Opl_Loader::setCheckFileExists(false);
-Opl_Loader::register();
+// Load the OPL core and configure the autoloader.
+$config = parse_ini_file(dirname(__FILE__).'/../paths.ini', true);
+require($config['Opl'].'Opl/Loader.php');
+
+$loader = new Opl_Loader('_');
+$loader->addLibrary('Opl', $config['Opl']);
+$loader->addLibrary('Opt', $config['Opt']);
+$loader->register();
 
 try
 {
@@ -29,7 +31,10 @@ try
 
 	// The location of the compiled templates
 	$tpl->compileDir = './templates_c/';
-	$tpl->compileMode = Opt_Class::CM_REBUILD;
+
+	// Do not strip unnecessary whitespaces
+	$tpl->stripWhitespaces = false;
+
 	// Set up everything.
 	$tpl->setup();
 
@@ -92,6 +97,7 @@ try
 catch(Opt_Exception $exception)
 {
 	// Use the standard error handler to display exceptions
-	$handler = new Opt_ErrorHandler;
+	$handler = new Opl_ErrorHandler;
+	Opt_ErrorHandler_Port::register($handler);
 	$handler->display($exception);
 }

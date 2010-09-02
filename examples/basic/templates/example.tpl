@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <!-- generate an XML prolog for the browser -->
 <opt:prolog version="1.0" />
 <!-- generate the DTD for the browser from a template -->
