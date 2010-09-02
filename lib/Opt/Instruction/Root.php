@@ -70,7 +70,6 @@ class Opt_Instruction_Root extends Opt_Instruction_Abstract
 		// Compile-time inclusion support
 		if($parent->get('preprocess') === null)
 		{
-		//	echo 'FIND LOAD...'.PHP_EOL;
 			$loads = $node->getElementsByTagNameNS('opt', 'load', false);
 			$templates = array();
 			if(sizeof($loads) > 0)
@@ -94,7 +93,6 @@ class Opt_Instruction_Root extends Opt_Instruction_Abstract
 			// If there are some templates to load, break the current execution.
 			if(sizeof($templates) > 0)
 			{
-			//	echo 'STORING...'.PHP_EOL;
 				$parent->set('preprocess', $templates);
 				return;
 			}
