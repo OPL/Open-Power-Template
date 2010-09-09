@@ -317,8 +317,15 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			$set2 = $node->getElementsByTagNameNS('opt', 'set');
 
 			// Now a little trick - how to cheat the opt:use instruction
-			$this->_compiler->processor('snippet')->useSnippet($node, $params['template'], array());
-			$node->set('_componentTemplate', true);
+			if($this->_compiler->processor('snippet')->useSnippet($node, $params['template'], array()))
+			{
+				$node->set('_componentTemplate', true);
+			}
+			else
+			{
+				$set2 = array();
+			}
+			
 		//	$useAttribute = new Opt_Xml_Attribute('opt:use', $params['template']);
 		//	$this->_compiler->processor('snippet')->processAttribute($node, $useAttribute);
 		}

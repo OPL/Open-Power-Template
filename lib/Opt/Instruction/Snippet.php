@@ -331,11 +331,17 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	 * The public API function allowing to put a snippet into the specified
 	 * node. The programmer is obliged to call _process() method on the node
 	 * with the snippet and terminate it in postprocessing by postuseSnippet().
+	 *
+	 * The method returns true, if the specified snippet has been found and has
+	 * been successfully used.
+	 *
+	 * @throws Opt_Compiler_Recursion_Exception
 	 * @param Opt_Xml_Node $node The node to put the snippet to
 	 * @param string $snippetName The snippet name
 	 * @param array $arguments The snippet arguments
 	 * @param boolean $ignoreDefault Ignore the default content?
 	 * @param boolean $predefinedArguments Are the arguments predefined and do they need parsing?
+	 * @return boolean
 	 */
 	public function useSnippet(Opt_Xml_Node $node, $snippetName, array $arguments, $ignoreDefault = false, $predefinedArguments = false)
 	{
@@ -458,7 +464,9 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 			$this->_current->push($snippetBlock);
 			$node->set('insertSnippet', $snippetName);
 			$node->set('postprocess', true);
+			return true;
 		}
+		return false;
 	} // end useSnippet();
 
 	/**
