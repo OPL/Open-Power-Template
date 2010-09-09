@@ -468,7 +468,11 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	 */
 	public function postuseSnippet(Opt_Xml_Node $node)
 	{
-		// Freeing the fake node, if necessary.
+		// Freeing the fake node, if necessary, and if exists.
+		if($this->_current->count() == 0)
+		{
+			return;
+		}
 		$info = $this->_current->pop();
 
 		// Freeing the fake node, if necessary.
