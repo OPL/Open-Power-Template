@@ -204,9 +204,9 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 		}
 		else
 		{
-			if(($attribute = $node->get('_componentTemplate')) !== null)
+			if($node->get('_componentTemplate') === true)
 			{
-				$this->_compiler->processor('snippet')->postprocessAttribute($node, $attribute);
+				$this->_compiler->processor('snippet')->postuseSnippet($node);
 			}
 			$this->_stack->pop();
 		}
