@@ -643,11 +643,11 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			}
 			if(!$this->hasChildren() && $this->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) == 0 && $this->get('single'))
 			{
-				$compiler->appendOutput('<'.$name.$this->_linkAttributes().' />'.$this->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER,Opt_Xml_Buffer::TAG_AFTER));
+				$compiler->appendOutput('<'.$name.$this->_linkAttributes($compiler).' />'.$this->buildCode(Opt_Xml_Buffer::TAG_SINGLE_AFTER,Opt_Xml_Buffer::TAG_AFTER));
 			}
 			else
 			{
-				$compiler->appendOutput('<'.$name.$this->_linkAttributes().'>'.$this->buildCode(Opt_Xml_Buffer::TAG_OPENING_AFTER));
+				$compiler->appendOutput('<'.$name.$this->_linkAttributes($compiler).'>'.$this->buildCode(Opt_Xml_Buffer::TAG_OPENING_AFTER));
 				$this->set('_name', $name);
 				if($this->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) > 0)
 				{
@@ -748,10 +748,10 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	 * the output code.
 	 *
 	 * @internal
-	 * @param Opt_Xml_Element $subitem The XML element.
+	 * @param Opt_Compiler_Class $compiler The compiler.
 	 * @return string
 	 */
-	protected function _linkAttributes()
+	protected function _linkAttributes(Opt_Compiler_Class $compiler)
 	{
 		// Links the attributes into the PHP code
 		if($this->hasAttributes() || $this->bufferSize(Opt_Xml_Buffer::TAG_BEGINNING_ATTRIBUTES) > 0 || $this->bufferSize(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES) > 0)
@@ -762,6 +762,13 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			// Link attributes into a string
 			foreach($attrList as $attribute)
 			{
+				// Skip OPT namespaces
+				if(($ns = $attribute->getNamespace()) !== null && $compiler->isNamespace($ns))
+				{
+					continue;
+				}
+
+				// Linking
 				$s = $attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_NAME);
 				switch($s)
 				{
