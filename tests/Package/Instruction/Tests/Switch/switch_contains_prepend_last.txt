@@ -1,0 +1,34 @@
+Testing the opt:switch instruction with the "Contains" handler and opt:prepend.
+
+>>>>templates/test.tpl
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:switch test="$value1">
+<opt:prepend to="last">Moo</opt:prepend>
+<opt:contains value="foo">Foo</opt:contains>
+<opt:contains value="bar">Bar</opt:contains>
+<opt:contains value="joe">Joe</opt:contains>
+<opt:contains value="goo">Goo</opt:contains>
+</opt:switch>
+
+<opt:switch test="$value2">
+<opt:prepend to="last">Moo</opt:prepend>
+<opt:contains value="foo">Foo</opt:contains>
+<opt:contains value="bar">Bar</opt:contains>
+<opt:contains value="joe">Joe</opt:contains>
+<opt:contains value="goo">Goo</opt:contains>
+</opt:switch>
+</opt:root>
+
+>>>>data.php
+$view->value1 = array('foo', 'joe');
+$view->value2 = array('bar', 'goo');
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+Foo
+MooJoe
+Bar
+MooGoo

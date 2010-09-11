@@ -48,6 +48,10 @@ class Package_Instruction_SwitchTest extends Extra_TestFSBase
 			array('Switch/switch_contains_basic.txt'),
 			array('Switch/switch_contains_nested.txt'),
 			array('Switch/switch_contains_attribute.txt'),
+			array('Switch/switch_contains_long.txt'),
+			array('Switch/switch_contains_complex.txt'),
+			array('Switch/switch_contains_prepend_basic.txt'),
+			array('Switch/switch_contains_prepend_last.txt'),
 		);
 	} // end dataProvider();
 

@@ -1,0 +1,28 @@
+Testing the opt:switch instruction with the "Contains" handler.
+
+>>>>templates/test.tpl
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<ul>
+<opt:switch test="$value1">
+<li opt:contains="foo">Foo</li>
+<li opt:contains="bar">Bar</li>
+<li>Always</li>
+<li opt:contains="joe">Joe</li>
+<li opt:contains="goo">Goo</li>
+</opt:switch>
+</ul>
+</opt:root>
+
+>>>>data.php
+$view->value1 = array('foo', 'joe');
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<ul>
+<li>Foo</li>
+<li>Always</li>
+<li>Joe</li>
+</ul>
