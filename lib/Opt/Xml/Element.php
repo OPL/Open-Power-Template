@@ -575,7 +575,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			}
 			else
 			{
-				throw new Opt_UnknownProcessor_Exception($this->getXmlName());
+				throw new Opt_Xml_Exception('Cannot locate an instruction processor for '.$this->getXmlName());
 			}
 		}
 	} // end postProcess();
@@ -639,7 +639,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			}
 			else
 			{
-				throw new Opt_CompilerCodeBufferConflict_Exception(1, 'TAG_NAME', $this->getXmlName());
+				throw new Opt_Xml_Exception('OPT-XML code buffer conflict: too many code snippets in buffer TAG_NAME of '.$this->getXmlName());
 			}
 			if(!$this->hasChildren() && $this->bufferSize(Opt_Xml_Buffer::TAG_CONTENT) == 0 && $this->get('single'))
 			{
