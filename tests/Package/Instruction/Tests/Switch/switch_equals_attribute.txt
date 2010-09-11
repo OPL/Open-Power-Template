@@ -1,0 +1,47 @@
+Testing the opt:switch instruction with attributed opt:equals.
+
+>>>>templates/test.tpl
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<!-- first switch -->
+<ul>
+<opt:switch test="$value1">
+<li opt:equals="foo">Foo</li>
+<li opt:equals="bar">Bar</li>
+<li opt:equals="joe">Joe</li>
+<li opt:equals="goo">Goo</li>
+</opt:switch>
+
+<!-- second switch -->
+<opt:switch test="$value2">
+<li opt:equals="foo">Foo</li>
+<li opt:equals="bar">Bar</li>
+<li opt:equals="joe">Joe</li>
+<li opt:equals="goo">Goo</li>
+</opt:switch>
+
+<!-- third switch -->
+<opt:switch test="$value3">
+<li opt:equals="foo">Foo</li>
+<li opt:equals="bar">Bar</li>
+<li opt:equals="joe">Joe</li>
+<li opt:equals="goo">Goo</li>
+</opt:switch>
+</ul>
+
+</opt:root>
+
+>>>>data.php
+$view->value1 = 'bar';
+$view->value2 = 'foo';
+$view->value3 = 'goo';
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<ul>
+<li>Bar</li>
+<li>Foo</li>
+<li>Goo</li>
+</ul>
