@@ -121,7 +121,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	 */
 	public function getXmlName()
 	{
-		if(is_null($this->_namespace))
+		if($this->_namespace === null)
 		{
 			return $this->_name;
 		}
@@ -348,7 +348,10 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 
 	/**
 	 * This function is executed by the compiler before the second compilation stage,
-	 * processing. It migrates syntax from OPT 2.0 to OPT 2.1
+	 * processing. It allows to perform some syntactic migrations from OPT 2.0 to 2.1.
+	 *
+	 * @internal
+	 * @param Opt_Compiler_Class $compiler Compiler class
 	 */
 	public function preMigrate(Opt_Compiler_Class $compiler)
 	{
@@ -447,38 +450,13 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * This function is executed by the compiler during the second compilation stage,
 	 * processing, after processing the child nodes.
+	 *
+	 * @internal
+	 * @param Opt_Compiler_Class $compiler Compiler class
 	 */
 	public function postMigrate(Opt_Compiler_Class $compiler)
 	{
-		/*
-		if(sizeof($this->_postprocess) > 0)
-		{
-			$this->_postprocessXml($compiler);
-		}
-		$this->_postprocess = null;
-
-		if($this->get('postprocess'))
-		{
-			if(!is_null($processor = $compiler->isInstruction($this->getXmlName())))
-			{
-				$processor->postprocessNode($this);
-			}
-			elseif($compiler->isComponent($this->getXmlName()))
-			{
-				$processor = $compiler->processor('component');
-				$processor->postprocessComponent($this);
-			}
-			elseif($compiler->isBlock($this->getXmlName()))
-			{
-				$processor = $compiler->processor('block');
-				$processor->postprocessBlock($this);
-			}
-			else
-			{
-				throw new Opt_UnknownProcessor_Exception($this->getXmlName());
-			}
-		}
-		*/
+		/* null */
 	} // end postMigrate();
 
 	/**
@@ -544,6 +522,9 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * This function is executed by the compiler during the second compilation stage,
 	 * processing, after processing the child nodes.
+	 *
+	 * @internal
+	 * @param Opt_Compiler_Class $compiler Compiler class
 	 */
 	public function postProcess(Opt_Compiler_Class $compiler)
 	{
@@ -583,6 +564,9 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * This function is executed by the compiler during the third compilation stage,
 	 * linking.
+	 *
+	 * @internal
+	 * @param Opt_Compiler_Class $compiler Compiler class
 	 */
 	public function preLink(Opt_Compiler_Class $compiler)
 	{
@@ -610,24 +594,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 		}
 		else
 		{
-			// This code is executed for normal tags that must be rendered.
-			// The first thing is to check if we are a root node, because we must add the "xmlns"
-			// attributes there.
-		/*	if($this->get('rootNode') === true)
-			{
-				if(!$this->getParent() instanceof Opt_Xml_Root)
-				{
-					throw new Opt_APIInvalidParent_Exception($this->getType(), $this->getParent()->getType(), 'Opt_Xml_Root');
-				}
-				foreach($this->getParent()->getNamespaces() as $prefix => $uri)
-				{
-					$newAttr = new Opt_Xml_Attribute($prefix, $uri);
-					$newAttr->setNamespace('xmlns');
-					$this->addAttribute($newAttr);
-				}
-			} */
-
-			// Now construct the output code...
+			// Handling the renderable elements.
 			$compiler->appendOutput($this->buildCode(Opt_Xml_Buffer::TAG_BEFORE, Opt_Xml_Buffer::TAG_OPENING_BEFORE));
 			if($this->bufferSize(Opt_Xml_Buffer::TAG_NAME) == 0)
 			{
@@ -665,6 +632,9 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	/**
 	 * This function is executed by the compiler during the third compilation stage,
 	 * linking, after linking the child nodes.
+	 *
+	 * @internal
+	 * @param Opt_Compiler_Class $compiler Compiler class
 	 */
 	public function postLink(Opt_Compiler_Class $compiler)
 	{
