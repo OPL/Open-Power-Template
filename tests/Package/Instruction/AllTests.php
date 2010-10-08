@@ -31,7 +31,7 @@ require_once('PrologTest.php');
 require_once('RepeatTest.php');
 //require_once('RootTest.php');
 require_once('SectionTest.php');
-//require_once('SelectorTest.php');
+require_once('SelectorTest.php');
 //require_once('ShowTest.php');
 //require_once('SingleTest.php');
 require_once('SnippetTest.php');
@@ -73,7 +73,7 @@ class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
 		$suite->addTestSuite('Package_Instruction_RepeatTest');
 		//$suite->addTestSuite('Package_Instruction_RootTest');
 		$suite->addTestSuite('Package_Instruction_SectionTest');
-		//$suite->addTestSuite('Package_Instruction_SelectorTest');
+		$suite->addTestSuite('Package_Instruction_SelectorTest');
 		//$suite->addTestSuite('Package_Instruction_ShowTest');
 		//$suite->addTestSuite('Package_Instruction_SingleTest');
 		$suite->addTestSuite('Package_Instruction_SnippetTest');
