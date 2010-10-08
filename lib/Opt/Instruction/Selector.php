@@ -216,7 +216,7 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
 		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
 
-		$section['format']->assign('item', $section['test']);
+		$section['format']->assign('item', isset($section['test']) ? $section['test'] : 'item');
 
 		$switchProcessor = $this->_compiler->processor('switch');
 
@@ -224,6 +224,7 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 		$switchProcessor->createSwitch($node, $section['format']->get('section:variable'), Opt_Instruction_Switch::INGORE_TOP_LEVEL_OPT_TAGS);
 		$switchProcessor->detach();
 
+		$node->set('hidden', false);
 		$attr->set('postprocess', true);
 	} // end _processAttrSelector();
 
