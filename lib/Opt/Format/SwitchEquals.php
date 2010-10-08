@@ -97,7 +97,7 @@ class Opt_Format_SwitchEquals extends Opt_Format_Abstract
 			case 'switch:enterTestEnd.later':
 				return ' } ';
 			case 'switch:testsBefore':
-				$code = $this->_stateInitializer.' switch($__test) { ';
+				$code = $this->_stateInitializer.' $__state_'.self::$_counter.' = null; switch($__test) { ';
 				$this->_stateInitializer = '';
 				return $code;
 			case 'switch:testsAfter':
