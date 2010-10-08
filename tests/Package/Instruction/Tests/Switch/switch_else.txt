@@ -1,4 +1,4 @@
-"opt:else" in "opt:switch" should be activated, if no handler
+"opt:default" in "opt:switch" should be activated, if no handler
 agrees to process the test.
 
 >>>>templates/test.tpl
@@ -10,7 +10,7 @@ agrees to process the test.
 <opt:equals value="bar">Bar</opt:equals>
 <opt:equals value="joe">Joe</opt:equals>
 <opt:equals value="goo">Goo</opt:equals>
-<opt:else>NO HANDLER</opt:else>
+<opt:default>NO HANDLER</opt:default>
 </opt:switch>
 
 <!-- second switch -->
@@ -19,7 +19,7 @@ agrees to process the test.
 <opt:equals value="bar">Bar</opt:equals>
 <opt:equals value="joe">Joe</opt:equals>
 <opt:equals value="goo">Goo</opt:equals>
-<opt:else>NO HANDLER</opt:else>
+<opt:default>NO HANDLER</opt:default>
 </opt:switch>
 
 </opt:root>
