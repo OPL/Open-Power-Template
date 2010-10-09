@@ -447,7 +447,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 					// Check if any section with the specified name exists.
 					$sectionName = $this->_compiler->convert($item);
 
-					if(($section = $proc->getSection($sectionName)) !== null)
+					if(($section = Opt_Instruction_Section_Abstract::getSection($sectionName)) !== null)
 					{
 						$path = $sectionName;
 						$state['section'] = $section;
@@ -458,7 +458,6 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 							$hook = 'section:item'.$this->_dfCalls[$context];
 							if(!$section['format']->property($hook))
 							{
-								var_dump($hook);
 								throw new Opt_Format_Exception('The operation '.$hook.' is not supported by format '.$section['format']->getName());
 							}
 							$section['format']->assign('value', $contextInfo[0]);
