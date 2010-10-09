@@ -55,6 +55,7 @@ class Package_Instruction_SectionTest extends Extra_TestFSBase
 			array('Section/section_if_coop.txt'),
 			array('Section/section_display.txt'),
 			array('Section/section_special_var.txt'),
+			array('Section/section_attribute_separators.txt'),
 		);
 	} // end dataProvider();
 
