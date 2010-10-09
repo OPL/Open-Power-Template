@@ -80,6 +80,13 @@ abstract class Opt_Instruction_Abstract
 	private $_ambiguous = array();
 
 	/**
+	 * The linked processor, where the actual processing nodes are redirected.
+	 * @internal
+	 * @var Opt_Instruction_Abstract
+	 */
+	private $_linkedProcessor = null;
+
+	/**
 	 * Creates a new instruction processor for the specified compiler.
 	 *
 	 * @param Opt_Compiler_Class $compiler The compiler object.
@@ -120,6 +127,27 @@ abstract class Opt_Instruction_Abstract
 	{
 		/* null */
 	} // end reset();
+
+	/**
+	 * Attaches this instruction processor to another one, so that our nodes
+	 * redirected to processing are redirected to that processor. This is
+	 * useful, where we want to use some API methods provided by other
+	 * processors.
+	 * 
+	 * @param Opt_Instruction_Abstract $linkedProcessor
+	 */
+	public function attach(Opt_Instruction_Abstract $linkedProcessor)
+	{
+		$this->_linkedProcessor = $linkedProcessor;
+	} // end attach();
+
+	/**
+	 * Detaches the linked processor.
+	 */
+	public function detach()
+	{
+		$this->_linkedProcessor = null;
+	} // end detach();
 
 	/**
 	 * This method is called automatically for each XML element that the
@@ -292,15 +320,21 @@ abstract class Opt_Instruction_Abstract
 	 */
 	final protected function _process(Opt_Xml_Node $node)
 	{
-		if($this->_queue === null)
+		$proc = $this;
+		if($this->_linkedProcessor !== null)
 		{
-			$this->_queue = new SplQueue;
+			$proc = $this->_linkedProcessor;
+		}
+
+		if($proc->_queue === null)
+		{
+			$proc->_queue = new SplQueue;
 		}
 		if($node->hasChildren())
 		{
 			foreach($node as $child)
 			{
-				$this->_queue->enqueue($child);
+				$proc->_queue->enqueue($child);
 			}
 		}
 	} // end _process();
@@ -313,11 +347,17 @@ abstract class Opt_Instruction_Abstract
 	 */
 	final protected function _enqueue(Opt_Xml_Node $node)
 	{
-		if($this->_queue === null)
+		$proc = $this;
+		if($this->_linkedProcessor !== null)
 		{
-			$this->_queue = new SplQueue;
+			$proc = $this->_linkedProcessor;
 		}
-		$this->_queue->enqueue($node);
+
+		if($proc->_queue === null)
+		{
+			$proc->_queue = new SplQueue;
+		}
+		$proc->_queue->enqueue($node);
 	} // end _enqueue();
 
 	/**

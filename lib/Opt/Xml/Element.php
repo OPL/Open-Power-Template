@@ -471,7 +471,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 			$this->_processXml($compiler, false);
 
 			// Look for the processor
-			if($compiler->hasAmbiguous($this->getXmlName()))
+			if($compiler->hasAmbiguous($name))
 			{
 				$processor = $this->get('priv:ambiguous');
 				$processor->processNode($this);
@@ -510,11 +510,15 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 		}
 		else
 		{
-			$this->_processXml($compiler, true);
+			$queues = $this->_processXml($compiler, true);
 			$this->set('hidden', false);
 			if($this->hasChildren())
 			{
-				$compiler->setChildren($this);
+				$queues[] = $this;
+			}
+			if(sizeof($queues) > 0)
+			{
+				$compiler->setChildren($queues);
 			}
 		}
 	} // end preProcess();
@@ -674,6 +678,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 		$attributes = $this->getAttributes();
 		$this->_postprocess = array();
 		$opt = Opl_Registry::get('opt');
+		$queues = array();
 
 		// Look for special OPT attributes
 		foreach($attributes as $attr)
@@ -688,6 +693,11 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 					{
 						$this->_postprocess[] = array($processor, $attr);
 					}
+					$queue = $processor->getQueue();
+					if(count($queue) > 0)
+					{
+						$queues[] = $queue;
+					}
 				}
 				$this->removeAttribute($xml);
 			}
@@ -696,6 +706,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 				$compiler->compileAttribute($attr);
 			}
 		}
+		return $queues;
 	} // end _processXml();
 
 	/**

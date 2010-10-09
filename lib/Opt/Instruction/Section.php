@@ -248,7 +248,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 			$code .= $section['format']->get('section:startDescLoop');
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
-		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node, Opt_Instruction_Loop_Abstract::ATTRIBUTE_FORM);
 		$attr->set('postprocess', true);
 	} // end _processAttrSection();
 

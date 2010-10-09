@@ -2,10 +2,10 @@ The test checks the opt:selector attribute.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <div opt:selector="sect">
-<opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
-<opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
+<opt:equals value="foo">FOO: {$sect.val1},{$sect.val2}</opt:equals>
+<opt:equals value="bar">BAR: {$sect.val1},{$sect.val2}</opt:equals>
 </div>
 </opt:root>
 
