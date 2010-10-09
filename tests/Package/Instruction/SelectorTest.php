@@ -47,6 +47,7 @@ class Package_Instruction_SelectorTest extends Extra_TestFSBase
 			array('Selector/selector_multiple_else.txt'),
 			array('Selector/selector_separator.txt'),
 			array('Selector/selector_attribute.txt'),
+			array('Selector/selector_attribute_separator.txt'),
 		);
 	} // end dataProvider();
 

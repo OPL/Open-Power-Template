@@ -123,13 +123,18 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 			$code = $section['format']->get('section:startDescLoop');
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
-		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+		$separator = $this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
 
 		// Before processing, store opt:else in some safe place.
 		$results = $node->getElementsByTagNameNS('opt', 'else', false);
 		if(sizeof($results) > 0)
 		{
 			$node->removeChild($results[0]);
+		}
+		if($separator !== null)
+		{
+			$this->_enqueue($separator);
+			$node->removeChild($separator);
 		}
 
 		// Process opt:switch
@@ -144,13 +149,12 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 			$node->appendChild($results[0]);
 			$this->_enqueue($results[0]);
 		}
-
-	//	$this->_internalMagic($node, $section, 0);
-
-	//	$this->_sortSectionContents($node, 'opt', 'selectorelse');
+		if($separator !== null)
+		{
+			$node->insertBefore($separator, 0);
+		}
 
 		$node->set('postprocess', true);
-	//	$this->_process($node);
 	} // end _processSelector();
 
 	/**
@@ -214,8 +218,17 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 			$code .= $section['format']->get('section:startDescLoop');
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
-		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+		$separator = $this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node, Opt_Instruction_Loop_Abstract::ATTRIBUTE_FORM);
 
+		// Before processing, store opt:separator in some warm and dry place.
+	/*	if($separator !== null)
+		{
+			$this->_enqueue($separator);
+			$node->removeChild($separator);
+		}
+	 */
+
+		// Process opt:switch
 		$section['format']->assign('item', isset($section['test']) ? $section['test'] : 'item');
 
 		$switchProcessor = $this->_compiler->processor('switch');
@@ -224,6 +237,12 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 		$switchProcessor->createSwitch($node, $section['format']->get('section:variable'), Opt_Instruction_Switch::INGORE_TOP_LEVEL_OPT_TAGS);
 		$switchProcessor->detach();
 
+		// Restore separators
+/*		if($separator !== null)
+		{
+			$node->insertBefore($separator, 0);
+		}
+*/
 		$node->set('hidden', false);
 		$attr->set('postprocess', true);
 	} // end _processAttrSelector();
