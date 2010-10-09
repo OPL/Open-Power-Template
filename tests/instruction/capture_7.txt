@@ -1,0 +1,14 @@
+$system.capture without the captured block name should generate an exception.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root>
+{@foo is 5}
+<opt:capture as="capt">
+FOO: {@foo}
+</opt:capture>
+{$system.capture}
+</opt:root>
+
+>>>>expected.txt
+Opt_SysVariableUnknown_Exception

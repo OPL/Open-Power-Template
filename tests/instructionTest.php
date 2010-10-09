@@ -87,6 +87,8 @@
 				array('capture_3.txt'),
 				array('capture_4.txt'),
 				array('capture_5.txt'),
+				array('capture_6.txt'),
+				array('capture_7.txt'),
 				array('component_1.txt'),
 				array('component_2.txt'),
 				array('component_3.txt'),
