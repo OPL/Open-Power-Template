@@ -11,15 +11,37 @@
  *
  */
 
+	/**
+	 * The processor for opt:root instruction and its features.
+	 *
+	 * @author Tomasz Jędrzejewski
+	 * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+	 * @license http://www.invenzzia.org/license/new-bsd New BSD License
+	 */
 	class Opt_Instruction_Root extends Opt_Compiler_Processor
 	{
+		/**
+		 * The instruction processor name - required by the instruction API.
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'root';
-		
+
+		/**
+		 * Configures the instruction processor, registering the tags and
+		 * attributes.
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:root'));
 		} // end configure();
-	
+
+		/**
+		 * Processes the opt:root node.
+		 * @internal
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			if($node->getParent()->getType() != 'Opt_Xml_Root')
@@ -34,12 +56,12 @@
 			);
 			$this->_extractAttributes($node, $params);
 			
-			if(!is_null($params['include']))
+			if($params['include'] !== null)
 			{
 				$file = $params['include'];
 				if($params['dynamic'])
 				{
-					if(is_null($file = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
+					if(null === ($file = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
 					{
 						$file = $params['include'];
 					}
@@ -50,7 +72,7 @@
 				$this->_compiler->importDependencies($compiler);
 			}
 			
-			if(!is_null($params['escaping']))
+			if($params['escaping'] !== null)
 			{
 				$this->_compiler->set('escaping', $params['escaping']);
 			}

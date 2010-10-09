@@ -11,20 +11,48 @@
  *
  */
 
+	/**
+	 * The processor for opt:extend instruction.
+	 *
+	 * This instruction is partially hard-coded inside the compiler, because
+	 * it would be too hard to perform all the necessary operations from this
+	 * particular level. See: Opt_Compiler_Class::_addDependencies() to get
+	 * more details.
+	 *
+	 * @author Tomasz Jędrzejewski
+	 * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+	 * @license http://www.invenzzia.org/license/new-bsd New BSD License
+	 */
 	class Opt_Instruction_Extend extends Opt_Compiler_Processor
 	{
+		/**
+		 * The instruction processor name - required by the instruction API.
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'extend';
-		
+
+		/**
+		 * Configures the instruction processor, registering the tags and
+		 * attributes.
+		 * @internal
+		 */
 		public function configure()
 		{
 			/* IMPORTANT NOTICE: This instruction is partially hard-coded inside the compiler, because
 			 * 	it would be to hard to do what it is intented to do from this level. See: _generateExtend()
 			 * in "Internal tools and utilities" of /opt/compiler/class.php
 			 */
-		
 			$this->_addInstructions(array('opt:extend'));
 		} // end configure();
-	
+
+		/**
+		 * Processes the opt:extend node.
+		 *
+		 * @internal
+		 * @throws Opt_Instruction_Exception
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			if($node->getParent()->getType() != 'Opt_Xml_Root')
@@ -41,12 +69,12 @@
 
 			$branches = $this->_extractAttributes($node, $params);
 			
-			if(!is_null($params['escaping']))
+			if($params['escaping'] !== null)
 			{
 				$this->_compiler->set('escaping', $params['escaping']);
 			}
 
-			if($params['dynamic'] && !is_null($branch = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
+			if($params['dynamic'] && null !== ($branch = $this->_compiler->inherits($this->_compiler->get('currentTemplate'))))
 			{
 			}
 			elseif(isset($branches[$this->_compiler->get('branch')]))
@@ -62,7 +90,15 @@
 			$node->set('postprocess', true);
 			$this->_process($node);
 		} // end processNode();
-		
+
+		/**
+		 * Finishes the processing of the opt:extend node. In this particular
+		 * case it handles the support of snippet extending, where the snippets
+		 * need to be scanned AFTER they are actually loaded.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
 			if($this->_compiler->processor('snippet')->isSnippet($node->get('branch')))

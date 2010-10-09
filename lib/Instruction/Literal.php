@@ -11,15 +11,37 @@
  *
  */
 
+	/**
+	 * The processor for opt:literal instruction.
+	 *
+	 * @author Tomasz Jędrzejewski
+	 * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+	 * @license http://www.invenzzia.org/license/new-bsd New BSD License
+	 */
 	class Opt_Instruction_Literal extends Opt_Compiler_Processor
 	{
+		/**
+		 * The instruction processor name - required by the instruction API.
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'literal';
-		
+
+		/**
+		 * Configures the instruction processor, registering the tags and
+		 * attributes.
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:literal'));
 		} // end configure();
-	
+
+		/**
+		 * Processes the opt:literal node.
+		 * @internal
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(

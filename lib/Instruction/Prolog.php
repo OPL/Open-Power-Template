@@ -11,15 +11,37 @@
  *
  */
 
+	/**
+	 * The XML prolog generator.
+	 *
+	 * @author Tomasz Jędrzejewski
+	 * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+	 * @license http://www.invenzzia.org/license/new-bsd New BSD License
+	 */
 	class Opt_Instruction_Prolog extends Opt_Compiler_Processor
 	{
+		/**
+		 * The instruction processor name - required by the instruction API.
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'prolog';
-		
+
+		/**
+		 * Configures the instruction processor, registering the tags and
+		 * attributes.
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:prolog'));
 		} // end configure();
-	
+
+		/**
+		 * Processes the opt:prolog node.
+		 * @internal
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -35,15 +57,16 @@
 				$root = $tmp;
 			}
 
-			if(is_null($params['version']))
+			// Set the default values.
+			if($params['version'] === null)
 			{
 				$params['version'] = '\'1.0\'';
 			}
-			if(is_null($params['standalone']))
+			if($params['standalone'] === null)
 			{
 				$params['standalone'] = '\'yes\'';
 			}
-			if(is_null($params['encoding']))
+			if($params['encoding'] === null)
 			{
 				unset($params['encoding']);
 			}

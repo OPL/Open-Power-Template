@@ -11,17 +11,44 @@
  *
  */
 
+	/**
+	 * Processes the opt:put instruction.
+	 *
+	 * @author Tomasz Jędrzejewski
+	 * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+	 * @license http://www.invenzzia.org/license/new-bsd New BSD License
+	 */
 	class Opt_Instruction_Put extends Opt_Compiler_Processor
 	{
+		/**
+		 * The instruction processor name - required by the instruction API.
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'put';
+		/**
+		 * The opt:content nesting level used to generate unique variable names.
+		 * @internal
+		 * @var integer
+		 */
 		protected $_nesting = 0;
-		
+
+		/**
+		 * Configures the instruction processor, registering the tags and
+		 * attributes.
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:put'));
 			$this->_addAttributes(array('opt:content'));
 		} // end configure();
-		
+
+		/**
+		 * Processes the opt:put node.
+		 * @internal
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -32,7 +59,13 @@
 			$node->set('single', false);
 			$node->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' echo '.$params['value'].'; ');
 		} // end processNode();
-		
+
+		/**
+		 * Processes the opt:content attribute.
+		 * @internal
+		 * @param Opt_Xml_Node $node The node with the attribute
+		 * @param Opt_Xml_Attribute $attr The recognized attribute.
+		 */
 		public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
 			$result = $this->_compiler->compileExpression($attr->getValue(), false, Opt_Compiler_Class::ESCAPE_BOTH);
@@ -52,6 +85,12 @@
 			$attr->set('postprocess', true);
 		} // end processAttribute();
 
+		/**
+		 * Finishes the processing of the opt:content attribute.
+		 * @internal
+		 * @param Opt_Xml_Node $node The node with the attribute
+		 * @param Opt_Xml_Attribute $attr The recognized attribute.
+		 */
 		public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
 			$this->_nesting--;
