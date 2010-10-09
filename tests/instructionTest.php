@@ -213,6 +213,7 @@
 				array('selector_6.txt'),
 				array('selector_7.txt'),
 				array('selector_8.txt'),
+				array('selector_9.txt'),
 				array('show_1.txt'),
 				array('show_2.txt'),
 				array('show_3.txt'),
