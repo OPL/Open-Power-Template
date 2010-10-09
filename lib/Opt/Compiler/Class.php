@@ -706,7 +706,7 @@ class Opt_Compiler_Class
 	 */
 	public function isIdentifier($id)
 	{
-		return preg_match('/[A-Za-z]([A-Za-z0-9.\_]|\-)*/si', $id);
+		return preg_match('/^[A-Za-z]([A-Za-z0-9.\_]|\-)*$/si', $id);
 	} // end isIdentifier();
 
 	/**
