@@ -4,8 +4,6 @@
  * ------------------------------------
  * This test checks the correctness of the data formats implemented in OPT 2.
  */
-	require_once('PHPUnit/Framework.php');
-
 	if(!defined('GROUPED'))
 	{
 		define('FEAT_DIR', './format/');

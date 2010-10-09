@@ -4,8 +4,6 @@
  * ------------------------------------
  * These tests check whether the XML tree API works properly.
  */
-	require_once('PHPUnit/Framework.php');
-
 	if(version_compare(phpversion(), '5.3.0-dev', '<'))
 	{
 		die("This test suite requires at least PHP 5.3.0. Your version: ".phpversion()."\r\n");

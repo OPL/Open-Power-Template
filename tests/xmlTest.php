@@ -4,8 +4,6 @@
  * ------------------------------------
  * This test checks how the XML files are parsed by OPT.
  */
-	require_once('PHPUnit/Framework.php');
-
 	if(!defined('GROUPED'))
 	{
 		define('XML_DIR', './xml/');

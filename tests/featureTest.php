@@ -5,8 +5,6 @@
  * This test checks other syntax features that are not necessarily instructions, but
  * may be related to them.
  */
-	require_once('PHPUnit/Framework.php');
-
 	if(!defined('GROUPED'))
 	{
 		define('FEAT_DIR', './feature/');

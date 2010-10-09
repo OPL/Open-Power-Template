@@ -5,8 +5,6 @@
  * This test checks the functions available with OPT.
  * 
  */
-	require_once('PHPUnit/Framework.php');
-
 	if(!defined('GROUPED'))
 	{
 		define('FEAT_DIR', './function/');

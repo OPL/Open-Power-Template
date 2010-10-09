@@ -8,8 +8,6 @@
  * 
  * The testing procedure also checks the OPT manual.
  */
-	require_once('PHPUnit/Framework.php');
-
 	define('M_PUBLIC', 1);
 	define('M_PROTECTED', 2);
 	define('M_STATIC', 4);

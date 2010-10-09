@@ -5,8 +5,6 @@
  * This unit test suite checks the features provided by the API that cannot
  * be checked in the other way or do not belong to any other category.
  */
-	require_once('PHPUnit/Framework.php');
-
 	if(!defined('GROUPED'))
 	{
 		define('INS_DIR', './instruction/');

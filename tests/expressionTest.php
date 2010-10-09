@@ -1,7 +1,4 @@
 <?php
-
-	require_once('PHPUnit/Framework.php');
-
 	if(!defined('GROUPED'))
 	{
 		$config = parse_ini_file('../paths.ini', true);
