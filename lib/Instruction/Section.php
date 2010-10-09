@@ -11,16 +11,38 @@
  *
  */
 
+	/**
+	 * The processor for the classic sections.
+	 *
+	 * @author Tomasz Jędrzejewski
+	 * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+	 * @license http://www.invenzzia.org/license/new-bsd New BSD License
+	 */
 	class Opt_Instruction_Section extends Opt_Instruction_BaseSection
 	{
+		/**
+		 * The processor name - required by the instruction API
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'section';
-		
+
+		/**
+		 * Configures the instruction processor, registering the tags and
+		 * attributes.
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions(array('opt:section', 'opt:sectionelse', 'opt:show', 'opt:showelse'));
 			$this->_addAttributes('opt:section');
 		} // end configure();
 
+		/**
+		 * Processes the opt:section tag.
+		 * @internal
+		 * @param Opt_Xml_Element $node The recognized node.
+		 */
 		protected function _processSection(Opt_Xml_Element $node)
 		{
 			$section = $this->_sectionCreate($node);
@@ -42,7 +64,12 @@
 			$node->set('postprocess', true);
 			$this->_process($node);
 		} // end _processSection();
-		
+
+		/**
+		 * Finishes the processing of the opt:section tag.
+		 * @internal
+		 * @param Opt_Xml_Element $node The recognized element.
+		 */
 		protected function _postprocessSection(Opt_Xml_Element $node)
 		{
 			$section = self::getSection($node->get('priv:section'));
@@ -52,7 +79,13 @@
 				$this->_sectionEnd($node);
 			}
 		} // end _postprocessSection();
-		
+
+		/**
+		 * Processes the opt:showelse tag for opt:show.
+		 * @internal
+		 * @param Opt_Xml_Element $node The recognized element.
+		 * @param Opt_Xml_Element $parent The parent of recognized element element.
+		 */
 		protected function _processShowelse(Opt_Xml_Element $node)
 		{
 			$parent = $node->getParent();
@@ -68,6 +101,12 @@
 			}
 		} // end _processShowelse();
 
+		/**
+		 * Processes the opt:sectionelse element.
+		 *
+		 * @internal
+		 * @param Opt_Xml_Element $node The recognized element.
+		 */
 		protected function _processSectionelse(Opt_Xml_Element $node)
 		{
 			$parent = $node->getParent();
@@ -91,7 +130,13 @@
 				throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:section');
 			}
 		} // end _processSectionelse();
-		
+
+		/**
+		 * Processes the attribute form of opt:section.
+		 * @internal
+		 * @param Opt_Xml_Node $node The node the section is appended to
+		 * @param Opt_Xml_Attribute $attr The section attribute
+		 */
 		protected function _processAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
 			$section = $this->_sectionCreate($node, $attr);
@@ -109,7 +154,13 @@
 			$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node, Opt_Instruction_Loop::ATTRIBUTE_FORM);
 			$attr->set('postprocess', true);
 		} // end _processAttrSection();
-		
+
+		/**
+		 * Finishes the processing of attribute form of opt:section.
+		 * @internal
+		 * @param Opt_Xml_Node $node The node the section is appended to
+		 * @param Opt_Xml_Attribute $attr The section attribute
+		 */
 		protected function _postprocessAttrSection(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 		{
 			$section = self::getSection($node->get('priv:section'));

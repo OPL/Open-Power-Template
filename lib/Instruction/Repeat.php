@@ -11,16 +11,44 @@
  *
  */
 
+	/**
+	 * Processes the opt:repeat instruction.
+	 *
+	 * @author Tomasz Jędrzejewski
+	 * @copyright Invenzzia Group <http://www.invenzzia.org/> and contributors.
+	 * @license http://www.invenzzia.org/license/new-bsd New BSD License
+	 */
 	class Opt_Instruction_Repeat extends Opt_Instruction_Loop
 	{
+		/**
+		 * The instruction processor name - required by the instruction API.
+		 * @internal
+		 * @var string
+		 */
 		protected $_name = 'repeat';
+
+		/**
+		 * The opt:repeat nesting level used to generate unique variable names.
+		 * @internal
+		 * @var integer
+		 */
 		protected $_nesting = 0;
-		
+
+		/**
+		 * Configures the instruction processor, registering the tags and
+		 * attributes.
+		 * @internal
+		 */
 		public function configure()
 		{
 			$this->_addInstructions('opt:repeat');
 		} // end configure();
-	
+
+		/**
+		 * Processes the opt:root node.
+		 * @internal
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function processNode(Opt_Xml_Node $node)
 		{
 			$params = array(
@@ -38,12 +66,25 @@
 			$node->set('postprocess', true);
 			$this->_process($node);
 		} // end processNode();
-		
+
+		/**
+		 * Finishes the processing of the opt:root node.
+		 * @internal
+		 * @param Opt_Xml_Node $node The recognized node.
+		 */
 		public function postprocessNode(Opt_Xml_Node $node)
 		{
 			$this->_nesting--;
 		} // end postprocessNode();
-		
+
+		/**
+		 * A hook to the $system special variable. Returns the
+		 * compiled PHP code for the call.
+		 *
+		 * @internal
+		 * @param array $namespace The namespace to parse
+		 * @return string
+		 */
 		public function processSystemVar($namespace)
 		{
 			if(!isset($namespace[2]))
