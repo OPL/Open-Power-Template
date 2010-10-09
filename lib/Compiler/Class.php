@@ -1080,7 +1080,10 @@
 
 		/**
 		 * Looks for special OPT attributes in the element attribute list and
-		 * processes them. Returns the list of nodes that need to be postprocessed.
+		 * processes them. Returns a pair consisting of:
+		 *  - the list of nodes that need to be postprocessed.
+		 *  - the nodes redirected to process by the attribute instruction
+		 *    processors.
 		 *
 		 * @internal
 		 * @param Opt_Xml_Element $node The scanned element.
@@ -1091,10 +1094,11 @@
 		{
 			if(!$node->hasAttributes())
 			{
-				return array();
+				return array(array(), null);
 			}
 			$attributes = $node->getAttributes();
 			$pp = array();
+			$queues = array();
 
 			// Look for special OPT attributes
 			foreach($attributes as $attr)
@@ -1127,12 +1131,17 @@
 								{
 									$pp[] = array($this->_attributes[$xml], $attr);
 								}
+								$result = $this->_attributes[$xml]->getQueue();
+								if($result !== null)
+								{
+									$queues[] = $result;
+								}
 							}
 							$node->removeAttribute($xml);
 					}
 				}
 			}
-			return $pp;
+			return array($pp, $queues);
 		} // end _processXml();
 
 		/**
@@ -1911,7 +1920,7 @@
 							if($this->isNamespace($item->getNamespace()))
 							{
 								$name = $item->getXmlName();
-								$pp = $this->_processXml($item, false);
+								list($pp, $queues) = $this->_processXml($item, false);
 
 								// Look for the processor
 								if(!is_null($processor = $this->isInstruction($name)))
@@ -1956,16 +1965,27 @@
 							}
 							else
 							{
-								$pp = $this->_processXml($item, true);
+								list($pp, $queues) = $this->_processXml($item, true);
 								$stateSet and $item->set('hidden', false);
+								// Send the children to further processing.
 								if($item->hasChildren())
+								{
+									$queues[] = $item;
+								}
+								// This piece of code enqueues both the nodes reported
+								// by the attribute instruction processors, and the
+								// node children.
+								if(sizeof($queues) > 0)
 								{
 									$stack->push(array($item, $queue, $pp));
 									$pp = NULL;
 									$queue = new SplQueue;
-									foreach($item as $child)
+									foreach($queues as $queuedNodes)
 									{
-										$queue->enqueue($child);
+										foreach($queuedNodes as $child)
+										{
+											$queue->enqueue($child);
+										}
 									}
 									continue 2;
 								}
