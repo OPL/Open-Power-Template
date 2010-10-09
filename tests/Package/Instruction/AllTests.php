@@ -11,7 +11,7 @@
 //require_once('AttributeTest.php');
 //require_once('AttributesBuildTest.php');
 require_once('BlockTest.php');
-//require_once('CaptureTest.php');
+require_once('CaptureTest.php');
 require_once('ComponentTest.php');
 require_once('ContentTest.php');
 require_once('DtdTest.php');
@@ -53,7 +53,7 @@ class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
 		//$suite->addTestSuite('Package_Instruction_AttributeTest');
 		//$suite->addTestSuite('Package_Instruction_AttributesBuildTest');
 		$suite->addTestSuite('Package_Instruction_BlockTest');
-		//$suite->addTestSuite('Package_Instruction_CaptureTest');
+		$suite->addTestSuite('Package_Instruction_CaptureTest');
 		$suite->addTestSuite('Package_Instruction_ComponentTest');
 		$suite->addTestSuite('Package_Instruction_ContentTest');
 		$suite->addTestSuite('Package_Instruction_DtdTest');

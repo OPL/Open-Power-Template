@@ -1,13 +1,13 @@
-Dynamically chosen capture parts and opt:insert - the captured part does not exist.
+Dynamically chosen capture parts and opt:use - the captured part does not exist.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 BAR
-<opt:insert captured="$captured" />
-<opt:insert captured="$captured">
+<opt:use captured="$captured" />
+<opt:use captured="$captured">
 <p>Default content</p>
-</opt:insert>
+</opt:use>
 </opt:root>
 
 >>>>data.php
