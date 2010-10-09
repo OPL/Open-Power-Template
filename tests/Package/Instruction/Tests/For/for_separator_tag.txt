@@ -1,9 +1,8 @@
-Test checks the basic iteration features.
+Test checks the cooperation of opt:for and separators.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<!-- Print numbers from 0 to 9 with attributed separator -->
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:for begin="@i is 0" while="@i lt 10" iterate="@i++">
 <opt:separator>::</opt:separator>
 {@i}
