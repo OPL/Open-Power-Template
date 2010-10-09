@@ -4,7 +4,7 @@ The test checks the opt:selector attribute.
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <opt:root>
 <div opt:selector="sect">
-<opt:selector>,</opt:selector>
+<opt:separator>,</opt:separator>
 <opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
 <opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
 </div>
