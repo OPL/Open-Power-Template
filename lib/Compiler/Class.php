@@ -91,7 +91,7 @@
 		private $_rModifiers = 'si';
 		private $_rXmlHeader = '/(\<\?xml.+\?\>)/msi';
 		private $_rProlog = '/\<\?xml(.+)\?\>|/msi';
-		private $_rEncodingName = '/[A-Za-z]([A-Za-z0-9.\_]|\-)*/si';
+		private $_rEncodingName = '/^[A-Za-z]([A-Za-z0-9.\_]|\-)*$/si';
 		
 		private $_rBacktickString = '`[^`\\\\]*(?:\\\\.[^`\\\\]*)*`';
 		private $_rSingleQuoteString = '\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'';

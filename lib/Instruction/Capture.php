@@ -72,7 +72,7 @@
 			}
 			else
 			{
-				throw new Opt_InvalidAttributeType_Exception('opt:capture', 'identifier');
+				throw new Opt_InvalidAttributeType_Exception('opt:capture', $node->getXmlName(), 'identifier');
 			}
 		} // end processAttribute();
 
