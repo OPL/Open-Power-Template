@@ -139,11 +139,16 @@ class Opt_Instruction_Capture extends Opt_Instruction_Abstract
 	 * allows a simple access to the captured codes.
 	 *
 	 * @internal
+	 * @throws Opt_Instruction_Exception
 	 * @param array $namespace The namespace to parse
 	 * @return string
 	 */
 	public function processSystemVar($opt)
 	{
+		if(!isset($opt[2]))
+		{
+			throw new Opt_Instruction_Exception('opt:capture error: missing the captured block name in the special call $system.capture.');
+		}
 		return 'self::$_capture[\''.$opt[2].'\']';
 	} // end processSystemVar();
 } // end Opt_Instruction_Capture;
