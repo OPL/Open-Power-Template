@@ -706,7 +706,7 @@ class Opt_Compiler_Class
 	 */
 	public function isIdentifier($id)
 	{
-		return preg_match('/[A-Za-z]([A-Za-z0-9.\_]|\-)*/si', $id);
+		return preg_match('/^[A-Za-z]([A-Za-z0-9.\_]|\-)*$/si', $id);
 	} // end isIdentifier();
 
 	/**
@@ -1239,7 +1239,7 @@ class Opt_Compiler_Class
 	/**
 	 * Sets the new node children queue used in stages 2 and 3 of the compilation.
 	 *
-	 * @param SplQueue|Opt_Xml_Scannable $children The children list.
+	 * @param SplQueue|Opt_Xml_Scannable|array $children The children list.
 	 */
 	public function setChildren($children)
 	{
@@ -1250,12 +1250,28 @@ class Opt_Compiler_Class
 				$this->_newQueue = $children;
 			}
 		}
-		else if($children instanceof Opt_Xml_Scannable)
+		elseif($children instanceof Opt_Xml_Scannable)
 		{
 			if($children->hasChildren() > 0)
 			{
 				$this->_newQueue = new SplQueue;
 				foreach($children as $child)
+				{
+					$this->_newQueue->enqueue($child);
+				}
+			}
+		}
+		elseif(is_array($children))
+		{
+			$notCreated = true;
+			foreach($children as $childList)
+			{
+				if(count($childList) > 0 && $notCreated)
+				{
+					$notCreated = false;
+					$this->_newQueue = new SplQueue;
+				}
+				foreach($childList as $child)
 				{
 					$this->_newQueue->enqueue($child);
 				}

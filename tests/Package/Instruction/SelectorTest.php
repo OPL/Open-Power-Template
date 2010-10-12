@@ -1,9 +1,9 @@
 <?php
 /**
- * The tests for opt:section instruction.
+ * The tests for opt:selector instruction.
  *
  * @author Tomasz "Zyx" Jędrzejewski
- * @copyright Copyright (c) 2009 Invenzzia Group
+ * @copyright Copyright (c) 2010 Invenzzia Group
  * @license http://www.invenzzia.org/license/new-bsd New BSD License
  */
 
@@ -15,10 +15,10 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Compiler_Format
  * @covers Opt_Compiler_Processor
  * @covers Opt_Instruction_Section_Abstract
- * @covers Opt_Instruction_Section
+ * @covers Opt_Instruction_Selector
  * @runTestsInSeparateProcesses
  */
-class Package_Instruction_SectionTest extends Extra_TestFSBase
+class Package_Instruction_SelectorTest extends Extra_TestFSBase
 {
 
 	/**
@@ -39,23 +39,15 @@ class Package_Instruction_SectionTest extends Extra_TestFSBase
 	public static function dataProvider()
 	{
 		return array(0 =>
-			array('Section/section_basic.txt'),
-			array('Section/section_else.txt'),
-			array('Section/section_else_body.txt'),
-			array('Section/section_else_multi.txt'),
-			array('Section/section_order.txt'),
-			array('Section/section_auto_relation.txt'),
-			array('Section/section_parent.txt'),
-			array('Section/section_parent_complex.txt'),
-			array('Section/section_parent_complex2.txt'),
-			array('Section/section_from.txt'),
-			array('Section/section_from_dataformat.txt'),
-			array('Section/section_datasource.txt'),
-			array('Section/section_datasource_nested.txt'),
-			array('Section/section_if_coop.txt'),
-			array('Section/section_display.txt'),
-			array('Section/section_special_var.txt'),
-			array('Section/section_attribute_separators.txt'),
+			array('Selector/selector_basic.txt'),
+			array('Selector/selector_test.txt'),
+			array('Selector/selector_show.txt'),
+			array('Selector/selector_show_test.txt'),
+			array('Selector/selector_else.txt'),
+			array('Selector/selector_multiple_else.txt'),
+			array('Selector/selector_separator.txt'),
+			array('Selector/selector_attribute.txt'),
+			array('Selector/selector_attribute_separator.txt'),
 		);
 	} // end dataProvider();
 
@@ -67,4 +59,4 @@ class Package_Instruction_SectionTest extends Extra_TestFSBase
 	{
 		return $this->_checkTest(dirname(__FILE__).'/Tests/'.$testCase);
 	} // end testInstructions();
-} // end Package_Instruction_SectionTest;
+} // end Package_Instruction_SelectorTest;

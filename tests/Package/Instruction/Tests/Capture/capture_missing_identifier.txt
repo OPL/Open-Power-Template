@@ -1,18 +1,14 @@
-The test checks if the captured content does not change.
+$system.capture without the captured block name should generate an exception.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 {@foo is 5}
 <opt:capture as="capt">
 FOO: {@foo}
 </opt:capture>
-{@foo is 6}
-{$system.capture.capt}
+{$system.capture}
 </opt:root>
 
 >>>>expected.txt
-OUTPUT
-
->>>>result.txt
-FOO: 5
+Opt_Instruction_Exception

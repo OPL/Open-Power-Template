@@ -1,28 +1,23 @@
-The same, as test selector_1, but together with OPT:SHOW
+Test, whether the instruction works with separators given as tags.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
-<opt:show name="sect">
-START
-<opt:selector>
-<opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
-<opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:selector name="sect">
+<opt:separator>,</opt:separator>
+<opt:equals value="foo">FOO: {$sect.val1},{$sect.val2}</opt:equals>
+<opt:equals value="bar">BAR: {$sect.val1},{$sect.val2}</opt:equals>
 </opt:selector>
-END
-</opt:show>
 </opt:root>
 
 >>>>expected.txt
 OUTPUT
 
 >>>>result.txt
-START
-FOO: A,B
-BAR: C,D
-FOO: E,F
+FOO: A,B,
+BAR: C,D,
+FOO: E,F,
 BAR: G,H
-END
 
 >>>>data.php
 $view->sect = array(

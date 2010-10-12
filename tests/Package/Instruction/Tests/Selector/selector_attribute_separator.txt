@@ -1,23 +1,23 @@
-Test, whether the instruction works with separators given as tags.
+The test checks the opt:selector attribute.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
-<opt:selector name="sect">
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<div opt:selector="sect">
 <opt:separator>,</opt:separator>
-<opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
-<opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
-</opt:selector>
+<opt:equals value="foo">FOO: {$sect.val1},{$sect.val2}</opt:equals>
+<opt:equals value="bar">BAR: {$sect.val1},{$sect.val2}</opt:equals>
+</div>
 </opt:root>
 
 >>>>expected.txt
 OUTPUT
 
 >>>>result.txt
-FOO: A,B,
-BAR: C,D,
-FOO: E,F,
-BAR: G,H
+<div>FOO: A,B</div>,
+<div>BAR: C,D</div>,
+<div>FOO: E,F</div>,
+<div>BAR: G,H</div>
 
 >>>>data.php
 $view->sect = array(

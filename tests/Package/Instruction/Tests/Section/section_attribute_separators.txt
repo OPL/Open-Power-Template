@@ -1,0 +1,37 @@
+The test checks, how the attribute form of opt:section works with separators.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:show name="sect" separator="str:,">
+<div opt:section="sect">
+{$sect.val1},{$sect.val2}
+</div>
+</opt:show>
+<div opt:section="sect">
+<opt:separator>,</opt:separator>
+{$sect.val1},{$sect.val2}
+</div>
+
+</opt:root>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<div>A,B</div>,
+<div>C,D</div>,
+<div>E,F</div>,
+<div>G,H</div>
+<div>A,B</div>,
+<div>C,D</div>,
+<div>E,F</div>,
+<div>G,H</div>
+
+>>>>data.php
+$view->sect = array(
+	array('val1' => 'A', 'val2' => 'B'),
+	array('val1' => 'C', 'val2' => 'D'),
+	array('val1' => 'E', 'val2' => 'F'),
+	array('val1' => 'G', 'val2' => 'H'),
+);

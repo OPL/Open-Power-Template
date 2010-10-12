@@ -1,28 +1,22 @@
-The same, as test selector_2, but together with OPT:SHOW
+The test checks the opt:selector instruction and custom item name field
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
-<opt:show name="sect" test="ajtem">
-START
-<opt:selector>
-<opt:foo>FOO: {$sect.val1},{$sect.val2}</opt:foo>
-<opt:bar>BAR: {$sect.val1},{$sect.val2}</opt:bar>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:selector name="sect" test="ajtem">
+<opt:equals value="foo">FOO: {$sect.val1},{$sect.val2}</opt:equals>
+<opt:equals value="bar">BAR: {$sect.val1},{$sect.val2}</opt:equals>
 </opt:selector>
-END
-</opt:show>
 </opt:root>
 
 >>>>expected.txt
 OUTPUT
 
 >>>>result.txt
-START
 FOO: A,B
 BAR: C,D
 FOO: E,F
 BAR: G,H
-END
 
 >>>>data.php
 $view->sect = array(

@@ -45,7 +45,7 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 	 * Array contains deprecated instructions.
 	 * @var array
 	 */
-	protected $_deprecatedInstructions = array();
+	protected $_deprecatedInstructions = array('opt:selectorelse');
 
 	/**
 	 * Configures the instruction processor.
@@ -54,8 +54,9 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:selector', 'opt:selectorelse'));
+		$this->_addInstructions(array('opt:selector'));
 		$this->_addAttributes('opt:selector');
+		$this->_addAmbiguous(array('opt:else' => 'opt:selector'));
 		if($this->_tpl->backwardCompatibility)
 		{
 			$this->_addAttributes($this->_deprecatedAttributes);
@@ -122,14 +123,38 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 			$code = $section['format']->get('section:startDescLoop');
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
-		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+		$separator = $this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
 
-		$this->_internalMagic($node, $section, 0);
+		// Before processing, store opt:else in some safe place.
+		$results = $node->getElementsByTagNameNS('opt', 'else', false);
+		if(sizeof($results) > 0)
+		{
+			$node->removeChild($results[0]);
+		}
+		if($separator !== null)
+		{
+			$this->_enqueue($separator);
+			$node->removeChild($separator);
+		}
 
-	//	$this->_sortSectionContents($node, 'opt', 'selectorelse');
+		// Process opt:switch
+		$section['format']->assign('item', $section['test']);
+		$switchProcessor = $this->_compiler->processor('switch');
+		$switchProcessor->attach($this);
+		$switchProcessor->createSwitch($node, $section['format']->get('section:variable'), Opt_Instruction_Switch::INGORE_TOP_LEVEL_OPT_TAGS);
+		$switchProcessor->detach();
+
+		if(sizeof($results) > 0)
+		{
+			$node->appendChild($results[0]);
+			$this->_enqueue($results[0]);
+		}
+		if($separator !== null)
+		{
+			$node->insertBefore($separator, 0);
+		}
 
 		$node->set('postprocess', true);
-		$this->_process($node);
 	} // end _processSelector();
 
 	/**
@@ -153,7 +178,7 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 	 * @param Opt_Xml_Element $node
 	 * @throws Opt_InstructionInvalidParent_Exception
 	 */
-	protected function _processSelectorelse(Opt_Xml_Element $node)
+	protected function _processElse(Opt_Xml_Element $node)
 	{
 		$parent = $node->getParent();
 		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:selector')
@@ -161,7 +186,7 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 			$parent->set('priv:alternative', true);
 
 			$section = self::getSection($parent->get('priv:section'));
-			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } '.$section['format']->get('section:endLoop').' } else { ');
+			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, $section['format']->get('section:endLoop').' } else { ');
 
 			$this->_sectionEnd($parent);
 
@@ -193,10 +218,32 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 			$code .= $section['format']->get('section:startDescLoop');
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
-		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
+		$separator = $this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node, Opt_Instruction_Loop_Abstract::ATTRIBUTE_FORM);
 
-		$this->_internalMagic($node, $section, 1);
+		// Before processing, store opt:separator in some warm and dry place.
+	/*	if($separator !== null)
+		{
+			$this->_enqueue($separator);
+			$node->removeChild($separator);
+		}
+	 */
 
+		// Process opt:switch
+		$section['format']->assign('item', isset($section['test']) ? $section['test'] : 'item');
+
+		$switchProcessor = $this->_compiler->processor('switch');
+
+		$switchProcessor->attach($this);
+		$switchProcessor->createSwitch($node, $section['format']->get('section:variable'), Opt_Instruction_Switch::INGORE_TOP_LEVEL_OPT_TAGS);
+		$switchProcessor->detach();
+
+		// Restore separators
+/*		if($separator !== null)
+		{
+			$node->insertBefore($separator, 0);
+		}
+*/
+		$node->set('hidden', false);
 		$attr->set('postprocess', true);
 	} // end _processAttrSelector();
 
@@ -212,106 +259,4 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $section['format']->get('section:endLoop'));
 		$this->_sectionEnd($node);
 	} // end _postprocessAttrSelector();
-
-	/**
-	 * The internal magic shared by the selector elements. Locates the node elements
-	 * and constructs the switch() statement for them.
-	 * @internal
-	 * @param Opt_Xml_Element $node The found element
-	 * @param array $section The reference to the section data.
-	 * @param string $type The name of the selection item.
-	 * @throws Opt_InstructionTooManyItems_Exception
-	 */
-	private function _internalMagic($node, &$section, $type)
-	{
-		$section['format']->assign('item', (!$type ? $section['test'] : 'item'));
-
-		// Check, if there are no instruction tags in the children list.
-		$instructions = array();
-		$cases = array();
-		$alternative = null;
-		foreach($node as $subnode)
-		{
-			if($subnode instanceof Opt_Xml_Element && $this->_compiler->isNamespace($subnode->getNamespace()))
-			{
-				if($this->_compiler->isInstruction($subnode->getXmlName()) || $subnode->getXmlName() == 'opt:separator')
-				{
-					if($subnode != 'opt:selectorelse')
-					{
-						$instructions[] = $subnode;
-					}
-					else
-					{
-						if(!is_null($alternative))
-						{
-							throw new Opt_InstructionTooManyItems_Exception('opt:selectorelse', $node->getXmlName(), 'Zero or one');
-						}
-						$alternative = $subnode;
-					}
-				}
-				else
-				{
-					$cases[] = $subnode;
-				}
-			}
-			else
-			{
-				$node->removeChild($subnode);
-			}
-		}
-		if(sizeof($instructions) > 0)
-		{
-			// There are instructions in opt:selector. We have to move the
-			// cases to a fake node in order to sanitize them.
-
-			$node->removeChildren();
-			foreach($instructions as $instruction)
-			{
-				$node->appendChild($instruction);
-			}
-
-			$fake = new Opt_Xml_Element('opt:_');
-			foreach($cases as $case)
-			{
-				$fake->appendChild($case);
-			}
-			$fake->set('processAll', true);
-			$fake->set('hidden', false);
-			$node->appendChild($fake);
-			if(!is_null($alternative))
-			{
-				$node->appendChild($alternative);
-			}
-		}
-		else
-		{
-			$fake = $node;
-		}
-
-		$fake->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, 'switch('.$section['format']->get('section:variable').'){');
-		// If opt:selectorelse is used, the ending curly bracket is created by
-		// _processSelectorelse().
-		if(is_null($alternative))
-		{
-			$fake->addBefore(Opt_Xml_Buffer::TAG_CONTENT_AFTER, ' } ');
-		}
-		foreach($cases as $case)
-		{
-			if($case->getXmlName() == 'opt:separator')
-			{
-				Opl_Debug::write('Print shit');
-			}
-			if($case->getName() == 'default')
-			{
-				$case->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' default: ');
-			}
-			else
-			{
-				$case->addAfter(Opt_Xml_Buffer::TAG_CONTENT_BEFORE, ' case \''.$case->getName().'\': ');
-			}
-			$case->addBefore(Opt_Xml_Buffer::TAG_CONTENT_AFTER, ' break; ');
-			$case->set('processAll', true);
-			$case->set('hidden', false);
-		}
-	} // end _internalMagic();
 } // end Opt_Instruction_Selector;

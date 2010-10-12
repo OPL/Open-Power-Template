@@ -26,6 +26,8 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	const TAIL_PASSIVE = 1;
 	const TAIL_ACTIVE = 2;
 
+	const INGORE_TOP_LEVEL_OPT_TAGS = true;
+
 	/**
 	 * The processor name.
 	 * @var string
@@ -80,7 +82,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	public function configure()
 	{
 		$this->_addInstructions(array('opt:switch'));
-		$this->_addAmbiguous(array('opt:else' => 'opt:switch', 'opt:prepend' => 'opt:switch', 'opt:append' => 'opt:switch'));
+		$this->_addAmbiguous(array('opt:default' => 'opt:switch', 'opt:prepend' => 'opt:switch', 'opt:append' => 'opt:switch'));
 
 		$this->addSwitchable('opt:switch');
 		$this->addSwitchHandler('opt:equals', $this->_compiler->createFormat(null, 'SwitchEquals'), 500);
@@ -221,10 +223,10 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 	final public function createSwitch(Opt_Xml_Node $node, $test)
 	{
 		// Sort the nodes.
-		$node->sort(array('opt:prepend' => 0, 'opt:append' => 1, '*' => 2, 'opt:else' => 3));
+		$node->sort(array('opt:prepend' => 0, 'opt:append' => 1, '*' => 2, 'opt:default' => 3));
 
-		// Find opt:else, if it is available
-		$results = $node->getElementsByTagNameNS('opt', 'else', false);
+		// Find opt:default, if it is available
+		$results = $node->getElementsByTagNameNS('opt', 'default', false);
 
 		if(sizeof($results) == 1)
 		{
@@ -232,7 +234,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 		}
 		elseif(sizeof($results) > 1)
 		{
-			throw new Opt_Instruction_Exception('Too many opt:else elements in the Switch statement: zero or one allowed.');
+			throw new Opt_Instruction_Exception('Too many opt:default elements in the Switch statement: zero or one allowed.');
 		}
 
 		// Find opt:prepend and opt:append blocks
@@ -287,7 +289,7 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 				$container->set('hidden', false);
 			}
 		}
-		// Append opt:else
+		// Append opt:default
 		if(sizeof($results) == 1)
 		{
 			$results[0]->set('hidden', false);

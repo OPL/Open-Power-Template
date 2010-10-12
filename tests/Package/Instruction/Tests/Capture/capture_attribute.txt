@@ -2,7 +2,7 @@ Tests the opt:capture attribute.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <foo opt:capture="capt">Bar</foo>
 BAR
 {u:$system.capture.capt}

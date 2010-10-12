@@ -1,0 +1,15 @@
+Multiple opt:else should be punished.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:selector name="sect">
+<opt:equals value="foo">FOO: {$sect.val1},{$sect.val2}</opt:equals>
+<opt:equals value="bar">BAR: {$sect.val1},{$sect.val2}</opt:equals>
+<opt:else>NO DATA</opt:else>
+<opt:else>NO DATA</opt:else>
+</opt:selector>
+</opt:root>
+
+>>>>expected.txt
+Opt_Instruction_Exception
