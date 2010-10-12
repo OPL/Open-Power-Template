@@ -160,7 +160,7 @@ abstract class Opt_Instruction_Abstract
 	 */
 	public function migrateNode(Opt_Xml_Node $node)
 	{
-		$name = '_migrate'.ucfirst($node->getName());
+		$name = '_migrate'.ucfirst(str_replace('-', '', $node->getName()));
 		
 		if(method_exists($this, $name))
 		{
@@ -178,7 +178,7 @@ abstract class Opt_Instruction_Abstract
 	 */
 	public function processNode(Opt_Xml_Node $node)
 	{
-		$name = '_process'.ucfirst($node->getName());
+		$name = '_process'.ucfirst(str_replace('-', '', $node->getName()));
 		$this->$name($node);
 	} // end processNode();
 
@@ -194,7 +194,7 @@ abstract class Opt_Instruction_Abstract
 	 */
 	public function postprocessNode(Opt_Xml_Node $node)
 	{
-		$name = '_postprocess'.ucfirst($node->getName());
+		$name = '_postprocess'.ucfirst(str_replace('-', '', $node->getName()));
 		$this->$name($node);
 	} // end postprocessNode();
 
@@ -209,7 +209,7 @@ abstract class Opt_Instruction_Abstract
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		$name = '_processAttr'.ucfirst($attr->getName());
+		$name = '_processAttr'.ucfirst(str_replace('-', '', $attr->getName()));
 		$this->$name($node, $attr);
 	} // end processAttribute();
 
@@ -226,7 +226,7 @@ abstract class Opt_Instruction_Abstract
 	 */
 	public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
-		$name = '_postprocessAttr'.ucfirst($attr->getName());
+		$name = '_postprocessAttr'.ucfirst(str_replace('-', '', $attr->getName()));
 		$this->$name($node, $attr);
 	} // end postprocessAttribute();
 
