@@ -1,21 +1,17 @@
-Test if the grid works with snippets.
+The test checks the basic opt:grid functionality.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
-<opt:snippet name="snip">
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:grid name="items" cols="3">
 :ROW START
 <opt:item>
-{$snip.foo}
-<opt:section name="foo" parent="items">
-</opt:section>
+{$items.foo}
 </opt:item>
-<opt:emptyItem>
+<opt:empty-item>
 Empty
-</opt:emptyItem>
+</opt:empty-item>
 :ROW END
-</opt:snippet>
-<opt:grid name="items" cols="3" opt:use="snip">
 </opt:grid>
 </opt:root>
 
@@ -27,9 +23,7 @@ $view->items = array(
 	array('foo' => 'item 4'),
 	array('foo' => 'item 5'),
 	array('foo' => 'item 6'),
-	array('foo' => 'item 7'),
-	array('foo' => 'item 8'),
-	array('foo' => 'item 9')
+	array('foo' => 'item 7')
 );
 
 >>>>expected.txt
@@ -48,6 +42,6 @@ item 6
 :ROW END
 :ROW START
 item 7
-item 8
-item 9
+Empty
+Empty
 :ROW END

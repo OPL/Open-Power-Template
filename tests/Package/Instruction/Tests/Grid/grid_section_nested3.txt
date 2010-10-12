@@ -2,17 +2,17 @@ Test whether the section is started in a valid place.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:grid name="items" cols="3">
 :ROW START
-<opt:section name="foo" parent="items">
-</opt:section>
 <opt:item>
 {$items.foo}
+<opt:section name="foo" parent="items">
+</opt:section>
 </opt:item>
-<opt:emptyItem>
+<opt:empty-item>
 Empty
-</opt:emptyItem>
+</opt:empty-item>
 :ROW END
 </opt:grid>
 </opt:root>
@@ -31,4 +31,21 @@ $view->items = array(
 );
 
 >>>>expected.txt
-Opt_SectionNotFound_Exception
+OUTPUT
+
+>>>>result.txt
+:ROW START
+item 1
+item 2
+item 3
+:ROW END
+:ROW START
+item 4
+item 5
+item 6
+:ROW END
+:ROW START
+item 7
+item 8
+item 9
+:ROW END

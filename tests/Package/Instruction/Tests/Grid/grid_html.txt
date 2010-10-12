@@ -1,18 +1,18 @@
-The test checks the basic opt:grid functionality.
+The test checks the opt:grid cooperation with HTML tags.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<table>
 <opt:grid name="items" cols="3">
-:ROW START
+<tr>
 <opt:item>
-{$items.foo}
+<td>{$items.foo}</td>
 </opt:item>
-<opt:emptyItem>
-Empty
-</opt:emptyItem>
-:ROW END
+<opt:empty-item><td></td></opt:empty-item>
+</tr>
 </opt:grid>
+</table>
 </opt:root>
 
 >>>>data.php
@@ -30,18 +30,20 @@ $view->items = array(
 OUTPUT
 
 >>>>result.txt
-:ROW START
-item 1
-item 2
-item 3
-:ROW END
-:ROW START
-item 4
-item 5
-item 6
-:ROW END
-:ROW START
-item 7
-Empty
-Empty
-:ROW END
+<table>
+<tr>
+<td>item 1</td>
+<td>item 2</td>
+<td>item 3</td>
+</tr>
+<tr>
+<td>item 4</td>
+<td>item 5</td>
+<td>item 6</td>
+</tr>
+<tr>
+<td>item 7</td>
+<td></td>
+<td></td>
+</tr>
+</table>

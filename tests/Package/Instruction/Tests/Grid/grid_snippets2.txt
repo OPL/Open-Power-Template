@@ -2,7 +2,7 @@ Test if the grid works with snippets - part two.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:snippet name="snip">
 FOO:{$snip.foo}
 </opt:snippet>
@@ -10,9 +10,9 @@ FOO:{$snip.foo}
 :ROW START
 <opt:item opt:use="snip">
 </opt:item>
-<opt:emptyItem>
+<opt:empty-item>
 Empty
-</opt:emptyItem>
+</opt:empty-item>
 :ROW END
 </opt:grid>
 </opt:root>

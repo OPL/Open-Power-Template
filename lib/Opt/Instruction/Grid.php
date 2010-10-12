@@ -43,7 +43,8 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 	 */
 	public function configure()
 	{
-		$this->_addInstructions(array('opt:grid', 'opt:gridelse', 'opt:item', 'opt:emptyItem'));
+		$this->_addInstructions(array('opt:grid', 'opt:item', 'opt:empty-item'));
+		$this->_addAmbiguous(array('opt:else' => 'opt:grid'));
 	} // end configure();
 
 	/**
@@ -67,20 +68,22 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 
 		// Error checking
 		$itemNode = $node->getElementsExt('opt', 'item');
-		$emptyItemNode = $node->getElementsExt('opt', 'emptyItem');
+		$emptyItemNode = $node->getElementsExt('opt', 'empty-item');
 
 		if(sizeof($itemNode) != 1)
 		{
-			throw new Opt_InstructionTooManyItems_Exception('opt:item', 'opt:grid', 'One');
+			throw new Opt_Instruction_Exception('Too many opt:item elements within opt:grid: one required.');
 		}
 		if(sizeof($emptyItemNode) != 1)
 		{
-			throw new Opt_InstructionTooManyItems_Exception('opt:emptyItem', 'opt:grid', 'One');
+			throw new Opt_Instruction_Exception('Too many opt:empty-item elements within opt:grid: one required.');
 		}
 
 		// Link those nodes to this section
 		$itemNode[0]->set('priv:section', $section);
 		$emptyItemNode[0]->set('priv:section', $section);
+
+		$emptyItemNode[0]->set('priv:valid', $section['format']->get('section:valid'));
 
 		// Code generation
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '$_'.$section['name'].'_rows = ceil('.$section['format']->get('section:count').' / '.$section['cols'].'); $_'.$section['name'].'_remain = ('.$section['cols'].
@@ -126,18 +129,18 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 	 * @internal
 	 * @param Opt_Xml_Element $node The recognized node.
 	 */
-	protected function _processEmptyItem(Opt_Xml_Node $node)
+	protected function _processEmptyitem(Opt_Xml_Node $node)
 	{
 		if(is_null($node->get('priv:section')))
 		{
 			throw new Opt_InstructionInvalidLocation_Exception('opt:item', 'opt:grid');
 		}
 		$section = $node->get('priv:section');
-		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if($_'.$section['name'].'_remain > 0 && !'.$section['format']->get('section:valid').') { for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < $_'.$section['name'].'_remain; $_'.$section['name'].'_k++) { ');
+		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if($_'.$section['name'].'_remain > 0 && !'.$node->get('priv:valid').') { for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < $_'.$section['name'].'_remain; $_'.$section['name'].'_k++) { ');
 		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } } ');
 
 		$this->_process($node);
-	} // end _processItem();
+	} // end _processEmptyitem();
 
 	/**
 	 * Finishes the processing of the opt:grid tag.
@@ -177,7 +180,7 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 	 * @internal
 	 * @param Opt_Xml_Element $node The recognized node.
 	 */
-	protected function _processGridelse(Opt_Xml_Element $node)
+	protected function _processElse(Opt_Xml_Element $node)
 	{
 		$parent = $node->getParent();
 		if($parent instanceof Opt_Xml_Element && $parent->getXmlName() == 'opt:grid')
@@ -189,5 +192,5 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 		//	$this->_deactivateSection($parent->get('sectionName'));
 			$this->_process($node);
 		}
-	} // end _processGridelse();
+	} // end _processElse();
 } // end Opt_Instruction_Grid;

@@ -18,7 +18,7 @@ require_once('DtdTest.php');
 require_once('ExtendTest.php');
 require_once('ForTest.php');
 //require_once('ForeachTest.php');
-//require_once('GridTest.php');
+require_once('GridTest.php');
 require_once('IfTest.php');
 require_once('IncludeTest.php');
 //require_once('InsertTest.php');
@@ -60,7 +60,7 @@ class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
 		$suite->addTestSuite('Package_Instruction_ExtendTest');
 		$suite->addTestSuite('Package_Instruction_ForTest');
 		//$suite->addTestSuite('Package_Instruction_ForeachTest');
-		//$suite->addTestSuite('Package_Instruction_GridTest');
+		$suite->addTestSuite('Package_Instruction_GridTest');
 		$suite->addTestSuite('Package_Instruction_IfTest');
 		$suite->addTestSuite('Package_Instruction_IncludeTest');
 		//$suite->addTestSuite('Package_Instruction_InsertTest');

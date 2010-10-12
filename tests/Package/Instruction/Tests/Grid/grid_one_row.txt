@@ -2,15 +2,15 @@ The test checks the basic opt:grid functionality with only one row.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:grid name="items" cols="3">
 :ROW START
 <opt:item>
 {$items.foo}
 </opt:item>
-<opt:emptyItem>
+<opt:empty-item>
 Empty
-</opt:emptyItem>
+</opt:empty-item>
 :ROW END
 </opt:grid>
 </opt:root>
