@@ -132,7 +132,7 @@ class Opt_Class extends Opl_Class
 	const EXPR_ENGINE = 9;
 	const MODIFIER = 10;
 
-	const VERSION = '2.1-dev';
+	const VERSION = '2.1-beta1';
 	const ERR_STANDARD = 6135; // E_ALL^E_NOTICE
 
 	// Directory configuration
