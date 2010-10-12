@@ -140,7 +140,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 
 		$parent = $node->getParent();
 		$returnStyle = $node->get('attributeValueStyle');
-		$returnStyle = (is_null($returnStyle) ? self::ATTR_DISPLAY : $returnStyle);
+		$returnStyle = (null === $returnStyle ? self::ATTR_DISPLAY : $returnStyle);
 
 		if($returnStyle == self::ATTR_DISPLAY)
 		{
@@ -200,6 +200,9 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 			// Construct the value for the attribute.
 			if($node->hasChildren())
 			{
+				// TODO: It turned out that using opt:switch here is nearly impossible due to
+				// the compilation mechanism construction. This must be solved somehow in OPT 3.0.
+
 				// The more complex statement with opt:value nodes...
 				list($pairs, $else) = $this->_getValuePairs($node, $params);
 
