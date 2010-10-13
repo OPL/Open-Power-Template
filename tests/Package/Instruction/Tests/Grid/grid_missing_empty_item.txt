@@ -1,0 +1,16 @@
+Grids with missing opt:empty-item tag should throw an exception.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:grid name="items" cols="3">
+:ROW START
+<opt:item>
+{$items.foo}
+</opt:item>
+:ROW END
+</opt:grid>
+</opt:root>
+
+>>>>expected.txt
+Opt_Instruction_Exception

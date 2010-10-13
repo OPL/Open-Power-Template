@@ -47,6 +47,8 @@ class Package_Instruction_GridTest extends Extra_TestFSBase
 			array('Grid/grid_snippets2.txt'),
 			array('Grid/grid_html.txt'),
 			array('Grid/grid_one_row.txt'),
+			array('Grid/grid_missing_item.txt'),
+			array('Grid/grid_missing_empty_item.txt'),
 		);
 	} // end dataProvider();
 
