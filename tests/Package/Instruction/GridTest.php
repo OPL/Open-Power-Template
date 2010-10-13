@@ -41,6 +41,7 @@ class Package_Instruction_GridTest extends Extra_TestFSBase
 			array('Grid/grid_basic.txt'),
 			array('Grid/grid_basic2.txt'),
 			array('Grid/grid_else.txt'),
+			array('Grid/grid_else_invalid_location.txt'),
 			array('Grid/grid_section_nested.txt'),
 			array('Grid/grid_section_nested2.txt'),
 			array('Grid/grid_section_nested3.txt'),
@@ -50,6 +51,11 @@ class Package_Instruction_GridTest extends Extra_TestFSBase
 			array('Grid/grid_one_row.txt'),
 			array('Grid/grid_missing_item.txt'),
 			array('Grid/grid_missing_empty_item.txt'),
+			array('Grid/grid_show.txt'),
+			array('Grid/grid_body.txt'),
+			array('Grid/grid_body_else.txt'),
+			array('Grid/grid_body_else_invalid.txt'),
+			array('Grid/grid_body_else_invalid_location.txt'),
 		);
 	} // end dataProvider();
 

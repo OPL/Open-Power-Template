@@ -44,7 +44,10 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 	public function configure()
 	{
 		$this->_addInstructions(array('opt:grid', 'opt:item', 'opt:empty-item'));
-		$this->_addAmbiguous(array('opt:else' => 'opt:grid'));
+		$this->_addAmbiguous(array(
+			'opt:else' => 'opt:grid',
+			'opt:body' => 'opt:grid'
+		));
 	} // end configure();
 
 	/**
@@ -66,6 +69,35 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 	{
 		$section = $this->_sectionCreate($node, array(), array('cols' => array(self::REQUIRED, self::EXPRESSION)));
 
+		if($node->hasAmbiguousDescendant('opt:body'))
+		{
+			$body = $node->getAmbiguousDescendant('opt:body');
+			$body->set('priv:grid', $section);
+
+			// This postprocessing is necessary. If there is opt:else, it must be sorted
+			// properly.
+			$node->set('postprocess', true);
+			$this->_process($node);
+		}
+		else
+		{
+			$this->_processBody($node, $section);
+		}
+	} // end _processGrid();
+
+	/**
+	 * Processes the opt:body tag for opt:grid.
+	 *
+	 * @internal
+	 * @param Opt_Xml_Element $node The recognized node.
+	 * @param array $section A workaround for not-registered section when calling from _processGrid().
+	 */
+	protected function _processBody(Opt_Xml_Element $node, array $section = null)
+	{
+		if($section === null)
+		{
+			$section = $node->get('priv:grid');
+		}
 		// Error checking
 		$itemNode = $node->getElementsExt('opt', 'item');
 		$emptyItemNode = $node->getElementsExt('opt', 'empty-item');
@@ -92,7 +124,22 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 
 		$node->set('postprocess', true);
 		$this->_process($node);
-	} // end _processGrid();
+	} // end _processBody();
+
+	/**
+	 * Post-processes the opt:body tag for opt:grid.
+	 *
+	 * @internal
+	 * @param Opt_Xml_Element $node The opt:body tag.
+	 */
+	protected function _postprocessBody(Opt_Xml_Element $node)
+	{
+		$section = $node->get('priv:section');
+		if(!$node->get('priv:alternative'))
+		{
+			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+		}
+	} // end _postprocessBody();
 
 	/**
 	 * Processes the opt:item tag.
@@ -156,10 +203,10 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 			{
 				$this->_sortSectionContents($node);
 			}
-			else
-			{
-				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
-			}
+		}
+		if(!$node->get('priv:alternative') && ! $node->hasAmbiguousDescendant('opt:body'))
+		{
+			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 		}
 	} // end _postprocessGrid();
 
@@ -192,8 +239,14 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 			$parent->set('priv:alternative', true);
 
 			$section = $parent->get('priv:section');
-			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } } else { ');
-		//	$this->_deactivateSection($parent->get('sectionName'));
+			if($parent->hasAmbiguousDescendant('opt:body'))
+			{
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
+			}
+			else
+			{
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } } else { ');
+			}
 			$this->_process($node);
 		}
 	} // end _processElse();
