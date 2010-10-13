@@ -1,0 +1,23 @@
+The test checks the basic opt:grid functionality with opt:gridelse.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root>
+<opt:grid name="items" cols="3">
+:ROW START
+<opt:item>
+{$items.foo}
+</opt:item>
+<opt:emptyItem>
+Empty
+</opt:emptyItem>
+:ROW END
+<opt:gridelse>No data</opt:gridelse>
+</opt:grid>
+</opt:root>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+No data

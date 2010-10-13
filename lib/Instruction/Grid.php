@@ -58,10 +58,11 @@
 			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '$_'.$section['name'].'_rows = ceil('.$section['format']->get('section:count').' / '.$section['cols'].'); $_'.$section['name'].'_remain = ('.$section['cols'].
 			' - ('.$section['format']->get('section:count').' % '.$section['cols'].')) % '.$section['cols'].'; '.$section['format']->get('section:loopBefore').' '.$section['format']->get('section:reset').' '.
 			' for($_'.$section['name'].'_j = 0; $_'.$section['name'].'_j < $_'.$section['name'].'_rows; $_'.$section['name'].'_j++){ ');
-			$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+			
 
 			$emptyItemNode[0]->set('priv:section-validity', $section['format']->get('section:valid'));
 
+			$node->set('postprocess', true);
 			$this->_process($node);
 		} // end _processGrid();
 		
@@ -108,9 +109,13 @@
 			$section = $node->get('priv:section');
 			if($node->hasAttributes())
 			{
-				if(!$node->get('priv:alternative'))
+				if($node->get('priv:alternative'))
 				{
 					$this->_sortSectionContents($node, 'opt', 'gridelse');
+				}
+				else
+				{
+					$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 				}
 			}
 			
@@ -135,7 +140,7 @@
 				$parent->set('priv:alternative', true);
 				
 				$section = $parent->get('priv:section');
-				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
+				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } } else { ');
 			//	$this->_deactivateSection($parent->get('sectionName'));
 				$this->_process($node);
 			}
