@@ -22,7 +22,7 @@ require_once('GridTest.php');
 require_once('IfTest.php');
 require_once('IncludeTest.php');
 //require_once('InsertTest.php');
-//require_once('LiteralTest.php');
+require_once('LiteralTest.php');
 require_once('LoadTest.php');
 require_once('OmitTagTest.php');
 require_once('ProcedureTest.php');
@@ -64,7 +64,7 @@ class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
 		$suite->addTestSuite('Package_Instruction_IfTest');
 		$suite->addTestSuite('Package_Instruction_IncludeTest');
 		//$suite->addTestSuite('Package_Instruction_InsertTest');
-		//$suite->addTestSuite('Package_Instruction_LiteralTest');
+		$suite->addTestSuite('Package_Instruction_LiteralTest');
 		$suite->addTestSuite('Package_Instruction_LoadTest');
 		$suite->addTestSuite('Package_Instruction_OmitTagTest');
 		$suite->addTestSuite('Package_Instruction_ProcedureTest');

@@ -1,0 +1,10 @@
+opt:literal with invalid type should throw an exception.
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:literal type="ugabuga">Foo<![CDATA[Bar]]>{$joe}<![CDATA[Goo]]>Hoo</opt:literal>
+</opt:root>
+
+>>>>expected.txt
+Opt_Instruction_Exception

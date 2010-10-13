@@ -2,7 +2,7 @@ Bug #85 test - opt:literal must disable entities in the cdata text.
 
 >>>>templates/test.tpl
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <script type="text/javascript">
 <opt:literal type="comment_cdata">
 <![CDATA[
