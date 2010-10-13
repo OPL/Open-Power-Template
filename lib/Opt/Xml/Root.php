@@ -26,14 +26,6 @@ class Opt_Xml_Root extends Opt_Xml_Scannable
 	private $_namespaces = array();
 
 	/**
-	 * Constructs the root node.
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-	} // end __construct();
-
-	/**
 	 * Overwritten parent setter - the root node cannot have parents.
 	 *
 	 * @param Opt_Xml_Node $parent The new parent (ignored).

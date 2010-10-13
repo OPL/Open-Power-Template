@@ -62,7 +62,6 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 	 */
 	public function __construct($name)
 	{
-		parent::__construct();
 		$this->setName($name);
 	} // end __construct();
 

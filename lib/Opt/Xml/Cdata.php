@@ -31,7 +31,6 @@ class Opt_Xml_Cdata extends Opt_Xml_Node
 	 */
 	public function __construct($cdata)
 	{
-		parent::__construct();
 		self::$mode != Opt_Class::QUIRKS_MODE and $this->_validate($cdata);
 		$this->_text = $cdata;
 	} // end __construct();

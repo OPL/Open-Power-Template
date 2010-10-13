@@ -29,7 +29,6 @@ class Opt_Xml_Text extends Opt_Xml_Scannable
 	 */
 	public function __construct($cdata = null)
 	{
-		parent::__construct();
 		if(!is_null($cdata))
 		{
 			$this->appendData($cdata);

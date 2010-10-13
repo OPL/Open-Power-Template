@@ -59,14 +59,6 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	private $_prototypes;
 
 	/**
-	 * Creates the scannable node.
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-	} // end __construct();
-
-	/**
 	 * Appends a new child to the end of the children list. The method
 	 * is DOM-compatible.
 	 *
