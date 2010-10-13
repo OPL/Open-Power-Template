@@ -141,7 +141,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
 		$this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
-		$this->_sortSectionContents($node, 'opt', 'sectionelse');
+		$this->_sortSectionContents($node);
 
 		$node->set('postprocess', true);
 		$this->_process($node);
@@ -154,7 +154,6 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 	 */
 	protected function _postprocessSection(Opt_Xml_Element $node)
 	{
-		
 		$section = self::getSection($node->get('priv:section'));
 		if(!$node->get('priv:alternative'))
 		{
@@ -182,6 +181,7 @@ class Opt_Instruction_Section extends Opt_Instruction_Section_Abstract
 	 */
 	protected function _processShowelse(Opt_Xml_Element $node, Opt_Xml_Element $parent)
 	{
+		// TODO: I think this is unnecessary.
 		$parent->set('priv:alternative', true);
 		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
 		$this->_process($node);
