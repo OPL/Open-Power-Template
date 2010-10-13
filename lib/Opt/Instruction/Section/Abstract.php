@@ -577,7 +577,7 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 
 	/**
 	 * An utility method that cleans the contents of the section node, by
-	 * moving the alternative section (opt:sectionelse etc. tags) code to the end
+	 * moving the alternative section (opt:else tags) code to the end
 	 * of the children list.
 	 *
 	 * In the parameters, we must specify the name and the namespace of the
@@ -585,24 +585,22 @@ abstract class Opt_Instruction_Section_Abstract extends Opt_Instruction_Loop_Abs
 	 *
 	 * @throws Opt_Instruction_Section_Exception
 	 * @param Opt_Xml_Element $node The section node
-	 * @param String $ns The namespace
-	 * @param String $name The alternative section content tag name
 	 */
-	protected function _sortSectionContents(Opt_Xml_Element $node, $ns, $name)
+	protected function _sortSectionContents(Opt_Xml_Element $node)
 	{
-		$else = $node->getElementsByTagNameNS($ns, $name, false);
+		$else = $node->getElementsByTagNameNS('opt', 'else', false);
 
 		if(sizeof($else) == 1)
 		{
 			if(!$node->hasAttributes())
 			{
-				throw new Opt_Instruction_Section_Exception('Section error: too many '.$ns.':'.$name.' elements: none expected.');
+				throw new Opt_Instruction_Section_Exception('Section error: too many opt:else elements: none expected.');
 			}
 			$node->bringToEnd($else[0]);
 		}
 		elseif(sizeof($else) > 1)
 		{
-			throw new Opt_Instruction_Section_Exception('Section error: too many '.$ns.':'.$name.' elements: zero or one expected.');
+			throw new Opt_Instruction_Section_Exception('Section error: too many opt:else elements: zero or one expected.');
 		}
 	} // end _locateElse();
 
