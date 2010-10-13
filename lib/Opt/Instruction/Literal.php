@@ -79,9 +79,12 @@ class Opt_Instruction_Literal extends Opt_Instruction_Abstract
 				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, '/* ]]> */');
 				break;
 			case 'cdata':
-			default:
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, '<![CDATA[');
 				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ']]>');
+				break;
+			default:
+				throw new Opt_Instruction_Exception('Invalid opt:literal type: '.$params['type']);
+
 		}
 		$this->_process($node);
 	} // end processNode();
@@ -95,7 +98,7 @@ class Opt_Instruction_Literal extends Opt_Instruction_Abstract
 	 *
 	 * @deprecated
 	 * @param Opt_Xml_Node $node The scanned node
-	 * @param Boolean $noEntitize optional The entitizing flag.
+	 * @param boolean $noEntitize optional The entitizing flag.
 	 */
 	public function disableCDATA(Opt_Xml_Node $node, $noEntitize = false)
 	{
