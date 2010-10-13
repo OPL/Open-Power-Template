@@ -89,8 +89,8 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, '$_'.$section['name'].'_rows = ceil('.$section['format']->get('section:count').' / '.$section['cols'].'); $_'.$section['name'].'_remain = ('.$section['cols'].
 		' - ('.$section['format']->get('section:count').' % '.$section['cols'].')) % '.$section['cols'].'; '.$section['format']->get('section:loopBefore').' '.$section['format']->get('section:reset').' '.
 		' for($_'.$section['name'].'_j = 0; $_'.$section['name'].'_j < $_'.$section['name'].'_rows; $_'.$section['name'].'_j++){ ');
-		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 
+		$node->set('postprocess', true);
 		$this->_process($node);
 	} // end _processGrid();
 
@@ -152,9 +152,13 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 		$section = $node->get('priv:section');
 		if($node->hasAttributes())
 		{
-			if(!$node->get('priv:alternative'))
+			if($node->get('priv:alternative'))
 			{
-				$this->_sortSectionContents($node, 'opt', 'gridelse');
+				$this->_sortSectionContents($node);
+			}
+			else
+			{
+				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
 			}
 		}
 	} // end _postprocessGrid();
@@ -188,7 +192,7 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 			$parent->set('priv:alternative', true);
 
 			$section = $parent->get('priv:section');
-			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } else { ');
+			$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE, ' } } else { ');
 		//	$this->_deactivateSection($parent->get('sectionName'));
 			$this->_process($node);
 		}

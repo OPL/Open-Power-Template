@@ -40,6 +40,7 @@ class Package_Instruction_GridTest extends Extra_TestFSBase
 		return array(0 =>
 			array('Grid/grid_basic.txt'),
 			array('Grid/grid_basic2.txt'),
+			array('Grid/grid_else.txt'),
 			array('Grid/grid_section_nested.txt'),
 			array('Grid/grid_section_nested2.txt'),
 			array('Grid/grid_section_nested3.txt'),

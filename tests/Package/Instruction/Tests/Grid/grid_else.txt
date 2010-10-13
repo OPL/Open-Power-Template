@@ -1,0 +1,23 @@
+Does opt:else work with opt:grid?
+
+>>>>templates/test.tpl
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:grid name="items" cols="3">
+:ROW START
+<opt:item>
+{$items.foo}
+</opt:item>
+<opt:empty-item>
+Empty
+</opt:empty-item>
+:ROW END
+<opt:else>No data</opt:else>
+</opt:grid>
+</opt:root>
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+No data
