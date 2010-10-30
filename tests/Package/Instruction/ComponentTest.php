@@ -53,6 +53,7 @@ class Package_Instruction_ComponentTest extends Extra_TestFSBase
 			array('Component/component_nesting.txt'),
 			array('Component/component_template.txt'),
 			array('Component/component_template_missing.txt'),
+			array('Component/component_id.txt'),
 		);
 	} // end dataProvider();
 

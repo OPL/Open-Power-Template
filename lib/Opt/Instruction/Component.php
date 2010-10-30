@@ -84,21 +84,25 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 					'from' => array(self::REQUIRED, self::EXPRESSION, null),
 					'datasource' => array(self::OPTIONAL, self::EXPRESSION, null),
 					'template' => array(self::OPTIONAL, self::ID, null),
+					'id' => array(self::OPTIONAL, self::STRING, null),
 					'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
 				);
 				$vars = $this->_extractAttributes($node, $params);
-				$this->_stack->push($params['from']);
+				$format = $this->_compiler->getFormat('component#'.$params['id'], false, $this->_tpl->componentFormat);
+				$format->assign('variable', $params['from']);
+				$this->_stack->push(array($params['from'], $format));
 
-				$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Component_Interface){ '.$params['from'].'->setView($this); ';
+				$mainCode = ' if(is_object('.$params['from'].') && '.$format->get('component:valid').'){ '.$format->get('component:init');
 				if($params['datasource'] !== null)
 				{
-					$mainCode .= $params['from'].'->setDatasource('.$params['datasource'].'); ';
+					$format->assign('datasource', $params['datasource']);
+					$mainCode .= $format->get('component:datasource');
 				}
 
-				$mainCode .= $this->_commonProcessing($node, $params['from'], $params, $vars);
+				$mainCode .= $this->_commonProcessing($node, $params['from'], $params, $vars, $format);
 
 				$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
-				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('component:done').' } ');
 				break;
 			case 'on-event':
 				if($this->_stack->count() == 0)
@@ -110,9 +114,12 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 					'name' => array(self::REQUIRED, self::EXPRESSION)
 				);
 
+				list($variable, $format) = $this->_stack->top();
+
 				$this->_extractAttributes($node, $tagParams);
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if('.$this->_stack->top().'->processEvent('.$tagParams['name'].')){ ');
-				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+				$format->assign('eventName', $tagParams['name']);
+				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('component:event-open'));
+				$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('component:event-close'));
 				$this->_process($node);
 				break;
 
@@ -121,6 +128,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 				{
 					throw new Opt_Instruction_Exception('Component error: invalid use of "opt:display": no active component.');
 				}
+				list($variable, $format) = $this->_stack->top();
 				$node->set('hidden', false);
 				$node->removeChildren();
 				// The opt:display attributes must be packed into array and sent
@@ -132,20 +140,20 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 						'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
 					);
 					$vars = $this->_extractAttributes($node, $params);
-					$subCode = 'array(';
-					foreach($vars as $name => $value)
-					{
-						$subCode .= '\''.$name.'\' => '.$value.',';
-					}
-					$subCode .= ')';
+					$format->assign('attributes', $vars);
 				}
-				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->display('.$subCode.'); ');
+				else
+				{
+					$format->assign('attributes', array());
+				}
+				$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('component:display'));
 				break;
 			case 'inject':
 				if($this->_stack->count() == 0)
 				{
 					throw new Opt_Instruction_Exception('Component error: invalid use of "opt:inject": no active component.');
 				}
+				list($variable, $format) = $this->_stack->top();
 				$code = 'function() use($ctx){ ';
 
 				if($node->getAttribute('procedure') !== null)
@@ -157,7 +165,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 					$code .= ' $args = func_get_args(); array_unshift($args, $ctx); '.PHP_EOL;
 					$code .= $this->_compiler->processor('procedure')->callProcedure($params['procedure'], '$args', true).PHP_EOL;
 					$code .= '}'.PHP_EOL;
-					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->setInjection('.$code.'); ');
+					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('component:inject-open').$code.$format->get('component:inject-close'));
 				}
 				else
 				{
@@ -182,8 +190,8 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 						}
 						$value = '$args['.($i++).']';
 					}
-					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $this->_stack->top().'->setInjection('.$code);
-					$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' }); ');
+					$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('component:inject-open').$code);
+					$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } '.$format->get('component:inject-close'));
 					$this->_compiler->processor('snippet')->useSnippet($node, $params['snippet'], $snippetArgs, false, true);
 					$this->_process($node);
 				}
@@ -223,55 +231,30 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 	{
 		// Defined component processing
 		$params = array(
+			'id' => array(self::OPTIONAL, self::STRING, null),
 			'datasource' => array(self::OPTIONAL, self::EXPRESSION, null),
 			'template' => array(self::OPTIONAL, self::ID, null),
 			'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
 		);
 
 		$vars = $this->_extractAttributes($node, $params);
-		// Get the real class name
+		// Initialize component structures
 		$cn = '$_component_'.($this->_unique++);
-
-		$this->_stack->push($cn);
-
-		$class = $this->_compiler->component($node->getXmlName());
-
-		// Check, if there are any conversions that may take control over initializing
-		// the component object. We are allowed to capture only particular component
-		// creation or all of them.
-		if((($to = $this->_compiler->convert('##component_'.$class)) != '##component_'.$class))
-		{
-			$attributes = 'array(';
-			foreach($vars as $name => $value)
-			{
-				$attributes .= '\''.$name.'\' => '.$value.', ';
-			}
-			$attributes .= ')';
-			$ccode = str_replace(array('%CLASS%', '%TAG%', '%ATTRIBUTES%'), array($class, $node->getXmlName(), $attributes), $to);
-		}
-		elseif((($to = $this->_compiler->convert('##component')) != '##component'))
-		{
-			$attributes = 'array(';
-			foreach($vars as $name => $value)
-			{
-				$attributes .= '\''.$name.'\' => '.$value.', ';
-			}
-			$attributes .= ')';
-			$ccode = str_replace(array('%CLASS%', '%TAG%', '%ATTRIBUTES%'), array($class, $node->getXmlName(), $attributes), $to);
-		}
-		else
-		{
-			$ccode = 'new '.$class;
-		}
+		$format = $this->_compiler->getFormat('component#'.$params['id'], false, $this->_tpl->componentFormat);
+		$format->assign('variable', $cn);
+		$this->_stack->push(array($cn, $format));
 
 		// Generate the initialization code
-		$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
+		$format->assign('className', $this->_compiler->component($node->getXmlName()));
+		$mainCode = $format->get('component:build').$format->get('component:init');
+
 		if($params['datasource'] !== null)
 		{
-			$mainCode .= $cn.'->setDatasource('.$params['datasource'].'); ';
+			$format->assign('datasource', $params['datasource']);
+			$mainCode .= $format->get('component:datasource');
 		}
 
-		$mainCode .= $this->_commonProcessing($node, $cn, $params, $vars);
+		$mainCode .= $this->_commonProcessing($node, $cn, $params, $vars, $format).$format->get('component:done');
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
 	} // end processComponent();
 
@@ -305,9 +288,10 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 	 * @param string $componentVariable The PHP component variable name.
 	 * @param array $params The array of standard component attributes.
 	 * @param array $args The array of custom component attributes.
+	 * @param Opt_Format_Abstract $format The component data format.
 	 * @return string
 	 */
-	private function _commonProcessing(Opt_Xml_Element $node, $componentVariable, array $params, array $args)
+	private function _commonProcessing(Opt_Xml_Element $node, $componentVariable, array $params, array $args, Opt_Format_Abstract $format)
 	{
 		// Common part of the component processing
 		$set2 = array();
@@ -345,33 +329,29 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			);
 
 			$this->_extractAttributes($set, $tagParams);
-			$code .= $componentVariable.'->__set('.$tagParams['name']['bare'].', '.$tagParams['value'].'); ';
+			$format->assign('name', $tagParams['name']['bare']);
+			$format->assign('value', $tagParams['value']);
+			$code .= $format->get('component:set');
 		}
 		foreach($args as $name => $value)
 		{
-			$code .= $componentVariable.'->__set(\''.$name.'\', '.$value.'); ';
+			$format->assign('name', $name);
+			$format->assign('value', $value);
+			$code .= $format->get('component:set');
 		}
 		// opt:component-attributes
 		foreach($everything[1] as $wtf)
 		{
-			$id = $wtf->getAttribute('opt:component-attributes')->getValue();
-			$subCode = ' $out = '.$componentVariable.'->manageAttributes(\''.$wtf->getName().'#'.$id.'\', array(';
-		//	$wtf->removeAttribute('opt:component-attributes');
+			$params = array(
+				'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null, 'str')
+			);
+			$vars = $this->_extractAttributes($wtf, $params);
+			$format->assign('tag', $wtf->getName().'#'.$wtf->getAttribute('opt:component-attributes')->getValue());
+			$format->assign('attributes', $vars);
 
-		//	foreach($wtf->getAttributes() as $attribute)
-	//		{
-				$params = array(
-					'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null, 'str')
-				);
-				$vars = $this->_extractAttributes($wtf, $params);
-				foreach($vars as $name => $value)
-				{
-					$subCode .= '\''.$name.'\' => '.$value.',';
-				}
-	//		}
 			$wtf->removeAttributes();
-			$wtf->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $subCode.')); ');
-			$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, ' if(is_array($out)){ foreach($out as $name=>$value){ echo \' \'.$name.\'="\'.$value.\'"\'; } } ');
+			$wtf->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('component:manage-attributes'));
+			$wtf->addAfter(Opt_Xml_Buffer::TAG_ENDING_ATTRIBUTES, $format->get('component:manage-attributes-apply'));
 		}
 
 		$node->set('postprocess', true);
@@ -398,7 +378,9 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 		{
 			throw new Opt_Instruction_Exception('Component error: invalid use of $'.implode('.',$opt).': no active component.');
 		}
-		return $this->_stack->top().'->'.$opt[2];
+		list($variable, $format) = $this->_stack->top();
+		$format->assign('name', $opt[2]);
+		return $format->get('component:get');
 	} // end processSystemVar();
 
 	/**
