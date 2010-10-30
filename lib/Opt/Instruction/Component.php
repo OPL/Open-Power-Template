@@ -256,6 +256,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 
 		$mainCode .= $this->_commonProcessing($node, $cn, $params, $vars, $format).$format->get('component:done');
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
+		$node->addBefore(Opt_Xml_Buffer::TAG_AFTER,  $format->get('component:done'));
 	} // end processComponent();
 
 	/**
