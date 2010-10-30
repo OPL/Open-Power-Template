@@ -37,6 +37,8 @@ class test
 		$tpl->parser = Opt_Class::XML_MODE;
 		$tpl->stripWhitespaces = false;
 		$tpl->prologRequired = true;
+		$tpl->register(Opt_Class::OPT_COMPONENT, 'opt:myComponent', 'Extra_Mock_Component');
+		$tpl->register(Opt_Class::OPT_BLOCK, 'opt:myBlock', 'Extra_Mock_Block');
 		$tpl->setup();
 		$this->tpl = $tpl;
 	} // end init();
