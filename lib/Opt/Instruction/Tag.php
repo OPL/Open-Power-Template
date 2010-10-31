@@ -156,13 +156,13 @@ class Opt_Instruction_Tag extends Opt_Instruction_Abstract
 	 * @internal
 	 * @param Opt_Xml_Node $node XML node.
 	 * @param Opt_Xml_Attribute $attr XML attribute.
-	 * @throws Opt_AttributeInvalidNamespace_Exception
+	 * @throws Opt_Instruction_Exception
 	 */
 	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
 		if($this->_compiler->isNamespace($node->getNamespace()))
 		{
-			throw new Opt_AttributeInvalidNamespace_Exception($node->getXmlName());
+			throw new Opt_Instruction_Exception('The attribute \''.$node->getXmlName().'\' uses the invalid namespace.');
 		}
 		if($attr->getValue() == 'yes')
 		{

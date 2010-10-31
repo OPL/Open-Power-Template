@@ -182,7 +182,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 					{
 						if($value == 'required')
 						{
-							$code .= 'if(!isset($args['.$i.'])){ throw new Opt_SnippetArgumentNotDefined_Exception(\''.$name.'\', \''.$params['snippet'].'\'); } '.PHP_EOL;
+							$code .= 'if(!isset($args['.$i.'])){ throw new Opt_Runtime_Exception(\'Snippet argument not defined: '.$name.' in '.$params['snippet'].'\'); } '.PHP_EOL;
 						}
 						else
 						{

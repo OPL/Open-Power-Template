@@ -630,7 +630,6 @@ abstract class Opt_Instruction_Abstract
 				if(strlen(trim($value)) == 0)
 				{
 					throw new Opt_Instruction_Exception('The attribute "'.$attr->getXmlName().'" in '.$item->getXmlName().' is empty.');
-					throw new Opt_AttributeEmpty_Exception($attr->getXmlName(), $item->getXmlName());
 				}
 			//	if(preg_match('/^([a-zA-Z0-9\_]{2,})\:([^\:].*)$/', $value, $found))
 			//	{

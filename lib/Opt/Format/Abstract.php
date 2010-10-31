@@ -208,16 +208,6 @@ abstract class Opt_Format_Abstract
 				}
 				else
 				{
-					/*
-					 * DO NOT REMOVE THE LINE BELOW UNLESS YOU WANT A SEGMENTATION FAULT!
-					 *
-					 * This piece of code activates the issue known as PHP Bug #40479 open
-					 * since 2007 related to the corrupted zend_mm_heap. I do not know, why
-					 * throwing an exception in this place causes this after a while (the
-					 * segfault occurs, when this exception is captured in the compile() method
-					 * to clean the compiler state).
-					 */
-				//	die('Opt_APIHookNotDefined_Exception: Invalid hook name: '.$hookName.' in '.get_class($this));
 					throw new Opt_Format_Exception('Invalid hook name: '.$hookName.' in '.get_class($this));
 				}
 			}

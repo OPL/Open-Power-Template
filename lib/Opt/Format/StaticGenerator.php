@@ -67,7 +67,7 @@ class Opt_Format_StaticGenerator extends Opt_Format_Abstract
 			// of "section" namespace.
 			if(!is_object($this->_decorated))
 			{
-				throw new Opt_FormatNotDecorated_Exception('StaticGenerator');
+				throw new Opt_Format_Exception('The StaticGenerator format must be decorated.');
 			}
 
 			return ' $_sect'.$section['name'].'_vals = array(); if('.$ds.' instanceof Opt_Generator_Interface){ $_sect'.$section['name'].'_vals = '.$ds.'->generate(\''.$section['name'].'\'); } ';

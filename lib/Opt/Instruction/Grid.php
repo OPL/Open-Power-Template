@@ -150,7 +150,7 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 	{
 		if(is_null($node->get('priv:section')))
 		{
-			throw new Opt_InstructionInvalidLocation_Exception('opt:item', 'opt:grid');
+			throw new Opt_Instruction_Exception('opt:item should be located in opt:grid.');
 		}
 
 		// We're at home. For this particular node we have to activate the section.
@@ -180,7 +180,7 @@ class Opt_Instruction_Grid extends Opt_Instruction_Section_Abstract
 	{
 		if(is_null($node->get('priv:section')))
 		{
-			throw new Opt_InstructionInvalidLocation_Exception('opt:item', 'opt:grid');
+			throw new Opt_Instruction_Exception('opt:item should be located in opt:grid.');
 		}
 		$section = $node->get('priv:section');
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if($_'.$section['name'].'_remain > 0 && !'.$node->get('priv:valid').') { for($_'.$section['name'].'_k = 0; $_'.$section['name'].'_k < $_'.$section['name'].'_remain; $_'.$section['name'].'_k++) { ');
