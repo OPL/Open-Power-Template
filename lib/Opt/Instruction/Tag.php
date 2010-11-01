@@ -49,7 +49,7 @@ class Opt_Instruction_Tag extends Opt_Instruction_Abstract
 	public function configure()
 	{
 		$this->_addInstructions('opt:tag');
-		$this->_addAttributes('opt:single');
+		$this->_addAttributes(array('opt:single', 'opt:tag-name'));
 		if($this->_tpl->backwardCompatibility)
 		{
 			$this->_addAttributes($this->_deprecatedAttributes);
@@ -158,7 +158,7 @@ class Opt_Instruction_Tag extends Opt_Instruction_Abstract
 	 * @param Opt_Xml_Attribute $attr XML attribute.
 	 * @throws Opt_Instruction_Exception
 	 */
-	public function processAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+	public function _processAttrSingle(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
 		if($this->_compiler->isNamespace($node->getNamespace()))
 		{
@@ -168,7 +168,7 @@ class Opt_Instruction_Tag extends Opt_Instruction_Abstract
 		{
 			$attr->set('postprocess', true);
 		}
-	} // end processAttribute();
+	} // end _processAttrSingle();
 
 	/**
 	 * Postprocesses the opt:single instruction attribute.
@@ -177,12 +177,58 @@ class Opt_Instruction_Tag extends Opt_Instruction_Abstract
 	 * @param Opt_Xml_Node $node XML node.
 	 * @param Opt_Xml_Attribute $attr XML attribute.
 	 */
-	public function postprocessAttribute(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+	public function _postprocessAttrSingle(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
 	{
 		if($attr->getValue() == 'yes')
 		{
 			$node->set('single', true);
 			$node->removeChildren();
 		}
-	} // end processAttribute();
+	} // end _postprocessAttrSingle();
+
+	/**
+	 * Processes the opt:tag-name instruction attribute.
+	 *
+	 * @internal
+	 * @param Opt_Xml_Node $node XML node.
+	 * @param Opt_Xml_Attribute $attr XML attribute.
+	 * @throws Opt_Instruction_Exception
+	 */
+	public function _processAttrTagname(Opt_Xml_Node $node, Opt_Xml_Attribute $attr)
+	{
+		if($this->_compiler->isNamespace($node->getNamespace()))
+		{
+			throw new Opt_Instruction_Exception('Cannot use opt:tag-name with special OPT namespaces.');
+		}
+
+		$found = $this->_compiler->detectExpressionEngine($attr->getValue(), $this->_tpl->expressionEngine);
+		if($found === null)
+		{
+			$found = array($this->_tpl->expressionEngine, $attr->getValue());
+		}
+		$result = $this->_compiler->parseExpression($found[1], $found[0]);
+
+		if($result['complexity'] > 10)
+		{
+			if($node->getNamespace() !== null)
+			{
+				$node->addAfter(Opt_Xml_Buffer::TAG_NAME, 'if(($__tmp = '.$result['bare'].') !== null){ echo \''.$node->getNamespace().':\'.$__tmp; } else { echo \''.$node->getXmlName().'\'; }');
+			}
+			else
+			{
+				$node->addAfter(Opt_Xml_Buffer::TAG_NAME, 'if(($__tmp = '.$result['bare'].') !== null){ echo $__tmp; } else { echo \''.$node->getXmlName().'\'; }');
+			}
+		}
+		else
+		{
+			if($node->getNamespace() !== null)
+			{
+				$node->addAfter(Opt_Xml_Buffer::TAG_NAME, 'if('.$result['bare'].' !== null){ echo \''.$node->getNamespace().':\'.'.$result['bare'].'; } else { echo \''.$node->getXmlName().'\'; }');
+			}
+			else
+			{
+				$node->addAfter(Opt_Xml_Buffer::TAG_NAME, 'if('.$result['bare'].' !== null){ echo '.$result['bare'].'; } else { echo \''.$node->getXmlName().'\'; }');
+			}
+		}
+	} // end _processAttrTagname();
 } // end Opt_Instruction_Tag;
