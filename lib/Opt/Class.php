@@ -599,17 +599,10 @@ class Opt_Class extends Opl_Class
 	protected function _pluginLoader($directory, SplFileInfo $file)
 	{
 		$ns = explode('.', $file->getFilename());
-		if(end($ns) == 'php')
+		$filename = $file->getFilename();
+		if(strpos($filename, '.php') === (strlen($filename) - 4))
 		{
-			switch($ns[0])
-			{
-				case 'instruction':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
-				case 'format':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
-				default:
-					return ' require(\''.$directory.$file->getFilename().'\'); ';
-			}
+			return ' require(\''.$directory.$filename.'\'); ';
 		}
 	} // end _pluginLoader();
 
