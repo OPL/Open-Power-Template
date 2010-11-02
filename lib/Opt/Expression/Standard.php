@@ -900,6 +900,30 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _makeFunction(SplFixedArray $functional)
 	{
+		// Assign() special function.
+		if($functional[0] == 'assign')
+		{
+			if(sizeof($functional[1]) > 1 && preg_match('/\\(\'([a-zA-Z0-9\_]+)\',\'([a-zA-Z0-9\_]+)\'\\)/', $functional[1][0][0], $matches))
+			{
+				$code = '$this->_tf->assign(\''.$matches[1].'\',\''.$matches[2].'\'';
+				$size = sizeof($functional[1]);
+				for($i = 1; $i < $size; $i++)
+				{
+					$code .= ','.$functional[1][$i][0];
+				}
+				$obj = new SplFixedArray(4);
+				$obj[0] = $code.')';
+				$obj[1] = self::FUNCTIONAL_OP_WEIGHT;
+				$obj[3] = 0;
+				return $obj;
+			}
+			else
+			{
+				throw new Opt_Expression_Exception('assign() expects a language variable as the first argument.');
+			}
+		}
+
+		// Normal functions go here
 		if(($name = $this->_compiler->isFunction($functional[0])) === null)
 		{
 			throw new Opt_Expression_Exception('Function '.$functional[0].' cannot be used in templates.');
