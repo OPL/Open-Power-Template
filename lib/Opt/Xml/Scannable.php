@@ -70,10 +70,6 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		// empty array if needed.
 		$this->_testNode($child);
 
-		if($child->_parent !== null)
-		{
-			var_dump(spl_object_hash($child->_parent));
-		}
 		$child->unmount();
 		if($this->_last === null)
 		{
@@ -87,6 +83,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			$this->_last->_next = $child;
 			$this->_last = $child;
 		}
+
 		$this->_size++;
 	} // end appendChild();
 
@@ -654,6 +651,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 			$this->_first = null;
 			$this->_last = null;
 			$this->_parent = null;
+			$this->_size = 0;
 			$this->_cloneHandler();
 		}
 		else
