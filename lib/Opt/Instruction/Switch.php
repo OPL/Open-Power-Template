@@ -382,7 +382,9 @@ class Opt_Instruction_Switch extends Opt_Instruction_Abstract
 							$item->set('priv:switch.nesting', $nesting);
 							if($item->get('priv:switch.caseType') == 'attribute')
 							{
-								$params[$format->action('switch:processAttribute')] = $item->getAttribute($subcase)->getValue();
+								$detected = $this->_compiler->detectExpressionEngine($item->getAttribute($subcase)->getValue(), 'parse');
+								$result = $this->_compiler->parseExpression($detected[1], $detected[0], Opt_Compiler_Class::ESCAPE_OFF);
+								$params[$format->action('switch:processAttribute')] = $result['bare'];
 							}
 							else
 							{
