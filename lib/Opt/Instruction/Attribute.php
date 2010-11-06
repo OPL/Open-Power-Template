@@ -241,7 +241,7 @@ class Opt_Instruction_Attribute extends Opt_Instruction_Abstract
 				else
 				{
 					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_BEGIN, $code.' if($_attr'.self::$_cnt.'_val !== null){ ');
-					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo $_attr'.self::$_cnt.'_val; ');
+					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_VALUE, ' echo $_attr'.self::$_cnt.'_val; $_attr'.self::$_cnt.'_val = null; ');
 					$attribute->addAfter(Opt_Xml_Buffer::ATTRIBUTE_END, ' } ');
 				}
 			}
