@@ -69,6 +69,7 @@ class Opt_Instruction_Prolog extends Opt_Instruction_Abstract
 			$root = $tmp;
 		}
 
+		// Set the default values.
 		if($params['version'] === null)
 		{
 			$params['version'] = '\'1.0\'';
