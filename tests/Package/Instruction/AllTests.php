@@ -36,7 +36,7 @@ require_once('SelectorTest.php');
 //require_once('SingleTest.php');
 require_once('SnippetTest.php');
 require_once('SwitchTest.php');
-//require_once('TagTest.php');
+require_once('TagTest.php');
 require_once('TreeTest.php');
 
 class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
@@ -78,7 +78,7 @@ class Package_Instruction_AllTests extends PHPUnit_Framework_TestSuite
 		//$suite->addTestSuite('Package_Instruction_SingleTest');
 		$suite->addTestSuite('Package_Instruction_SnippetTest');
 		$suite->addTestSuite('Package_Instruction_SwitchTest');
-		//$suite->addTestSuite('Package_Instruction_TagTest');
+		$suite->addTestSuite('Package_Instruction_TagTest');
 		$suite->addTestSuite('Package_Instruction_TreeTest');
 
 		return $suite;

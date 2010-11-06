@@ -1,6 +1,6 @@
 <?php
 /**
- * The tests for opt:component instruction.
+ * The tests for opt:switch instruction.
  *
  * @author Tomasz "Zyx" Jędrzejewski
  * @copyright Copyright (c) 2009 Invenzzia Group
@@ -14,10 +14,10 @@ require_once('./Extra/TestFSBase.php');
  * @covers Opt_Compiler_Class
  * @covers Opt_Compiler_Format
  * @covers Opt_Compiler_Processor
- * @covers Opt_Instruction_Component
+ * @covers Opt_Instruction_Tag
  * @runTestsInSeparateProcesses
  */
-class Package_Instruction_ComponentTest extends Extra_TestFSBase
+class Package_Instruction_TagTest extends Extra_TestFSBase
 {
 
 	/**
@@ -33,27 +33,19 @@ class Package_Instruction_ComponentTest extends Extra_TestFSBase
 
 	/**
 	 * Provides the list of test cases.
-	 * @return Array
+	 * @return array
 	 */
 	public static function dataProvider()
 	{
 		return array(0 =>
-			array('Component/component_basic.txt'),
-			array('Component/component_datasource.txt'),
-			array('Component/component_display.txt'),
-			array('Component/component_display_attr.txt'),
-			array('Component/component_events.txt'),
-			array('Component/component_management.txt'),
-			array('Component/component_multiple.txt'),
-			array('Component/component_defined.txt'),
-			array('Component/component_param_empty.txt'),
-			array('Component/component_skipping_opt.txt'),
-			array('Component/component_inject_procedure.txt'),
-			array('Component/component_inject_snippet.txt'),
-			array('Component/component_nesting.txt'),
-			array('Component/component_template.txt'),
-			array('Component/component_template_missing.txt'),
-			array('Component/component_id.txt'),
+			array('Tag/tag_basic.txt'),
+			array('Tag/tag_single.txt'),
+			array('Tag/tag_dynamic_attr.txt'),
+			array('Tag/tag_special_attr.txt'),
+			array('Tag/tag_name.txt'),
+			array('Tag/tag_namespaces.txt'),
+			array('Tag/tag_name_attr.txt'),
+			array('Tag/tag_name_attr_ns.txt'),
 		);
 	} // end dataProvider();
 
@@ -65,4 +57,4 @@ class Package_Instruction_ComponentTest extends Extra_TestFSBase
 	{
 		return $this->_checkTest(dirname(__FILE__).'/Tests/'.$testCase);
 	} // end testInstructions();
-} // end Package_Instruction_ComponentTest;
+} // end Package_Instruction_TagTest;

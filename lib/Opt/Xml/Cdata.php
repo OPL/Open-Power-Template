@@ -107,6 +107,11 @@ class Opt_Xml_Cdata extends Opt_Xml_Node
 
 	/**
 	 * Validates the inserted text.
+	 *
+	 * Throws an exception, if the validated text contains special <> XML
+	 * symbols.
+	 *
+	 * @throws Opt_Xml_Exception
 	 * @param String $text The text to validate
 	 * @return Boolean
 	 */
@@ -119,7 +124,7 @@ class Opt_Xml_Cdata extends Opt_Xml_Node
 		}
 		if(strcspn($text, '<>') != strlen($text))
 		{
-			throw new Opt_XmlInvalidCharacter_Exception(htmlspecialchars($text));
+			throw new Opt_Xml_Exception('Invalid symbols in the character data: '.htmlspecialchars($text));
 		}
 		return true;
 	} // end _validate();

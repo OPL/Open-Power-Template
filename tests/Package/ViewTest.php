@@ -298,4 +298,60 @@ class Package_ViewTest extends Extra_Testcase
 		ob_end_clean();
 	} // end testNoNoticesOnUnexistingVars();
 
+	/**
+	 * @covers Opt_View::setCache
+	 * @covers Opt_View::getCache
+	 * @covers Opt_View::_parse
+	 */
+	public function testCacheRebuild()
+	{
+		$view = new Opt_View('dummy.tpl');
+
+		$mock = $this->getMock('Opt_Caching_Interface');
+		$mock->expects($this->once())
+			->method('templateCacheStart')
+			->with($view)
+			->will($this->returnValue(false));
+		$mock->expects($this->once())
+			->method('templateCacheStop')
+			->with($view);
+
+		$view->setCache($mock);
+		$this->assertSame($mock, $view->getCache());
+
+		$output = $this->getMock('Opt_Output_Interface');
+		ob_start();
+		$view->_parse($output);
+		ob_end_clean();
+	} // end testCacheRebuild();
+
+	/**
+	 * @covers Opt_View::setCache
+	 * @covers Opt_View::getCache
+	 * @covers Opt_View::_parse
+	 */
+	public function testCacheRestore()
+	{
+		$view = new Opt_View('dummy.tpl');
+		file_put_contents('./Cache/cache.txt', 'DUPA');
+
+		$mock = $this->getMock('Opt_Caching_Interface');
+		$mock->expects($this->once())
+			->method('templateCacheStart')
+			->with($view)
+			->will($this->returnValue('./Cache/cache.txt'));
+		$mock->expects($this->never())
+			->method('templateCacheStop');
+	
+		$view->setCache($mock);
+		$this->assertSame($mock, $view->getCache());
+
+		$output = $this->getMock('Opt_Output_Interface');
+		ob_start();
+		$view->_parse($output);
+		$data = ob_get_clean();
+
+		$this->assertEquals('DUPA', $data);
+	} // end testCacheRestore();
+
 } // end Package_ViewTest;

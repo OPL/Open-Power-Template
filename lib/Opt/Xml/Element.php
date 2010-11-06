@@ -759,7 +759,7 @@ class Opt_Xml_Element extends Opt_Xml_Scannable
 						$code .= ($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_BEGIN) == 0 ? ' ' : '').$attribute->buildCode(Opt_Xml_Buffer::ATTRIBUTE_BEGIN, ' ', Opt_Xml_Buffer::ATTRIBUTE_NAME);
 						break;
 					default:
-						throw new Opt_CompilerCodeBufferConflict_Exception(1, 'ATTRIBUTE_NAME', $this->getXmlName());
+						throw new Opt_Xml_Exception('Compiler code buffer conflict: the buffer \'ATTRIBUTE_NAME\' in '.$this->getXmlName().' can contain at most one code block.');
 				}
 
 				if($attribute->bufferSize(Opt_Xml_Buffer::ATTRIBUTE_VALUE) == 0)

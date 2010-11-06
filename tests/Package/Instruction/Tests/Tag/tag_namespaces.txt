@@ -1,0 +1,27 @@
+Checks if opt:tag correctly generates tags with dynamic namespaces.
+
+>>>>templates/test.tpl
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
+<opt:tag name="foo" ns="$existingNs">
+bar
+</opt:tag>
+<opt:tag name="foo" ns="$nonexistingNs">
+bar
+</opt:tag>
+</opt:root>
+
+>>>>data.php
+$view->existingNs = 'xyz';
+$view->nonexistingNs = null;
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<xyz:foo>
+bar
+</xyz:foo>
+<foo>
+bar
+</foo>

@@ -1,10 +1,10 @@
 The test checks the basic opt:tag functionality with the "name" attribute added.
 
 >>>>templates/test.tpl
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<opt:root>
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt">
 <opt:tag name="foo">
-<opt:attribute str:name="name" str:value="bar" />
+<opt:attribute name="str:name" value="str:bar" />
 bar
 </opt:tag>
 </opt:root>

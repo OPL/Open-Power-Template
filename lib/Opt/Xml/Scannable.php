@@ -290,6 +290,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	 * Replaces the child with the new node. The reference node can be
 	 * identified either by the number or by the object.
 	 *
+	 * @throws Opt_Xml_Exception
 	 * @param Opt_Xml_Node $newnode The new node.
 	 * @param integer|Opt_Xml_Node $refnode The old node.
 	 * @return boolean
@@ -322,7 +323,7 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 		// Now, do the replacement.
 		if($refnode->_parent !== $this)
 		{
-			throw new Opt_APIInvalidBorders_Exception;
+			throw new Opt_Xml_Exception('Cannot perform replaceChild(): invalid referenced node.');
 		}
 
 		if($this->_iterator === $refnode)
@@ -921,9 +922,9 @@ abstract class Opt_Xml_Scannable extends Opt_Xml_Node implements Iterator
 	/**
 	 * Checks whether the node can be added to this collection. If the specified
 	 * node cannot be inserted into a collection, the method is supposed to
-	 * return 'Opt_APIInvalidNodeType_Exception'
+	 * throw 'Opt_Xml_Exception'
 	 *
-	 * @throws Opt_APIInvalidNodeType_Exception
+	 * @throws Opt_Xml_Exception
 	 * @param Opt_Xml_Node $node The node to test
 	 */
 	protected function _testNode(Opt_Xml_Node $node)

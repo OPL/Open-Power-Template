@@ -176,7 +176,7 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 	 * Processes the opt:selectorelse element.
 	 * @internal
 	 * @param Opt_Xml_Element $node
-	 * @throws Opt_InstructionInvalidParent_Exception
+	 * @throws Opt_Instruction_Exception
 	 */
 	protected function _processElse(Opt_Xml_Element $node)
 	{
@@ -194,9 +194,10 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 		}
 		else
 		{
-			throw new Opt_InstructionInvalidParent_Exception($node->getXmlName(), 'opt:section');
+			// Perhaps unreachable, unless some bug in the code occurs.
+			throw new Opt_Instruction_Exception('Invalid parent of \'opt:else\' node: '.$node->getXmlName());
 		}
-	} // end _processSelectorelse();
+	} // end _processElse();
 
 	/**
 	 * Processes the attribute version of opt:selector

@@ -1,0 +1,27 @@
+Testing the opt:tag-name special attribute with namespaces.
+
+>>>>templates/test.tpl
+<?xml version="1.0" ?>
+<opt:root xmlns:opt="http://xml.invenzzia.org/opt" xmlns:xyz="http://www.example.com/xml/xyz">
+<xyz:div opt:tag-name="$nonexistingName">
+bar
+</xyz:div>
+<xyz:div opt:tag-name="$existingName">
+bar
+</xyz:div>
+</opt:root>
+
+>>>>data.php
+$view->nonexistingName = null;
+$view->existingName = 'span';
+
+>>>>expected.txt
+OUTPUT
+
+>>>>result.txt
+<xyz:div>
+bar
+</xyz:div>
+<xyz:span>
+bar
+</xyz:span>

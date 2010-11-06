@@ -782,24 +782,4 @@ class Opt_Function
 		}
 		return rtrim($prepend);
 	} // end buildAttributes();
-
-	/**
-	 * Performs a safe template procedure call. Before that, it checks for
-	 * the existence of a procedure and if it does not exist, it throws
-	 * an exception.
-	 *
-	 * @throws Opt_ObjectNotExists_Exception
-	 * @param Opt_View $view The current view instance.
-	 * @param string $name The procedure name
-	 * @param array $arguments The list of procedure argument values
-	 */
-	static public function call(Opt_InternalContext $ctx, $name, array $arguments)
-	{
-		if(function_exists('__optFunc_'.$name))
-		{
-			$arguments[0] = $ctx;
-			return call_user_func_array('__optFunc_'.$name, $arguments);
-		}
-		throw new Opt_ObjectNotExists_Exception('template procedure', $name);
-	} // end call();
 } // end Opt_Function;

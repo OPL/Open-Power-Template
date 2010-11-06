@@ -210,12 +210,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 			$this->_snippets[$params['name']][] = $node;
 		}
 		$node->unmount();
-		/*
-		if($node->getParent()->removeChild($node) == 0)
-		{
-			throw new Opl_Debug_Exception();
-		}
-		 */
+
 		// Remember the template state of escaping for this snippet.
 		// This is necessary to make per-template escaping work with
 		// the inheritance.
@@ -364,7 +359,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 			if($it == $snippetName)
 			{
 				$this->_current->push($snippetName);
-				$err = new Opt_SnippetRecursion_Exception($snippetName);
+				$err = new Opt_Compiler_Recursion_Exception('Infinite snippet recursion detected in \''.$snippetName.'\' snippet.');
 				throw $err->setData($this->_current);
 			}
 		}
@@ -513,7 +508,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	/**
 	 * Returns the list of arguments of the specified snippet.
 	 *
-	 * @throws Opt_SnippetNotFound_Exception
+	 * @throws Opt_Instrcution_Exception
 	 * @param string $snippetName The snippet name.
 	 * @return array
 	 */
@@ -521,7 +516,7 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 	{
 		if(!isset($this->_arguments[$snippetName]))
 		{
-			throw new Opt_SnippetNotFound_Exception($snippetName);
+			throw new Opt_Instrcution_Exception('The requested snippet \''.$snippetName.'\' is not defined.');
 		}
 		return $this->_arguments[$snippetName];
 	} // end getArguments();

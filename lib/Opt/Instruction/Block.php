@@ -77,16 +77,20 @@ class Opt_Instruction_Block extends Opt_Instruction_Abstract
 		// Undefined block processing
 		$params = array(
 			'from' => array(self::REQUIRED, self::EXPRESSION, null),
+			'id' => array(self::OPTIONAL, self::STRING, null),
 			'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
 		);
 		$vars = $this->_extractAttributes($node, $params);
-		$this->_stack->push($params['from']);
 
-		$mainCode = ' if(is_object('.$params['from'].') && '.$params['from'].' instanceof Opt_Block_Interface){ '.$params['from'].'->setView($this); ';
-		$mainCode .= $this->_commonProcessing($node, $params['from'], $vars);
+		$format = $this->_compiler->getFormat('block#'.$params['id'], false, $this->_tpl->blockFormat);
+		$format->assign('variable', $params['from']);
+		$this->_stack->push(array($params['from'], $format));
+
+		$mainCode = ' if(is_object('.$params['from'].') && '.$format->get('block:valid').'){ '.$format->get('block:init');
+		$mainCode .= $this->_commonProcessing($node, $params['from'], $vars, $format);
 
 		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
-		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, ' } ');
+		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER, $format->get('block:done').' } ');
 		$node->set('postprocess', true);
 	} // end processNode();
 
@@ -111,36 +115,25 @@ class Opt_Instruction_Block extends Opt_Instruction_Abstract
 	{
 		// Defined block processing
 		$params = array(
+			'id' => array(self::OPTIONAL, self::STRING, null),
 			'__UNKNOWN__' => array(self::OPTIONAL, self::EXPRESSION, null)
 		);
 
 		$vars = $this->_extractAttributes($node, $params);
-		// Get the real class name
+
+		// Initialize block structures
 		$cn = '$_block_'.($this->_unique++);
+		$format = $this->_compiler->getFormat('block#'.$params['id'], false, $this->_tpl->blockFormat);
+		$format->assign('variable', $cn);
+		$this->_stack->push(array($cn, $format));
 
-		$this->_stack->push($cn);
+		// Generate the initialization code
+		$format->assign('className', $this->_compiler->block($node->getXmlName()));
+		$mainCode = $format->get('block:build').$format->get('block:init');
 
-		$class = $this->_compiler->block($node->getXmlName());
-		// Check, if there are any conversions that may take control over initializing
-		// the component object. We are allowed to capture only particular component
-		// creation or all of them.
-		if((($to = $this->_compiler->convert('##block_'.$class)) != '##block_'.$class))
-		{
-			$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
-		}
-		elseif((($to = $this->_compiler->convert('##block')) != '##block'))
-		{
-			$ccode = str_replace(array('%CLASS%', '%TAG%'), array($class, $node->getXmlName()), $to);
-		}
-		else
-		{
-			$ccode = 'new '.$class;
-		}
-
-		$mainCode = $cn.' = '.$ccode.'; '.$cn.'->setView($this); ';
-
-		$this->_commonProcessing($node, $cn, $vars);
+		$this->_commonProcessing($node, $cn, $vars, $format);
 		$node->addBefore(Opt_Xml_Buffer::TAG_BEFORE,  $mainCode);
+		$node->addAfter(Opt_Xml_Buffer::TAG_AFTER,  $format->get('block:done'));
 	} // end processBlock();
 
 	/**
@@ -167,24 +160,18 @@ class Opt_Instruction_Block extends Opt_Instruction_Abstract
 	 * @param array $args The array of custom block attributes.
 	 * @return string
 	 */
-	private function _commonProcessing(Opt_Xml_Element $node, $blockVariable, array $args)
+	private function _commonProcessing(Opt_Xml_Element $node, $blockVariable, array $args, Opt_Format_Abstract $format)
 	{
 		// Common part of the component processing
-		$argList = 'array( ';
-		foreach($args as $name=>$value)
-		{
-			$argList .= '\''.$name.'\' => '.$value.', ';
-		}
-		$argList .= ')';
-
+		$format->assign('arguments', $args);
 		if($node->get('single'))
 		{
-			$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, $blockVariable.'->onSingle('.$argList.'); ');
+			$node->addAfter(Opt_Xml_Buffer::TAG_SINGLE_BEFORE, $format->get('block:on-single'));
 		}
 		else
 		{
-			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, ' if('.$blockVariable.'->onOpen('.$argList.')){ ');
-			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, ' } '.$blockVariable.'->onClose(); ');
+			$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $format->get('block:on-open'));
+			$node->addBefore(Opt_Xml_Buffer::TAG_AFTER, $format->get('block:on-close'));
 		}
 
 		$this->_process($node);
@@ -204,6 +191,8 @@ class Opt_Instruction_Block extends Opt_Instruction_Abstract
 		{
 			throw new Opt_Instruction_Exception('opt:block error: cannot process $'.implode('.',$opt).': no blocks active.');
 		}
-		return $this->_stack->top().'->get(\''.$opt[2].'\')';
+		list($variable, $format) = $this->_stack->top();
+		$format->assign('name', $opt[2]);
+		return $format->get('block:get');
 	} // end processSystemVar();
 } // end Opt_Instruction_Block;

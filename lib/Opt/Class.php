@@ -185,6 +185,8 @@ class Opt_Class extends Opl_Class
 	public $defaultFormat = 'Array';
 	public $containerFormat = 'Container';
 	public $treeFormat = 'DepthTree';
+	public $componentFormat = 'Component';
+	public $blockFormat = 'Block';
 
 	/**
 	 * The compiler object
@@ -289,6 +291,7 @@ class Opt_Class extends Opl_Class
 		'Objective' => 'Opt_Format_Objective',
 		'Global' => 'Opt_Format_Global',
 		'SingleArray' => 'Opt_Format_SingleArray',
+		'SplDatastructure' => 'Opt_Format_SplDatastructure',
 		'StaticGenerator' => 'Opt_Format_StaticGenerator',
 		'RuntimeGenerator' => 'Opt_Format_RuntimeGenerator',
 		'System' => 'Opt_Format_System',
@@ -296,7 +299,9 @@ class Opt_Class extends Opl_Class
 		'SwitchContains' => 'Opt_Format_SwitchContains',
 		'Container' => 'Opt_Format_Container',
 		'DepthTree' => 'Opt_Format_DepthTree',
-		'NestedTree' => 'Opt_Format_NestedTree'
+		'NestedTree' => 'Opt_Format_NestedTree',
+		'Component' => 'Opt_Format_Component',
+		'Block' => 'Opt_Format_Block'
 	);
 	/**
 	 * The extra entities replaced by OPT
@@ -594,17 +599,10 @@ class Opt_Class extends Opl_Class
 	protected function _pluginLoader($directory, SplFileInfo $file)
 	{
 		$ns = explode('.', $file->getFilename());
-		if(end($ns) == 'php')
+		$filename = $file->getFilename();
+		if(strpos($filename, '.php') === (strlen($filename) - 4))
 		{
-			switch($ns[0])
-			{
-				case 'instruction':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Instruction_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_INSTRUCTION, \''.$ns[1].'\'); ';
-				case 'format':
-					return 'Opl_Loader::mapAbsolute(\'Opt_Format_'.$ns[1].'\', \''.$directory.$file->getFilename().'\'); $this->register(Opt_Class::OPT_FORMAT, \''.$ns[1].'\'); ';
-				default:
-					return ' require(\''.$directory.$file->getFilename().'\'); ';
-			}
+			return ' require(\''.$directory.$filename.'\'); ';
 		}
 	} // end _pluginLoader();
 

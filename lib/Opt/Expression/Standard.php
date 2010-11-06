@@ -279,7 +279,10 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	} // end _prepareTemplateVar();
 
 	/**
-	 * Compiles a language variable.
+	 * Compiles a language variable. If the language variable call is not
+	 * supported, an exception is thrown.
+	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $group The group name
 	 * @param string $id The message ID name
 	 * @param int $weight The token weight
@@ -289,7 +292,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if($this->_tpl->getTranslationInterface() == null)
 		{
-			throw new Opt_NotSupported_Exception('language variable call', 'no translation interface installed');
+			throw new Opt_Compiler_Exception('The language variable call is not supported: no translation interface installed');
 		}
 
 		$array = new SplFixedArray(4);
@@ -560,7 +563,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 
 					if($context > 0 && !$format->property($hook))
 					{
-						throw new Opt_OperationNotSupported_Exception($path, $this->_dfCalls[$context]);
+						throw new Opt_Compiler_Exception('Unsupported operation for '.$path.': '.$this->_dfCalls[$context]);
 					}
 					$code .= $format->get($hook);
 				}
@@ -897,6 +900,30 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	 */
 	public function _makeFunction(SplFixedArray $functional)
 	{
+		// Assign() special function.
+		if($functional[0] == 'assign')
+		{
+			if(sizeof($functional[1]) > 1 && preg_match('/\\(\'([a-zA-Z0-9\_]+)\',\'([a-zA-Z0-9\_]+)\'\\)/', $functional[1][0][0], $matches))
+			{
+				$code = '$this->_tf->assign(\''.$matches[1].'\',\''.$matches[2].'\'';
+				$size = sizeof($functional[1]);
+				for($i = 1; $i < $size; $i++)
+				{
+					$code .= ','.$functional[1][$i][0];
+				}
+				$obj = new SplFixedArray(4);
+				$obj[0] = $code.')';
+				$obj[1] = self::FUNCTIONAL_OP_WEIGHT;
+				$obj[3] = 0;
+				return $obj;
+			}
+			else
+			{
+				throw new Opt_Expression_Exception('assign() expects a language variable as the first argument.');
+			}
+		}
+
+		// Normal functions go here
 		if(($name = $this->_compiler->isFunction($functional[0])) === null)
 		{
 			throw new Opt_Expression_Exception('Function '.$functional[0].' cannot be used in templates.');
@@ -985,8 +1012,10 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	} // end _buildObjectFieldDynamic();
 
 	/**
-	 * Processes the object access operator from a static class.
+	 * Processes the object access operator from a static class. An exception
+	 * is thrown, if the direct object access is disabled.
 	 *
+	 * @throws Opt_Compiler_Exception
 	 * @param string $className The static class name
 	 * @param string $current The class field name
 	 * @return SplFixedArray
@@ -995,12 +1024,12 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowObjects)
 		{
-			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported direct object access: disabled by the configuration');
 		}
 
 		if(($compiled = $this->_compiler->isClass($token)) !== null)
 		{
-			throw new Opt_ItemNotAllowed_Exception('Class', $className);
+			throw new Opt_Compiler_Exception('The class \''.$className.'\' is not allowed to be used in templates.');
 		}
 		$variable = new SplFixedArray(4);
 		$variable[0] = $compiled.'::$'.(string)$current;
@@ -1021,7 +1050,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowObjects)
 		{
-			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported direct object access: disabled by the configuration');
 		}
 
 		$variable[0] .= '->'.(string)$current;
@@ -1041,7 +1070,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowObjects)
 		{
-			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported direct object access: disabled by the configuration');
 		}
 
 		$variable = $this->_compileVariable($variable[0], $variable[1], 0);
@@ -1078,12 +1107,12 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowObjects)
 		{
-			throw new Opt_NotSupported_Exception('direct class access', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported direct class access: disabled by the configuration');
 		}
 
 		if(($compiled = $this->_compiler->isClass($className)) === null)
 		{
-			throw new Opt_ItemNotAllowed_Exception('Class', $className);
+			throw new Opt_Compiler_Exception('The class \''.$className.'\' is not allowed to be used in templates.');
 		}
 		$variable = new SplFixedArray(4);
 		$variable[0] = $compiled.'::'.(string)$current[0].'(';
@@ -1120,7 +1149,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowObjects)
 		{
-			throw new Opt_NotSupported_Exception('direct object access', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported direct object access: disabled by the configuration');
 		}
 
 		$variable[0] .= '->'.(string)$current[0].'(';
@@ -1156,7 +1185,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowArrays)
 		{
-			throw new Opt_NotSupported_Exception('direct array access', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported direct array access: disabled by the configuration');
 		}
 
 		$variable = $this->_compileVariable($variable[0], $variable[1], 0);
@@ -1180,7 +1209,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowArrays)
 		{
-			throw new Opt_NotSupported_Exception('direct array access', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported direct array access: disabled by the configuration');
 		}
 
 		$variable[0] .= '['.(string)$current[0].']';
@@ -1201,7 +1230,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 	{
 		if(!$this->_tpl->allowObjects || !$this->_tpl->allowObjectCreation)
 		{
-			throw new Opt_NotSupported_Exception('object creation', 'disabled by the configuration');
+			throw new Opt_Compiler_Exception('Unsupported object creation: disabled by the configuration');
 		}
 		switch($action)
 		{
@@ -1214,7 +1243,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 			case 'new':
 				if(($compiled = $this->_compiler->isClass($what[0])) === null)
 				{
-					throw new Opt_ItemNotAllowed_Exception('Class', $what[0]);
+					throw new Opt_Compiler_Exception('The class \''.$what[0].'\' is not allowed to be used in templates.');
 				}
 				$answer = new SplFixedArray(4);
 				$answer[0] = 'new '.$compiled;
