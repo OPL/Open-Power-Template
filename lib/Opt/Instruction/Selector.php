@@ -114,13 +114,14 @@ class Opt_Instruction_Selector extends Opt_Instruction_Section_Abstract
 		$section = $this->_sectionCreate($node, null, array('test' => array(self::OPTIONAL, self::ID, 'item')));
 		$this->_sectionStart($section);
 
+		$code = $section['format']->get('section:loopBefore');
 		if($section['order'] == 'asc')
 		{
-			$code = $section['format']->get('section:startAscLoop');
+			$code .= $section['format']->get('section:startAscLoop');
 		}
 		else
 		{
-			$code = $section['format']->get('section:startDescLoop');
+			$code .= $section['format']->get('section:startDescLoop');
 		}
 		$node->addAfter(Opt_Xml_Buffer::TAG_BEFORE, $code);
 		$separator = $this->processSeparator('$__sect_'.$section['name'], $section['separator'], $node);
