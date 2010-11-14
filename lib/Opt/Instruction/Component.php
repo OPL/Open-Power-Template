@@ -246,6 +246,8 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 
 		// Generate the initialization code
 		$format->assign('className', $this->_compiler->component($node->getXmlName()));
+		$format->assign('tagName', $node->getXmlName());
+		$format->assign('attributes', $vars);
 		$mainCode = $format->get('component:build').$format->get('component:init');
 
 		if($params['datasource'] !== null)
