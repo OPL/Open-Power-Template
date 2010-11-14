@@ -336,9 +336,9 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 		}
 		foreach($args as $name => $value)
 		{
-			$format->assign('name', $name);
+			$format->assign('name', '\''.$name.'\'');
 			$format->assign('value', $value);
-			$code .= $format->get('component:set');
+			$code .= $format->get('component:set').';';
 		}
 		// opt:component-attributes
 		foreach($everything[1] as $wtf)
