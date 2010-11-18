@@ -201,7 +201,7 @@
 
 	class Opt_EmptyExpression_Exception extends Opt_Template_Exception
 	{
-		protected $_message = 'The specified exception is empty.';
+		protected $_message = 'The specified expression is empty.';
 	} // end Opt_EmptyExpression_Exception;
 	
 	class Opt_FunctionArgument_Exception extends Opt_Template_Exception
