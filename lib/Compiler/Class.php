@@ -2123,15 +2123,16 @@
 								}
 								else
 								{
+									$unicode = ($this->_tpl->charset == 'utf-8' ? 'u' : '');
 									// In the opposite case reduce all the groups of the white characters
 									// to single spaces in the text.
 									if($item->get('noEntitize') === true)
 									{
-										$output .= preg_replace('/\s\s+/', ' ', (string)$item);
+										$output .= preg_replace('/\s\s+/'.$unicode, ' ', (string)$item);
 									}
 									else
 									{
-										$output .= $this->parseSpecialChars(preg_replace('/(\s){1,}/', ' ', (string)$item));
+										$output .= $this->parseSpecialChars(preg_replace('/(\s){1,}/'.$unicode, ' ', (string)$item));
 									}
 								}
 							}
