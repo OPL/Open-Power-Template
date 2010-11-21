@@ -288,6 +288,7 @@ class Opt_Class extends Opl_Class
 	 */
 	protected $_formats = array(
 		'Array' => 'Opt_Format_Array',
+		'AssociativeArray' => 'Opt_Format_AssociativeArray',
 		'Objective' => 'Opt_Format_Objective',
 		'Global' => 'Opt_Format_Global',
 		'SingleArray' => 'Opt_Format_SingleArray',
