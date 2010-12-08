@@ -510,17 +510,20 @@
 				throw new Opt_APINoWildcard_Exception;
 			}
 			// To create a stable sort.
-			$i = 0;
-			foreach($this->_subnodes as &$node)
+			if(is_array($this->_subnodes) && sizeof($this->_subnodes) > 0)
 			{
-				if($node instanceof Opt_Xml_Buffer)
+				$i = 0;
+				foreach($this->_subnodes as &$node)
 				{
-					$node->set('_ssort', $i++);
-				}				
+					if($node instanceof Opt_Xml_Buffer)
+					{
+						$node->set('_ssort', $i++);
+					}
+				}
+				// Sort!
+				usort($this->_subnodes, array($this, 'sortCmp'));
+				unset($this->_prototypes);
 			}
-			// Sort!
-			usort($this->_subnodes, array($this, 'sortCmp'));
-			unset($this->_prototypes);
 		} // end sort();
 
 		/**
