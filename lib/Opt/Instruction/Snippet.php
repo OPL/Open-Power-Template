@@ -389,7 +389,8 @@ class Opt_Instruction_Snippet extends Opt_Instruction_Abstract
 					{
 						// We must parse an OPT expression in order to get to know what we have
 						// here...
-						$expression = $this->_compiler->parseExpression($arguments[$name], null, Opt_Compiler_Class::ESCAPE_OFF);
+						$detectedExpression = $this->_compiler->detectExpressionEngine($arguments[$name], 'parse');
+						$expression = $this->_compiler->parseExpression($detectedExpression[1], $detectedExpression[0], Opt_Compiler_Class::ESCAPE_OFF);
 						if($expression['type'] == Opt_Expression_Interface::SINGLE_VAR)
 						{
 							$this->_compiler->setConversion('##rawvar_'.$name, $expression['bare']);
