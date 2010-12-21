@@ -382,7 +382,7 @@ class Opt_Instruction_Component extends Opt_Instruction_Abstract
 			throw new Opt_Instruction_Exception('Component error: invalid use of $'.implode('.',$opt).': no active component.');
 		}
 		list($variable, $format) = $this->_stack->top();
-		$format->assign('name', $opt[2]);
+		$format->assign('name', '\''.$opt[2].'\'');
 		return $format->get('component:get');
 	} // end processSystemVar();
 
