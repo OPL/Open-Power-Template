@@ -903,7 +903,7 @@ class Opt_Expression_Standard implements Opt_Expression_Interface
 		// Assign() special function.
 		if($functional[0] == 'assign')
 		{
-			if(sizeof($functional[1]) > 1 && preg_match('/\\(\'([a-zA-Z0-9\_]+)\',\'([a-zA-Z0-9\_]+)\'\\)/', $functional[1][0][0], $matches))
+			if(sizeof($functional[1]) > 1 && preg_match('/\\(\'([a-zA-Z0-9\_]+)\',\'([a-zA-Z0-9\_\.]+)\'\\)/', $functional[1][0][0], $matches))
 			{
 				$code = '$this->_tf->assign(\''.$matches[1].'\',\''.$matches[2].'\'';
 				$size = sizeof($functional[1]);

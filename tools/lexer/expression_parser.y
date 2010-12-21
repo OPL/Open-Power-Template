@@ -214,7 +214,7 @@ single_container_def(res)	::= expr(e1).					{	res = $this->_expr->_pair(null, e1
 
 script_variable(res)	::= DOLLAR IDENTIFIER(name).	{	res = $this->_expr->_prepareScriptVar(name); }
 template_variable(res)	::= AT IDENTIFIER(name).		{	res = $this->_expr->_prepareTemplateVar(name); }
-language_variable(res)	::= DOLLAR IDENTIFIER(group) AT IDENTIFIER(id).	{	res = $this->_expr->_compileLanguageVar(group, id, Opt_Expression_Standard::LANGUAGE_VARIABLE_WEIGHT); }
+language_variable(res)	::= DOLLAR IDENTIFIER(group) AT language_container_call(id).	{	res = $this->_expr->_compileLanguageVar(group, id, Opt_Expression_Standard::LANGUAGE_VARIABLE_WEIGHT); }
 container(res)			::= script_variable(var) container_call(cont).
 		{
 			array_unshift(cont, var[0][0]);
@@ -229,6 +229,9 @@ container(res)			::= template_variable(var) container_call(cont).
 			res[0] = cont;
 			res[1] = '@';
 		}
+
+language_container_call(name)	::= IDENTIFIER(id).		{ name = id;	}
+language_container_call(name)	::= language_container_call(previous) DOT IDENTIFIER(id).	{	name = previous.'.'.id;	}
 
 container_call(res)		::= single_container_call(f).					{	res = array(f);	}
 container_call(res)		::= single_container_call(f) container_call(c).	{	array_unshift(c, f); res = c;	}
