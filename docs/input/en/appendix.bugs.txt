@@ -3,12 +3,12 @@ Appendix: Yes
 
 ----
 
-If you found a bug, please visit our bugtracker: [bugs.invenzzia.org](http://bugs.invenzzia.org/) and report it. You will help developing the library.
+Open Power Template bugtracker is located at [OPT Github repository](https://github.com/OPL/Open-Power-Libs/issues). If you find any bug, please report it there.
 
 How to use the bugtracker?
 ==========================
 
-1. We use the same bugtracker for various projects. Be sure that **you add the report to the correct project**.
+1. In order to report a bug, you must have a valid [Github](http://www.github.com) account.
 2. If it is possible, the report should contain a standalone test case that is ready to run. This will speed up reproducing the bug on our computers and creating the patch. If we cannot reproduce the bug, probably it will not be fixed.
 3. Include the information on OPT and PHP versions, as well as other projects that could interfere with the library.
 4. Please describe the expected behavior and the actual result.
