@@ -20,9 +20,8 @@ Help
 + User manuals are available [here](http://static.invenzzia.org/docs/). Note they
   may not describe some changes from 2.1 branch.
 + [Tutorials](http://www.invenzzia.org/en/resources/articles)
-+ [Project wiki](http://wiki.invenzzia.org)
 + [Discussion board](http://forums.invenzzia.org)
-+ [Bugtracker](http://bugs.invenzzia.org)
++ [Bugtracker](https://github.com/OPL/Open-Power-Template/issues)
 
 Authors and license
 -------------------
