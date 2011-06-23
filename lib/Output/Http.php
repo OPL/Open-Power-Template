@@ -91,7 +91,7 @@
 		{
 			if(!$this->_headersSent && $this->_tpl->headerBuffering)
 			{
-				foreach($this->headers as $name => $value)
+				foreach($this->_headers as $name => $value)
 				{
 					if($name == 'HTTP/1.0' || $name == 'HTTP/1.1')
 					{
