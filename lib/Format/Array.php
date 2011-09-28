@@ -158,7 +158,7 @@ class Opt_Format_Array extends Opt_Compiler_Format {
             // Section iterator.
             case 'section:iterator':
                 $section = $this->_getVar('section');
-                return '$_sect' . $section['nesting'] . '_i';
+                return '$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]';
             // Testing the first element.
             case 'section:isFirst':
                 $section = $this->_getVar('section');
