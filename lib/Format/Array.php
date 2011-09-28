@@ -65,7 +65,7 @@ class Opt_Format_Array extends Opt_Compiler_Format {
             // The condition that should test if the section is not empty.
             case 'section:isNotEmpty':
                 $section = $this->_getVar('section');
-                return 'is_array($_sect' . $section['name'] . '_vals) && ($_sect' . $section['name'] . '_cnt = sizeof($_sect' . $section['name'] . '_vals)) > 0';
+                return 'is_array($_sect' . $section['name'] . '_vals) && ($_sect' . $section['name'] . '_cnt = sizeof($_sect' . $section['name'] . '_vals)) > 0 && $_sect' . $section['name'] . '_keys = array_keys($_sect' . $section['name'] . '_vals)';
             // The code block after the condition
             case 'section:started':
             // The code block before the end of the conditional block.
@@ -86,7 +86,7 @@ class Opt_Format_Array extends Opt_Compiler_Format {
             // Retrieving the whole section item.
             case 'section:item':
                 $section = $this->_getVar('section');
-                return '$_sect' . $section['name'] . '_vals[$_sect' . $section['nesting'] . '_i]';
+                return '$_sect' . $section['name'] . '_vals[$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]]';
             // Retrieving a variable from a section item.
             case 'section:variable':
                 $section = $this->_getVar('section');
@@ -98,9 +98,9 @@ class Opt_Format_Array extends Opt_Compiler_Format {
                     return '$_sect' . $section['name'] . '_v[\'' . $this->_getVar('item') . '\']';
                 }
                 if ($this->isDecorating()) {
-                    return '$_sect' . $section['name'] . '_vals[$_sect' . $section['nesting'] . '_i]' . $this->_decorated->get('item:item');
+                    return '$_sect' . $section['name'] . '_vals[$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]]' . $this->_decorated->get('item:item');
                 }
-                return '$_sect' . $section['name'] . '_vals[$_sect' . $section['nesting'] . '_i][\'' . $this->_getVar('item') . '\']';
+                return '$_sect' . $section['name'] . '_vals[$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]][\'' . $this->_getVar('item') . '\']';
             // Retrieving a variable from a section item.
             case 'section:variableAssign':
                 $section = $this->_getVar('section');
@@ -112,9 +112,9 @@ class Opt_Format_Array extends Opt_Compiler_Format {
                     return '$_sect' . $section['name'] . '_v[\'' . $this->_getVar('item') . '\']=' . $this->_getVar('value');
                 }
                 if ($this->isDecorating()) {
-                    return '$_sect' . $section['name'] . '_vals[$_sect' . $section['nesting'] . '_i]' . $this->_decorated->get('item:assign');
+                    return '$_sect' . $section['name'] . '_vals[$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]]' . $this->_decorated->get('item:assign');
                 }
-                return '$_sect' . $section['name'] . '_vals[$_sect' . $section['nesting'] . '_i][\'' . $this->_getVar('item') . '\']=' . $this->_getVar('value');
+                return '$_sect' . $section['name'] . '_vals[$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]][\'' . $this->_getVar('item') . '\']=' . $this->_getVar('value');
             // Resetting the section to the first element.
             case 'section:reset':
                 $section = $this->_getVar('section');
@@ -136,7 +136,7 @@ class Opt_Format_Array extends Opt_Compiler_Format {
             // Checking whether the iterator is valid.
             case 'section:valid':
                 $section = $this->_getVar('section');
-                return 'isset($_sect' . $section['name'] . '_vals[$_sect' . $section['nesting'] . '_i])';
+                return 'isset($_sect' . $section['name'] . '_vals[$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]])';
             // Populate the current element
             case 'section:populate':
                 if ($this->_sectionItemVariables) {
@@ -154,7 +154,7 @@ class Opt_Format_Array extends Opt_Compiler_Format {
                 if ($this->_sectionItemVariables) {
                     return 'sizeof($_sect' . $section['name'] . '_v)';
                 }
-                return 'sizeof($_sect' . $section['name'] . '_vals[$_sect' . $section['nesting'] . '_i])';
+                return 'sizeof($_sect' . $section['name'] . '_vals[$_sect' . $section['name'] . '_keys[$_sect' . $section['nesting'] . '_i]])';
             // Section iterator.
             case 'section:iterator':
                 $section = $this->_getVar('section');
@@ -205,15 +205,11 @@ class Opt_Format_Array extends Opt_Compiler_Format {
         }
     }
 
-// end _build();
-
     public function action($name) {
         if ($name == 'section:forceItemVariables') {
             $this->_sectionItemVariables = true;
         }
     }
 
-// end action();
 }
 
-// end Opt_Format_Array;
